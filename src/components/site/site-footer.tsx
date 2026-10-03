@@ -6,6 +6,8 @@ import { Magnetic } from "@/components/motion/magnetic";
 import { SketchHint } from "@/components/gems/sketch-hint";
 import { LiquidLink } from "./liquid-link";
 import { CopyEmail } from "./copy-email";
+import { AskMe } from "./ask-me";
+import { Disclosures } from "./disclosures";
 
 function iconFor(label: string) {
   const key = label.toLowerCase();
@@ -68,6 +70,7 @@ export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
               </LiquidLink>
             </Magnetic>
             <CopyEmail email={profile.email} />
+            <AskMe email={profile.email} />
           </div>
         ) : null}
         <p className="text-[15px] text-ink-3">Thanks for stopping by. Talk soon.</p>
@@ -86,9 +89,10 @@ export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
             </a>
             , CC-BY 4.0
           </p>
-          <nav aria-label="Footer" className="flex gap-2">
+          <nav aria-label="Footer" className="flex flex-wrap gap-2">
             <Link href="/work" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 hover:text-ink-1">Work</Link>
             <Link href="/about" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 hover:text-ink-1">About</Link>
+            <Disclosures />
           </nav>
         </div>
       </div>

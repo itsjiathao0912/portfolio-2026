@@ -2,6 +2,7 @@ import { ArrowUpRight } from "lucide-react";
 import type { Metadata } from "next";
 import { EmojiBurst } from "@/components/motion/emoji-burst";
 import { PortraitNote } from "@/components/about/portrait-note";
+import { SayMyName } from "@/components/about/say-my-name";
 import { Tilt } from "@/components/motion/tilt";
 import { PhotoMoments } from "@/components/site/photo-moments";
 import { photos } from "@content/site.ts";
@@ -54,6 +55,7 @@ export default async function AboutPage() {
             <span lang="vi" data-testid="name-local" className="font-display text-ink-1">
               {profile.nameLocal}
             </span>{" "}
+            <SayMyName />{" "}
             <EmojiBurst emojis={["🇻🇳", "🍜", "☕", "🛵"]} className="relative inline-flex cursor-default">
               <span role="img" aria-label="Vietnam flag">🇻🇳</span>
             </EmojiBurst>{" "}

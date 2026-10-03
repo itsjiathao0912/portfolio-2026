@@ -283,7 +283,7 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
                   Get in touch
                 </a>
               </nav>
-              <LocalTime className="mt-3 text-center" />
+              <LocalTime inline className="text-center" />
               <span aria-hidden="true" className="mx-auto mt-2 block h-1.5 w-10 rounded-full bg-black/15" />
             </motion.div>
           </>
