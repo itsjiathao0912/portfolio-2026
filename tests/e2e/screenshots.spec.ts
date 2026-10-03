@@ -8,7 +8,7 @@ test.describe.configure({ timeout: 120_000 });
 // Full-page screenshots of every page at desktop and phone width, for human
 // review. Output: tests/e2e/__screens__/ (gitignored).
 
-const PAGES = ["/", "/work", ...SLUGS.map((s) => `/work/${s}`), "/missing-page"];
+const PAGES = ["/", "/about", "/work", ...SLUGS.map((s) => `/work/${s}`), "/missing-page"];
 const OUT = path.join(process.cwd(), "tests", "e2e", "__screens__");
 const name = (p: string) => (p === "/" ? "home" : p.slice(1).replace(/\//g, "_"));
 

@@ -8,13 +8,16 @@ test.describe.configure({ timeout: 120_000 });
 // theme never flips.
 test.use({ viewport: { width: 1440, height: 900 } });
 
-test("home renders every section in order, from the database", async ({ page }) => {
+test("home renders every section in reference order, from the database", async ({ page }) => {
   const errors = trackErrors(page);
   await page.goto("/");
   await expect(page.getByTestId("home")).toBeVisible();
-  await expect(page.getByRole("heading", { level: 1, name: "GM, I'm Thao." })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Thao Dao is Technical Product Manager at SkyLab Group" })
+  ).toBeVisible();
+  await expect(page.getByTestId("portrait").locator("img").first()).toHaveAttribute("alt", "Portrait of Thao Dao");
 
-  const order = ["hero", "section-logos", "section-work", "section-experience", "section-recognition", "section-skills"];
+  const order = ["hero", "section-logos", "section-highlights", "section-work", "site-footer"];
   const tops: number[] = [];
   for (const id of order) {
     const section = page.getByTestId(id);
@@ -22,25 +25,48 @@ test("home renders every section in order, from the database", async ({ page }) 
     tops.push(await section.evaluate((el) => el.getBoundingClientRect().top + window.scrollY));
   }
   expect([...tops].sort((a, b) => a - b)).toEqual(tops);
-  await expect(page.locator("#contact")).toHaveCount(1);
-  await expect(page.locator("footer")).toBeVisible();
+  // The CV sections moved to /about.
+  await expect(page.getByTestId("section-experience")).toHaveCount(0);
 
+  await scrollThrough(page);
+  await expect(page.getByTestId("logo-strip").locator("img")).toHaveCount(5);
+  await expect(page.getByTestId("stack-card")).toHaveCount(SLUGS.length);
+  const ctas = await page.getByTestId("stack-cta").evaluateAll((els) => els.map((el) => el.getAttribute("href")));
+  expect(ctas.sort()).toEqual(SLUGS.map((s) => `/work/${s}`).sort());
+  await expect(page.getByTestId("social-icons").locator("a")).toHaveCount(3);
+  await expect(page.getByTestId("dev-gap")).toHaveCount(0);
+  expect(await page.locator("body").innerText()).not.toMatch(/\+84|776\s?861/);
+  expect(errors).toEqual([]);
+});
+
+test("home project TOC follows the reader", async ({ page }) => {
+  await page.goto("/");
+  const toc = page.getByTestId("home-toc");
+  await expect(toc).toBeVisible();
+  const links = toc.locator("a");
+  await expect(links.first()).toHaveAttribute("data-active", "true");
+  await links.last().click();
+  await expect(links.last()).toHaveAttribute("data-active", "true");
+  await expect(links.first()).toHaveAttribute("data-active", "false");
+});
+
+test("about page keeps every experience entry, skills and recognition", async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto("/");
+  await page.locator('nav[aria-label="Main"]').getByRole("link", { name: "About" }).click();
+  await expect(page).toHaveURL(/\/about$/);
   await scrollThrough(page);
   await expect(page.getByTestId("experience-item")).toHaveCount(6);
   for (const company of ["SkyLab Group", "ReOrc AI", "Zalo", "Chợ Tốt", "MoMo", "Creatio Marketing Club"]) {
     await expect(page.getByTestId("section-experience").getByText(company, { exact: true }).first()).toBeVisible();
   }
-  await expect(page.getByTestId("logo-strip").locator("img")).toHaveCount(5);
-  await expect(page.getByTestId("project-card").first()).toBeVisible();
-  // Placeholder markers are dev-only; a production build must never show them.
-  await expect(page.getByTestId("dev-gap")).toHaveCount(0);
-  // No phone number anywhere.
-  expect(await page.locator("body").innerText()).not.toMatch(/\+84|776\s?861/);
+  await expect(page.getByTestId("section-skills")).toBeVisible();
+  await expect(page.getByTestId("section-recognition")).toBeVisible();
   expect(errors).toEqual([]);
 });
 
 test("light theme and fonts hold, including Vietnamese glyphs", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/about");
   const body = await page.evaluate(() => {
     const style = getComputedStyle(document.body);
     return { background: style.backgroundColor, font: style.fontFamily };
@@ -167,7 +193,8 @@ test("unknown pages return a real 404 with a way back", async ({ page }) => {
 
 test("liquid fill follows hover and keyboard focus, then drains", async ({ page }) => {
   await page.goto("/");
-  const button = page.getByTestId("hero-work");
+  const button = page.getByTestId("footer-email");
+  await button.scrollIntoViewIfNeeded();
   await expect(button).toHaveAttribute("data-filled", "false");
   await button.hover();
   await expect(button).toHaveAttribute("data-filled", "true");

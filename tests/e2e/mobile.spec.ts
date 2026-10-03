@@ -21,14 +21,14 @@ test("mobile menu opens, traps focus, and closes on Escape and on link", async (
   await expect(menu).toHaveCount(0);
 
   await toggle.tap();
-  await menu.getByRole("link", { name: "Work" }).tap();
-  await expect(page).toHaveURL(/\/work$/);
+  await menu.getByRole("link", { name: "About" }).tap();
+  await expect(page).toHaveURL(/\/about$/);
   await expect(page.getByTestId("mobile-menu")).toHaveCount(0);
 });
 
 test("touch never leaves a liquid fill stuck", async ({ page }) => {
   await page.goto("/");
-  const button = page.getByTestId("hero-work");
+  const button = page.getByTestId("footer-email");
   await expect(button).toHaveAttribute("data-pressed", "false");
   // Record every value data-pressed takes, so the short pulse cannot be missed.
   await button.evaluate((el) => {
@@ -53,7 +53,7 @@ test("pages fit 390px with no sideways scroll and no console errors", async ({ p
   // Ten long pages scrolled end to end; slow under a loaded machine.
   test.setTimeout(240_000);
   const errors = trackErrors(page);
-  for (const path of ["/", "/work", ...SLUGS.map((s) => `/work/${s}`), "/missing-page"]) {
+  for (const path of ["/", "/about", "/work", ...SLUGS.map((s) => `/work/${s}`), "/missing-page"]) {
     await page.goto(path);
     await scrollThrough(page);
     await expectNoHorizontalOverflow(page);
