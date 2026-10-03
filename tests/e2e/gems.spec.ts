@@ -43,16 +43,11 @@ test.describe("desktop gems", () => {
     expect(await page.evaluate(() => localStorage.getItem("thao:doodle:v1"))).toBeNull();
   });
 
-  test("about sticker peels by drag and reveals the note", async ({ page }) => {
+  test("about note under the portrait links to the first case study", async ({ page }) => {
     await page.goto("/about");
-    const sticker = page.getByTestId("peel-button");
-    const b = (await sticker.boundingBox())!;
-    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
-    await page.mouse.down();
-    await page.mouse.move(b.x + b.width / 2 + 200, b.y - 60, { steps: 10 });
-    await page.mouse.up();
-    await expect(page.getByTestId("peel-sticker")).toHaveAttribute("data-peeled", "true");
-    await expect(page.getByTestId("peel-note").getByRole("link")).toBeVisible();
+    const link = page.getByTestId("about-note").getByRole("link");
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute("href", "/work/cortex-sentinel");
   });
 
   test("404 game: drag the note back; links always visible", async ({ page }) => {
@@ -93,10 +88,6 @@ test.describe("touch + reduced motion fallbacks", () => {
     await name.scrollIntoViewIfNeeded();
     for (let i = 0; i < 5; i++) await name.tap();
     await expect(page.locator("html")).toHaveAttribute("data-sketch", "on");
-
-    await page.goto("/about");
-    await page.getByTestId("peel-button").tap();
-    await expect(page.getByTestId("peel-sticker")).toHaveAttribute("data-peeled", "true");
 
     await page.goto("/missing-page");
     await page.getByTestId("lost-note-auto").tap();

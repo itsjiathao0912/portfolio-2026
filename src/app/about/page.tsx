@@ -1,13 +1,15 @@
 import { ArrowUpRight } from "lucide-react";
 import type { Metadata } from "next";
 import { EmojiBurst } from "@/components/motion/emoji-burst";
-import { PeelSticker } from "@/components/gems/peel-sticker";
+import { PortraitNote } from "@/components/about/portrait-note";
 import { Tilt } from "@/components/motion/tilt";
 import { PhotoMoments } from "@/components/site/photo-moments";
 import { photos } from "@content/site.ts";
 import { DevGap } from "@/components/site/dev-gap";
 import { Reveal } from "@/components/site/reveal";
 import { Portrait } from "@/components/site/portrait";
+import { CareerRail } from "@/components/signature/ledger";
+import { projectEntries } from "@content/index.ts";
 import { loadSite } from "@/lib/load";
 
 export const metadata: Metadata = { title: "About" };
@@ -55,10 +57,11 @@ export default async function AboutPage() {
           <Tilt>
             <Portrait src={profile.portrait} name={profile.name} className="rounded-[20px]" />
           </Tilt>
-          {/* Hidden gem: peel the sticker for a note */}
-          <PeelSticker className="absolute -bottom-6 -left-6 md:-left-10" />
+          <PortraitNote href="/work/cortex-sentinel" label="Start with Cortex Sentinel" />
         </div>
       </section>
+
+      <CareerRail products={projectEntries.length} className="mt-16 md:mt-24" />
 
       <section aria-labelledby="experience" className="mx-auto max-w-[1100px] px-6 pt-24 md:px-10 md:pt-[150px]" data-testid="section-experience">
         <Heading id="experience">Experience</Heading>

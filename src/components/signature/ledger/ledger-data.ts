@@ -96,3 +96,11 @@ export function buildRailStops(): RailStop[] {
     ...(WASHES[e.id] ?? { wash: "var(--tint-aqua)", ink: "#0e5566" }),
   }));
 }
+
+/**
+ * End-cap line for the career rail, derived from content (never typed by hand).
+ * `products` is passed by server pages so the client bundle does not import every project file.
+ */
+export function railSummary(products?: number): string {
+  return [`${site.experience.length} roles`, receiptTotals.years, products ? `${products} products` : ""].filter(Boolean).join(" · ");
+}
