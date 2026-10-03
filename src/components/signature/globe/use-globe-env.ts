@@ -2,20 +2,7 @@
 
 import { useEffect, useState, useSyncExternalStore, type RefObject } from "react";
 
-const RM = "(prefers-reduced-motion: reduce)";
-
-/** Reduced-motion preference (SSR snapshot: false). */
-export function useReducedMotion() {
-  return useSyncExternalStore(
-    (cb) => {
-      const mq = window.matchMedia(RM);
-      mq.addEventListener("change", cb);
-      return () => mq.removeEventListener("change", cb);
-    },
-    () => window.matchMedia(RM).matches,
-    () => false
-  );
-}
+export { useReducedMotion } from "@/lib/use-reduced-motion";
 
 const noop = () => () => {};
 let webgl: boolean | null = null;

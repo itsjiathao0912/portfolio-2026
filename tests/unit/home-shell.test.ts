@@ -40,8 +40,8 @@ describe("project stack", () => {
     expect(groups.map((g) => g.label)).toEqual(["Shipped platforms", "Hackathons", "Personal products"]);
     expect(groups[0].projects.map((p) => p.slug)).toEqual(["a", "c"]);
   });
-  test("surfaces: last card dark, every third gradient", () => {
-    expect([0, 1, 2, 3].map((i) => surfaceFor(i, 4))).toEqual(["white", "gradient", "white", "dark"]);
+  test("surfaces: no dark card, every third gradient", () => {
+    expect([0, 1, 2, 3].map((i) => surfaceFor(i))).toEqual(["white", "gradient", "white", "white"]);
   });
 });
 

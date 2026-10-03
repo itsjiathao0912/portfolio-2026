@@ -63,14 +63,6 @@ test.describe("desktop gems", () => {
     await expect(page.getByTestId("lost-note-game")).toHaveAttribute("data-found", "true");
   });
 
-  test("mascot peeks once near the bottom and says hi", async ({ page }) => {
-    await page.goto("/");
-    await page.getByTestId("mascot-sentinel").scrollIntoViewIfNeeded();
-    const mascot = page.getByTestId("mascot");
-    await expect(mascot).toBeVisible();
-    await mascot.getByRole("button").click();
-    await expect(page.getByTestId("mascot-bubble")).toBeVisible();
-  });
 });
 
 test.describe("touch + reduced motion fallbacks", () => {

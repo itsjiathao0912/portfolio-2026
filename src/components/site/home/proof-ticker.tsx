@@ -55,6 +55,8 @@ export function ProofTicker() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { margin: "-10% 0px" });
   const [paused, setPaused] = useState(false);
+  // Keyboard focus pauses the strip too, so the focused item cannot drift away (WCAG 2.2.2).
+  const [focused, setFocused] = useState(false);
   const holdRef = useRef<number | null>(null);
 
   function tapPause() {
@@ -72,6 +74,10 @@ export function ProofTicker() {
       onPointerEnter={(e) => e.pointerType === "mouse" && setPaused(true)}
       onPointerLeave={(e) => e.pointerType === "mouse" && setPaused(false)}
       onPointerDown={(e) => e.pointerType !== "mouse" && tapPause()}
+      onFocus={(e) => setFocused(e.target.matches(":focus-visible"))}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
+      }}
     >
       {reduce ? (
         <ul className="mx-auto flex max-w-[1100px] gap-8 overflow-x-auto px-6 [scrollbar-width:none]">
@@ -81,7 +87,7 @@ export function ProofTicker() {
         <>
           <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-bg to-transparent" />
           <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-bg to-transparent" />
-          <ul className="flex w-max gap-8 [animation:ticker-scroll_70s_linear_infinite]" style={{ animationPlayState: paused || !inView ? "paused" : "running" }}>
+          <ul className="flex w-max gap-8 [animation:ticker-scroll_70s_linear_infinite]" style={{ animationPlayState: paused || focused || !inView ? "paused" : "running" }}>
             {[...TICKER_ITEMS, ...TICKER_ITEMS].map((t, i) => <Row key={`${t.id}-${i}`} t={t} settled={inView} dup={i >= TICKER_ITEMS.length} />)}
           </ul>
           <style>{`@keyframes ticker-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}`}</style>

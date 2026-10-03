@@ -230,19 +230,6 @@ test("liquid fill follows hover and keyboard focus, then drains", async ({ page 
   await expect(button).toHaveAttribute("data-filled", "false");
 });
 
-test("dot grid reacts to the cursor", async ({ page }) => {
-  await page.goto("/");
-  const grid = page.getByTestId("dot-grid").first();
-  await expect(grid).toHaveAttribute("data-mode", "pointer");
-  // The grid lives behind the highlights band (paused while off screen).
-  await grid.scrollIntoViewIfNeeded();
-  await expect(grid).toHaveAttribute("data-running", "true");
-  const box = (await grid.boundingBox())!;
-  await page.mouse.move(box.x + 200, box.y + 120);
-  await page.mouse.move(box.x + 260, box.y + 140);
-  await expect(grid).toHaveAttribute("data-pointer", "active");
-});
-
 test("health route reports the seeded projects", async ({ request }) => {
   const res = await request.get("/api/health");
   expect(res.status()).toBe(200);

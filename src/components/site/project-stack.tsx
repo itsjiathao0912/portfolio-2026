@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Project } from "@content/schema.ts";
 import { SPRING } from "@/components/motion/springs";
 import { usePersona } from "@/components/signature/participate/store";
@@ -27,9 +27,8 @@ export function groupProjects(projects: readonly Project[]) {
   return groups.filter((g) => g.projects.length > 0);
 }
 
-/** Card surfaces: mostly white, every third a soft gradient, the last a solid black card. */
-export function surfaceFor(index: number, total: number): StackSurface {
-  if (index === total - 1 && total > 2) return "dark";
+/** Card surfaces: white, with every third a soft gradient. No black cards: the home stays light and calm. */
+export function surfaceFor(index: number): StackSurface {
   return index % 3 === 1 ? "gradient" : "white";
 }
 
@@ -78,6 +77,16 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
   const groups = groupProjects(projects);
   const ordered = persona ? orderForPersona(projects, persona) : groups.flatMap((g) => g.projects);
   const [active, setActive] = useState(ordered[0]?.slug ?? "");
+  const rail = useRef<HTMLUListElement>(null);
+
+  // Phones: keep the active chip centred in the rail as the page scrolls.
+  useEffect(() => {
+    const list = rail.current;
+    const chip = list?.querySelector<HTMLElement>('[aria-current="location"]');
+    if (!list || !chip || list.offsetParent === null) return;
+    const left = chip.offsetLeft - (list.clientWidth - chip.offsetWidth) / 2;
+    list.scrollTo({ left: Math.max(0, left), behavior: reduce ? "auto" : "smooth" });
+  }, [active, reduce]);
 
   useEffect(() => {
     const cards = ordered.map((p) => document.getElementById(`project-${p.slug}`)).filter((el): el is HTMLElement => el !== null);
@@ -145,23 +154,25 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
             </nav>
 
             <div className="flex flex-col gap-10 md:gap-[56px]">
-              <ul className="sticky top-[76px] z-20 -mx-2.5 flex gap-2 overflow-x-auto bg-canvas/90 px-2.5 py-2 backdrop-blur-md [scrollbar-width:none] lg:hidden" aria-label="Jump to project" data-testid="toc-chips">
+              <ul ref={rail} className="sticky top-[76px] z-20 -mx-2.5 flex gap-2 overflow-x-auto bg-canvas/90 px-2.5 py-2 backdrop-blur-md [scrollbar-width:none] lg:hidden" aria-label="Jump to project" data-testid="toc-chips">
                 {ordered.map((p) => (
                   <li key={p.slug} className="shrink-0">
                     <a
                       href={`#project-${p.slug}`}
                       aria-current={p.slug === active ? "location" : undefined}
-                      className={cn("flex h-11 items-center gap-1.5 rounded-full px-4 text-[14px] font-medium transition-colors", p.slug === active ? "bg-white text-ink-1 shadow-2" : "text-ink-3")}
+                      data-testid="toc-chip"
+                      className={cn("relative flex h-11 items-center gap-1.5 rounded-full px-4 text-[14px] font-medium transition-colors", p.slug === active ? "text-ink-1" : "text-ink-3")}
                     >
-                      <span aria-hidden="true">{emojiFor(p.slug)}</span>
-                      {p.title}
+                      {p.slug === active ? <motion.span layoutId="toc-chip-pill" transition={reduce ? { duration: 0 } : SPRING.indicator} className="absolute inset-0 rounded-full bg-white shadow-2" /> : null}
+                      <span aria-hidden="true" className="relative">{emojiFor(p.slug)}</span>
+                      <span className="relative">{p.title}</span>
                     </a>
                   </li>
                 ))}
               </ul>
               {ordered.map((project, index) => (
                 <motion.div key={project.id} layout={reduce ? false : "position"} transition={SPRING.sheet}>
-                  <StackCard project={project} surface={surfaceFor(index, ordered.length)} />
+                  <StackCard project={project} surface={surfaceFor(index)} />
                 </motion.div>
               ))}
             </div>

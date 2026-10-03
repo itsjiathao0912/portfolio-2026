@@ -7,6 +7,12 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 type Stage = "idle" | "settled";
 
+/** Pointer travel (px) below which a press counts as a tap. */
+const DRAG_SLOP = 6;
+
+/** The coin drops into the wallet with one small bounce. */
+const SETTLE = { type: "spring", stiffness: 300, damping: 15, mass: 0.9 } as const;
+
 /**
  * "Say hello": drag the coin into Thao's wallet, or tap / press Enter. A brushed
  * metal coin with a T monogram (no face, no idle bounce). Horizontal drag only so
@@ -18,7 +24,7 @@ export function SayHello({ email, linkedin }: { email: string; linkedin: string 
   const track = useRef<HTMLDivElement>(null);
   const wallet = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
-  const drag = useRef({ on: false, startX: 0, moved: 0 });
+  const drag = useRef({ on: false, startX: 0, from: 0, moved: 0 });
   const [progress, setProgress] = useState(0);
 
   function targetX() {
@@ -32,7 +38,19 @@ export function SayHello({ email, linkedin }: { email: string; linkedin: string 
     setStage("settled");
     setProgress(1);
     if (reduce) x.set(targetX());
-    else animate(x, targetX(), SPRING.sheet);
+    else animate(x, targetX(), SETTLE);
+  }
+  /** Release: past 85% of the track sends the coin, anything shorter springs back to the start. */
+  function endDrag() {
+    if (!drag.current.on) return;
+    drag.current.on = false;
+    if (drag.current.moved <= DRAG_SLOP) return;
+    if (targetX() && x.get() >= targetX() * 0.85) send();
+    else {
+      setProgress(0);
+      if (reduce) x.set(0);
+      else animate(x, 0, SPRING.sheet);
+    }
   }
   function reset() {
     setStage("idle");
@@ -59,23 +77,32 @@ export function SayHello({ email, linkedin }: { email: string; linkedin: string 
             style={{ x, touchAction: "pan-y" }}
             onPointerDown={(e) => {
               if (stage !== "idle") return;
-              (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-              drag.current = { on: true, startX: e.clientX - x.get(), moved: 0 };
+              // Keyboard presses are synthesised as pointer events with no real pointer: skip those.
+              if (e.pointerType) {
+                try {
+                  e.currentTarget.setPointerCapture(e.pointerId);
+                } catch {
+                  /* no active pointer: dragging simply does not start */
+                }
+              }
+              drag.current = { on: Boolean(e.pointerType), startX: e.clientX, from: x.get(), moved: 0 };
             }}
             onPointerMove={(e) => {
               if (!drag.current.on) return;
-              const nx = Math.max(0, Math.min(targetX(), e.clientX - drag.current.startX));
-              drag.current.moved = Math.max(drag.current.moved, Math.abs(nx - x.get()));
+              // Total distance from the press point, not the biggest single step: a slow finger sends 2-3 px per event.
+              const dx = e.clientX - drag.current.startX;
+              drag.current.moved = Math.max(drag.current.moved, Math.abs(dx));
+              const nx = Math.max(0, Math.min(targetX(), drag.current.from + dx));
               x.set(nx);
               setProgress(targetX() ? nx / targetX() : 0);
             }}
-            onPointerUp={() => {
-              if (!drag.current.on) return;
-              drag.current.on = false;
-              if (drag.current.moved > 6 && targetX() && x.get() >= targetX() * 0.85) send();
-              else if (drag.current.moved > 6) { animate(x, 0, SPRING.sheet); setProgress(0); }
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+            onClick={() => {
+              // A click that ends a drag is handled by endDrag; only a real tap / Enter / Space sends.
+              if (drag.current.moved <= DRAG_SLOP) send();
+              drag.current.moved = 0;
             }}
-            onClick={() => { if (drag.current.moved <= 6) send(); drag.current.moved = 0; }}
             whileTap={reduce ? undefined : { scale: 1.06 }}
             className="relative z-[1] grid size-14 shrink-0 cursor-grab place-items-center rounded-full font-display text-[22px] font-bold text-[#3b3d44] shadow-2 outline-none active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4"
             disabled={stage !== "idle"}
@@ -85,9 +112,16 @@ export function SayHello({ email, linkedin }: { email: string; linkedin: string 
             <span className="relative">T</span>
           </motion.button>
 
-          <div ref={wallet} className="relative z-[1] grid h-16 w-24 shrink-0 place-items-center rounded-xl bg-white/70 text-[13px] font-semibold backdrop-blur-md ring-1 ring-black/10" data-testid="hello-wallet" data-stage={stage}>
+          <motion.div
+            ref={wallet}
+            animate={stage === "settled" && !reduce ? { scale: [1, 1.1, 0.97, 1] } : { scale: 1 }}
+            transition={{ duration: 0.5, delay: stage === "settled" ? 0.16 : 0, ease: "easeOut" }}
+            className="relative z-[1] grid h-16 w-24 shrink-0 place-items-center rounded-xl bg-white/70 text-[13px] font-semibold backdrop-blur-md ring-1 ring-black/10"
+            data-testid="hello-wallet"
+            data-stage={stage}
+          >
             <span className={stage === "settled" ? "text-success" : "text-ink-2"}>{stage === "settled" ? "✓ Settled" : "Thao's wallet"}</span>
-          </div>
+          </motion.div>
         </div>
 
         <div aria-live="polite" className="mt-5 min-h-12">

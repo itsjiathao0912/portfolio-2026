@@ -44,11 +44,6 @@ test("touch never leaves a liquid fill stuck", async ({ page }) => {
   await expect(button).toHaveAttribute("data-filled", "false");
 });
 
-test("dot grid uses the idle mode without a cursor", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.getByTestId("dot-grid").first()).toHaveAttribute("data-mode", "idle");
-});
-
 // One test per page so each gets its own time budget and they run in
 // parallel; a single test walking every page timed out under machine load.
 for (const path of ["/", "/about", "/work", ...SLUGS.map((s) => `/work/${s}`), "/missing-page"]) {

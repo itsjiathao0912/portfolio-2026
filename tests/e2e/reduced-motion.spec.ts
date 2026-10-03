@@ -7,7 +7,8 @@ test.use({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
 
 test("reduced motion: everything visible, no movement-driven effects", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByTestId("dot-grid").first()).toHaveAttribute("data-mode", "static");
+  // The ticker becomes a static, scrollable list.
+  await expect(page.getByTestId("proof-ticker").locator("ul")).not.toHaveCSS("animation-name", "ticker-scroll");
   // Reveals settle to fully visible without the 24px rise.
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await page.waitForTimeout(600);

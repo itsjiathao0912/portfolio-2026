@@ -49,7 +49,7 @@ export function StackCard({ project, surface = "white" }: { project: Project; su
   }
 
   return (
-    <div id={`project-${project.slug}`} data-testid="stack-card" data-slug={project.slug} className="relative scroll-mt-28">
+    <div id={`project-${project.slug}`} data-testid="stack-card" data-slug={project.slug} className="relative scroll-mt-8 max-lg:scroll-mt-[4.25rem]">
       <LiftCard radius="rounded-[16px]">
         <CardStamp slug={project.slug} />
         <article
