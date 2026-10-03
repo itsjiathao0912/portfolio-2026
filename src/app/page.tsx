@@ -69,7 +69,7 @@ export default async function HomePage() {
       <PeopleSection />
       <PhotoMoments moments={photos.filter((p) => (p.place as readonly string[]).includes("home"))} className="pt-0 md:pt-0" />
       <LinkedinPosts posts={linkedinPosts} profileUrl={linkedin} />
-      <SayHello email={profile.email} linkedin={linkedin ?? "https://www.linkedin.com/"} />
+      <SayHello />
     </main>
   );
 }

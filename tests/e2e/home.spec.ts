@@ -73,6 +73,49 @@ test.describe("desktop", () => {
     await expect(list).toHaveCSS("animation-play-state", "paused");
   });
 
+  test("persona change keeps cards mounted: no blank stack, glide capped, heading clear of the nav", async ({ page }) => {
+    await page.goto("/");
+    await page.getByTestId("persona-note").waitFor({ state: "detached" }).catch(() => {});
+    const control = page.getByRole("radiogroup", { name: "Show me first:" });
+    await control.scrollIntoViewIfNeeded();
+    await page.evaluate(() => {
+      const w = window as unknown as { __seen: { visible: number; maxShift: number; minOpacity: number } };
+      w.__seen = { visible: 99, maxShift: 0, minOpacity: 1 };
+      const cards = [...document.querySelectorAll<HTMLElement>('[data-testid="stack-card"]')].map((c) => c.parentElement!);
+      let n = 0;
+      const tick = () => {
+        let visible = 0;
+        for (const el of cards) {
+          const r = el.getBoundingClientRect();
+          if (r.bottom > 0 && r.top < innerHeight) visible++;
+          const m = getComputedStyle(el).transform;
+          if (m !== "none") w.__seen.maxShift = Math.max(w.__seen.maxShift, Math.abs(new DOMMatrixReadOnly(m).m42));
+          w.__seen.minOpacity = Math.min(w.__seen.minOpacity, Number(getComputedStyle(el).opacity));
+        }
+        w.__seen.visible = Math.min(w.__seen.visible, visible);
+        if (++n < 40) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+    await control.getByRole("radio", { name: /Founder/ }).click();
+    await page.waitForTimeout(900);
+    const seen = await page.evaluate(() => (window as unknown as { __seen: { visible: number; maxShift: number; minOpacity: number } }).__seen);
+    expect(seen.maxShift).toBeLessThanOrEqual(400.5);
+    expect(seen.minOpacity).toBeGreaterThan(0.3);
+    const heading = await page.locator("#work-title").boundingBox();
+    expect(heading!.y).toBeGreaterThan(80);
+  });
+
+  test("say hello: the dotted track stays inside the card", async ({ page }) => {
+    await page.goto("/");
+    const card = page.getByTestId("section-say-hello").locator("div").first();
+    await card.scrollIntoViewIfNeeded();
+    const box = (await card.boundingBox())!;
+    const svg = (await page.getByTestId("section-say-hello").locator("svg").first().boundingBox())!;
+    expect(svg.x).toBeGreaterThanOrEqual(box.x);
+    expect(svg.x + svg.width).toBeLessThanOrEqual(box.x + box.width);
+  });
+
   test("globe card lists corridors, and the page keeps at most one canvas", async ({ page }) => {
     await page.goto("/");
     const card = page.getByTestId("globe-card");
@@ -92,7 +135,7 @@ test.describe("desktop", () => {
     expect(await page.getByTestId("avatar-stack").count()).toBeGreaterThan(0);
   });
 
-  test("say hello: tap sends, Enter sends without page errors, LinkedIn is offered", async ({ page }) => {
+  test("say hello: tap sends, Enter sends without page errors, and it points to the footer for contact details", async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(String(e)));
     await page.goto("/");
@@ -101,7 +144,7 @@ test.describe("desktop", () => {
     await coin.focus();
     await page.keyboard.press("Enter");
     await expect(page.getByTestId("hello-wallet")).toHaveAttribute("data-stage", "settled");
-    await expect(page.getByTestId("hello-linkedin")).toHaveAttribute("href", /linkedin\.com/);
+    await expect(page.getByTestId("hello-contact")).toHaveAttribute("href", "#get-in-touch");
     await page.getByRole("button", { name: "Send another" }).click();
     await expect(page.getByTestId("hello-wallet")).toHaveAttribute("data-stage", "idle");
     await coin.click();
@@ -153,6 +196,21 @@ test.describe("mobile", () => {
     });
     expect(inside).toBe(true);
     expect(await rail.evaluate((ul) => ul.scrollLeft)).toBeGreaterThan(0);
+  });
+
+  test("ticker: a tap pauses it with a visible state, resume restores it; touch targets are 44px", async ({ page }) => {
+    await page.goto("/");
+    const ticker = page.getByTestId("proof-ticker");
+    await ticker.scrollIntoViewIfNeeded();
+    const list = ticker.locator("ul");
+    await expect(list).toHaveCSS("animation-play-state", "running");
+    await ticker.getByTestId("ticker-item").first().tap({ force: true });
+    await expect(list).toHaveCSS("animation-play-state", "paused");
+    await expect(ticker.getByTestId("ticker-resume")).toBeVisible();
+    const item = (await ticker.getByTestId("ticker-item").first().boundingBox())!;
+    expect(item.height).toBeGreaterThanOrEqual(43.5);
+    await ticker.getByTestId("ticker-resume").tap();
+    await expect(list).toHaveCSS("animation-play-state", "running");
   });
 
   test("no sideways scroll", async ({ page }) => {

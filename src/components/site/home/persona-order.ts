@@ -31,3 +31,20 @@ export function orderForPersona<T extends { slug: string }>(items: readonly T[],
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
     .map((x) => x.item);
 }
+
+/** Furthest a card glides when the persona changes. Cards further off than this appear in place. */
+export const FLIP_MAX = 400;
+
+/**
+ * Persona reorder as a viewport-local FLIP. `delta` is how far a card was above (+) the
+ * place it now sits (old top minus new top). Returns the starting offset to animate from,
+ * or null when the card is nowhere near the viewport before or after (jump instantly).
+ * Pure: unit-tested.
+ */
+export function flipOffset(oldTop: number, newTop: number, scrollY: number, viewH: number, margin = 200) {
+  const inView = (top: number) => top > scrollY - margin && top < scrollY + viewH + margin;
+  if (!inView(oldTop) && !inView(newTop)) return null;
+  const delta = oldTop - newTop;
+  if (Math.abs(delta) < 2) return null;
+  return Math.max(-FLIP_MAX, Math.min(FLIP_MAX, delta));
+}

@@ -18,7 +18,7 @@ const SETTLE = { type: "spring", stiffness: 300, damping: 15, mass: 0.9 } as con
  * metal coin with a T monogram (no face, no idle bounce). Horizontal drag only so
  * the page still scrolls vertically on touch.
  */
-export function SayHello({ email, linkedin }: { email: string; linkedin: string }) {
+export function SayHello() {
   const [stage, setStage] = useState<Stage>("idle");
   const reduce = useReducedMotion();
   const track = useRef<HTMLDivElement>(null);
@@ -66,7 +66,7 @@ export function SayHello({ email, linkedin }: { email: string; linkedin: string 
         <p className="mt-3 text-[16px] text-ink-3">Drag the coin to Thao&apos;s wallet, or just tap it.</p>
 
         <div ref={track} className="relative mt-8 flex items-center justify-between rounded-[16px] bg-canvas p-4 md:p-6" style={{ touchAction: "pan-y" }}>
-          <svg aria-hidden="true" className="pointer-events-none absolute inset-x-[88px] top-1/2 h-1 -translate-y-1/2 md:inset-x-[104px]" preserveAspectRatio="none" viewBox="0 0 100 2" width="100%" height="4">
+          <svg aria-hidden="true" className="pointer-events-none absolute top-1/2 left-[88px] h-1 w-[calc(100%-176px)] -translate-y-1/2 md:left-[104px] md:w-[calc(100%-208px)]" preserveAspectRatio="none" viewBox="0 0 100 2">
             <line x1="0" y1="1" x2="100" y2="1" stroke="var(--border-strong, #d4d4d8)" strokeWidth="2" strokeDasharray="3 4" vectorEffect="non-scaling-stroke" />
             <line x1="0" y1="1" x2={progress * 100} y2="1" stroke="var(--accent)" strokeWidth="2" strokeDasharray="3 4" vectorEffect="non-scaling-stroke" />
           </svg>
@@ -127,8 +127,8 @@ export function SayHello({ email, linkedin }: { email: string; linkedin: string 
         <div aria-live="polite" className="mt-5 min-h-12">
           {stage === "settled" ? (
             <motion.div initial={{ opacity: 0, y: reduce ? 0 : 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduce ? 0 : 0.32 }} className="flex flex-wrap items-center justify-center gap-3">
-              <a href={`mailto:${email}`} data-testid="hello-email" className="inline-flex min-h-11 items-center rounded-full bg-ink-1 px-6 text-[15px] font-semibold text-bg hover:bg-ink-hover">Email</a>
-              <a href={linkedin} target="_blank" rel="noreferrer" data-testid="hello-linkedin" className="inline-flex min-h-11 items-center rounded-full border border-ink-1 px-6 text-[15px] font-semibold text-ink-1 hover:bg-canvas">LinkedIn</a>
+              <p className="text-[16px] font-medium text-ink-1">Delivered. Thao will be delighted.</p>
+              <a href="#get-in-touch" data-testid="hello-contact" className="inline-flex min-h-11 items-center rounded-full bg-ink-1 px-6 text-[15px] font-semibold text-bg hover:bg-ink-hover">Where to reach me</a>
               <button type="button" onClick={reset} className="min-h-11 px-3 text-[14px] text-ink-3 underline underline-offset-4">Send another</button>
             </motion.div>
           ) : null}

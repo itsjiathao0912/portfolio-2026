@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { PEOPLE_SEEDS, PASTEL_TOKENS, pastelFor, stackSplit, symbolId } from "../../src/components/people/avatar-logic.ts";
 import { PROJECT_EMOJI, STAMPS, stampFor } from "../../src/components/site/home/project-meta.ts";
-import { HOME_PERSONAS, homePersona, orderForPersona } from "../../src/components/site/home/persona-order.ts";
+import { FLIP_MAX, HOME_PERSONAS, flipOffset, homePersona, orderForPersona } from "../../src/components/site/home/persona-order.ts";
 import { TICKER_ITEMS } from "../../src/components/site/home/ticker-data.ts";
 
 const SLUGS = ["lumicap", "cosap", "gocrypto", "pac", "zalo-game-center", "reorc-data-platform", "ledgr", "cortex-sentinel", "guardline"];
@@ -54,5 +54,19 @@ describe("ticker", () => {
   test("every item scrolls to a real project", () => {
     expect(TICKER_ITEMS.length).toBeGreaterThanOrEqual(5);
     for (const t of TICKER_ITEMS) expect(SLUGS).toContain(t.slug);
+  });
+});
+
+describe("persona reorder glide", () => {
+  test("visible cards glide at most FLIP_MAX, never thousands of px", () => {
+    expect(flipOffset(5000, 900, 800, 900)).toBe(FLIP_MAX);
+    expect(flipOffset(900, 5000, 800, 900)).toBe(-FLIP_MAX);
+    expect(flipOffset(1100, 900, 800, 900)).toBe(200);
+  });
+  test("cards nowhere near the viewport, before or after, jump instantly", () => {
+    expect(flipOffset(6000, 9000, 800, 900)).toBeNull();
+  });
+  test("a card that did not move is not animated", () => {
+    expect(flipOffset(1000, 1001, 800, 900)).toBeNull();
   });
 });

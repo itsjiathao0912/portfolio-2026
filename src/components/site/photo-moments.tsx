@@ -36,7 +36,7 @@ export function PhotoMoments({ moments, title = "Off the screen", className }: {
               className={cn("shrink-0 snap-center", portrait ? "w-[62vw] max-w-[300px] md:w-[300px]" : "w-[82vw] max-w-[560px] md:w-[46%] lg:w-[520px]")}
             >
               <figure data-testid="moment">
-                <div className="overflow-hidden rounded-[20px] bg-canvas ring-1 ring-black/5" style={{ aspectRatio: `${m.width} / ${m.height}` }}>
+                <div className="overflow-hidden rounded-2xl bg-canvas ring-1 ring-black/5" style={{ aspectRatio: `${m.width} / ${m.height}` }}>
                   <Image src={m.src} alt={m.alt} width={m.width} height={m.height} unoptimized loading="lazy" className="h-full w-full object-cover" />
                 </div>
                 <figcaption className="mt-3 px-1 text-[14px] text-ink-3">{m.caption}</figcaption>

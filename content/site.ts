@@ -192,55 +192,81 @@ const site = {
 export default site;
 
 /**
- * Thao's own LinkedIn posts, shown on the home page via the official COLLAPSED
- * embed (https://www.linkedin.com/embed/feed/update/<urn>?collapsed=1): short
- * text + "…more", similar size per post, reaction/comment bar included. Embeds
- * start loading as the section approaches the viewport; until then the static
- * preview (`excerpt` + `date`) is the skeleton. `excerpt` is the post's own
- * opening text (public embed page, fetched 3 Oct 2026); `date` comes from the
- * post id. `embedHeight` is measured per post (headed Chromium, 3 Oct 2026,
- * cookie banner dismissed) at CARD_W.phone / CARD_W.desktop in linkedin-posts.tsx
- * — re-measure when a post is added, edited, or the card width changes.
+ * LinkedIn posts shown on the home page ("Notes on LinkedIn").
+ *
+ * HOW TO ADD A POST: append ONE entry to the end of this array (newest first is fine, order is kept).
+ *  - kind "card" (default): our own on-brand card. Needs url, urn, date, excerpt; optional title, image
+ *    (a local file in public/linkedin/, optimised webp, never hotlinked), imageAlt, reactions, comments, author.
+ *    No request ever goes to linkedin.com until a visitor clicks through.
+ *  - kind "embed": LinkedIn's official collapsed iframe. Also needs title and embedHeight (px, measured at
+ *    the card widths in linkedin-posts.tsx, cookie banner dismissed). If it cannot load, a text card shows.
+ * Counts are a snapshot: update reactions/comments when you edit an entry.
  */
-export const linkedinPosts = [
+export type LinkedinPostEntry =
+  | {
+      kind?: "card";
+      url: string;
+      urn: string;
+      date: string;
+      excerpt: string;
+      title?: string;
+      image?: string;
+      imageAlt?: string;
+      reactions?: number;
+      comments?: number;
+      author?: { name: string; headline: string; avatar: string };
+    }
+  | {
+      kind: "embed";
+      url: string;
+      urn: string;
+      date: string;
+      excerpt: string;
+      title: string;
+      embedHeight: { phone: number; desktop: number };
+    };
+
+export const linkedinPosts: readonly LinkedinPostEntry[] = [
   {
+    kind: "card",
     urn: "urn:li:share:7504889327873626112",
     title: "Vietnam's payment infrastructure: identity at its core",
     date: "2026-09-13",
     excerpt:
       "Vietnam's fintech story is often told through wallets, QR codes, and super apps. But the more important story may be the payment infrastructure behind them. In many markets, KYC is procurement. In Vietnam, identity is a state database you connect to.",
     url: "https://www.linkedin.com/feed/update/urn:li:share:7504889327873626112/",
-    // Collapsed-embed height (px) at the phone / desktop card width, no cookie banner.
-    embedHeight: { phone: 604, desktop: 634 },
+    image: "/linkedin/vietnam-payments.webp",
+    imageAlt: "Cover image of the post on Vietnam's payment infrastructure",
+    reactions: 143,
+    comments: 8,
   },
   {
+    kind: "card",
     urn: "urn:li:ugcPost:7505576167261966336",
     title: "Inside Vietnam's bank transfer system: NAPAS 247 and SIMO",
     date: "2026-09-15",
     excerpt:
       "I was scammed through a bank transfer, less than VND 2 million for a hotel booking that did not exist. My starting question: what could my bank know about the account I was paying? I explored how NAPAS 247 carries interbank payments, and how SIMO helps banks assess suspicious destinations.",
     url: "https://www.linkedin.com/feed/update/urn:li:ugcPost:7505576167261966336/",
-    // Collapsed-embed height (px) at the phone / desktop card width, no cookie banner.
-    embedHeight: { phone: 567, desktop: 551 },
+    image: "/linkedin/napas-simo.webp",
+    imageAlt: "Cover image of the article on NAPAS 247 and SIMO",
+    reactions: 27,
+    comments: 2,
   },
   {
+    kind: "card",
     urn: "urn:li:activity:7483045282734104576",
     title: "Agentic AI Build Week 2026: 2nd place with Cortex Sentinel",
     date: "2026-07-15",
     excerpt:
       "Runner-Up at the largest agentic AI buildathon in Southeast Asia. Our solution, Cortex Sentinel, is an AML compliance hub where analysts write detection rules in plain English. AI proposes, humans decide.",
     url: "https://www.linkedin.com/posts/thaodao0912_aabw-aabw2026-activity-7483045282734104576-zhg8",
-    // Collapsed-embed height (px) at the phone / desktop card width, no cookie banner.
-    embedHeight: { phone: 646, desktop: 612 },
+    image: "/linkedin/aabw-second-place.webp",
+    imageAlt: "The team at Agentic AI Build Week 2026",
+    reactions: 184,
+    comments: 18,
   },
-] as const satisfies readonly {
-  urn: string;
-  title: string;
-  date: string;
-  excerpt: string;
-  url: string;
-  embedHeight: { phone: number; desktop: number };
-}[];
+];
 
 // Real photos of Thao (optimised copies of her own uploads; see
 // research-private/materials/media). `place` says where each one is used.

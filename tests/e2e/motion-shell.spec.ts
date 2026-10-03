@@ -1,6 +1,6 @@
 import { expect, test } from "./fixtures";
 import { linkedinPosts } from "../../content/site.ts";
-import { CARD_W } from "../../src/components/site/linkedin-posts.tsx";
+import { CARD_W } from "../../src/components/site/linkedin-data.ts";
 
 // Real page loads on a busy machine: allow more than the 30s default.
 test.describe.configure({ timeout: 120_000 });
@@ -61,70 +61,33 @@ test.describe("desktop home additions", () => {
     expect(keys.filter((k) => k.startsWith("/projects/")).length).toBeGreaterThanOrEqual(4);
   });
 
-  test("LinkedIn collapsed embeds pre-load as the section approaches; one top-aligned row, each card its own height", async ({ page }) => {
-    // Stub LinkedIn: each embed document is exactly as tall as its post's
-    // measured height, so "no inner scroll" proves the card honours it.
+  test("LinkedIn notes are our own cards: counts shown, equal height, one top-aligned row, no LinkedIn requests", async ({ page }) => {
     const requested: string[] = [];
-    await page.route("https://www.linkedin.com/**", (route) => {
-      const url = route.request().url();
-      requested.push(url);
-      const post = linkedinPosts.find((p) => url.includes(p.urn));
-      const h = post?.embedHeight.desktop ?? 100;
-      return route.fulfill({
-        status: 200,
-        contentType: "text/html",
-        body: `<!doctype html><html><body style="margin:0"><div style="height:${h}px">post</div></body></html>`,
-      });
+    await page.route(/^https?:\/\/([a-z0-9-]+\.)*(linkedin\.com|licdn\.com)\//, (route) => {
+      requested.push(route.request().url());
+      return route.abort();
     });
     await page.goto("/");
     const section = page.getByTestId("section-linkedin");
-    await page.waitForTimeout(1500);
-    // At the top of the page: no LinkedIn request and no iframe yet.
-    expect(requested).toEqual([]);
-    await expect(page.getByTestId("linkedin-embed")).toHaveCount(0);
-    await expect(page.getByTestId("linkedin-preview")).toHaveCount(linkedinPosts.length);
-
-    // Approach: section still below the fold, but within the 800px preload margin.
-    const top = await section.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
-    await page.evaluate((y) => window.scrollTo(0, y), top - 900 - 500);
-    expect(await section.evaluate((el) => el.getBoundingClientRect().top)).toBeGreaterThan(900);
-    await expect.poll(() => requested.length).toBe(linkedinPosts.length);
-    for (const url of requested) expect(url).toMatch(/^https:\/\/www\.linkedin\.com\/embed\/feed\/update\/urn:li:[A-Za-z]+:\d+\?collapsed=1$/);
-    await expect(page.getByTestId("linkedin-card").and(page.locator('[data-state="loaded"]'))).toHaveCount(linkedinPosts.length);
-    await expect(page.getByTestId("linkedin-preview")).toHaveCount(0);
-    await expect(section.getByRole("button", { name: /Load post/ })).toHaveCount(0);
-
     await section.scrollIntoViewIfNeeded();
-    // The staggered Reveal rise (24px) must settle before positions are compared.
-    const tops = () =>
-      page.getByTestId("linkedin-card").evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
+    await page.waitForTimeout(1500);
+    const cards = section.getByTestId("linkedin-card");
+    await expect(cards).toHaveCount(linkedinPosts.length);
+    await expect(section.getByTestId("linkedin-embed")).toHaveCount(0);
+    await expect(section.getByTestId("linkedin-counts").first()).toContainText(`${(linkedinPosts[0] as { reactions: number }).reactions} reactions`);
+    await expect(section.getByTestId("linkedin-counts").first()).toContainText("comments");
+    const tops = () => cards.evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
     await expect.poll(async () => new Set(await tops()).size, { timeout: 10_000 }).toBe(1);
-    const cards = await page.getByTestId("linkedin-card").evaluateAll((els) =>
-      els.map((el) => {
-        const r = el.getBoundingClientRect();
-        return { w: Math.round(r.width), h: Math.round(r.height), right: Math.round(r.right) };
-      })
-    );
-    // One row at 1440: all three fully visible, each at its own measured height.
-    cards.forEach((c, i) => {
+    const sizes = await cards.evaluateAll((els) => els.map((el) => ({ w: Math.round(el.getBoundingClientRect().width), h: Math.round(el.getBoundingClientRect().height), right: Math.round(el.getBoundingClientRect().right) })));
+    sizes.forEach((c) => {
       expect(c.w).toBe(CARD_W.desktop);
-      expect(c.h).toBe(linkedinPosts[i].embedHeight.desktop);
       expect(c.right).toBeLessThanOrEqual(1440);
+      expect(c.h).toBe(sizes[0].h);
     });
-
-    // Nothing scrolls inside any embed (no cookie banner in the stub).
-    const frames = page.frames().filter((f) => f.url().includes("linkedin.com/embed/"));
-    expect(frames).toHaveLength(linkedinPosts.length);
-    for (const frame of frames) {
-      const m = await frame.evaluate(() => ({ sh: document.documentElement.scrollHeight, ch: document.documentElement.clientHeight }));
-      expect(m.sh).toBeLessThanOrEqual(m.ch);
-    }
-    // Three fit, so no arrows; the track is keyboard focusable.
-    await expect(page.getByTestId("linkedin-next")).toHaveCount(0);
-    await expect(page.getByTestId("linkedin-grid")).toHaveAttribute("tabindex", "0");
     await expect(section.getByRole("link", { name: /View on LinkedIn/ })).toHaveCount(linkedinPosts.length);
     await expect(section.getByRole("heading", { level: 2, name: "Notes on LinkedIn" })).toBeVisible();
     await expect(section.getByRole("link", { name: /Follow on LinkedIn/ })).toHaveAttribute("href", "https://www.linkedin.com/in/thaodao0912/");
+    expect(requested).toEqual([]);
     await page.screenshot({ path: test.info().outputPath("linkedin-1440.png") });
   });
 });
@@ -146,7 +109,7 @@ test.describe("phone LinkedIn carousel", () => {
     );
     expect(cards[0].w).toBe(CARD_W.phone);
     expect(cards[1].left).toBeLessThan(390); // peeks
-    cards.forEach((c, i) => expect(c.h).toBe(linkedinPosts[i].embedHeight.phone));
+    cards.forEach((c) => expect(c.h).toBe(cards[0].h));
     await page.screenshot({ path: test.info().outputPath("linkedin-390.png") });
   });
 });

@@ -14,8 +14,8 @@ function Chip({ settled }: { settled: boolean }) {
   return (
     <span className="relative inline-grid h-[22px] min-w-[84px] [perspective:400px]" aria-hidden="true">
       <motion.span initial={false} animate={{ rotateX: settled ? 180 : 0 }} transition={SPRING.ui} style={{ transformStyle: "preserve-3d" }} className="relative col-start-1 row-start-1 grid">
-        <span className="col-start-1 row-start-1 grid place-items-center rounded-lg bg-canvas px-2 text-[11px] font-semibold text-ink-3 [backface-visibility:hidden]">Pending</span>
-        <span className="col-start-1 row-start-1 grid place-items-center rounded-lg bg-[color-mix(in_srgb,var(--success)_10%,white)] px-2 text-[11px] font-semibold text-success [backface-visibility:hidden] [transform:rotateX(180deg)]">✓ Settled</span>
+        <span className="col-start-1 row-start-1 grid place-items-center rounded-lg bg-canvas px-2 text-[12px] font-semibold text-ink-3 [backface-visibility:hidden]">Pending</span>
+        <span className="col-start-1 row-start-1 grid place-items-center rounded-lg bg-[color-mix(in_srgb,var(--success)_10%,white)] px-2 text-[12px] font-semibold text-success [backface-visibility:hidden] [transform:rotateX(180deg)]">✓ Settled</span>
       </motion.span>
     </span>
   );
@@ -36,7 +36,7 @@ function Row({ t, settled, dup }: { t: TickerItem; settled: boolean; dup?: boole
         onClick={() => jump(t.slug)}
         title={t.quote}
         data-testid="ticker-item"
-        className="flex items-center gap-3 rounded-lg py-1 text-[13px] outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="flex min-h-11 items-center gap-3 rounded-lg py-1 text-[13px] outline-none md:min-h-0 focus-visible:ring-2 focus-visible:ring-accent"
       >
         <span className="font-mono text-[14px] font-semibold tabular-nums text-[var(--navy-ink,#0b1533)]">{t.amount}</span>
         <span className="text-ink-3">{t.memo}</span>
@@ -57,13 +57,9 @@ export function ProofTicker() {
   const [paused, setPaused] = useState(false);
   // Keyboard focus pauses the strip too, so the focused item cannot drift away (WCAG 2.2.2).
   const [focused, setFocused] = useState(false);
-  const holdRef = useRef<number | null>(null);
-
-  function tapPause() {
-    setPaused(true);
-    if (holdRef.current) window.clearTimeout(holdRef.current);
-    holdRef.current = window.setTimeout(() => setPaused(false), 3000);
-  }
+  // Touch: a tap on the moving strip pauses it (and shows it); a tap on a still item then jumps.
+  const [touchPaused, setTouchPaused] = useState(false);
+  const touchDown = useRef(false);
 
   return (
     <section
@@ -71,9 +67,22 @@ export function ProofTicker() {
       aria-label="Results"
       data-testid="proof-ticker"
       className="relative overflow-hidden border-y border-hairline bg-bg py-1.5"
+      data-paused={paused || touchPaused || focused ? "true" : "false"}
       onPointerEnter={(e) => e.pointerType === "mouse" && setPaused(true)}
       onPointerLeave={(e) => e.pointerType === "mouse" && setPaused(false)}
-      onPointerDown={(e) => e.pointerType !== "mouse" && tapPause()}
+      onPointerDown={(e) => {
+        touchDown.current = e.pointerType !== "mouse" && !touchPaused;
+      }}
+      onClickCapture={(e) => {
+        const target = e.target as HTMLElement;
+        // Only a real touch tap (detail > 0) on a still-running strip is swallowed; keyboard Enter is not.
+        if (touchDown.current && e.detail > 0 && !target.closest("[data-ticker-pause]")) {
+          e.preventDefault();
+          e.stopPropagation();
+          setTouchPaused(true);
+        }
+        touchDown.current = false;
+      }}
       onFocus={(e) => setFocused(e.target.matches(":focus-visible"))}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
@@ -87,9 +96,20 @@ export function ProofTicker() {
         <>
           <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-bg to-transparent" />
           <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-bg to-transparent" />
-          <ul className="flex w-max gap-8 [animation:ticker-scroll_70s_linear_infinite]" style={{ animationPlayState: paused || focused || !inView ? "paused" : "running" }}>
+          <ul className="flex w-max gap-8 [animation:ticker-scroll_105s_linear_infinite]" style={{ animationPlayState: paused || focused || touchPaused || !inView ? "paused" : "running" }}>
             {[...TICKER_ITEMS, ...TICKER_ITEMS].map((t, i) => <Row key={`${t.id}-${i}`} t={t} settled={inView} dup={i >= TICKER_ITEMS.length} />)}
           </ul>
+          {touchPaused ? (
+            <button
+              type="button"
+              data-ticker-pause
+              data-testid="ticker-resume"
+              onClick={() => setTouchPaused(false)}
+              className="absolute top-1/2 right-2 z-20 inline-flex min-h-11 -translate-y-1/2 items-center gap-1.5 rounded-full bg-bg/95 px-4 text-[13px] font-semibold text-ink-1 shadow-2 ring-1 ring-black/5"
+            >
+              <span aria-hidden="true">⏸</span> Paused · tap to resume
+            </button>
+          ) : null}
           <style>{`@keyframes ticker-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}`}</style>
         </>
       )}

@@ -123,6 +123,37 @@ describe("linkedin posts", () => {
     }
     expect(formatPostDate("2026-09-13")).toBe("13 Sep 2026");
   });
+  test("schema: both kinds validate; bad entries are named", async () => {
+    const { linkedinPosts } = await import("../../content/site.ts");
+    const { validateLinkedinPost, relativeDate } = await import("../../src/components/site/linkedin-data.ts");
+    for (const p of linkedinPosts) expect(validateLinkedinPost(p)).toEqual([]);
+    for (const p of linkedinPosts) if ("image" in p && p.image) expect(await Bun.file(`public${p.image}`).exists()).toBe(true);
+    const base = { urn: "urn:li:share:1", url: "https://www.linkedin.com/feed/update/urn:li:share:1/", date: "2026-09-01", excerpt: "text" };
+    expect(validateLinkedinPost({ ...base })).toEqual([]);
+    expect(validateLinkedinPost({ ...base, kind: "embed", title: "t", embedHeight: { phone: 500, desktop: 520 } })).toEqual([]);
+    expect(validateLinkedinPost({ ...base, kind: "embed", title: "", embedHeight: { phone: 0, desktop: 0 } }).length).toBe(2);
+    expect(validateLinkedinPost({ ...base, image: "https://media.licdn.com/x.jpg", reactions: -1 }).length).toBe(3);
+    expect(relativeDate("2026-09-13", Date.UTC(2026, 9, 4))).toBe("3 weeks ago");
+    expect(relativeDate("2026-10-04", Date.UTC(2026, 9, 4))).toBe("today");
+  });
+  test("both kinds render: card with counts, embed as a text card before it loads", async () => {
+    const { renderToString } = await import("react-dom/server");
+    const { createElement } = await import("react");
+    const { LinkedinPosts } = await import("../../src/components/site/linkedin-posts.tsx");
+    const html = renderToString(
+      createElement(LinkedinPosts, {
+        profileUrl: null,
+        posts: [
+          { kind: "card", urn: "urn:li:share:1", url: "https://www.linkedin.com/feed/update/urn:li:share:1/", date: "2026-09-01", excerpt: "Card excerpt", reactions: 12, comments: 3 },
+          { kind: "embed", urn: "urn:li:share:2", url: "https://www.linkedin.com/feed/update/urn:li:share:2/", date: "2026-09-02", excerpt: "Embed excerpt", title: "Embed title", embedHeight: { phone: 500, desktop: 520 } },
+        ],
+      })
+    );
+    expect(html).toContain("12 reactions");
+    expect(html).toContain("Card excerpt");
+    expect(html).toContain("Embed title");
+    expect(html).not.toContain("<iframe");
+  });
 });
 
 describe("home card pictures", () => {

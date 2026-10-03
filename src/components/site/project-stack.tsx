@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Project } from "@content/schema.ts";
 import { SPRING } from "@/components/motion/springs";
 import { usePersona } from "@/components/signature/participate/store";
@@ -9,7 +9,7 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { emojiFor } from "./home/project-meta";
 import { PersonaControl } from "./home/persona-control";
-import { HOME_PERSONA_NOTE, homePersona, orderForPersona } from "./home/persona-order";
+import { FLIP_MAX, HOME_PERSONA_NOTE, flipOffset, homePersona, orderForPersona } from "./home/persona-order";
 import { StackCard, type StackSurface } from "./stack-card";
 
 interface Group {
@@ -78,6 +78,48 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
   const ordered = persona ? orderForPersona(projects, persona) : groups.flatMap((g) => g.projects);
   const [active, setActive] = useState(ordered[0]?.slug ?? "");
   const rail = useRef<HTMLUListElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  // Cards stay mounted; before a persona change we remember where each sits (document y).
+  const cardEls = useRef(new Map<string, HTMLElement>());
+  const before = useRef<Map<string, number> | null>(null);
+  const orderKey = ordered.map((p) => p.slug).join("|");
+
+  const choosePersona = useCallback(
+    (next: Parameters<typeof setPersona>[0]) => {
+      const tops = new Map<string, number>();
+      cardEls.current.forEach((el, slug) => tops.set(slug, el.getBoundingClientRect().top + window.scrollY));
+      before.current = tops;
+      setPersona(next);
+    },
+    [setPersona]
+  );
+
+  useLayoutEffect(() => {
+    const tops = before.current;
+    before.current = null;
+    if (!tops) return;
+    const h = heading.current;
+    if (h) {
+      // Keep "Selected work" clear of the fixed nav however the page re-flows.
+      const top = h.getBoundingClientRect().top;
+      if (top < 90) window.scrollBy({ top: top - 110, behavior: "auto" });
+    }
+    if (reduce) return;
+    cardEls.current.forEach((el, slug) => {
+      const old = tops.get(slug);
+      if (old === undefined) return;
+      const offset = flipOffset(old, el.getBoundingClientRect().top + window.scrollY, window.scrollY, window.innerHeight);
+      if (offset === null) return;
+      const far = Math.abs(offset) >= FLIP_MAX;
+      el.animate(
+        [
+          { transform: `translateY(${offset}px)`, opacity: far ? 0.35 : 0.85 },
+          { transform: "translateY(0)", opacity: 1 },
+        ],
+        { duration: 460, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+      );
+    });
+  }, [orderKey, reduce]);
 
   // Phones: keep the active chip centred in the rail as the page scrolls.
   useEffect(() => {
@@ -121,9 +163,9 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
     <section id="work" aria-labelledby="work-title" className="bg-canvas pb-20 md:pb-[96px]" data-testid="section-work">
       <div className="mx-auto max-w-[1440px] px-2.5 md:px-[45px]">
         <div className="px-3 pt-4 md:px-4">
-          <h2 id="work-title" className="text-[32px] md:text-[46px]">Selected work</h2>
+          <h2 id="work-title" ref={heading} className="scroll-mt-[110px] text-[32px] md:text-[46px]">Selected work</h2>
           <div className="mt-6">
-            <PersonaControl value={persona} onChange={setPersona} />
+            <PersonaControl value={persona} onChange={choosePersona} />
             <div aria-live="polite" className="mt-3 min-h-6">
               <AnimatePresence mode="wait">
                 {persona ? (
@@ -153,7 +195,7 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
               </div>
             </nav>
 
-            <div className="flex flex-col gap-10 md:gap-[56px]">
+            <div className="flex flex-col gap-10 [overflow-anchor:none] md:gap-[56px]">
               <ul ref={rail} className="sticky top-[76px] z-20 -mx-2.5 flex gap-2 overflow-x-auto bg-canvas/90 px-2.5 py-2 backdrop-blur-md [scrollbar-width:none] lg:hidden" aria-label="Jump to project" data-testid="toc-chips">
                 {ordered.map((p) => (
                   <li key={p.slug} className="shrink-0">
@@ -171,9 +213,15 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
                 ))}
               </ul>
               {ordered.map((project, index) => (
-                <motion.div key={project.id} layout={reduce ? false : "position"} transition={SPRING.sheet}>
+                <div
+                  key={project.id}
+                  ref={(el) => {
+                    if (el) cardEls.current.set(project.slug, el);
+                    else cardEls.current.delete(project.slug);
+                  }}
+                >
                   <StackCard project={project} surface={surfaceFor(index)} />
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useReducedMotion } from "@/lib/use-reduced-motion";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFinePointer } from "@/components/motion/use-fine-pointer";
 import { cn } from "@/lib/utils";
 
@@ -28,12 +28,49 @@ export function CursorReveal({ children, alt, altClassName, className }: CursorR
   const [shown, setShown] = useState(false);
   const live = fine && !reduce;
 
+  // The mask eases toward the pointer (about SPRING.glide) instead of being glued to it.
+  const target = useRef({ x: 0, y: 0 });
+  const cur = useRef({ x: 0, y: 0, seeded: false });
+  const raf = useRef<number | null>(null);
+
+  function step() {
+    raf.current = null;
+    const el = ref.current;
+    if (!el) return;
+    const c = cur.current;
+    const t = target.current;
+    c.x += (t.x - c.x) * 0.16;
+    c.y += (t.y - c.y) * 0.16;
+    const settled = Math.abs(t.x - c.x) < 0.5 && Math.abs(t.y - c.y) < 0.5;
+    if (settled) {
+      c.x = t.x;
+      c.y = t.y;
+    }
+    el.style.setProperty("--rx", `${c.x}px`);
+    el.style.setProperty("--ry", `${c.y}px`);
+    if (!settled) raf.current = requestAnimationFrame(step);
+  }
+  function stop() {
+    if (raf.current !== null) cancelAnimationFrame(raf.current);
+    raf.current = null;
+  }
+  useEffect(() => stop, []);
+  useEffect(() => {
+    if (!live) stop();
+  }, [live]);
+
   function move(e: React.PointerEvent<HTMLDivElement>) {
     const el = ref.current;
     if (!el || e.pointerType !== "mouse") return;
     const r = el.getBoundingClientRect();
-    el.style.setProperty("--rx", `${e.clientX - r.left}px`);
-    el.style.setProperty("--ry", `${e.clientY - r.top}px`);
+    target.current = { x: e.clientX - r.left, y: e.clientY - r.top };
+    // First contact starts at the pointer (the circle grows there); later moves ease.
+    if (!cur.current.seeded) {
+      cur.current = { ...target.current, seeded: true };
+      el.style.setProperty("--rx", `${cur.current.x}px`);
+      el.style.setProperty("--ry", `${cur.current.y}px`);
+    }
+    if (raf.current === null) raf.current = requestAnimationFrame(step);
   }
 
   return (
@@ -45,7 +82,7 @@ export function CursorReveal({ children, alt, altClassName, className }: CursorR
         data-mode={live ? "mask" : "toggle"}
         onPointerMove={live ? move : undefined}
         onPointerEnter={live ? (e) => (move(e), e.currentTarget.setAttribute("data-active", "true")) : undefined}
-        onPointerLeave={live ? (e) => e.currentTarget.setAttribute("data-active", "false") : undefined}
+        onPointerLeave={live ? (e) => (e.currentTarget.setAttribute("data-active", "false"), (cur.current.seeded = false), stop()) : undefined}
       >
         {children}
         {live ? (
@@ -61,7 +98,7 @@ export function CursorReveal({ children, alt, altClassName, className }: CursorR
             onClick={() => setShown((v) => !v)}
             aria-expanded={shown}
             data-testid="cursor-reveal-toggle"
-            className="label-mono text-[12px] text-ink-3 underline decoration-dotted underline-offset-4 hover:text-ink-1"
+            className="label-mono inline-flex min-h-11 items-center text-[12px] text-ink-3 underline decoration-dotted underline-offset-4 hover:text-ink-1"
           >
             {shown ? "ok, back to the serious version" : "psst — the casual version"}
           </button>

@@ -1,21 +1,16 @@
 "use client";
 
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { type CSSProperties, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { LiftCard } from "@/components/ui/lift-card";
+import { CARD_GAP, CARD_W, isEmbed, relativeDate, type LinkedinPostEntry } from "./linkedin-data";
+
+export { CARD_GAP, CARD_W };
 import { LinkedinIcon } from "./brand-icons";
 import { Reveal } from "./reveal";
 
-export interface LinkedinPost {
-  urn: string;
-  title: string;
-  /** ISO date (YYYY-MM-DD). */
-  date: string;
-  /** The post's own opening text, shown as the skeleton until the embed loads. */
-  excerpt: string;
-  url: string;
-  /** Measured collapsed-embed height (px) at CARD_W.phone / CARD_W.desktop. */
-  embedHeight: { phone: number; desktop: number };
-}
+export type LinkedinPost = LinkedinPostEntry;
 
 /**
  * Card widths (px). Desktop: 3 × 384 + 2 × 24px gap = the 1200px content column
@@ -25,8 +20,6 @@ export interface LinkedinPost {
  * stored in content/site.ts (no reserved blank space). If a viewer sees
  * LinkedIn's cookie banner, the embed scrolls inside instead.
  */
-export const CARD_W = { phone: 320, desktop: 384 } as const;
-export const CARD_GAP = { phone: 16, desktop: 24 } as const;
 /** Start loading embeds this far before the section scrolls into view. */
 export const PRELOAD_MARGIN = "800px 0px";
 
@@ -51,30 +44,65 @@ export function formatPostDate(iso: string) {
   return Number.isNaN(d.getTime()) ? iso : DATE_FMT.format(d);
 }
 
-function PostCard({ post, load }: { post: LinkedinPost; load: boolean }) {
-  const [loaded, setLoaded] = useState(false);
+/** How long an embed may take before we stop waiting and show the text card instead. */
+export const EMBED_TIMEOUT_MS = 9000;
+
+/**
+ * A blocked embed (ad blocker, tracking protection, X-Frame-Options) still fires `load` for the
+ * browser's error page, and a cross-origin frame cannot be inspected, so `onLoad` alone proves
+ * nothing. We also (a) probe the embed URL: a network-level block rejects the request, and
+ * (b) give up after EMBED_TIMEOUT_MS without a load. Either way the text-first card stays.
+ */
+function useEmbedHealth(src: string, active: boolean) {
+  const [state, setState] = useState<"waiting" | "loaded" | "failed">("waiting");
+  useEffect(() => {
+    if (!active) return;
+    let done = false;
+    const ctrl = new AbortController();
+    const timer = window.setTimeout(() => {
+      if (!done) setState((s) => (s === "loaded" ? s : "failed"));
+    }, EMBED_TIMEOUT_MS);
+    // no-cors HEAD: opaque on success, a TypeError when the request is blocked.
+    fetch(src, { method: "HEAD", mode: "no-cors", credentials: "omit", signal: ctrl.signal }).catch((err: unknown) => {
+      if ((err as { name?: string })?.name === "AbortError") return;
+      setState("failed");
+    });
+    return () => {
+      done = true;
+      ctrl.abort();
+      window.clearTimeout(timer);
+    };
+  }, [src, active]);
+  const markLoaded = () => setState((s) => (s === "failed" ? s : "loaded"));
+  return [state, markLoaded] as const;
+}
+
+function EmbedCard({ post, load }: { post: Extract<LinkedinPost, { kind: "embed" }>; load: boolean }) {
   const src = linkedinEmbedSrc(post.urn)!;
+  const [health, markLoaded] = useEmbedHealth(src, load);
+  const failed = health === "failed";
+  const loaded = health === "loaded";
   return (
     <div
-      className="relative isolate z-0 h-[var(--h-phone)] overflow-hidden rounded-[20px] bg-bg shadow-card ring-1 ring-black/5 md:h-[var(--h-desktop)]"
+      className="relative isolate z-0 h-[var(--h-phone)] overflow-hidden rounded-2xl bg-bg shadow-card ring-1 ring-black/5 md:h-[var(--h-desktop)]"
       style={{ "--h-phone": `${post.embedHeight.phone}px`, "--h-desktop": `${post.embedHeight.desktop}px` } as CSSProperties}
       data-testid="linkedin-card"
-      data-state={loaded ? "loaded" : load ? "loading" : "preview"}
+      data-state={failed ? "fallback" : loaded ? "loaded" : load ? "loading" : "preview"}
     >
-      {load ? (
+      {load && !failed ? (
         // Sized to the post itself; scrolls inside only if LinkedIn adds its cookie banner.
         <iframe
           src={src}
           title={`LinkedIn post: ${post.title}`}
           referrerPolicy="strict-origin-when-cross-origin"
-          onLoad={() => setLoaded(true)}
+          onLoad={markLoaded}
           data-testid="linkedin-embed"
           className={`absolute inset-0 block h-full w-full border-0 transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
         />
       ) : null}
       {loaded ? null : (
-        // Skeleton until the official embed has loaded.
-        <div data-testid="linkedin-preview" aria-hidden={load} className="relative flex flex-col gap-4 p-6">
+        // Text-first card until the official embed has loaded, and for good if it cannot.
+        <div data-testid="linkedin-preview" aria-hidden={load && !failed} className="relative flex h-full flex-col gap-4 p-6">
           <div className="flex items-center justify-between gap-3">
             <time dateTime={post.date} className="text-[13px] text-ink-3">
               {formatPostDate(post.date)}
@@ -82,15 +110,92 @@ function PostCard({ post, load }: { post: LinkedinPost; load: boolean }) {
             <LinkedinIcon className="size-6 text-[#0a66c2]" />
           </div>
           <p className="text-[18px] leading-[1.3] font-semibold text-ink-1">{post.title}</p>
-          <p className="line-clamp-6 text-[15px] leading-[1.55] text-ink-2">{post.excerpt}</p>
-          <div className="mt-2 space-y-2" aria-hidden="true">
-            <div className="h-3 w-11/12 animate-pulse rounded-full bg-black/5" />
-            <div className="h-3 w-4/5 animate-pulse rounded-full bg-black/5" />
-            <div className="mt-4 aspect-[4/3] w-full animate-pulse rounded-xl bg-black/5" />
-          </div>
+          <p className={failed ? "line-clamp-[9] text-[15px] leading-[1.55] text-ink-2" : "line-clamp-6 text-[15px] leading-[1.55] text-ink-2"}>{post.excerpt}</p>
+          {failed ? (
+            <a
+              href={post.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="linkedin-fallback-link"
+              className="mt-auto inline-flex min-h-11 items-center gap-1 text-[15px] font-semibold text-[#0a66c2] hover:underline"
+            >
+              View on LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" />
+            </a>
+          ) : (
+            <div className="mt-2 space-y-2" aria-hidden="true">
+              <div className="h-3 w-11/12 animate-pulse rounded-full bg-black/5" />
+              <div className="h-3 w-4/5 animate-pulse rounded-full bg-black/5" />
+              <div className="mt-4 aspect-[4/3] w-full animate-pulse rounded-xl bg-black/5" />
+            </div>
+          )}
         </div>
       )}
     </div>
+  );
+}
+
+const DEFAULT_AUTHOR = { name: "Thao Dao", headline: "Product Owner @SkyLab", avatar: "/portrait/thao-color.webp" } as const;
+
+/** Small reaction glyphs drawn here (not LinkedIn's): like, heart, celebrate. */
+function ReactionGlyphs() {
+  const dot = "grid size-[18px] place-items-center rounded-full ring-2 ring-bg";
+  return (
+    <span className="flex -space-x-1" aria-hidden="true">
+      <span className={`${dot} bg-[#0a66c2]`}>
+        <svg viewBox="0 0 24 24" className="size-2.5 fill-white"><path d="M2 10h4v11H2zM8 21V10l4-7c1.5 0 2.5 1 2.5 2.5L14 9h6a2 2 0 0 1 2 2.4l-1.6 8A2 2 0 0 1 18.4 21z" /></svg>
+      </span>
+      <span className={`${dot} bg-[#e0245e]`}>
+        <svg viewBox="0 0 24 24" className="size-2.5 fill-white"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z" /></svg>
+      </span>
+      <span className={`${dot} bg-[#3a9d5d]`}>
+        <svg viewBox="0 0 24 24" className="size-2.5 fill-white"><path d="m12 2 2.4 6.6L21 9l-5 4.6L17.5 21 12 17.2 6.5 21 8 13.6 3 9l6.6-.4z" /></svg>
+      </span>
+    </span>
+  );
+}
+
+const noop = () => () => {};
+
+/** Our own post card: no request to LinkedIn until a visitor clicks through. */
+function CardPost({ post }: { post: Extract<LinkedinPost, { kind?: "card" }> }) {
+  const author = post.author ?? DEFAULT_AUTHOR;
+  // Server and first client render show the absolute date; the relative one replaces it after hydration.
+  const when = useSyncExternalStore(noop, () => relativeDate(post.date, Date.now()) || formatPostDate(post.date), () => formatPostDate(post.date));
+  const counts = [post.reactions !== undefined ? `${post.reactions} reactions` : null, post.comments !== undefined ? `${post.comments} comments` : null].filter(Boolean);
+  return (
+    <LiftCard radius="rounded-2xl" className="flex-1 bg-bg shadow-card ring-1 ring-black/5" data-testid="linkedin-card" data-state="card">
+      <article className="flex h-full flex-col gap-4 p-5 md:p-6">
+        <header className="flex items-center gap-3">
+          <Image src={author.avatar} alt="" width={40} height={40} className="size-10 rounded-full object-cover" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[15px] leading-tight font-semibold text-ink-1">{author.name}</p>
+            <p className="truncate text-[13px] text-ink-3">
+              {author.headline} · <time dateTime={post.date} suppressHydrationWarning>{when}</time>
+            </p>
+          </div>
+          <LinkedinIcon className="size-5 shrink-0 text-[#0a66c2]" />
+        </header>
+        <div>
+          {post.title ? <h3 className="mb-1.5 text-[17px] leading-[1.3] font-semibold text-ink-1">{post.title}</h3> : null}
+          <p className="line-clamp-4 text-[15px] leading-[1.55] text-ink-2" data-testid="linkedin-excerpt">{post.excerpt}</p>
+          <a href={post.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-[14px] font-medium text-ink-3 hover:text-ink-1">…more</a>
+        </div>
+        {post.image ? (
+          <div className="relative -mx-5 mt-auto aspect-[4/3] overflow-hidden bg-canvas md:-mx-6">
+            <Image src={post.image} alt={post.imageAlt ?? ""} fill sizes="(min-width: 768px) 384px, 320px" className="object-cover" />
+          </div>
+        ) : null}
+        <footer className={`flex flex-wrap items-center justify-between gap-x-3 text-[13px] text-ink-3 ${post.image ? "" : "mt-auto"}`}>
+          <span className="flex items-center gap-2 text-[12px]" data-testid="linkedin-counts">
+            {post.reactions !== undefined ? <ReactionGlyphs /> : null}
+            <span>{counts.join(" · ")}</span>
+          </span>
+          <a href={post.url} target="_blank" rel="noopener noreferrer" aria-label={`View on LinkedIn: ${post.title ?? "post"} (opens in a new tab)`} className="inline-flex min-h-11 shrink-0 items-center gap-1 text-[14px] font-medium text-ink-1 hover:text-[#0a66c2]">
+            View on LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" />
+          </a>
+        </footer>
+      </article>
+    </LiftCard>
   );
 }
 
@@ -192,7 +297,7 @@ export function LinkedinPosts({ posts, profileUrl }: { posts: readonly LinkedinP
               href={profileUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[15px] font-medium text-ink-3 transition-colors hover:text-ink-1"
+              className="inline-flex min-h-11 items-center gap-1 text-[15px] font-medium text-ink-3 transition-colors hover:text-ink-1"
             >
               Follow on LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" />
             </a>
@@ -212,22 +317,28 @@ export function LinkedinPosts({ posts, profileUrl }: { posts: readonly LinkedinP
           tabIndex={0}
           aria-label="LinkedIn posts"
           style={{ maskImage: mask, WebkitMaskImage: mask }}
-          className="flex snap-x snap-mandatory scroll-px-6 items-start gap-4 overflow-x-auto overscroll-x-contain px-6 pb-4 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-4 md:scroll-px-0 md:gap-6 md:px-0 [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory scroll-px-6 items-stretch gap-4 overflow-x-auto overscroll-x-contain px-6 pt-5 pb-5 -mt-5 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-4 md:scroll-px-0 md:gap-6 md:px-0 [&::-webkit-scrollbar]:hidden"
         >
           {list.map((post, i) => (
-            <Reveal as="li" index={i} key={post.urn} className="w-[320px] shrink-0 snap-start md:w-[384px]">
-              <PostCard post={post} load={near} />
-              <div className="mt-4 flex justify-end px-1">
-                <a
-                  href={post.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex shrink-0 items-center gap-1 text-[14px] text-ink-3 hover:text-ink-1"
-                  aria-label={`View on LinkedIn: ${post.title} (opens in a new tab)`}
-                >
-                  View on LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" />
-                </a>
-              </div>
+            <Reveal as="li" index={i} key={post.urn} className="flex w-[320px] shrink-0 snap-start flex-col md:w-[384px]">
+              {isEmbed(post) ? (
+                <>
+                  <EmbedCard post={post} load={near} />
+                  <div className="mt-1 flex justify-end px-1">
+                    <a
+                      href={post.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-11 shrink-0 items-center gap-1 text-[14px] text-ink-3 hover:text-ink-1"
+                      aria-label={`View on LinkedIn: ${post.title} (opens in a new tab)`}
+                    >
+                      View on LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" />
+                    </a>
+                  </div>
+                </>
+              ) : (
+                <CardPost post={post} />
+              )}
             </Reveal>
           ))}
         </ul>

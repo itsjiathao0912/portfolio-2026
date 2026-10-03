@@ -74,17 +74,17 @@ export function HighlightsGrid({ site, footer }: { site: Pick<Site, "awards" | "
             className="col-span-2 lg:col-span-1 lg:row-span-2"
           >
             <LiftCard radius="rounded-[24px]" className="h-full">
-            <div className="flex h-full flex-col justify-between gap-6 rounded-[24px] bg-ink-1 p-7 text-bg md:p-9">
+            <div className="flex h-full flex-col justify-between gap-6 rounded-[24px] bg-gradient-to-b from-[#fff4d6] via-[#fff9ec] to-bg p-7 text-ink-1 md:p-9">
             <EmojiBurst emojis={["🏆", "🥈", "🇻🇳", "🎉"]} className="relative inline-flex self-start">
-              <span className="flex size-14 items-center justify-center rounded-2xl bg-white/10">
+              <span className="flex size-14 items-center justify-center rounded-2xl bg-white shadow-1">
                 <Trophy className="size-8 text-[#fbbf24]" aria-hidden="true" strokeWidth={1.8} />
               </span>
             </EmojiBurst>
             <div className="flex flex-col gap-4">
-              <p className="font-display text-[44px] leading-[1.02] text-bg md:text-[56px]" data-testid="highlight-lead">
+              <p className="font-display text-[44px] leading-[1.02] text-ink-1 md:text-[56px]" data-testid="highlight-lead">
                 {lead.result.split("·")[0].trim()}
               </p>
-              <p className="text-[17px] leading-[1.55] text-white/80">
+              <p className="text-[17px] leading-[1.55] text-ink-2">
                 {lead.name}
                 {lead.result.includes("·") ? ` — with ${lead.result.split("·").slice(1).join("·").trim()}` : ""}.
               </p>
@@ -122,7 +122,7 @@ export function HighlightsGrid({ site, footer }: { site: Pick<Site, "awards" | "
                   href={tile.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-auto inline-flex items-center gap-1 text-[14px] text-ink-3 transition-colors hover:text-ink-1"
+                  className="mt-auto inline-flex min-h-11 items-center gap-1 text-[14px] text-ink-3 transition-colors hover:text-ink-1"
                 >
                   Credential <ArrowUpRight className="size-4" aria-hidden="true" />
                 </a>
