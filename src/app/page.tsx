@@ -9,7 +9,8 @@ import { LogoStrip, type LogoItem } from "@/components/site/logo-strip";
 import { PhotoMoments } from "@/components/site/photo-moments";
 import { Portrait } from "@/components/site/portrait";
 import { ProjectStack } from "@/components/site/project-stack";
-import { VisitorTop } from "@/components/site/visitor/visitor-panel";
+import { LiveVisitorTop } from "@/components/site/visitor/stats/live-visitor-top";
+import { VisitorPoll } from "@/components/site/visitor/stats/visitor-poll";
 import { heroHeadline } from "@/lib/hero";
 import { loadProjects, loadSite } from "@/lib/load";
 import { linkedinPosts, photos } from "@content/site.ts";
@@ -71,7 +72,7 @@ export default async function HomePage() {
 
       <section aria-label="Who is visiting" className="bg-canvas" data-testid="section-visitor">
         <div className="mx-auto max-w-[1320px] px-6 py-8 md:px-10 md:py-10 lg:px-[60px]">
-          <VisitorTop />
+          <LiveVisitorTop />
         </div>
       </section>
 
@@ -86,6 +87,9 @@ export default async function HomePage() {
       <PeopleSection />
       <PhotoMoments moments={photos.filter((p) => (p.place as readonly string[]).includes("home"))} className="pt-0 md:pt-0" />
       <LinkedinPosts posts={linkedinPosts} profileUrl={linkedin} />
+      <section aria-label="Quick poll" className="mx-auto max-w-[640px] px-6 pb-4 md:px-10" data-testid="section-poll">
+        <VisitorPoll />
+      </section>
     </main>
   );
 }

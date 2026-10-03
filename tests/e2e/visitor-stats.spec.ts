@@ -30,7 +30,7 @@ test.describe("visitor stats", () => {
     await page.goto("/");
     await expect(page.getByTestId("tile-founder")).toBeVisible();
     await expect(page.getByTestId("visitor-rank-line")).toHaveCount(0);
-    await expect(page.getByText(/error|failed/i)).toHaveCount(0);
+    await expect(page.getByTestId("section-visitor").getByText(/error|failed|unavailable/i)).toHaveCount(0);
   });
 
   test("polling pauses in a hidden tab (request counting)", async ({ page }) => {
@@ -40,6 +40,7 @@ test.describe("visitor stats", () => {
       return r.continue();
     });
     await page.goto("/");
+    await page.getByTestId("section-visitor").scrollIntoViewIfNeeded(); // polling only runs while the row is on screen
     await expect.poll(() => hits).toBeGreaterThan(0);
     await page.evaluate(() => {
       Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "hidden" });

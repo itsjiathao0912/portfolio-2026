@@ -22,6 +22,9 @@ export function LiveVisitorTop() {
   const line = data ? rankLine({ ordinal, role, roleCount: data.you.roleCount, country: data.you.country, countryCount: data.you.countryCount, countryRank: data.you.countryRank, total: data.total }) : null;
   const lead = data ? leaderLine(data.byRole, role) : null;
 
+  // The tile aggregate is cached 10 s server-side but roleCount is fresh: never show a tile below the line.
+  const counts = data ? tileCounts(role ? { ...data.byRole, [role]: Math.max(data.byRole[role] ?? 0, data.you.roleCount) } : data.byRole) : undefined;
+
   const summary = line ? (
     <motion.div initial={reduce ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={reduce ? { duration: 0 } : SPRING.ui}>
       <p data-testid="visitor-rank-line">{line}</p>
@@ -35,7 +38,7 @@ export function LiveVisitorTop() {
 
   return (
     <div ref={ref} data-testid="visitor-live">
-      <VisitorTop counts={tileCounts(data?.byRole ?? null)} summary={summary} />
+      <VisitorTop counts={counts} summary={summary} />
     </div>
   );
 }

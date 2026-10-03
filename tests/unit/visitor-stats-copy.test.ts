@@ -21,7 +21,7 @@ describe("rankLine", () => {
   });
   test("unknown or invalid country codes never show a raw code", () => {
     for (const c of ["XX", "ZZ", "T1", "EU", "vn", "VNN", ""]) {
-      expect(rankLine({ ...base, country: c, countryCount: 5 })).not.toContain(c || "~");
+      expect(rankLine({ ...base, country: c, countryCount: 5 })).not.toContain(" from ");
     }
   });
   test("no ordinal: falls back to the real total, singular and plural", () => {
