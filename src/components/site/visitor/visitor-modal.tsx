@@ -14,12 +14,18 @@ import { useVisitor } from "./store";
  * opened it. Mounted once, in the layout.
  */
 export function VisitorModal() {
-  const { pickerOpen, setPickerOpen, setRole } = useVisitor();
+  const { pickerOpen, setPickerOpen, setRole, role, guideHidden, setGuideHidden } = useVisitor();
   if (!pickerOpen) return null;
-  return <Sheet onClose={() => setPickerOpen(false)} onPick={(role) => { setRole(role); setPickerOpen(false); }} />;
+  return (
+    <Sheet
+      onClose={() => setPickerOpen(false)}
+      onPick={(r) => { setRole(r); setPickerOpen(false); }}
+      guide={role !== null ? { hidden: guideHidden, toggle: () => setGuideHidden(!guideHidden) } : null}
+    />
+  );
 }
 
-function Sheet({ onClose, onPick }: { onClose: () => void; onPick: (role: RoleId | null) => void }) {
+function Sheet({ onClose, onPick, guide }: { onClose: () => void; onPick: (role: RoleId | null) => void; guide: { hidden: boolean; toggle: () => void } | null }) {
   const ref = useRef<HTMLDialogElement>(null);
   const reduce = useReducedMotion();
   useEffect(() => {
@@ -59,6 +65,16 @@ function Sheet({ onClose, onPick }: { onClose: () => void; onPick: (role: RoleId
         <div className="pr-10">
           <RolePicker onPick={(role) => { ref.current?.close(); onPick(role); }} autoFocus={false} labelId="visitor-modal-label" />
         </div>
+        {guide ? (
+          <button
+            type="button"
+            data-testid="guide-visibility-toggle"
+            onClick={guide.toggle}
+            className="mt-4 inline-flex min-h-11 items-center rounded-full border border-hairline bg-bg px-4 text-[13px] font-medium text-ink-2 outline-none hover:text-ink-1 focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            {guide.hidden ? "Show the guide" : "Hide the guide"}
+          </button>
+        ) : null}
       </motion.div>
     </dialog>
   );

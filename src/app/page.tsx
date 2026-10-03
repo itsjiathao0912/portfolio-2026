@@ -9,6 +9,8 @@ import { LogoStrip, type LogoItem } from "@/components/site/logo-strip";
 import { PhotoMoments } from "@/components/site/photo-moments";
 import { Portrait } from "@/components/site/portrait";
 import { ProjectStack } from "@/components/site/project-stack";
+import { VisitorGuide } from "@/components/site/visitor/guide/guide";
+import { GuideSection } from "@/components/site/visitor/guide/guide-section";
 import { LiveVisitorTop } from "@/components/site/visitor/stats/live-visitor-top";
 import { VisitorPoll } from "@/components/site/visitor/stats/visitor-poll";
 import { heroHeadline } from "@/lib/hero";
@@ -58,6 +60,7 @@ export default async function HomePage() {
 
   return (
     <main data-testid="home">
+      <VisitorGuide />
       <JsonLd data={[websiteJsonLd(), personJsonLd()]} />
       <section aria-labelledby="hero-title" className="relative overflow-hidden bg-bg" data-testid="hero">
         <HeroIntro headline={heroHeadline(profile)} intro={profile.intro} builds={BUILDS} casual={CASUAL} />
@@ -76,17 +79,19 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <GuideSection id="statement">
       <section aria-label="What I do" className="mx-auto max-w-[1100px] px-6 py-20 md:px-10 md:py-[80px]" data-testid="section-statement">
         <ScrollWords text={profile.tagline} className="font-display text-[28px] leading-[1.25] text-ink-1 md:text-[46px] md:leading-[1.15]" />
       </section>
+      </GuideSection>
       <ProofTicker />
 
-      <HighlightsGrid site={site} footer={<GlobeCard />} />
-      <ProjectStack projects={projects} />
+      <GuideSection id="highlights"><HighlightsGrid site={site} footer={<GlobeCard />} /></GuideSection>
+      <GuideSection id="stack"><ProjectStack projects={projects} /></GuideSection>
 
-      <PeopleSection />
+      <GuideSection id="people"><PeopleSection /></GuideSection>
       <PhotoMoments moments={photos.filter((p) => (p.place as readonly string[]).includes("home"))} className="pt-0 md:pt-0" />
-      <LinkedinPosts posts={linkedinPosts} profileUrl={linkedin} />
+      <GuideSection id="linkedin"><LinkedinPosts posts={linkedinPosts} profileUrl={linkedin} /></GuideSection>
       <section aria-label="Quick poll" className="mx-auto max-w-[640px] px-6 pb-4 md:px-10" data-testid="section-poll">
         <VisitorPoll />
       </section>

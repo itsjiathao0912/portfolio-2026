@@ -26,6 +26,8 @@ export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
     <footer className="bg-bg" data-testid="site-footer">
       <section
         id="get-in-touch"
+        data-guide-walkable="true"
+        data-guide-id="contact"
         aria-labelledby="footer-title"
         className="mx-auto flex max-w-[832px] flex-col items-center gap-10 px-6 pt-24 pb-20 text-center md:pt-[150px]"
       >
