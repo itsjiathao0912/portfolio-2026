@@ -21,8 +21,49 @@ const assetSchema = z.string().regex(/^(\/[^\s]+|https:\/\/[^\s]+)$/, "asset mus
 export const TINTS = ["sky", "periwinkle", "lavender", "rose", "peach", "butter", "mint", "aqua"] as const;
 export const tintSchema = z.enum(TINTS);
 
+/** Lucide icon names allowed on a case-study section heading (shown in the TOC). */
+export const SECTION_ICONS = [
+  "compass",
+  "circle-alert",
+  "user-round",
+  "package",
+  "workflow",
+  "badge-check",
+  "layers",
+  "sparkles",
+  "shield-check",
+  "git-branch",
+  "truck",
+  "chart-column",
+  "flask-conical",
+  "calendar-days",
+  "hash",
+] as const;
+export const sectionIconSchema = z.enum(SECTION_ICONS);
+
 const metricSchema = z.object({ value: z.string().min(1), label: z.string().min(1) });
 const linkSchema = z.object({ label: z.string().min(1), href: z.string().url() });
+const stepSchema = z.object({ title: z.string().min(1), text: z.string().min(1) });
+
+/** One screen inside a device mockup. */
+const mockupScreenSchema = z.object({ src: assetSchema, alt: z.string().min(1) });
+
+/** The project's cover visual on cards and the case-study hero. */
+export const projectVisualSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("mockup"),
+    /** Main device. `browser-free` is a floating, frameless screen card. */
+    device: z.enum(["laptop", "phone", "browser-free"]),
+    screen: mockupScreenSchema,
+    /** Optional second screen, shown as a smaller overlapping card. */
+    secondary: mockupScreenSchema.optional(),
+  }),
+  z.object({
+    kind: z.literal("illustration"),
+    /** Which original abstract motif to draw. */
+    motif: z.enum(["billing", "games", "lineage"]),
+  }),
+]);
 
 /** Ordered, typed content blocks that make up a case-study body. */
 export const contentBlockSchema = z.discriminatedUnion("type", [
@@ -32,6 +73,8 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
     text: z.string().min(1),
     level: z.union([z.literal(2), z.literal(3)]).default(2),
     eyebrow: z.string().optional(),
+    /** TOC icon for this section; omitted = matched from the heading text. */
+    icon: sectionIconSchema.optional(),
   }),
   z.object({ type: z.literal("paragraph"), text: z.string().min(1) }),
   // `src: null` renders a designed placeholder frame instead of a broken image.
@@ -41,14 +84,16 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
     alt: z.string().min(1),
     caption: z.string().optional(),
     device: z.enum(["browser", "plain"]).default("browser"),
+    /** `column` = 800 px reading column, `wide` = 1040 px, `bleed` = full screen width. */
+    size: z.enum(["column", "wide", "bleed"]).default("column"),
   }),
   z.object({ type: z.literal("quote"), text: z.string().min(1), attribution: z.string().optional() }),
   z.object({ type: z.literal("list"), items: z.array(z.string().min(1)).min(1), ordered: z.boolean().default(false) }),
   z.object({ type: z.literal("metrics"), items: z.array(metricSchema).min(1).max(4) }),
-  z.object({
-    type: z.literal("features"),
-    items: z.array(z.object({ title: z.string().min(1), text: z.string().min(1) })).min(1),
-  }),
+  // Numbered two-column story grid ("1." / "2." numerals above a title + text).
+  z.object({ type: z.literal("steps"), items: z.array(stepSchema).min(1) }),
+  // Legacy name for `steps`, kept so older stored rows still render; renders identically.
+  z.object({ type: z.literal("features"), items: z.array(stepSchema).min(1) }),
   z.object({
     type: z.literal("gallery"),
     images: z.array(z.object({ src: assetSchema, alt: z.string().min(1), caption: z.string().optional() })).min(1),
@@ -70,6 +115,11 @@ export const projectMetaSchema = z.object({
   coverAlt: z.string().default(""),
   featured: z.boolean().default(false),
   proof: z.array(metricSchema).max(3).default([]),
+  /** Outcome-style sentence: case-study H1 and card headline. Empty = fall back to summary/subtitle. */
+  headline: z.string().default(""),
+  /** Card variant: `light` = pastel tint; `deep` = solid navy with white text. */
+  tone: z.enum(["light", "deep"]).default("light"),
+  visual: projectVisualSchema.default({ kind: "illustration", motif: "lineage" }),
 });
 
 /** Authoring shape: what a file in content/projects/ exports. */
@@ -96,6 +146,8 @@ export type ContentBlock = z.infer<typeof contentBlockSchema>;
 export type ProjectLink = z.infer<typeof projectLinkSchema>;
 export type ProjectMeta = z.output<typeof projectMetaSchema>;
 export type Tint = z.infer<typeof tintSchema>;
+export type ProjectVisual = z.output<typeof projectVisualSchema>;
+export type SectionIcon = z.infer<typeof sectionIconSchema>;
 /** Input type for authors (defaults may be omitted). */
 export type ProjectInput = z.input<typeof projectInputSchema>;
 /** Fully-resolved project after validation. */
@@ -115,7 +167,9 @@ export function headingAnchor(text: string) {
 /** Table-of-contents entries: every level-2 heading, in order. */
 export function tocEntries(blocks: readonly ContentBlock[]) {
   return blocks.flatMap((block) =>
-    block.type === "heading" && block.level === 2 ? [{ id: headingAnchor(block.text), label: block.text }] : []
+    block.type === "heading" && block.level === 2
+      ? [{ id: headingAnchor(block.text), label: block.text, ...(block.icon ? { icon: block.icon } : {}) }]
+      : []
   );
 }
 

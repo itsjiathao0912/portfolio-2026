@@ -94,12 +94,12 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
   return (
     <header
       data-hidden={hidden && !open ? "true" : "false"}
-      className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-end px-4 pt-4 transition-transform duration-300 ease-out md:justify-center md:pt-[29px] md:data-[hidden=true]:-translate-y-[140%] motion-reduce:transition-none"
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-end px-4 pt-[var(--nav-top-sm)] transition-transform duration-300 ease-out md:justify-center md:pt-[var(--nav-top)] md:data-[hidden=true]:-translate-y-[140%] motion-reduce:transition-none"
     >
       {/* Desktop: floating pill */}
       <nav
         aria-label="Main"
-        className="pointer-events-auto hidden h-[54px] items-center gap-1 rounded-full bg-white/85 px-1.5 shadow-nav backdrop-blur-xl backdrop-saturate-150 transition-transform duration-200 ease-out hover:scale-[1.05] motion-reduce:hover:scale-100 md:flex"
+        className="pointer-events-auto hidden h-[var(--nav-h)] items-center gap-1 rounded-full bg-white/85 px-1.5 shadow-nav backdrop-blur-xl backdrop-saturate-150 transition-transform duration-200 ease-out hover:scale-[1.05] motion-reduce:hover:scale-100 md:flex"
       >
         <LiquidLink href="/" variant="nav" size="nav" active={false}>
           {name}
@@ -128,7 +128,7 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
         aria-label={open ? "Close menu" : "Open menu"}
         data-testid="menu-toggle"
         onClick={() => setOpen((v) => !v)}
-        className="pointer-events-auto relative z-10 flex size-14 items-center justify-center rounded-full bg-white text-ink-1 shadow-nav active:scale-95 md:hidden"
+        className="pointer-events-auto relative z-10 flex size-[var(--nav-h-sm)] items-center justify-center rounded-full bg-white text-ink-1 shadow-nav active:scale-95 md:hidden"
       >
         <span className="sr-only">{name}</span>
         <span

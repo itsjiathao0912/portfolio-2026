@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRef } from "react";
 import type { Project } from "@content/schema.ts";
-import { presentationFor } from "@content/projects/presentation.ts";
 import { TINT_BG } from "@/lib/tints";
 import { cn } from "@/lib/utils";
 import { ProjectVisual } from "./project-visual";
@@ -28,8 +27,7 @@ interface WorkCardProps {
 export function WorkCard({ project, className, priority, headingLevel = "h2" }: WorkCardProps) {
   const ref = useRef<HTMLAnchorElement>(null);
   const { meta } = project;
-  const look = presentationFor(project.slug, project.summary);
-  const deep = look.tone === "deep";
+  const deep = meta.tone === "deep";
   const Heading = headingLevel;
 
   function onMove(event: React.PointerEvent<HTMLAnchorElement>) {
@@ -56,7 +54,7 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
       onPointerLeave={onLeave}
       data-testid="project-card"
       data-category={project.category}
-      data-tone={look.tone}
+      data-tone={meta.tone}
       className={cn(
         "group relative flex h-full min-h-[560px] flex-col items-center overflow-hidden rounded-[26px] px-6 pt-10 text-center md:rounded-[20px] md:px-10 xl:min-h-[742px]",
         "[transform:perspective(1200px)_rotateX(var(--rx,0deg))_rotateY(var(--ry,0deg))] transition-[transform,box-shadow] duration-200 ease-out",
@@ -89,10 +87,10 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
         <div
           className={cn(
             "shrink-0 transition-transform duration-300 ease-out group-hover:-translate-y-2 motion-reduce:transform-none",
-            look.visual.kind === "illustration" ? "w-[112%] translate-y-[8%]" : "w-[118%] translate-y-[12%]"
+            meta.visual.kind === "illustration" ? "w-[112%] translate-y-[8%]" : "w-[118%] translate-y-[12%]"
           )}
         >
-          <ProjectVisual visual={look.visual} label={project.title} logo={meta.logo} tone={look.tone} priority={priority} />
+          <ProjectVisual visual={meta.visual} label={project.title} logo={meta.logo} tone={meta.tone} priority={priority} />
         </div>
       </div>
     </Link>

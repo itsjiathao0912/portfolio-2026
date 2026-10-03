@@ -3,14 +3,12 @@
 import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import type { Project } from "@content/schema.ts";
-import type { ProjectPresentation } from "@content/projects/presentation.ts";
 import { TINT_GRADIENT } from "@/lib/tints";
 import { cn } from "@/lib/utils";
 import { ProjectVisual } from "./project-visual";
 
 interface CaseStudyHeroProps {
   project: Project;
-  look: ProjectPresentation;
   /** Id on the cover wrapper; the section navigators watch it. */
   coverId: string;
 }
@@ -22,7 +20,7 @@ interface CaseStudyHeroProps {
  * Children rise 16 px and fade in on a 500 ms stagger; the visual follows a
  * beat later. Reduced motion keeps a short fade only.
  */
-export function CaseStudyHero({ project, look, coverId }: CaseStudyHeroProps) {
+export function CaseStudyHero({ project, coverId }: CaseStudyHeroProps) {
   const { meta } = project;
   const reduce = useReducedMotion();
   const rise = (index: number) => ({
@@ -53,7 +51,7 @@ export function CaseStudyHero({ project, look, coverId }: CaseStudyHeroProps) {
           {...rise(1)}
           className="mt-8 text-[2.6rem] leading-[1.15] tracking-normal text-balance [font-stretch:100%] md:text-[4.7rem] md:leading-[1.1]"
         >
-          {look.headline}
+          {meta.headline || project.summary}
         </motion.h1>
         <motion.p {...rise(2)} className="mt-6 max-w-[800px] text-xl leading-[1.45] text-pretty text-ink-2 md:text-[1.9rem] md:leading-[1.4]">
           {project.summary}
@@ -62,10 +60,10 @@ export function CaseStudyHero({ project, look, coverId }: CaseStudyHeroProps) {
       <motion.div
         {...rise(4)}
         id={coverId}
-        className={cn("relative mx-auto mt-14 px-5 md:mt-20", look.visual.kind === "illustration" ? "max-w-[620px]" : "max-w-[860px]")}
+        className={cn("relative mx-auto mt-14 px-5 md:mt-20", meta.visual.kind === "illustration" ? "max-w-[620px]" : "max-w-[860px]")}
       >
         <div className="[mask-image:linear-gradient(#000_78%,transparent)]">
-          <ProjectVisual visual={look.visual} label={project.title} logo={meta.logo} tone="light" priority size="hero" />
+          <ProjectVisual visual={meta.visual} label={project.title} logo={meta.logo} tone="light" priority size="hero" />
         </div>
       </motion.div>
     </header>

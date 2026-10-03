@@ -13,6 +13,11 @@
  * never use raw hex — they use the utilities generated from @theme below.
  */
 :root {
+  /* floating nav geometry (site-nav.tsx); page top padding is derived from it */
+  --nav-top-sm: 16px;
+  --nav-h-sm: 56px;
+  --nav-top: 29px;
+  --nav-h: 54px;
   /* surfaces */
   --bg: #ffffff;
   --canvas: #f7f7f7;
@@ -225,14 +230,15 @@
 }
 
 /* ── Page transition (src/app/template.tsx) ─────────────────────────────── */
+/* Opacity only, never transform: a transformed ancestor would turn every
+   `position: fixed` descendant (case-study TOC, section menu, reading bar)
+   into "fixed to the wrapper". */
 @keyframes page-in {
   from {
     opacity: 0.4;
-    transform: translateY(6px);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 @keyframes page-fade {

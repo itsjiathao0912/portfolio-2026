@@ -29,13 +29,15 @@ import {
   useScroll,
   useSpring,
 } from "motion/react";
-import { useEffect, useState, useSyncExternalStore } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
+import type { SectionIcon } from "@content/schema.ts";
 import { cn } from "@/lib/utils";
 
 interface Entry {
   id: string;
   label: string;
+  /** Icon set on the heading in content; missing = matched from the label. */
+  icon?: SectionIcon;
 }
 
 interface TocProps {
@@ -44,45 +46,46 @@ interface TocProps {
   coverId: string;
 }
 
-const noop = () => () => {};
-/** True on the client after hydration (no setState-in-effect). */
-function useIsClient() {
-  return useSyncExternalStore(
-    noop,
-    () => true,
-    () => false,
-  );
-}
+/** Lucide component for each icon name allowed by the content schema. */
+const ICONS: Record<SectionIcon, LucideIcon> = {
+  compass: Compass,
+  "circle-alert": CircleAlert,
+  "user-round": UserRound,
+  package: Package,
+  workflow: Workflow,
+  "badge-check": BadgeCheck,
+  layers: Layers,
+  sparkles: Sparkles,
+  "shield-check": ShieldCheck,
+  "git-branch": GitBranch,
+  truck: Truck,
+  "chart-column": ChartColumn,
+  "flask-conical": FlaskConical,
+  "calendar-days": CalendarDays,
+  hash: Hash,
+};
 
-/**
- * Fixed UI must not live under the page-transition wrapper: its transform
- * would turn `position: fixed` into "fixed to the wrapper". Portal to <body>.
- */
-function ToBody({ children }: { children: React.ReactNode }) {
-  const client = useIsClient();
-  return client ? createPortal(children, document.body) : null;
-}
-
-/** Lucide icon per section type, matched on the heading text. */
-const ICON_RULES: [RegExp, LucideIcon][] = [
-  [/overview|context|about/i, Compass],
-  [/problem|challenge/i, CircleAlert],
-  [/role|my work|ownership|team/i, UserRound],
-  [/what it does|the product|product/i, Package],
-  [/how it decides|approach|process|architecture/i, Workflow],
-  [/validation|result|impact|outcome/i, BadgeCheck],
-  [/stack|technology|tools/i, Layers],
-  [/shipped|feature/i, Sparkles],
-  [/governance|security|compliance/i, ShieldCheck],
-  [/lineage|model/i, GitBranch],
-  [/delivery|uat|launch/i, Truck],
-  [/dashboard|data|metric/i, ChartColumn],
-  [/experiment|test/i, FlaskConical],
-  [/event|calendar/i, CalendarDays],
+/** Fallback for headings without an `icon`: match on the heading text. */
+const ICON_RULES: [RegExp, SectionIcon][] = [
+  [/overview|context|about/i, "compass"],
+  [/problem|challenge/i, "circle-alert"],
+  [/role|my work|ownership|team/i, "user-round"],
+  [/what it does|the product|product/i, "package"],
+  [/how it decides|approach|process|architecture/i, "workflow"],
+  [/validation|result|impact|outcome/i, "badge-check"],
+  [/stack|technology|tools/i, "layers"],
+  [/shipped|feature/i, "sparkles"],
+  [/governance|security|compliance/i, "shield-check"],
+  [/lineage|model/i, "git-branch"],
+  [/delivery|uat|launch/i, "truck"],
+  [/dashboard|data|metric/i, "chart-column"],
+  [/experiment|test/i, "flask-conical"],
+  [/event|calendar/i, "calendar-days"],
 ];
 
-export function sectionIcon(label: string) {
-  return ICON_RULES.find(([pattern]) => pattern.test(label))?.[1] ?? Hash;
+export function sectionIcon(entry: Pick<Entry, "label" | "icon">) {
+  const name = entry.icon ?? ICON_RULES.find(([pattern]) => pattern.test(entry.label))?.[1] ?? "hash";
+  return ICONS[name];
 }
 
 /**
@@ -159,13 +162,13 @@ export function CaseStudyToc({ entries, coverId }: TocProps) {
     ...entries.map((e) => ({
       ...e,
       href: `#${e.id}`,
-      Icon: sectionIcon(e.label),
+      Icon: sectionIcon(e),
       section: true,
     })),
     {
       id: "contact",
       label: "Get in touch",
-      href: "#contact",
+      href: "#get-in-touch",
       Icon: Mail,
       section: false,
     },
@@ -173,7 +176,6 @@ export function CaseStudyToc({ entries, coverId }: TocProps) {
   ];
 
   return (
-    <ToBody>
       <nav
         aria-label="On this page"
         data-testid="toc"
@@ -230,7 +232,6 @@ export function CaseStudyToc({ entries, coverId }: TocProps) {
           })}
         </ol>
       </nav>
-    </ToBody>
   );
 }
 
@@ -244,14 +245,12 @@ export function ReadingProgress() {
     restDelta: 0.001,
   });
   return (
-    <ToBody>
       <motion.div
         aria-hidden="true"
         data-testid="reading-progress"
         className="fixed inset-x-0 top-0 z-[60] h-[3px] origin-left bg-accent"
         style={{ scaleX: reduce ? scrollYProgress : spring }}
       />
-    </ToBody>
   );
 }
 
@@ -276,7 +275,6 @@ export function CaseStudySectionMenu({ entries, coverId }: TocProps) {
   }, [open]);
 
   return (
-    <ToBody>
       <div className="xl:hidden" data-testid="section-menu">
         <AnimatePresence>
           {open ? (
@@ -319,7 +317,7 @@ export function CaseStudySectionMenu({ entries, coverId }: TocProps) {
               >
                 <ol className="flex flex-col">
                   {entries.map((entry) => {
-                    const Icon = sectionIcon(entry.label);
+                    const Icon = sectionIcon(entry);
                     const isActive = entry.id === active;
                     return (
                       <li key={entry.id}>
@@ -382,6 +380,5 @@ export function CaseStudySectionMenu({ entries, coverId }: TocProps) {
           </button>
         </div>
       </div>
-    </ToBody>
   );
 }

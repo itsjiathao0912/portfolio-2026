@@ -31,14 +31,28 @@ const project = {
       { value: "27", label: "verified rules, 6 document types" },
       { value: "~20", label: "people at a live demo" },
     ],
+    headline: "Labour compliance, checked by 27 verified rules.",
+    tone: "light",
+    visual: {
+      "kind": "mockup",
+      "device": "laptop",
+      "screen": {
+        "src": "/projects/ledgr/home-desktop.jpg",
+        "alt": "Ledgr home page on a laptop"
+      },
+      "secondary": {
+        "src": "/projects/ledgr/hdld-desktop.jpg",
+        "alt": "Ledgr labour-contract check"
+      }
+    },
   },
   blocks: [
-    { type: "heading", text: "The problem", eyebrow: "Context" },
+    { type: "heading", text: "The problem", icon: "circle-alert", eyebrow: "Context" },
     {
       type: "paragraph",
       text: "At a 10–50 person Vietnamese company, one person often handles HR, operations, and payroll at once — and most SMBs cannot afford a compliance specialist.",
     },
-    { type: "heading", text: "What it does", eyebrow: "Product" },
+    { type: "heading", text: "What it does", icon: "package", eyebrow: "Product" },
     {
       type: "paragraph",
       text: "Ledgr checks payroll, social insurance (BHXH), personal income tax, contracts, and overtime against current Vietnamese labour law, then explains what is wrong and how to fix it — in Vietnamese.",
@@ -56,7 +70,7 @@ const project = {
       text: "The 27 rules cover labor contracts, accounting vouchers, e-invoices, PIT finalization, VAT declarations and vendor service contracts. The marketing site's 100+ figure is the roadmap target.",
     },
     {
-      type: "features",
+      type: "steps",
       items: [
         { title: "Upload", text: "Documents go in as PDF, Word, or images." },
         { title: "Check against the law", text: "Findings are matched to current labour, insurance, and tax rules." },
@@ -71,13 +85,13 @@ const project = {
         { src: "/projects/ledgr/hdld-desktop.jpg", alt: "Ledgr labour-contract check page", caption: "Labour contract check" },
       ],
     },
-    { type: "heading", text: "How it decides", eyebrow: "Approach" },
+    { type: "heading", text: "How it decides", icon: "workflow", eyebrow: "Approach" },
     {
       type: "paragraph",
       text: "A deterministic rule engine makes every compliance decision; the language model only extracts facts from the document and explains the result. Rules are tiered — law, then company, then group overrides — and always clamped to the law.",
     },
     { type: "quote", text: "A company can be stricter than the law, never weaker." },
-    { type: "heading", text: "Validation", eyebrow: "Meetup demo" },
+    { type: "heading", text: "Validation", icon: "badge-check", eyebrow: "Meetup demo" },
     {
       type: "paragraph",
       text: "I demoed Ledgr at Build Stuffs #33 (20 June 2026), a cowork showcase for builders in Ho Chi Minh City, and validated it with around 20 people there.",
@@ -89,7 +103,7 @@ const project = {
         { src: "/projects/ledgr/meetup/laptop-2.webp", alt: "Ledgr landing page open on a laptop at the meetup", caption: "Demo setup" },
       ],
     },
-    { type: "heading", text: "Stack", eyebrow: "Technology" },
+    { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology" },
     { type: "stack", items: ["Next.js (App Router)", "TypeScript", "Supabase", "Anthropic Claude SDK", "Tailwind + shadcn/ui", "next-intl"] },
     {
       type: "links",

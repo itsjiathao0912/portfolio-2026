@@ -1,6 +1,5 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { presentationFor } from "@content/projects/presentation.ts";
 import type { Project } from "@content/schema.ts";
 import { cn } from "@/lib/utils";
 import { ProjectVisual } from "./project-visual";
@@ -26,7 +25,6 @@ const GRADIENT: Record<Project["meta"]["tint"], string> = {
 export function StackCard({ project, surface = "white" }: { project: Project; surface?: StackSurface }) {
   const { meta } = project;
   const dark = surface === "dark";
-  const presentation = presentationFor(project.slug, meta.subtitle || project.title);
   return (
     <article
       id={`project-${project.slug}`}
@@ -44,14 +42,14 @@ export function StackCard({ project, surface = "white" }: { project: Project; su
         <span className={cn("font-normal", dark ? "text-white/50" : "text-ink-3")}> · {meta.company}</span>
       </p>
       <h3 className={cn("mx-auto mt-6 max-w-[620px] text-[30px] leading-[1.12] md:text-[46px]", dark && "!text-bg")}>
-        {presentation.headline}
+        {meta.headline || meta.subtitle || project.title}
       </h3>
       <p className={cn("mx-auto mt-6 max-w-[600px] px-2 text-[16px] leading-[1.6] md:text-[18px]", dark ? "text-white/80" : "text-ink-1")}>
         {project.summary}
       </p>
       <div className="mx-auto mt-10 max-w-[760px] px-2 md:mt-12">
         <ProjectVisual
-          visual={presentation.visual}
+          visual={meta.visual}
           label={project.title}
           logo={meta.logo}
           tone={dark ? "deep" : "light"}

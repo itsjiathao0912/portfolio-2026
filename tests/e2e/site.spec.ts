@@ -145,7 +145,7 @@ test("case-study table of contents appears after the cover and follows the reade
   await expect(toc).toBeVisible();
   const sections = toc.locator("a[data-section]");
   await expect(sections.first()).toHaveAttribute("data-active", "true");
-  await expect(toc.getByRole("link", { name: "Get in touch" })).toHaveAttribute("href", "#contact");
+  await expect(toc.getByRole("link", { name: "Get in touch" })).toHaveAttribute("href", "#get-in-touch");
   await expect(toc.getByRole("link", { name: "Top" })).toHaveAttribute("href", "#top");
   const last = sections.last();
   await last.click();

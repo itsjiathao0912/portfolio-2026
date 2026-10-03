@@ -5,9 +5,19 @@ import { ZoomImage } from "./case-study-media";
 import { MediaFrame } from "./media-frame";
 
 /**
+ * Width of an `image` block relative to the 800 px column: `wide` breaks out
+ * to 1040 px, `bleed` to the full screen width (centred on the column).
+ */
+const IMAGE_SIZE = {
+  column: "",
+  wide: "relative left-1/2 w-[min(1040px,100vw)] -translate-x-1/2 px-5 md:px-0",
+  bleed: "relative left-1/2 w-screen -translate-x-1/2",
+} as const;
+
+/**
  * Renders an ordered list of typed content blocks (server component) in a
  * centred 800 px column. Sections are separated by 150-200 px of space, not
- * rules; `features` render as the numbered two-column story grid.
+ * rules; `steps` render as the numbered two-column story grid.
  */
 export function CaseStudyBlocks({ blocks, title }: { blocks: readonly ContentBlock[]; title: string }) {
   return (
@@ -37,9 +47,14 @@ function Block({ block, title, first }: { block: ContentBlock; title: string; fi
       return <p className="text-[1.07rem] leading-[1.75] text-ink-1/85">{block.text}</p>;
     case "image":
       return (
-        <figure className="my-6 flex flex-col gap-3">
+        <figure className={cn("my-6 flex flex-col gap-3", IMAGE_SIZE[block.size])} data-size={block.size}>
           {block.src ? (
-            <ZoomImage src={block.src} alt={block.alt} />
+            <ZoomImage
+              src={block.src}
+              alt={block.alt}
+              className={block.size === "bleed" ? "rounded-none" : undefined}
+              sizes={block.size === "column" ? undefined : block.size === "wide" ? "(min-width: 1100px) 1040px, 100vw" : "100vw"}
+            />
           ) : (
             <MediaFrame src={null} alt={block.alt} label={title} device={block.device} />
           )}
@@ -85,6 +100,7 @@ function Block({ block, title, first }: { block: ContentBlock; title: string; fi
           ))}
         </dl>
       );
+    case "steps":
     case "features":
       return (
         <ol className="my-6 grid gap-x-12 gap-y-12 sm:grid-cols-2" data-testid="steps">

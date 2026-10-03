@@ -51,8 +51,9 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
         Showing {visible.length} project{visible.length === 1 ? "" : "s"}
       </p>
       <ul className="grid gap-5 md:grid-cols-2 md:gap-8 xl:grid-cols-3 xl:gap-10" data-testid="work-grid">
+        {/* Work index cards: 400 ms reveal (other pages keep the default timing). */}
         {visible.map((project, index) => (
-          <Reveal as="li" key={project.id} index={index} className="h-full">
+          <Reveal as="li" key={project.id} index={index} duration={0.4} stagger={0.05} className="h-full">
             <WorkCard project={project} priority={index < 3} />
           </Reveal>
         ))}

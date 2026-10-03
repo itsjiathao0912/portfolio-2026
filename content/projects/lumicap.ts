@@ -25,9 +25,19 @@ const project = {
     coverAlt: "Lumicap public website, top of the home page",
     featured: true,
     proof: [{ value: "6", label: "investor-facing modules" }],
+    headline: "Real-world compute capacity, turned into on-chain funds.",
+    tone: "light",
+    visual: {
+      "kind": "mockup",
+      "device": "laptop",
+      "screen": {
+        "src": "/projects/lumicap/site-desktop.jpg",
+        "alt": "Lumicap public site on a laptop"
+      }
+    },
   },
   blocks: [
-    { type: "heading", text: "Overview", eyebrow: "The product" },
+    { type: "heading", text: "Overview", icon: "compass", eyebrow: "The product" },
     {
       type: "paragraph",
       text: "Lumicap turns real-world assets — GPU and compute capacity — into on-chain investment funds. Investors who are not crypto-native need to understand what they hold, what it is worth, and where their money moved.",
@@ -37,13 +47,13 @@ const project = {
       type: "callout",
       text: "Company-published figures (lumicap.io, not my personal outcomes): $635M in assets under management and 17 active investors.",
     },
-    { type: "heading", text: "My role", eyebrow: "Ownership" },
+    { type: "heading", text: "My role", icon: "user-round", eyebrow: "Ownership" },
     {
       type: "paragraph",
       text: "I led the build and owned the crypto core: digital-asset custody via multisig wallets, an on/off-chain ledger with USDC settlement, and fund management with NAV tracking and a clear transaction history.",
     },
     {
-      type: "features",
+      type: "steps",
       items: [
         { title: "Custody", text: "Digital-asset custody through multisig wallets." },
         { title: "Ledger", text: "An on/off-chain ledger with USDC settlement." },
@@ -51,9 +61,9 @@ const project = {
         { title: "Investor flows", text: "Tokenization workflows made legible to non-technical investors." },
       ],
     },
-    { type: "heading", text: "The product", eyebrow: "Public site" },
+    { type: "heading", text: "The product", icon: "package", eyebrow: "Public site" },
     { type: "image", src: "/projects/lumicap/site-desktop.jpg", alt: "Lumicap public website home page", caption: "The public marketing site. The investor product itself sits behind sign-in." },
-    { type: "heading", text: "Stack", eyebrow: "Technology" },
+    { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology" },
     { type: "stack", items: ["Multi-chain / EVM", "ERC-20", "USDC", "Privy", "HashiCorp Vault", "Arweave"] },
     { type: "links", items: [{ label: "Visit lumicap.io", href: "https://lumicap.io/" }] },
   ],

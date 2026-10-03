@@ -25,21 +25,35 @@ const project = {
     coverAlt: "Cortex Sentinel scenario list in the detection console",
     featured: false,
     proof: [{ value: "2nd", label: "place, AABW Fintech track" }],
+    headline: "Open AML monitoring a bank can host itself.",
+    tone: "deep",
+    visual: {
+      "kind": "mockup",
+      "device": "laptop",
+      "screen": {
+        "src": "/projects/cortex-sentinel/mockup-detection.jpg",
+        "alt": "Cortex Sentinel detection console on a laptop"
+      },
+      "secondary": {
+        "src": "/projects/cortex-sentinel/mockup-case-management.jpg",
+        "alt": "Cortex Sentinel case manager"
+      }
+    },
   },
   blocks: [
-    { type: "heading", text: "Overview", eyebrow: "The product" },
+    { type: "heading", text: "Overview", icon: "compass", eyebrow: "The product" },
     {
       type: "paragraph",
       text: "Cortex Sentinel is compliance operations infrastructure that a bank can run itself: real-time transaction monitoring, sanctions and PEP screening, and one case manager to investigate what it flags.",
     },
     { type: "metrics", items: [{ value: "2nd place", label: "Agentic AI Build Week (AABW), Fintech track" }] },
-    { type: "heading", text: "My work", eyebrow: "Ownership" },
+    { type: "heading", text: "My work", icon: "user-round", eyebrow: "Ownership" },
     {
       type: "paragraph",
       text: "I own the product and console layer — the detection navigation, the case-management workspace, and an AI triage copilot that proposes a disposition with its rationale and evidence, rather than a bare score.",
     },
     {
-      type: "features",
+      type: "steps",
       items: [
         { title: "Detection", text: "Scenarios, rules, and live versions for transaction monitoring." },
         { title: "Case management", text: "One workspace to investigate what detection flags." },
@@ -58,7 +72,7 @@ const project = {
         { src: "/projects/cortex-sentinel/analytics.jpg", alt: "Detection analytics view", caption: "Analytics" },
       ],
     },
-    { type: "heading", text: "Stack", eyebrow: "Technology" },
+    { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology" },
     { type: "stack", items: ["Go", "React", "PostgreSQL", "Elasticsearch + yente", "OpenSanctions", "Docker Compose"] },
     { type: "links", items: [{ label: "Source on GitHub", href: "https://github.com/cortex-sentinel-az/setinel" }] },
   ],

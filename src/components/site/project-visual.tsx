@@ -1,4 +1,4 @@
-import type { ProjectVisual as Visual } from "@content/projects/presentation.ts";
+import type { ProjectVisual as Visual } from "@content/schema.ts";
 import { cn } from "@/lib/utils";
 import { DeviceMockup } from "./device-mockup";
 import { ProjectIllustration } from "./project-illustration";

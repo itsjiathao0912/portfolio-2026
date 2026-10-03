@@ -28,9 +28,15 @@ const project = {
       { value: "+30%", label: "ad revenue in six months" },
       { value: "+15%", label: "user engagement" },
     ],
+    headline: "Ad revenue up 30% in six months, inside Zalo.",
+    tone: "deep",
+    visual: {
+      "kind": "illustration",
+      "motif": "games"
+    },
   },
   blocks: [
-    { type: "heading", text: "Overview", eyebrow: "Context" },
+    { type: "heading", text: "Overview", icon: "compass", eyebrow: "Context" },
     {
       type: "paragraph",
       text: "At Zalo I owned the roadmap and delivery for 1 new product launch and 4 existing products, coordinating engineering, design, and data teams.",
@@ -44,17 +50,17 @@ const project = {
         { value: "−40%", label: "manual data extraction" },
       ],
     },
-    { type: "heading", text: "Tracking dashboard", eyebrow: "Data" },
+    { type: "heading", text: "Tracking dashboard", icon: "chart-column", eyebrow: "Data" },
     {
       type: "paragraph",
       text: "I developed and rolled out a tracking dashboard for Zalo Game Center, replacing manual reporting with a self-serve surface. Manual data extraction dropped by 40% and decisions could rest on data instead of requests.",
     },
-    { type: "heading", text: "Ad placement experiments", eyebrow: "Monetization" },
+    { type: "heading", text: "Ad placement experiments", icon: "flask-conical", eyebrow: "Monetization" },
     {
       type: "paragraph",
       text: "I optimized in-game ad placements through A/B testing across the Game Center portfolio, increasing total ad revenue by 30% within six months.",
     },
-    { type: "heading", text: "Monthly events", eyebrow: "Engagement" },
+    { type: "heading", text: "Monthly events", icon: "calendar-days", eyebrow: "Engagement" },
     {
       type: "paragraph",
       text: "I ran a monthly cadence of in-game events, which lifted user engagement by 15% and grew paying users by 3%.",

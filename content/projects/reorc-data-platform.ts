@@ -28,9 +28,15 @@ const project = {
       { value: "−40%", label: "rework" },
       { value: "95%", label: "first-pass UAT" },
     ],
+    headline: "Data people can trust, with 40% less rework.",
+    tone: "light",
+    visual: {
+      "kind": "illustration",
+      "motif": "lineage"
+    },
   },
   blocks: [
-    { type: "heading", text: "Overview", eyebrow: "Context" },
+    { type: "heading", text: "Overview", icon: "compass", eyebrow: "Context" },
     {
       type: "paragraph",
       text: "ReOrc builds an enterprise data platform. My work structured governance, workflows, and validation so the data business users report on is reliable and delivery runs with less churn.",
@@ -43,17 +49,17 @@ const project = {
         { value: "95%", label: "first-pass UAT success" },
       ],
     },
-    { type: "heading", text: "Governance", eyebrow: "Research" },
+    { type: "heading", text: "Governance", icon: "shield-check", eyebrow: "Research" },
     {
       type: "paragraph",
       text: "I benchmarked enterprise data platforms to design governance and access-control frameworks, improving compliance and the reliability of decisions made on the data.",
     },
-    { type: "heading", text: "Lineage and modeling", eyebrow: "Features" },
+    { type: "heading", text: "Lineage and modeling", icon: "git-branch", eyebrow: "Features" },
     {
       type: "paragraph",
       text: "I designed and launched data modeling and lineage features that let business users trace where data comes from and what depends on it, reducing reporting ambiguity.",
     },
-    { type: "heading", text: "Delivery and UAT", eyebrow: "Process" },
+    { type: "heading", text: "Delivery and UAT", icon: "truck", eyebrow: "Process" },
     {
       type: "list",
       items: [
