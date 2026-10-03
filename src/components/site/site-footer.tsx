@@ -5,6 +5,7 @@ import { GithubIcon, LinkedinIcon } from "./brand-icons";
 import { Magnetic } from "@/components/motion/magnetic";
 import { SketchHint } from "@/components/gems/sketch-hint";
 import { LiquidLink } from "./liquid-link";
+import { CopyEmail } from "./copy-email";
 
 function iconFor(label: string) {
   const key = label.toLowerCase();
@@ -59,12 +60,15 @@ export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
           Want to get in touch? Drop me a line.
         </h2>
         {profile ? (
-          <Magnetic>
-            <LiquidLink href={`mailto:${profile.email}`} data-testid="footer-email" className="h-16 px-10 text-[17px]">
-              <Mail className="size-5" aria-hidden="true" />
-              {profile.email}
-            </LiquidLink>
-          </Magnetic>
+          <div className="flex flex-col items-center gap-4">
+            <Magnetic>
+              <LiquidLink href={`mailto:${profile.email}`} data-testid="footer-email" className="h-16 px-10 text-[17px]">
+                <Mail className="size-5" aria-hidden="true" />
+                {profile.email}
+              </LiquidLink>
+            </Magnetic>
+            <CopyEmail email={profile.email} />
+          </div>
         ) : null}
         <p className="text-[15px] text-ink-3">Thanks for stopping by. Talk soon.</p>
       </section>
@@ -74,6 +78,13 @@ export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
             <SketchHint name={profile?.name ?? "Thao Dao"} />{" "}
             <span lang="vi">· {profile?.nameLocal ?? "Gia Thảo"}</span>
             {profile ? ` · ${profile.location}` : null}
+          </p>
+          <p className="text-xs">
+            Emoji graphics:{" "}
+            <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline-offset-2 hover:text-ink-1 hover:underline">
+              Twemoji
+            </a>
+            , CC-BY 4.0
           </p>
           <nav aria-label="Footer" className="flex gap-2">
             <Link href="/work" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 hover:text-ink-1">Work</Link>

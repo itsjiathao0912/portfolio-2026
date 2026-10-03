@@ -71,9 +71,9 @@ describe("motion presets", () => {
 describe("nav", () => {
   test("active item per route", () => {
     expect(isActive("/", "/")).toBe(true);
-    expect(isActive("/work/ledgr", "/#work")).toBe(true);
+    expect(isActive("/work/ledgr", "/work")).toBe(true);
     expect(isActive("/about", "/about")).toBe(true);
-    expect(isActive("/about", "/#work")).toBe(false);
+    expect(isActive("/about", "/work")).toBe(false);
   });
   test("sheet closes on a flick or a 30% drag, rubber-bands otherwise", () => {
     expect(shouldCloseSheet(-20, -800, 500)).toBe(true);

@@ -19,7 +19,7 @@ test.describe("desktop shell motion", () => {
     // Scroll far down: still on screen (ROUND2 #6), compact.
     await page.evaluate(() => window.scrollTo(0, 3000));
     await page.waitForTimeout(700);
-    await expect(page.locator("header")).toHaveAttribute("data-compact", "true");
+    await expect(page.locator("header[data-compact]")).toHaveAttribute("data-compact", "true");
     const box = await nav.boundingBox();
     expect(box && box.y + box.height).toBeGreaterThan(0);
     await expect(nav).toBeInViewport();

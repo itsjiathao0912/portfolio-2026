@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 const ITEMS = [
   { href: "/#highlights", label: "Highlights" },
-  { href: "/#work", label: "Work" },
+  { href: "/work", label: "Work" },
   { href: "/about", label: "About" },
 ] as const;
 
@@ -25,7 +25,7 @@ interface SiteNavProps {
 
 export function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
-  if (href === "/#work") return pathname === "/work" || pathname.startsWith("/work/");
+  if (href === "/work") return pathname === "/work" || pathname.startsWith("/work/");
   if (href === "/about") return pathname === "/about";
   return false;
 }

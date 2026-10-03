@@ -69,9 +69,9 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <CareerRail products={projectEntries.length} className="mt-16 md:mt-24" />
+      <CareerRail products={projectEntries.length} className="mt-10 md:mt-12" />
 
-      <section aria-labelledby="experience" className="mx-auto max-w-[1100px] px-6 pt-24 md:px-10 md:pt-[150px]" data-testid="section-experience">
+      <section aria-labelledby="experience" className="mx-auto max-w-[1100px] px-6 pt-16 md:px-10 md:pt-24" data-testid="section-experience">
         <Heading id="experience">Experience</Heading>
         <ol className="mt-10 flex flex-col">
           {main.map((job, i) => (

@@ -120,7 +120,7 @@ export function CareerRail({ stops = buildRailStops(), heading = "The route so f
   };
 
   return (
-    <section aria-label={heading} className={`bg-bg py-16 md:py-24 ${className}`} data-testid="career-rail">
+    <section aria-label={heading} className={`bg-bg pt-12 pb-8 md:pt-16 md:pb-6 ${className}`} data-testid="career-rail">
       <div className="mx-auto flex max-w-[1100px] items-end justify-between gap-6 px-6 md:px-10">
         <div>
           <p className="text-sm text-ink-3">Career</p>
@@ -193,6 +193,13 @@ export function CareerRail({ stops = buildRailStops(), heading = "The route so f
             >
               <p className="text-sm text-ink-3">So far</p>
               <p className="mt-2 text-lg leading-snug">{summary}</p>
+              <a
+                href="#get-in-touch"
+                data-testid="rail-talk"
+                className="mt-5 inline-flex min-h-11 items-center gap-1.5 self-start rounded-full bg-ink-1 px-5 text-[15px] font-medium text-bg hover:bg-ink-hover"
+              >
+                Let&rsquo;s talk <ArrowRight className="size-4" aria-hidden="true" />
+              </a>
             </article>
           </li>
         </ol>
