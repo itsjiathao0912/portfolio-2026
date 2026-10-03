@@ -49,6 +49,16 @@ const project = {
       text: "I owned the billing domain end-to-end: usage metering, multi-currency pricing, invoices, credit notes, and revenue dashboards. I specified the API-heavy integrations that turn multi-service usage into tenant invoices.",
     },
     {
+      type: "list",
+      items: [
+        "Usage metering: per tenant, per service, across compute, storage and network.",
+        "Multi-currency pricing: one price logic, billed in the tenant's currency.",
+        "Invoices and credit notes: issued from metered usage, with corrections as credit notes rather than edits.",
+        "Revenue dashboards: what was used, invoiced and paid, in one view.",
+        "API-heavy integrations: the specs that connect provider usage feeds to billing.",
+      ],
+    },
+    {
       type: "flow",
       title: "Four price books into one invoice",
       caption: "The scope of the billing domain, as described in my CV. A conceptual view, not a system diagram.",

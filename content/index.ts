@@ -6,6 +6,8 @@
 
 import cortexSentinel from "./projects/cortex-sentinel.ts";
 import cosap from "./projects/cosap.ts";
+import gocrypto from "./projects/gocrypto.ts";
+import guardline from "./projects/guardline.ts";
 import ledgr from "./projects/ledgr.ts";
 import lumicap from "./projects/lumicap.ts";
 import pac from "./projects/pac.ts";
@@ -21,6 +23,8 @@ export const projectEntries: readonly unknown[] = [
   reorcDataPlatform,
   ledgr,
   cortexSentinel,
+  gocrypto,
+  guardline,
 ];
 
 export const siteEntry: unknown = site;

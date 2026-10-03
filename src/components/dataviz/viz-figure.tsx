@@ -17,6 +17,9 @@ interface VizFigureProps extends VizFrameProps {
   kind: string;
   /** Legend entries, coloured by index. */
   legend?: string[];
+  /** Makes the legend interactive: each chip toggles its series. */
+  hidden?: readonly string[];
+  onLegendToggle?: (name: string) => void;
   children: React.ReactNode;
 }
 
@@ -24,7 +27,7 @@ interface VizFigureProps extends VizFrameProps {
  * Shared frame for every chart: title + honesty chip on top, the chart, a
  * legend, then one figcaption holding the caption and the source line.
  */
-export function VizFigure({ kind, title, caption, source, badge, legend, className, children }: VizFigureProps) {
+export function VizFigure({ kind, title, caption, source, badge, legend, hidden, onLegendToggle, className, children }: VizFigureProps) {
   const id = useId();
   return (
     <figure
@@ -47,12 +50,31 @@ export function VizFigure({ kind, title, caption, source, badge, legend, classNa
       {children}
       {legend && legend.length > 1 ? (
         <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-2" aria-label="Legend">
-          {legend.map((name, i) => (
-            <li key={name} className="flex items-center gap-2">
-              <span aria-hidden="true" className={cn("size-3 rounded-sm", SERIES_BG[i % SERIES_BG.length])} />
-              {name}
-            </li>
-          ))}
+          {legend.map((name, i) => {
+            const swatch = <span aria-hidden="true" className={cn("size-3 rounded-sm", SERIES_BG[i % SERIES_BG.length])} />;
+            if (!onLegendToggle)
+              return (
+                <li key={name} className="flex items-center gap-2">
+                  {swatch}
+                  {name}
+                </li>
+              );
+            const off = hidden?.includes(name) ?? false;
+            return (
+              <li key={name}>
+                <button
+                  type="button"
+                  aria-pressed={!off}
+                  onClick={() => onLegendToggle(name)}
+                  className={cn("flex min-h-9 items-center gap-2 rounded-full border border-hairline px-3 transition-opacity hover:border-border-strong", off && "opacity-40 line-through")}
+                  data-testid="legend-toggle"
+                >
+                  {swatch}
+                  {name}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       ) : null}
       {caption || source ? (

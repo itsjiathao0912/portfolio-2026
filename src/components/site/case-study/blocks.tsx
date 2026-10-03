@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { headingAnchor, type CaseLayout, type ContentBlock } from "@content/schema.ts";
-import { BarChart, BeforeAfter, FlowDiagram, Funnel, LineChart, ModuleMap, Timeline } from "@/components/dataviz";
+import { BarChart, BeforeAfter, CompareSlider, Explorable, FlowDiagram, Funnel, LineChart, ModuleMap, ScoreLadder, ScrubTimeline, StackedBar, Timeline, VideoLoop } from "@/components/dataviz";
 import { cn } from "@/lib/utils";
 import { ZoomImage } from "../case-study-media";
 import { MediaFrame } from "../media-frame";
@@ -186,6 +186,27 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
       return <Timeline className={wideViz} {...block} />;
     case "beforeAfter":
       return <BeforeAfter className={wideViz} {...block} />;
+    case "stackedBar":
+      return <StackedBar className={wideViz} {...block} />;
+    case "scoreLadder":
+      return <ScoreLadder className={wideViz} {...block} />;
+    case "compareSlider":
+      return <CompareSlider className={wideViz} {...block} />;
+    case "scrubTimeline":
+      return <ScrubTimeline className={wideViz} {...block} />;
+    case "explorable":
+      return <Explorable className={WIDE} {...block} />;
+    case "video":
+      return <VideoLoop {...block} />;
+    case "code":
+      return (
+        <figure className="my-6 flex flex-col gap-3" data-testid="code-block">
+          <pre className="overflow-x-auto rounded-[20px] bg-ink-1 p-5 font-mono text-[0.85rem] leading-relaxed text-white/90" tabIndex={0} aria-label={`${block.language} sample`}>
+            <code>{block.code}</code>
+          </pre>
+          {block.caption ? <figcaption className="text-sm text-ink-3">{block.caption}</figcaption> : null}
+        </figure>
+      );
   }
 }
 

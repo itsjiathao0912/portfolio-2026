@@ -134,6 +134,95 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
     before: vizPoint,
     after: vizPoint,
   }),
+  // 100%-style stacked bar. `highlight` names a subset the reader can switch on
+  // (e.g. "the Gulf corridors"); click a legend chip to isolate one segment.
+  z.object({
+    type: z.literal("stackedBar"),
+    ...vizBase,
+    unit: z.string().default("%"),
+    segments: z.array(vizPoint.extend({ detail: z.string().optional() })).min(2).max(8),
+    highlight: z.object({ label: z.string().min(1), members: z.array(z.string().min(1)).min(1), note: z.string().optional() }).optional(),
+  }),
+  // Interactive score ladder: tap rules to "fire" them; the summed score lands
+  // in one of the bands. `preset` = rules fired on load (a worked example).
+  z.object({
+    type: z.literal("scoreLadder"),
+    ...vizBase,
+    rules: z.array(z.object({ label: z.string().min(1), points: z.number() })).min(2).max(10),
+    bands: z.array(z.object({ label: z.string().min(1), from: z.number(), tone: z.enum(["calm", "watch", "alert", "stop"]) })).min(2).max(5),
+    preset: z.array(z.string()).default([]),
+  }),
+  // Before/after slider over several rows: drag from "before" to "after" and
+  // every row morphs. Values per row share a unit, so units can differ by row.
+  z.object({
+    type: z.literal("compareSlider"),
+    ...vizBase,
+    beforeLabel: z.string().min(1),
+    afterLabel: z.string().min(1),
+    rows: z
+      .array(
+        z.object({
+          label: z.string().min(1),
+          before: z.object({ value: z.number(), display: z.string().min(1) }),
+          after: z.object({ value: z.number(), display: z.string().min(1) }),
+          /** Optional short note shown with the row ("−83%"). Must come from the source. */
+          change: z.string().optional(),
+        }),
+      )
+      .min(1)
+      .max(6),
+  }),
+  // Scrubbable timeline: a draggable playhead over ordered stops. Several
+  // `tracks` add a toggle (e.g. closed-end vs open-end fund).
+  z.object({
+    type: z.literal("scrubTimeline"),
+    ...vizBase,
+    source: z.string().default(""),
+    tracks: z
+      .array(
+        z.object({
+          name: z.string().min(1),
+          stops: z.array(z.object({ when: z.string().min(1), label: z.string().min(1), detail: z.string().min(1) })).min(2).max(8),
+        }),
+      )
+      .min(1)
+      .max(3),
+  }),
+  // Explorable diagram: nodes on a column/row grid joined by edges. Clicking a
+  // node lights its path and shows its note. `quorum` gates `unlocks` nodes
+  // until `need` of the quorum nodes are clicked (e.g. 2-of-3 signing).
+  z.object({
+    type: z.literal("explorable"),
+    ...vizBase,
+    source: z.string().default(""),
+    nodes: z
+      .array(
+        z.object({
+          id: z.string().min(1),
+          label: z.string().min(1),
+          detail: z.string().min(1),
+          col: z.number().int().min(0).max(5),
+          row: z.number().int().min(0).max(5),
+          kind: z.enum(["step", "actor", "guard", "outcome"]).default("step"),
+        }),
+      )
+      .min(2)
+      .max(16),
+    edges: z.array(z.object({ from: z.string().min(1), to: z.string().min(1), dashed: z.boolean().default(false) })).default([]),
+    quorum: z.object({ nodes: z.array(z.string().min(1)).min(2), need: z.number().int().min(1), unlocks: z.array(z.string().min(1)).min(1), prompt: z.string().min(1) }).optional(),
+  }),
+  // Muted ambient video loop (autoplays only in view; poster otherwise).
+  z.object({
+    type: z.literal("video"),
+    src: assetSchema,
+    poster: assetSchema,
+    alt: z.string().min(1),
+    caption: z.string().optional(),
+    /** `portrait` keeps a 9:16 phone clip narrow and centred. */
+    aspect: z.enum(["portrait", "landscape"]).default("landscape"),
+  }),
+  // A short code / data sample rendered as real text.
+  z.object({ type: z.literal("code"), code: z.string().min(1), language: z.string().default("json"), caption: z.string().optional() }),
   // Horizontal, swipeable row of images (magazine / showcase galleries).
   z.object({
     type: z.literal("imageRow"),
@@ -307,6 +396,18 @@ export function parseProjects(inputs: readonly unknown[]) {
     const anchors = tocEntries(project.blocks).map((entry) => entry.id);
     const dupes = anchors.filter((id, i) => anchors.indexOf(id) !== i);
     if (dupes.length > 0) errors.push(`${project.slug}: duplicate section heading ${dupes[0]}`);
+    for (const block of project.blocks) {
+      if (block.type === "explorable") {
+        const ids = new Set(block.nodes.map((n) => n.id));
+        const refs = [...block.edges.flatMap((e) => [e.from, e.to]), ...(block.quorum ? [...block.quorum.nodes, ...block.quorum.unlocks] : [])];
+        const bad = refs.find((id) => !ids.has(id));
+        if (bad) errors.push(`${project.slug}: explorable "${block.title}" references unknown node ${bad}`);
+      }
+      if (block.type === "scoreLadder") {
+        const bad = block.preset.find((label) => !block.rules.some((r) => r.label === label));
+        if (bad) errors.push(`${project.slug}: score ladder preset names unknown rule ${bad}`);
+      }
+    }
   }
 
   if (errors.length > 0) return { ok: false, errors } as const;

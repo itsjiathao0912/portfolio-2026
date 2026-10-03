@@ -36,3 +36,23 @@ export function groupsOf(items: readonly { group?: string }[]) {
 /** Bar/dot colours by series index. Literal classes so Tailwind generates them. */
 export const SERIES_BG = ["bg-navy", "bg-accent", "bg-indigo", "bg-ink-3"] as const;
 export const SERIES_TEXT = ["text-navy", "text-accent", "text-indigo", "text-ink-3"] as const;
+
+/** The band a score falls in: the last band whose `from` is ≤ score (bands sorted by `from`). */
+export function bandFor<T extends { from: number }>(score: number, bands: readonly T[]) {
+  const sorted = [...bands].sort((a, b) => a.from - b.from);
+  let hit = sorted[0];
+  for (const band of sorted) if (score >= band.from) hit = band;
+  return hit;
+}
+
+/** Linear interpolation, clamped t ∈ [0, 1]. */
+export function lerp(a: number, b: number, t: number) {
+  const k = Math.min(1, Math.max(0, t));
+  return a + (b - a) * k;
+}
+
+/** Index of the timeline stop nearest a playhead position p ∈ [0, 1]. */
+export function nearestStop(p: number, count: number) {
+  if (count <= 1) return 0;
+  return Math.min(count - 1, Math.max(0, Math.round(p * (count - 1))));
+}

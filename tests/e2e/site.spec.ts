@@ -93,10 +93,10 @@ test("work index lists every project and filters by category", async ({ page }) 
   await page.goto("/work");
   await scrollThrough(page);
   await expect(page.getByTestId("project-card")).toHaveCount(SLUGS.length);
-  await page.getByTestId("filter-chip").filter({ hasText: "Personal" }).click();
+  await page.getByTestId("filter-chip").filter({ hasText: "Hackathon" }).click();
   await expect(page.getByTestId("project-card")).toHaveCount(2);
   for (const card of await page.getByTestId("project-card").all()) {
-    await expect(card).toHaveAttribute("data-category", "Personal");
+    await expect(card).toHaveAttribute("data-category", "Hackathon");
   }
   await page.getByTestId("filter-chip").filter({ hasText: "All" }).click();
   await expect(page.getByTestId("project-card")).toHaveCount(SLUGS.length);
@@ -180,7 +180,7 @@ test("case-study hero is centred with a sentence headline and a real visual", as
 
 test("projects without screenshots get an illustration, not a placeholder", async ({ page }) => {
   await page.goto("/work");
-  await expect(page.locator("[data-illustration]")).toHaveCount(3);
+  await expect(page.locator("[data-illustration]")).toHaveCount(4);
   await expect(page.locator("[data-placeholder]")).toHaveCount(0);
 });
 
