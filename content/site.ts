@@ -198,7 +198,9 @@ export default site;
  * start loading as the section approaches the viewport; until then the static
  * preview (`excerpt` + `date`) is the skeleton. `excerpt` is the post's own
  * opening text (public embed page, fetched 3 Oct 2026); `date` comes from the
- * post id. Card size is shared — see EMBED_W / EMBED_H in linkedin-posts.tsx.
+ * post id. `embedHeight` is measured per post (headed Chromium, 3 Oct 2026,
+ * cookie banner dismissed) at CARD_W.phone / CARD_W.desktop in linkedin-posts.tsx
+ * — re-measure when a post is added, edited, or the card width changes.
  */
 export const linkedinPosts = [
   {
@@ -208,6 +210,8 @@ export const linkedinPosts = [
     excerpt:
       "Vietnam's fintech story is often told through wallets, QR codes, and super apps. But the more important story may be the payment infrastructure behind them. In many markets, KYC is procurement. In Vietnam, identity is a state database you connect to.",
     url: "https://www.linkedin.com/feed/update/urn:li:share:7504889327873626112/",
+    // Collapsed-embed height (px) at the phone / desktop card width, no cookie banner.
+    embedHeight: { phone: 604, desktop: 634 },
   },
   {
     urn: "urn:li:ugcPost:7505576167261966336",
@@ -216,6 +220,8 @@ export const linkedinPosts = [
     excerpt:
       "I was scammed through a bank transfer, less than VND 2 million for a hotel booking that did not exist. My starting question: what could my bank know about the account I was paying? I explored how NAPAS 247 carries interbank payments, and how SIMO helps banks assess suspicious destinations.",
     url: "https://www.linkedin.com/feed/update/urn:li:ugcPost:7505576167261966336/",
+    // Collapsed-embed height (px) at the phone / desktop card width, no cookie banner.
+    embedHeight: { phone: 567, desktop: 551 },
   },
   {
     urn: "urn:li:activity:7483045282734104576",
@@ -224,6 +230,8 @@ export const linkedinPosts = [
     excerpt:
       "Runner-Up at the largest agentic AI buildathon in Southeast Asia. Our solution, Cortex Sentinel, is an AML compliance hub where analysts write detection rules in plain English. AI proposes, humans decide.",
     url: "https://www.linkedin.com/posts/thaodao0912_aabw-aabw2026-activity-7483045282734104576-zhg8",
+    // Collapsed-embed height (px) at the phone / desktop card width, no cookie banner.
+    embedHeight: { phone: 646, desktop: 612 },
   },
 ] as const satisfies readonly {
   urn: string;
@@ -231,6 +239,7 @@ export const linkedinPosts = [
   date: string;
   excerpt: string;
   url: string;
+  embedHeight: { phone: number; desktop: number };
 }[];
 
 // Real photos of Thao (optimised copies of her own uploads; see

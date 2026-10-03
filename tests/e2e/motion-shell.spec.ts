@@ -1,6 +1,6 @@
 import { expect, test } from "./fixtures";
 import { linkedinPosts } from "../../content/site.ts";
-import { EMBED_H, EMBED_W } from "../../src/components/site/linkedin-posts.tsx";
+import { CARD_W } from "../../src/components/site/linkedin-posts.tsx";
 
 // Real page loads on a busy machine: allow more than the 30s default.
 test.describe.configure({ timeout: 120_000 });
@@ -61,16 +61,19 @@ test.describe("desktop home additions", () => {
     expect(keys.filter((k) => k.startsWith("/projects/")).length).toBeGreaterThanOrEqual(4);
   });
 
-  test("LinkedIn collapsed embeds pre-load as the section approaches; even, scroll-free cards", async ({ page }) => {
-    // Stub LinkedIn: each embed document is exactly as tall as the measured
-    // worst case, so "no inner scroll" proves the shared card height honours it.
+  test("LinkedIn collapsed embeds pre-load as the section approaches; one top-aligned row, each card its own height", async ({ page }) => {
+    // Stub LinkedIn: each embed document is exactly as tall as its post's
+    // measured height, so "no inner scroll" proves the card honours it.
     const requested: string[] = [];
     await page.route("https://www.linkedin.com/**", (route) => {
-      requested.push(route.request().url());
+      const url = route.request().url();
+      requested.push(url);
+      const post = linkedinPosts.find((p) => url.includes(p.urn));
+      const h = post?.embedHeight.desktop ?? 100;
       return route.fulfill({
         status: 200,
         contentType: "text/html",
-        body: `<!doctype html><html><body style="margin:0"><div style="height:${EMBED_H}px">post</div></body></html>`,
+        body: `<!doctype html><html><body style="margin:0"><div style="height:${h}px">post</div></body></html>`,
       });
     });
     await page.goto("/");
@@ -93,29 +96,58 @@ test.describe("desktop home additions", () => {
 
     await section.scrollIntoViewIfNeeded();
     // The staggered Reveal rise (24px) must settle before positions are compared.
-    const rows = () =>
+    const tops = () =>
       page.getByTestId("linkedin-card").evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
-    await expect.poll(async () => new Set((await rows()).slice(0, 2)).size, { timeout: 10_000 }).toBe(1);
+    await expect.poll(async () => new Set(await tops()).size, { timeout: 10_000 }).toBe(1);
     const cards = await page.getByTestId("linkedin-card").evaluateAll((els) =>
       els.map((el) => {
         const r = el.getBoundingClientRect();
-        return { w: Math.round(r.width), h: Math.round(r.height) };
+        return { w: Math.round(r.width), h: Math.round(r.height), right: Math.round(r.right) };
       })
     );
-    // Every card is the same EMBED_W × EMBED_H, so rows are even.
-    for (const c of cards) expect(c).toEqual({ w: EMBED_W, h: EMBED_H });
+    // One row at 1440: all three fully visible, each at its own measured height.
+    cards.forEach((c, i) => {
+      expect(c.w).toBe(CARD_W.desktop);
+      expect(c.h).toBe(linkedinPosts[i].embedHeight.desktop);
+      expect(c.right).toBeLessThanOrEqual(1440);
+    });
 
-    // Nothing scrolls inside any embed.
+    // Nothing scrolls inside any embed (no cookie banner in the stub).
     const frames = page.frames().filter((f) => f.url().includes("linkedin.com/embed/"));
     expect(frames).toHaveLength(linkedinPosts.length);
     for (const frame of frames) {
       const m = await frame.evaluate(() => ({ sh: document.documentElement.scrollHeight, ch: document.documentElement.clientHeight }));
       expect(m.sh).toBeLessThanOrEqual(m.ch);
     }
-    for (const iframe of await page.getByTestId("linkedin-embed").all()) await expect(iframe).toHaveAttribute("scrolling", "no");
+    // Three fit, so no arrows; the track is keyboard focusable.
+    await expect(page.getByTestId("linkedin-next")).toHaveCount(0);
+    await expect(page.getByTestId("linkedin-grid")).toHaveAttribute("tabindex", "0");
     await expect(section.getByRole("link", { name: /View on LinkedIn/ })).toHaveCount(linkedinPosts.length);
     await expect(section.getByRole("heading", { level: 2, name: "Notes on LinkedIn" })).toBeVisible();
     await expect(section.getByRole("link", { name: /Follow on LinkedIn/ })).toHaveAttribute("href", "https://www.linkedin.com/in/thaodao0912/");
+    await page.screenshot({ path: test.info().outputPath("linkedin-1440.png") });
+  });
+});
+
+test.describe("phone LinkedIn carousel", () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+  test("one row with the next post peeking, cards at phone height", async ({ page }) => {
+    await page.goto("/");
+    const section = page.getByTestId("section-linkedin");
+    await section.scrollIntoViewIfNeeded();
+    const grid = page.getByTestId("linkedin-grid");
+    await expect.poll(() => grid.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+    const cards = await page.getByTestId("linkedin-card").evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { left: Math.round(r.left), w: Math.round(r.width), h: Math.round(r.height) };
+      })
+    );
+    expect(cards[0].w).toBe(CARD_W.phone);
+    expect(cards[1].left).toBeLessThan(390); // peeks
+    cards.forEach((c, i) => expect(c.h).toBe(linkedinPosts[i].embedHeight.phone));
+    await page.screenshot({ path: test.info().outputPath("linkedin-390.png") });
   });
 });
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { LinkedinIcon } from "./brand-icons";
 import { Reveal } from "./reveal";
 
@@ -13,18 +13,20 @@ export interface LinkedinPost {
   /** The post's own opening text, shown as the skeleton until the embed loads. */
   excerpt: string;
   url: string;
+  /** Measured collapsed-embed height (px) at CARD_W.phone / CARD_W.desktop. */
+  embedHeight: { phone: number; desktop: number };
 }
 
 /**
- * One shared card size for every post. A cross-origin embed cannot report its
- * height, so EMBED_H is MEASURED (headed Chromium, 3 Oct 2026, collapsed embeds):
- * full document height incl. the reaction bar was 822–904px at 342–504px wide.
- * That includes LinkedIn's in-flow cookie banner (~255px), which every first
- * visit shows and we cannot hide; 904 + buffer → no inner scrollbar. Re-measure
- * when a post is added or edited.
+ * Card widths (px). Desktop: 3 × 384 + 2 × 24px gap = the 1200px content column
+ * at 1440, so three posts sit fully on one row; more scroll. Phone: 320 + 16px
+ * gap leaves the next card peeking (~1.1 visible at 390). A cross-origin embed cannot
+ * report its height, so each post's height is measured at these widths and
+ * stored in content/site.ts (no reserved blank space). If a viewer sees
+ * LinkedIn's cookie banner, the embed scrolls inside instead.
  */
-export const EMBED_W = 504;
-export const EMBED_H = 912;
+export const CARD_W = { phone: 320, desktop: 384 } as const;
+export const CARD_GAP = { phone: 16, desktop: 24 } as const;
 /** Start loading embeds this far before the section scrolls into view. */
 export const PRELOAD_MARGIN = "800px 0px";
 
@@ -54,18 +56,17 @@ function PostCard({ post, load }: { post: LinkedinPost; load: boolean }) {
   const src = linkedinEmbedSrc(post.urn)!;
   return (
     <div
-      className="relative isolate z-0 overflow-hidden rounded-[20px] bg-bg shadow-card ring-1 ring-black/5"
-      style={{ height: EMBED_H }}
+      className="relative isolate z-0 h-[var(--h-phone)] overflow-hidden rounded-[20px] bg-bg shadow-card ring-1 ring-black/5 md:h-[var(--h-desktop)]"
+      style={{ "--h-phone": `${post.embedHeight.phone}px`, "--h-desktop": `${post.embedHeight.desktop}px` } as CSSProperties}
       data-testid="linkedin-card"
       data-state={loaded ? "loaded" : load ? "loading" : "preview"}
     >
       {load ? (
-        // Shared measured height: the collapsed embed never scrolls inside.
+        // Sized to the post itself; scrolls inside only if LinkedIn adds its cookie banner.
         <iframe
           src={src}
           title={`LinkedIn post: ${post.title}`}
           referrerPolicy="strict-origin-when-cross-origin"
-          scrolling="no"
           onLoad={() => setLoaded(true)}
           data-testid="linkedin-embed"
           className={`absolute inset-0 block h-full w-full border-0 transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
@@ -81,7 +82,7 @@ function PostCard({ post, load }: { post: LinkedinPost; load: boolean }) {
             <LinkedinIcon className="size-6 text-[#0a66c2]" />
           </div>
           <p className="text-[18px] leading-[1.3] font-semibold text-ink-1">{post.title}</p>
-          <p className="text-[15px] leading-[1.55] text-ink-2">{post.excerpt}</p>
+          <p className="line-clamp-6 text-[15px] leading-[1.55] text-ink-2">{post.excerpt}</p>
           <div className="mt-2 space-y-2" aria-hidden="true">
             <div className="h-3 w-11/12 animate-pulse rounded-full bg-black/5" />
             <div className="h-3 w-4/5 animate-pulse rounded-full bg-black/5" />
@@ -90,6 +91,52 @@ function PostCard({ post, load }: { post: LinkedinPost; load: boolean }) {
         </div>
       )}
     </div>
+  );
+}
+
+/** Tracks whether a horizontal scroller can move further left / right. */
+function useScrollEdges<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [edges, setEdges] = useState({ prev: false, next: false });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () =>
+      setEdges({ prev: el.scrollLeft > 2, next: el.scrollLeft + el.clientWidth < el.scrollWidth - 2 });
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", update);
+      ro.disconnect();
+    };
+  }, []);
+  return [ref, edges] as const;
+}
+
+const FADE = 40;
+function edgeMask(prev: boolean, next: boolean) {
+  if (!prev && !next) return undefined;
+  const l = prev ? `transparent, #000 ${FADE}px` : "#000, #000";
+  const r = next ? `#000 calc(100% - ${FADE}px), transparent` : "#000";
+  return `linear-gradient(to right, ${l}, ${r})`;
+}
+
+function ArrowButton({ dir, disabled, onClick }: { dir: "prev" | "next"; disabled: boolean; onClick: () => void }) {
+  const Icon = dir === "prev" ? ChevronLeft : ChevronRight;
+  return (
+    <button
+      type="button"
+      data-tint="light"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={dir === "prev" ? "Previous posts" : "Next posts"}
+      data-testid={`linkedin-${dir}`}
+      className="glass grid size-11 place-items-center rounded-full text-ink-1 transition-opacity disabled:opacity-30"
+    >
+      <Icon className="size-5" aria-hidden="true" />
+    </button>
   );
 }
 
@@ -114,52 +161,77 @@ function useNearViewport<T extends Element>() {
 
 /**
  * "Notes on LinkedIn": Thao's posts as official collapsed embeds, which start
- * loading as the section approaches the viewport (no tap needed). Every card
- * is EMBED_W × EMBED_H, so rows are even, reactions/comments show and nothing
- * scrolls inside. Phones: one full-width column.
+ * loading as the section approaches the viewport (no tap needed). One row,
+ * scroll-snap carousel: three fit at 1440, more scroll (arrows on desktop,
+ * swipe on touch, arrow keys when focused); edges fade where more is hidden.
+ * Cards are top-aligned at each post's own measured height.
  */
 export function LinkedinPosts({ posts, profileUrl }: { posts: readonly LinkedinPost[]; profileUrl: string | null }) {
   const list = dedupePosts(posts);
   const [ref, near] = useNearViewport<HTMLElement>();
+  const [track, edges] = useScrollEdges<HTMLUListElement>();
   if (list.length === 0) return null;
+  const page = (dir: 1 | -1) => {
+    const el = track.current;
+    if (!el) return;
+    const size = el.clientWidth >= 768 ? "desktop" : "phone";
+    const step = CARD_W[size] + CARD_GAP[size];
+    const n = Math.max(1, Math.floor((el.clientWidth + CARD_GAP[size]) / step));
+    el.scrollBy({ left: dir * n * step, behavior: "smooth" });
+  };
+  const mask = edgeMask(edges.prev, edges.next);
   return (
     <section ref={ref} aria-labelledby="linkedin-title" className="bg-bg py-20 md:py-[130px]" data-testid="section-linkedin">
       <div className="mx-auto flex max-w-[1320px] flex-col gap-3 px-6 md:flex-row md:items-end md:justify-between md:px-10 lg:px-[60px]">
         <h2 id="linkedin-title" className="text-[32px] md:text-[46px]">
           Notes on LinkedIn
         </h2>
-        {profileUrl ? (
-          <a
-            href={profileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-[15px] font-medium text-ink-3 transition-colors hover:text-ink-1"
-          >
-            Follow on LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" />
-          </a>
-        ) : null}
-      </div>
-      <ul
-        data-testid="linkedin-grid"
-        className="mx-auto mt-10 flex max-w-[1640px] flex-wrap items-start justify-center gap-6 px-6 md:px-10"
-      >
-        {list.map((post, i) => (
-          <Reveal as="li" index={i} key={post.urn} className="w-full max-w-[504px] md:w-[504px]">
-            <PostCard post={post} load={near} />
-            <div className="mt-4 flex justify-end px-1">
-              <a
-                href={post.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex shrink-0 items-center gap-1 text-[14px] text-ink-3 hover:text-ink-1"
-                aria-label={`View on LinkedIn: ${post.title} (opens in a new tab)`}
-              >
-                View on LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" />
-              </a>
+        <div className="flex items-center gap-4">
+          {profileUrl ? (
+            <a
+              href={profileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[15px] font-medium text-ink-3 transition-colors hover:text-ink-1"
+            >
+              Follow on LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" />
+            </a>
+          ) : null}
+          {edges.prev || edges.next ? (
+            <div className="hidden gap-2 md:flex">
+              <ArrowButton dir="prev" disabled={!edges.prev} onClick={() => page(-1)} />
+              <ArrowButton dir="next" disabled={!edges.next} onClick={() => page(1)} />
             </div>
-          </Reveal>
-        ))}
-      </ul>
+          ) : null}
+        </div>
+      </div>
+      <div className="mx-auto mt-10 max-w-[1320px] md:px-10 lg:px-[60px]">
+        <ul
+          ref={track}
+          data-testid="linkedin-grid"
+          tabIndex={0}
+          aria-label="LinkedIn posts"
+          style={{ maskImage: mask, WebkitMaskImage: mask }}
+          className="flex snap-x snap-mandatory scroll-px-6 items-start gap-4 overflow-x-auto overscroll-x-contain px-6 pb-4 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-4 md:scroll-px-0 md:gap-6 md:px-0 [&::-webkit-scrollbar]:hidden"
+        >
+          {list.map((post, i) => (
+            <Reveal as="li" index={i} key={post.urn} className="w-[320px] shrink-0 snap-start md:w-[384px]">
+              <PostCard post={post} load={near} />
+              <div className="mt-4 flex justify-end px-1">
+                <a
+                  href={post.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex shrink-0 items-center gap-1 text-[14px] text-ink-3 hover:text-ink-1"
+                  aria-label={`View on LinkedIn: ${post.title} (opens in a new tab)`}
+                >
+                  View on LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" />
+                </a>
+              </div>
+            </Reveal>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }
