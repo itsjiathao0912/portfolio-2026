@@ -108,6 +108,18 @@ export function checkHealthResponse(status, body) {
 }
 
 /**
+ * The live published-project count must equal content/ — a mismatch means the
+ * seed did not land (or pruned something it should not have).
+ *
+ * @param {number} actual
+ * @param {number} expected
+ */
+export function checkLiveProjectCount(actual, expected) {
+  if (actual !== expected) return { ok: false, error: `D1 has ${actual} published project(s), content/ has ${expected}` };
+  return { ok: true };
+}
+
+/**
  * Decide whether the working copy is deployable. Production deploys exactly
  * what is on origin/main — nothing local, nothing uncommitted.
  *

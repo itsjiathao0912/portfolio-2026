@@ -90,7 +90,7 @@ export function rowToProject(row: ProjectRow) {
   const links = parseJson(row.links);
   const meta = row.meta == null ? ({ ok: true, value: {} } as const) : parseJson(row.meta);
   if (!tags.ok || !blocks.ok || !links.ok || !meta.ok) {
-    return { ok: false, error: `Project ${row.id}: a JSON column is not valid JSON` } as const;
+    return { ok: false, error: `Project ${row.slug} (${row.id}): a JSON column is not valid JSON` } as const;
   }
 
   const parsed = projectInputSchema.safeParse({
@@ -102,7 +102,9 @@ export function rowToProject(row: ProjectRow) {
     published: row.published === 1,
   });
   if (!parsed.success) {
-    return { ok: false, error: `Project ${row.id}: ${parsed.error.issues[0]?.message ?? "invalid"}` } as const;
+    const issue = parsed.error.issues[0];
+    const where = issue?.path.length ? `${issue.path.join(".")}: ` : "";
+    return { ok: false, error: `Project ${row.slug} (${row.id}): ${where}${issue?.message ?? "invalid"}` } as const;
   }
   return { ok: true, project: parsed.data } as const;
 }

@@ -53,6 +53,7 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       data-testid="project-card"
+      data-slug={project.slug}
       data-category={project.category}
       data-tone={meta.tone}
       className={cn(

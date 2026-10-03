@@ -192,11 +192,13 @@ const site = {
 export default site;
 
 /**
- * Thao's own LinkedIn posts, shown on the home page as static preview cards.
- * The official embed (https://www.linkedin.com/embed/feed/update/<urn>) loads
- * only after a "Load post" tap, so no LinkedIn request (or cookie banner)
- * happens until the visitor asks. `excerpt` is the post's own opening text
- * (public embed page, fetched 3 Oct 2026); `date` comes from the post id.
+ * Thao's own LinkedIn posts, shown on the home page via the official COLLAPSED
+ * embed (https://www.linkedin.com/embed/feed/update/<urn>?collapsed=1): short
+ * text + "…more", similar size per post, reaction/comment bar included. Embeds
+ * start loading as the section approaches the viewport; until then the static
+ * preview (`excerpt` + `date`) is the skeleton. `excerpt` is the post's own
+ * opening text (public embed page, fetched 3 Oct 2026); `date` comes from the
+ * post id. Card size is shared — see EMBED_W / EMBED_H in linkedin-posts.tsx.
  */
 export const linkedinPosts = [
   {
@@ -223,7 +225,13 @@ export const linkedinPosts = [
       "Runner-Up at the largest agentic AI buildathon in Southeast Asia. Our solution, Cortex Sentinel, is an AML compliance hub where analysts write detection rules in plain English. AI proposes, humans decide.",
     url: "https://www.linkedin.com/posts/thaodao0912_aabw-aabw2026-activity-7483045282734104576-zhg8",
   },
-] as const satisfies readonly { urn: string; title: string; date: string; excerpt: string; url: string }[];
+] as const satisfies readonly {
+  urn: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  url: string;
+}[];
 
 // Real photos of Thao (optimised copies of her own uploads; see
 // research-private/materials/media). `place` says where each one is used.

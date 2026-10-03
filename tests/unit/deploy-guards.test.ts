@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   checkDeployableGitState,
   checkHealthResponse,
+  checkLiveProjectCount,
   findBakedLocalDbPath,
   findLocalDbPathSources,
   findMissingEnv,
@@ -78,5 +79,25 @@ describe("misc", () => {
 
   test("partitionSecrets reports names only", () => {
     expect(partitionSecrets({ A: "secret", B: "" }, ["A", "B"])).toEqual({ present: ["A"], absent: ["B"] });
+  });
+});
+
+describe("live project count guard", () => {
+  test("passes only when D1 matches content/", () => {
+    expect(checkLiveProjectCount(9, 9).ok).toBe(true);
+    const short = checkLiveProjectCount(3, 9);
+    expect(short.ok).toBe(false);
+    expect(!short.ok && short.error).toContain("3");
+  });
+});
+
+describe("deploy-prod re-seeds remote D1 before going live", () => {
+  test("seed --remote runs from the worktree before wrangler deploy", () => {
+    const src = readFileSync(path.join(process.cwd(), "scripts", "deploy-prod.mjs"), "utf8");
+    const seedAt = src.indexOf('["scripts/seed.mjs", "--remote"], inWorktree');
+    const deployAt = src.indexOf('["wrangler", "deploy"], inWorktree');
+    expect(seedAt).toBeGreaterThan(0);
+    expect(deployAt).toBeGreaterThan(seedAt);
+    expect(src).toContain("checkLiveProjectCount(verdict.projects, expectedProjects)");
   });
 });

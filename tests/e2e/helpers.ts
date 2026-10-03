@@ -1,4 +1,13 @@
 import { expect, type Page } from "@playwright/test";
+import { projectEntries } from "../../content/index.ts";
+import { parseProjects } from "../../content/schema.ts";
+
+/** Every PUBLISHED project in content/ — the source of truth the pages must match. */
+export const CONTENT_SLUGS: readonly string[] = (() => {
+  const parsed = parseProjects(projectEntries);
+  if (!parsed.ok) throw new Error(`content/ is invalid: ${parsed.errors.join("; ")}`);
+  return parsed.projects.filter((p) => p.published).map((p) => p.slug);
+})();
 
 export const SLUGS = [
   "lumicap",

@@ -50,6 +50,7 @@ export function StackCard({ project, surface = "white" }: { project: Project; su
     <article
       id={`project-${project.slug}`}
       data-testid="stack-card"
+      data-slug={project.slug}
       data-morph-root=""
       onPointerEnter={onEnter}
       style={{ ["--project-color" as string]: color }}

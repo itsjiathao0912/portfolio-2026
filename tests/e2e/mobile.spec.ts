@@ -1,4 +1,4 @@
-import { devices, expect, test } from "@playwright/test";
+import { devices, expect, test } from "./fixtures";
 import { expectNoHorizontalOverflow, scrollThrough, SLUGS, trackErrors } from "./helpers";
 
 const { defaultBrowserType: _ignored, ...iphone } = devices["iPhone 13"];

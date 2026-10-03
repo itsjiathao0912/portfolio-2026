@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { test } from "./fixtures";
 import path from "node:path";
 import { scrollThrough, SLUGS } from "./helpers";
 

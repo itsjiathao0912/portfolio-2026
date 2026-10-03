@@ -1,4 +1,4 @@
-import { devices, expect, test } from "@playwright/test";
+import { devices, expect, test } from "./fixtures";
 import { trackErrors } from "./helpers";
 
 test.describe.configure({ timeout: 90_000 });

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { parseProjects, type Project } from "../../content/schema.ts";
 import { assertCloudflareBindingsAllowed } from "../../src/lib/cf-guard";
 import { execute, queryFirst, resolveDbSource } from "../../src/lib/db";
@@ -9,7 +9,13 @@ import {
   rowToProject,
   type ProjectRow,
 } from "../../src/lib/project-rows";
-import { countPublishedProjects, getPublishedProjectBySlug, listPublishedProjects } from "../../src/lib/projects";
+import { invalidRowPolicy } from "../../src/lib/bundled-projects";
+import {
+  countPublishedProjects,
+  getPublishedProjectBySlug,
+  InvalidProjectRowsError,
+  listPublishedProjects,
+} from "../../src/lib/projects";
 import { createTestDb } from "../helpers/test-db";
 
 function makeProjects(inputs: unknown[]) {
@@ -92,13 +98,58 @@ describe("seed + read path (in-memory SQLite via the real local-D1 wrapper)", ()
     expect((await queryFirst<{ n: number }>(db, `SELECT COUNT(*) AS n FROM "Project"`))?.n).toBe(0);
   });
 
-  test("a corrupt row is reported, not thrown", async () => {
+  test("a corrupt row is never silently dropped: dev/test throws with slug + reason", async () => {
     const { db } = createTestDb();
     await seed(db, projects);
     await execute(db, `UPDATE "Project" SET "blocks" = 'not json' WHERE "id" = 'p1'`);
-    const { projects: listed, errors } = await listPublishedProjects(db);
-    expect(listed.map((p) => p.id)).toEqual(["p2"]);
-    expect(errors[0]).toContain("p1");
+    const attempt = listPublishedProjects(db, { mode: "throw" });
+    await expect(attempt).rejects.toBeInstanceOf(InvalidProjectRowsError);
+    await expect(attempt).rejects.toThrow(/first \(p1\)/);
+    await expect(getPublishedProjectBySlug(db, "first")).rejects.toThrow(/first/);
+  });
+
+  // The 2026-10-03 regression: rows seeded before metrics.source became
+  // required failed validation and 6 of 9 projects vanished from home + /work.
+  const withMetrics = makeProjects([
+    {
+      ...base, id: "m1", slug: "metrics", title: "Metrics", sortOrder: 1,
+      blocks: [{ type: "metrics", items: [{ value: "3x", label: "faster" }], source: "Company post" }],
+    },
+    { ...base, id: "m2", slug: "plain", title: "Plain", sortOrder: 2 },
+  ]);
+  async function seedStale(db: D1Database) {
+    await seed(db, withMetrics);
+    const stale = JSON.stringify([{ type: "metrics", items: [{ value: "3x", label: "faster" }] }]);
+    await execute(db, `UPDATE "Project" SET "blocks" = ? WHERE "id" = 'm1'`, stale);
+  }
+
+  test("a stale row (pre-required-field) throws in dev with the field path", async () => {
+    const { db } = createTestDb();
+    await seedStale(db);
+    await expect(listPublishedProjects(db)).rejects.toThrow(/metrics \(m1\): blocks\.0\.source/);
+  });
+
+  test("production serves the bundled content/ copy of a stale row, in display order", async () => {
+    const { db } = createTestDb();
+    await seedStale(db);
+    const errorSpy = spyOn(console, "error").mockImplementation(() => {});
+    const { projects: listed, errors, fallbacks } = await listPublishedProjects(db, { mode: "fallback", bundled: withMetrics });
+    expect(listed.map((p) => p.slug)).toEqual(["metrics", "plain"]);
+    expect(listed[0]).toEqual(withMetrics[0]);
+    expect(fallbacks).toEqual(["metrics"]);
+    expect(errors[0]).toContain("metrics");
+    expect(errorSpy).toHaveBeenCalled();
+    const one = await getPublishedProjectBySlug(db, "metrics", { mode: "fallback", bundled: withMetrics });
+    expect(one.ok && one.project.slug).toBe("metrics");
+    errorSpy.mockRestore();
+  });
+
+  test("policy: production falls back to bundled content; dev and e2e throw", () => {
+    expect(invalidRowPolicy({ NODE_ENV: "development" }).mode).toBe("throw");
+    expect(invalidRowPolicy({ NODE_ENV: "production", PORTFOLIO_E2E: "1" }).mode).toBe("throw");
+    const prod = invalidRowPolicy({ NODE_ENV: "production" });
+    expect(prod.mode).toBe("fallback");
+    expect(prod.mode === "fallback" && prod.bundled.length).toBe(9);
   });
 });
 

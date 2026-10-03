@@ -48,6 +48,7 @@ export function ProjectCard({ project, size = "large", className }: ProjectCardP
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       data-testid="project-card"
+      data-slug={project.slug}
       data-category={project.category}
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-[var(--radius)] p-6 shadow-card md:p-8",

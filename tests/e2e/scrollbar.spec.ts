@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // Headless Chromium hides scrollbars by default. Show them, so 100vw really is
 // wider than the page, as on Windows, Linux and macOS "always show scrollbars".

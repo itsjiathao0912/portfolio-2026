@@ -1,4 +1,6 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
+import { linkedinPosts } from "../../content/site.ts";
+import { EMBED_H, EMBED_W } from "../../src/components/site/linkedin-posts.tsx";
 
 // Real page loads on a busy machine: allow more than the 30s default.
 test.describe.configure({ timeout: 120_000 });
@@ -59,28 +61,61 @@ test.describe("desktop home additions", () => {
     expect(keys.filter((k) => k.startsWith("/projects/")).length).toBeGreaterThanOrEqual(4);
   });
 
-  test("LinkedIn shows static previews; an embed loads only after a tap", async ({ page }) => {
-    let linkedinRequests = 0;
+  test("LinkedIn collapsed embeds pre-load as the section approaches; even, scroll-free cards", async ({ page }) => {
+    // Stub LinkedIn: each embed document is exactly as tall as the measured
+    // worst case, so "no inner scroll" proves the shared card height honours it.
+    const requested: string[] = [];
     await page.route("https://www.linkedin.com/**", (route) => {
-      linkedinRequests++;
-      return route.fulfill({ status: 200, contentType: "text/html", body: "<p>post</p>" });
+      requested.push(route.request().url());
+      return route.fulfill({
+        status: 200,
+        contentType: "text/html",
+        body: `<!doctype html><html><body style="margin:0"><div style="height:${EMBED_H}px">post</div></body></html>`,
+      });
     });
     await page.goto("/");
     const section = page.getByTestId("section-linkedin");
-    await section.scrollIntoViewIfNeeded();
-    await expect(page.getByTestId("linkedin-preview")).toHaveCount(3);
+    await page.waitForTimeout(1500);
+    // At the top of the page: no LinkedIn request and no iframe yet.
+    expect(requested).toEqual([]);
     await expect(page.getByTestId("linkedin-embed")).toHaveCount(0);
-    expect(linkedinRequests).toBe(0);
-    const heights = await page.getByTestId("linkedin-card").evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
-    expect(new Set(heights).size).toBe(1);
-    await section.getByRole("button", { name: /Load post/ }).first().click();
-    const embed = page.getByTestId("linkedin-embed");
-    await expect(embed).toHaveCount(1);
-    await expect(embed).toHaveAttribute("src", /^https:\/\/www\.linkedin\.com\/embed\/feed\/update\/urn:li:/);
-    await expect(page.getByTestId("linkedin-preview")).toHaveCount(2);
-    const after = await page.getByTestId("linkedin-card").evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
-    expect(after).toEqual(heights);
-    await expect(section.getByRole("link", { name: /View on LinkedIn/ })).toHaveCount(3);
+    await expect(page.getByTestId("linkedin-preview")).toHaveCount(linkedinPosts.length);
+
+    // Approach: section still below the fold, but within the 800px preload margin.
+    const top = await section.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+    await page.evaluate((y) => window.scrollTo(0, y), top - 900 - 500);
+    expect(await section.evaluate((el) => el.getBoundingClientRect().top)).toBeGreaterThan(900);
+    await expect.poll(() => requested.length).toBe(linkedinPosts.length);
+    for (const url of requested) expect(url).toMatch(/^https:\/\/www\.linkedin\.com\/embed\/feed\/update\/urn:li:[A-Za-z]+:\d+\?collapsed=1$/);
+    await expect(page.getByTestId("linkedin-card").and(page.locator('[data-state="loaded"]'))).toHaveCount(linkedinPosts.length);
+    await expect(page.getByTestId("linkedin-preview")).toHaveCount(0);
+    await expect(section.getByRole("button", { name: /Load post/ })).toHaveCount(0);
+
+    await section.scrollIntoViewIfNeeded();
+    // The staggered Reveal rise (24px) must settle before positions are compared.
+    const rows = () =>
+      page.getByTestId("linkedin-card").evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
+    await expect.poll(async () => new Set((await rows()).slice(0, 2)).size, { timeout: 10_000 }).toBe(1);
+    const cards = await page.getByTestId("linkedin-card").evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { w: Math.round(r.width), h: Math.round(r.height) };
+      })
+    );
+    // Every card is the same EMBED_W × EMBED_H, so rows are even.
+    for (const c of cards) expect(c).toEqual({ w: EMBED_W, h: EMBED_H });
+
+    // Nothing scrolls inside any embed.
+    const frames = page.frames().filter((f) => f.url().includes("linkedin.com/embed/"));
+    expect(frames).toHaveLength(linkedinPosts.length);
+    for (const frame of frames) {
+      const m = await frame.evaluate(() => ({ sh: document.documentElement.scrollHeight, ch: document.documentElement.clientHeight }));
+      expect(m.sh).toBeLessThanOrEqual(m.ch);
+    }
+    for (const iframe of await page.getByTestId("linkedin-embed").all()) await expect(iframe).toHaveAttribute("scrolling", "no");
+    await expect(section.getByRole("link", { name: /View on LinkedIn/ })).toHaveCount(linkedinPosts.length);
+    await expect(section.getByRole("heading", { level: 2, name: "Notes on LinkedIn" })).toBeVisible();
+    await expect(section.getByRole("link", { name: /Follow on LinkedIn/ })).toHaveAttribute("href", "https://www.linkedin.com/in/thaodao0912/");
   });
 });
 

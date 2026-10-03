@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // Real page loads on a busy machine: allow more than the 30s default.
 test.describe.configure({ timeout: 120_000 });

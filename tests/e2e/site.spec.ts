@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
-import { scrollThrough, SLUGS, trackErrors } from "./helpers";
+import { expect, test } from "./fixtures";
+import { CONTENT_SLUGS, scrollThrough, SLUGS, trackErrors } from "./helpers";
 
 // Real page loads on a busy machine: allow more than the 30s default.
 test.describe.configure({ timeout: 120_000 });
@@ -87,6 +87,23 @@ test("light theme and fonts hold, including Vietnamese glyphs", async ({ page })
   expect(ok).toBe(true);
   const h1Stretch = await page.locator("h1").evaluate((el) => getComputedStyle(el).fontStretch);
   expect(h1Stretch).toBe("118%");
+});
+
+// Regression (2026-10-03): rows seeded before metrics.source became required
+// failed validation and 6 of 9 projects silently vanished. Both listing pages
+// must show EXACTLY the published projects in content/ — count and slugs.
+test("home and /work show every published project from content/", async ({ page }) => {
+  expect([...SLUGS].sort()).toEqual([...CONTENT_SLUGS].sort());
+  for (const [path, testId] of [["/", "stack-card"], ["/work", "project-card"]] as const) {
+    const errors = trackErrors(page);
+    await page.goto(path);
+    await scrollThrough(page);
+    const cards = page.getByTestId(testId);
+    await expect(cards).toHaveCount(CONTENT_SLUGS.length);
+    const slugs = await cards.evaluateAll((els) => els.map((el) => el.getAttribute("data-slug")));
+    expect(slugs.sort()).toEqual([...CONTENT_SLUGS].sort());
+    expect(errors, path).toEqual([]);
+  }
 });
 
 test("work index lists every project and filters by category", async ({ page }) => {

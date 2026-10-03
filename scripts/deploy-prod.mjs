@@ -13,19 +13,26 @@
 //   4. It is only "done" when the LIVE site answers: the home page AND a
 //      D1-backed route (/api/health) must return real data. A page shell can
 //      200 while every DB call fails, so status codes alone prove nothing.
-//   5. On a failed smoke it prints the exact rollback command.
+//   5. Remote D1 is migrated + re-seeded from the PINNED worktree's content/
+//      before the Worker goes live, so stored rows always match the schema the
+//      new code validates against (a stale row would otherwise be served from
+//      the bundled fallback and logged as an error on every request).
+//   6. The smoke also requires D1's published-project count to equal content/.
+//   7. On a failed smoke it prints the exact rollback command.
 //
 // Env (from the prod env file): CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, SITE_URL.
 // Escape hatch: KEEP_DEPLOY_WORKTREE=1 keeps the worktree for debugging.
 import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import dotenv from "dotenv";
 import {
   BAKED_ENV_MODULE,
   BUILD_ENV_FILES,
   checkDeployableGitState,
   checkHealthResponse,
+  checkLiveProjectCount,
   findBakedLocalDbPath,
   findLocalDbPathSources,
   PROD_ENV_FILE,
@@ -137,6 +144,19 @@ const rollbackHint = priorVersionId
   ? `npx wrangler rollback ${priorVersionId}`
   : "npx wrangler rollback <version-id>   # find it with: npx wrangler deployments list";
 
+// ── Migrate + seed remote D1 from the pinned content/ (idempotent sync) ─────
+// Both run from the worktree, so the content written is exactly this sha's.
+runOrExit("db:seed:remote (migration + content sync)", "node", ["scripts/seed.mjs", "--remote"], inWorktree);
+
+const { projectEntries } = await import(pathToFileURL(path.join(worktree, "content", "index.ts")).href);
+const { parseProjects } = await import(pathToFileURL(path.join(worktree, "content", "schema.ts")).href);
+const pinned = parseProjects(projectEntries);
+if (!pinned.ok) {
+  console.error("BLOCKED: pinned content/ is invalid:", pinned.errors);
+  process.exit(1);
+}
+const expectedProjects = pinned.projects.filter((p) => p.published).length;
+
 runOrExit("wrangler deploy", "npx", ["wrangler", "deploy"], inWorktree);
 
 // ── Smoke the LIVE site (retries cover edge propagation) ───────────────────
@@ -148,7 +168,9 @@ async function smoke() {
   }
   const health = await fetch(`${siteUrl}/api/health`, { headers: { "cache-control": "no-cache" } });
   const verdict = checkHealthResponse(health.status, await health.text());
-  return verdict.ok ? verdict : { ok: false, error: `/api/health: ${verdict.error}` };
+  if (!verdict.ok) return { ok: false, error: `/api/health: ${verdict.error}` };
+  const count = checkLiveProjectCount(verdict.projects, expectedProjects);
+  return count.ok ? verdict : { ok: false, error: `/api/health: ${count.error}` };
 }
 
 console.log(`\n=== smoke ${siteUrl} ===`);
@@ -166,7 +188,7 @@ for (let attempt = 1; attempt <= 5; attempt++) {
 
 if (!verdict.ok) {
   console.error(`\nDEPLOYED BUT UNHEALTHY: ${verdict.error}`);
-  console.error(`If the database has not been migrated/seeded yet: pnpm db:migrate:remote && pnpm db:seed:remote`);
+  console.error(`The seed ran before deploy; if counts differ, re-run: pnpm db:seed:remote`);
   console.error(`Otherwise roll back now:\n  ${rollbackHint}`);
   process.exit(1);
 }

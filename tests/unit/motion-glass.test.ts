@@ -107,7 +107,7 @@ describe("linkedin posts", () => {
   test("embed src from urn; junk rejected", async () => {
     const { linkedinEmbedSrc, dedupePosts } = await import("../../src/components/site/linkedin-posts.tsx");
     expect(linkedinEmbedSrc("urn:li:activity:7483045282734104576")).toBe(
-      "https://www.linkedin.com/embed/feed/update/urn:li:activity:7483045282734104576"
+      "https://www.linkedin.com/embed/feed/update/urn:li:activity:7483045282734104576?collapsed=1"
     );
     expect(linkedinEmbedSrc("javascript:alert(1)")).toBeNull();
     const a = { urn: "urn:li:share:1" };
