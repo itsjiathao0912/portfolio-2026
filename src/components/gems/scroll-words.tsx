@@ -1,9 +1,10 @@
 "use client";
 
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { wordRange } from "./logic";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 function Word({ word, i, n, progress }: { word: string; i: number; n: number; progress: MotionValue<number> }) {
   const opacity = useTransform(progress, wordRange(i, n) as unknown as number[], [0.18, 1]);

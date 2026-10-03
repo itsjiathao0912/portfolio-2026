@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useRef, useState } from "react";
 import { SPRING } from "@/components/motion/springs";
 import { isOnBoard } from "./logic";
@@ -31,7 +32,7 @@ export function LostNoteGame() {
         <div
           ref={board}
           data-testid="lost-note-board"
-          className="relative grid h-[150px] flex-1 grid-cols-3 gap-2 rounded-[20px] bg-canvas p-3 ring-1 ring-hairline"
+          className="relative grid h-[150px] flex-1 grid-cols-3 gap-2 rounded-lg bg-canvas p-3 ring-1 ring-hairline"
           aria-hidden="true"
         >
           <span className="rounded-md bg-[#d9f1f7]" />

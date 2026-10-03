@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { EmojiBurst } from "@/components/motion/emoji-burst";
 import { RotatingWord } from "@/components/motion/rotating-word";
 import { CursorReveal } from "@/components/gems/cursor-reveal";

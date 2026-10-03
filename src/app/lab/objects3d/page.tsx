@@ -1,3 +1,4 @@
+import { labOnly } from "@/lib/lab-only";
 import type { Metadata } from "next";
 import { ComplianceShield, ScrollPhone, StoryTokens, type PhoneScreen } from "@/components/signature/objects3d";
 
@@ -16,6 +17,7 @@ const SCREENS: PhoneScreen[] = [
 ];
 
 export default function Objects3DLab() {
+  labOnly();
   return (
     <main style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 16px 80px" }}>
       <h1 style={{ marginBottom: 8 }}>3D objects lab</h1>

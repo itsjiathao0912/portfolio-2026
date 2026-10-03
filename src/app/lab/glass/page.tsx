@@ -1,3 +1,4 @@
+import { labOnly } from "@/lib/lab-only";
 import type { Metadata } from "next";
 import { Briefcase, Link2, Mail, UserRound } from "lucide-react";
 import site from "@content/site.ts";
@@ -23,6 +24,7 @@ const cards = [
 ];
 
 export default function GlassLab() {
+  labOnly();
   return (
     <main className="pb-32" style={{ background: "linear-gradient(180deg,#0b1533 0%,#1e3a8a 38%,#eaf1ff 70%,#fff 100%)" }}>
       <LightBeamStyles />

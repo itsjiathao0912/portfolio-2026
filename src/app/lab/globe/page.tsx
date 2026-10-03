@@ -1,3 +1,4 @@
+import { labOnly } from "@/lib/lab-only";
 import type { Metadata } from "next";
 import { BrandGradient, SettlementGlobe } from "@/components/signature/globe";
 
@@ -7,6 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default function GlobeLabPage() {
+  labOnly();
   return (
     <main className="mx-auto max-w-6xl space-y-10 px-4 py-24 sm:px-8">
       <BrandGradient className="rounded-[24px] px-6 py-20 text-white sm:px-12">

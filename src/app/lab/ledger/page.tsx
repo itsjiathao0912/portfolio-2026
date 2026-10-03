@@ -1,3 +1,4 @@
+import { labOnly } from "@/lib/lab-only";
 import type { Metadata } from "next";
 import { ApprovedStamp, CareerRail, CareerReceipt, TransactionStream } from "@/components/signature/ledger";
 
@@ -7,6 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default function LedgerLab() {
+  labOnly();
   return (
     <main className="bg-[var(--bg)] pb-32">
       <header className="mx-auto max-w-3xl px-6 pb-10 pt-28">

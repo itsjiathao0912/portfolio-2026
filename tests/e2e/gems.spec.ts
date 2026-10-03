@@ -27,22 +27,6 @@ test.describe("desktop gems", () => {
     expect(errors).toEqual([]);
   });
 
-  test("doodle saves to localStorage only and clears", async ({ page }) => {
-    await page.goto("/about");
-    const pad = page.getByTestId("doodle-pad");
-    await pad.scrollIntoViewIfNeeded();
-    const b = (await pad.boundingBox())!;
-    await page.mouse.move(b.x + 20, b.y + 20);
-    await page.mouse.down();
-    await page.mouse.move(b.x + 120, b.y + 80, { steps: 6 });
-    await page.mouse.up();
-    expect(await page.evaluate(() => localStorage.getItem("thao:doodle:v1"))).toContain("[[");
-    await page.reload();
-    await expect(page.getByTestId("doodle-clear")).toBeEnabled();
-    await page.getByTestId("doodle-clear").click();
-    expect(await page.evaluate(() => localStorage.getItem("thao:doodle:v1"))).toBeNull();
-  });
-
   test("about note under the portrait links to the first case study", async ({ page }) => {
     await page.goto("/about");
     const link = page.getByTestId("about-note").getByRole("link");

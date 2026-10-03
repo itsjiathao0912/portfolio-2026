@@ -4,8 +4,8 @@
 
 /** Hidden gems per page. Rule from the wow-ideas report: never more than 3. */
 export const GEM_BUDGET = {
-  home: ["secret-word", "cursor-reveal", "mascot"],
-  about: ["secret-word", "peel-sticker"],
+  home: ["secret-word", "cursor-reveal"],
+  about: ["secret-word"],
   notFound: ["secret-word", "drag-game"],
   work: ["secret-word"],
 } as const;

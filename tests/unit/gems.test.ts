@@ -47,7 +47,7 @@ describe("gems", () => {
     }
   });
   test("gem code adapts no third-party component", () => {
-    for (const f of ["logic.ts", "cursor-reveal.tsx", "mascot.tsx", "doodle-pad.tsx", "lost-note-game.tsx", "peel-sticker.tsx"]) {
+    for (const f of ["logic.ts", "cursor-reveal.tsx", "lost-note-game.tsx"]) {
       expect(readFileSync(`src/components/gems/${f}`, "utf8")).not.toContain("21st.dev/");
     }
   });
