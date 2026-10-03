@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useInView, useReducedMotion } from "motion/react";
+import { motion, useInView } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useEffect, useRef, useState } from "react";
 import { ledgerTransactions, type LedgerTransaction } from "./ledger-data";
 

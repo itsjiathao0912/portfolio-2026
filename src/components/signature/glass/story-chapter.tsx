@@ -75,13 +75,13 @@ export function StoryChapter({ index, title, kicker, from = "#ffffff", to = "#ea
       ref={ref}
       id={id}
       aria-labelledby={headingId}
-      className={cn("relative", className)}
+      className={cn("ink-inherit relative", className)}
       style={{ height: pinned ? `${length * 100}svh` : undefined, background: bg, color: ink }}
     >
       <div className={cn(pinned ? "sticky top-0 h-svh overflow-hidden" : "min-h-[60svh]", "flex flex-col px-4 py-16 md:px-10")}
         style={{ ["--chapter-p" as string]: pinned ? p : 1 }}
       >
-        <header className="mx-auto w-full max-w-6xl">
+        <div className="mx-auto w-full max-w-6xl">
           <p className="font-mono text-xs uppercase tracking-[0.2em] opacity-70">
             Chapter {num}
             {kicker ? ` · ${kicker}` : ""}
@@ -99,7 +99,7 @@ export function StoryChapter({ index, title, kicker, from = "#ffffff", to = "#ea
           >
             <span className="block h-full origin-left rounded-full bg-current" style={{ transform: `scaleX(${pinned ? p : 1})` }} />
           </div>
-        </header>
+        </div>
         <div className="mx-auto mt-8 w-full max-w-6xl flex-1">{typeof children === "function" ? children(pinned ? p : 1) : children}</div>
       </div>
     </section>

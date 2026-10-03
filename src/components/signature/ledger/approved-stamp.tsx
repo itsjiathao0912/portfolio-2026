@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useInView, useReducedMotion } from "motion/react";
+import { motion, useInView } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useId, useRef } from "react";
 
 type Tone = "approved" | "shipped" | "compliant";

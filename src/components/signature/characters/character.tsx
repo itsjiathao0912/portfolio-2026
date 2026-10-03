@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { SPRING } from "@/components/motion/springs";
 import { CAST, blinkDelay, pupilOffset, type CharacterName, type Expression, type Pose } from "./logic";

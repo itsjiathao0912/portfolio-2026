@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useInView } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useEffect, useRef, useState } from "react";
 import { Character } from "./character";
 import { COMMUNITY_CURSORS, cursorPath } from "./logic";

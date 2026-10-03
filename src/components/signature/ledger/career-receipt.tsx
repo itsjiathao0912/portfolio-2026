@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useRef } from "react";
 import { barcodeBars, buildReceiptLines, receiptTotals, type ReceiptLine } from "./ledger-data";
 
