@@ -30,6 +30,8 @@ const project = {
     ],
     headline: "Data people can trust, with 40% less rework.",
     tone: "light",
+    emoji: "🔗",
+    color: "#8b5cf6",
     visual: {
       "kind": "illustration",
       "motif": "lineage"

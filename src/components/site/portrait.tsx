@@ -7,6 +7,7 @@ interface PortraitProps {
   name: string;
   className?: string;
   priority?: boolean;
+  sizes?: string;
 }
 
 /** `/x/thao-color.webp` -> `/x/thao-bw.webp`; null when there is no matching pair. */
@@ -20,7 +21,7 @@ export function bwVariant(src: string) {
  * B/W sibling file it falls back to a CSS grayscale filter. With no photo it
  * renders a quiet silhouette instead of a broken image.
  */
-export function Portrait({ src, name, className, priority }: PortraitProps) {
+export function Portrait({ src, name, className, priority, sizes = "(min-width: 768px) 560px, 90vw" }: PortraitProps) {
   const bw = src ? bwVariant(src) : null;
   const img = "object-contain object-bottom";
   return (
@@ -33,7 +34,7 @@ export function Portrait({ src, name, className, priority }: PortraitProps) {
             fill
             unoptimized
             priority={priority}
-            sizes="(min-width: 768px) 560px, 90vw"
+            sizes={sizes}
             className={cn(img, !bw && "grayscale contrast-[1.1]")}
           />
           <Image
@@ -42,7 +43,7 @@ export function Portrait({ src, name, className, priority }: PortraitProps) {
             aria-hidden="true"
             fill
             unoptimized
-            sizes="(min-width: 768px) 560px, 90vw"
+            sizes={sizes}
             className={cn(img, "opacity-0 transition-opacity duration-300 ease-out [@media(hover:hover)]:group-hover:opacity-100")}
           />
         </>

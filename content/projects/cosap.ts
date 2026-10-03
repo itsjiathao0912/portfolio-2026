@@ -27,6 +27,8 @@ const project = {
     proof: [{ value: "8", label: "modules designed" }, { value: "2", label: "markets: Korea and Singapore" }],
     headline: "An affordable SAP alternative for Korean SMBs.",
     tone: "light",
+    emoji: "🧾",
+    color: "#10b981",
     visual: {
       "kind": "mockup",
       "device": "browser-free",

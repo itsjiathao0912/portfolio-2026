@@ -1,10 +1,13 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, LayoutGroup, motion, useMotionValueEvent, useReducedMotion, useScroll, type PanInfo } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { LiquidLink } from "./liquid-link";
+import { LiquidGlass } from "@/components/glass/liquid-glass";
+import { Magnetic } from "@/components/motion/magnetic";
+import { INSTANT, PRESS_SCALE, SPRING } from "@/components/motion/springs";
+import { cn } from "@/lib/utils";
 
 const ITEMS = [
   { href: "/#highlights", label: "Highlights" },
@@ -18,28 +21,98 @@ interface SiteNavProps {
   linkedin: string | null;
 }
 
-function isActive(pathname: string, href: string) {
+export function isActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
   if (href === "/#work") return pathname === "/work" || pathname.startsWith("/work/");
   if (href === "/about") return pathname === "/about";
   return false;
 }
 
+/** Sheet closes on a flick up, or when dragged up past 30% of its height. */
+export function shouldCloseSheet(offsetY: number, velocityY: number, height: number) {
+  return velocityY < -500 || offsetY < -height * 0.3;
+}
+
+const PILL_H = 64;
+const PILL_H_SM = 56;
+
+function NavItem({
+  href,
+  label,
+  highlighted,
+  current,
+  external,
+  onHover,
+  testId,
+}: {
+  href: string;
+  label: string;
+  highlighted: boolean;
+  current: boolean;
+  external?: boolean;
+  onHover: (href: string | null) => void;
+  testId?: string;
+}) {
+  const reduce = useReducedMotion();
+  const cls = "relative z-10 flex h-[48px] items-center rounded-full px-5 text-[15px] font-medium whitespace-nowrap text-ink-1 outline-offset-0";
+  const content = (
+    <>
+      {highlighted ? (
+        <motion.span
+          layoutId="nav-active"
+          aria-hidden="true"
+          data-testid="nav-indicator"
+          className="absolute inset-0 -z-10 rounded-full bg-black/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]"
+          transition={reduce ? INSTANT : SPRING.indicator}
+        />
+      ) : null}
+      {label}
+    </>
+  );
+  const handlers = {
+    onPointerEnter: (e: React.PointerEvent) => e.pointerType === "mouse" && onHover(href),
+    onFocus: () => onHover(href),
+    "aria-current": current ? ("page" as const) : undefined,
+    "data-testid": testId,
+    className: cls,
+  };
+  return (
+    <Magnetic strength={4}>
+      {external || href.startsWith("mailto:") ? (
+        <a href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} {...handlers}>
+          {content}
+        </a>
+      ) : (
+        <Link href={href} {...handlers}>
+          {content}
+        </Link>
+      )}
+    </Magnetic>
+  );
+}
+
 export function SiteNav({ name, email, linkedin }: SiteNavProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
   const reduce = useReducedMotion();
   const sheetRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
-  // Close the sheet whenever the route changes (state adjusted during render,
-  // not in an effect, so there is no flash of the old state).
+  // Close the sheet whenever the route changes (adjusted during render).
   const [lastPath, setLastPath] = useState(pathname);
   if (lastPath !== pathname) {
     setLastPath(pathname);
     setOpen(false);
   }
 
-  // While open: Escape closes, Tab is trapped inside the sheet, page scroll is locked.
+  // The nav stays visible on scroll; past the hero it compacts a little
+  // (transform only — the glass size never changes).
+  const { scrollY } = useScroll();
+  const [compact, setCompact] = useState(false);
+  useMotionValueEvent(scrollY, "change", (y) => setCompact(y > 80));
+
+  // While open: Escape closes, Tab is trapped, page scroll is locked.
   useEffect(() => {
     if (!open) return;
     const sheet = sheetRef.current;
@@ -69,58 +142,55 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
     };
   }, [open]);
 
-  // Hide the pill while reading downwards, bring it back on any upward scroll.
-  const [hidden, setHidden] = useState(false);
-  useEffect(() => {
-    let last = window.scrollY;
-    let ticking = false;
-    function onScroll() {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        ticking = false;
-        const y = window.scrollY;
-        if (Math.abs(y - last) < 6) return;
-        setHidden(y > last && y > 240);
-        last = y;
-      });
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   const mail = `mailto:${email}`;
+  const all = [
+    { href: "/", label: name },
+    ...ITEMS,
+    ...(linkedin ? [{ href: linkedin, label: "LinkedIn", external: true }] : []),
+    { href: mail, label: "Get in touch", testId: "nav-contact" },
+  ] as { href: string; label: string; external?: boolean; testId?: string }[];
+  const activeHref = all.find((i) => isActive(pathname, i.href))?.href ?? null;
+  const highlighted = hovered ?? activeHref;
+
+  function onDragEnd(_: unknown, info: PanInfo) {
+    const h = sheetRef.current?.offsetHeight ?? 400;
+    if (shouldCloseSheet(info.offset.y, info.velocity.y, h)) setOpen(false);
+  }
 
   return (
     <header
-      data-hidden={hidden && !open ? "true" : "false"}
-      className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-end px-4 pt-[var(--nav-top-sm)] transition-transform duration-300 ease-out md:justify-center md:pt-[var(--nav-top)] md:data-[hidden=true]:-translate-y-[140%] motion-reduce:transition-none"
+      data-compact={compact ? "true" : "false"}
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-end px-4 pt-[var(--nav-top-sm)] md:justify-center md:pt-[var(--nav-top)]"
     >
-      {/* Desktop: floating pill */}
-      <nav
-        aria-label="Main"
-        className="pointer-events-auto hidden h-[var(--nav-h)] items-center gap-1 rounded-full bg-white/85 px-1.5 shadow-nav backdrop-blur-xl backdrop-saturate-150 transition-transform duration-200 ease-out hover:scale-[1.05] motion-reduce:hover:scale-100 md:flex"
+      {/* Desktop: floating liquid-glass pill. */}
+      <motion.div
+        className="pointer-events-auto hidden md:block"
+        animate={{ scale: compact && !reduce ? 0.94 : 1, y: compact && !reduce ? -6 : 0 }}
+        transition={reduce ? INSTANT : SPRING.sheet}
+        style={{ transformOrigin: "50% 0%" }}
       >
-        <LiquidLink href="/" variant="nav" size="nav" active={false}>
-          {name}
-        </LiquidLink>
-        {ITEMS.map((item) => (
-          <LiquidLink key={item.href} href={item.href} variant="nav" size="nav" active={isActive(pathname, item.href)}>
-            {item.label}
-          </LiquidLink>
-        ))}
-        {linkedin ? (
-          <LiquidLink href={linkedin} variant="nav" size="nav" external>
-            LinkedIn
-          </LiquidLink>
-        ) : null}
-        <LiquidLink href={mail} variant="nav" size="nav" data-testid="nav-contact">
-          Get in touch
-        </LiquidLink>
-      </nav>
+        <LiquidGlass radius={PILL_H / 2} tint="light" style={{ height: PILL_H }} className="flex items-center">
+          <nav aria-label="Main" className="flex items-center gap-0.5 px-2" onPointerLeave={() => setHovered(null)} onBlur={() => setHovered(null)}>
+            <LayoutGroup id="main-nav">
+              {all.map((item) => (
+                <NavItem
+                  key={item.href}
+                  href={item.href}
+                  label={item.label}
+                  external={item.external}
+                  testId={item.testId}
+                  current={item.href === activeHref}
+                  highlighted={item.href === highlighted}
+                  onHover={setHovered}
+                />
+              ))}
+            </LayoutGroup>
+          </nav>
+        </LiquidGlass>
+      </motion.div>
 
-      {/* Mobile: floating round menu button */}
-      <button
+      {/* Mobile: round glass menu button. */}
+      <motion.button
         ref={toggleRef}
         type="button"
         aria-expanded={open}
@@ -128,18 +198,22 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
         aria-label={open ? "Close menu" : "Open menu"}
         data-testid="menu-toggle"
         onClick={() => setOpen((v) => !v)}
-        className="pointer-events-auto relative z-10 flex size-[var(--nav-h-sm)] items-center justify-center rounded-full bg-white text-ink-1 shadow-nav active:scale-95 md:hidden"
+        whileTap={reduce ? undefined : { scale: PRESS_SCALE }}
+        transition={SPRING.press}
+        className="pointer-events-auto relative z-10 rounded-full md:hidden"
       >
-        <span className="sr-only">{name}</span>
-        <span
-          aria-hidden="true"
-          className={`absolute h-0.5 w-5 rounded bg-current transition-transform duration-300 ${open ? "rotate-45" : "-translate-y-1"}`}
-        />
-        <span
-          aria-hidden="true"
-          className={`absolute h-0.5 w-5 rounded bg-current transition-transform duration-300 ${open ? "-rotate-45" : "translate-y-1"}`}
-        />
-      </button>
+        <LiquidGlass radius={PILL_H_SM / 2} tint="light" className="flex items-center justify-center text-ink-1" style={{ width: PILL_H_SM, height: PILL_H_SM }}>
+          <span className="sr-only">{name}</span>
+          <span
+            aria-hidden="true"
+            className={cn("absolute h-0.5 w-5 rounded bg-current transition-transform duration-300", open ? "rotate-45" : "-translate-y-1")}
+          />
+          <span
+            aria-hidden="true"
+            className={cn("absolute h-0.5 w-5 rounded bg-current transition-transform duration-300", open ? "-rotate-45" : "translate-y-1")}
+          />
+        </LiquidGlass>
+      </motion.button>
 
       <AnimatePresence>
         {open ? (
@@ -162,19 +236,25 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
               aria-modal="true"
               aria-label="Menu"
               data-testid="mobile-menu"
-              className="pointer-events-auto absolute inset-x-2.5 top-2.5 rounded-[20px] bg-bg px-3 pt-20 pb-4 shadow-card-hover md:hidden"
-              initial={reduce ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.98 }}
-              transition={{ duration: reduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="pointer-events-auto absolute inset-x-2.5 top-2.5 touch-none rounded-[28px] bg-bg px-3 pt-20 pb-3 shadow-card-hover md:hidden"
+              initial={reduce ? { opacity: 0 } : { opacity: 0, y: -40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduce ? { opacity: 0 } : { opacity: 0, y: -60 }}
+              transition={reduce ? { duration: 0.15 } : SPRING.sheet}
+              drag={reduce ? false : "y"}
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={0.2}
+              dragMomentum={false}
+              onDragEnd={onDragEnd}
             >
-              <nav aria-label="Mobile" className="flex flex-col">
+              <nav aria-label="Mobile" className="flex flex-col items-center">
                 {[{ href: "/", label: "Home" }, ...ITEMS].map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="font-display rounded-2xl px-6 py-3 text-left text-[32px] text-ink-1 active:bg-black/5"
+                    aria-current={isActive(pathname, item.href) ? "page" : undefined}
+                    className="font-display w-full rounded-2xl px-6 py-3 text-center text-[32px] text-ink-1 active:bg-black/5"
                   >
                     {item.label}
                   </Link>
@@ -184,15 +264,16 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
                     href={linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-display rounded-2xl px-6 py-3 text-left text-[32px] text-ink-1 active:bg-black/5"
+                    className="font-display w-full rounded-2xl px-6 py-3 text-center text-[32px] text-ink-1 active:bg-black/5"
                   >
                     LinkedIn
                   </a>
                 ) : null}
-                <a href={mail} className="font-display rounded-2xl px-6 py-3 text-left text-[32px] text-ink-1 active:bg-black/5">
+                <a href={mail} className="font-display w-full rounded-2xl px-6 py-3 text-center text-[32px] text-ink-1 active:bg-black/5">
                   Get in touch
                 </a>
               </nav>
+              <span aria-hidden="true" className="mx-auto mt-2 block h-1.5 w-10 rounded-full bg-black/15" />
             </motion.div>
           </>
         ) : null}

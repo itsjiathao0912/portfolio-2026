@@ -27,6 +27,8 @@ const project = {
     proof: [{ value: "2nd", label: "place, AABW Fintech track" }],
     headline: "Open AML monitoring a bank can host itself.",
     tone: "deep",
+    emoji: "🛡️",
+    color: "#f43f5e",
     visual: {
       "kind": "mockup",
       "device": "laptop",

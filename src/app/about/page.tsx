@@ -1,6 +1,9 @@
 import { ArrowUpRight } from "lucide-react";
 import type { Metadata } from "next";
+import { EmojiBurst } from "@/components/motion/emoji-burst";
+import { Tilt } from "@/components/motion/tilt";
 import { DevGap } from "@/components/site/dev-gap";
+import { Reveal } from "@/components/site/reveal";
 import { Portrait } from "@/components/site/portrait";
 import { loadSite } from "@/lib/load";
 
@@ -38,20 +41,25 @@ export default async function AboutPage() {
             <span lang="vi" data-testid="name-local" className="font-display text-ink-1">
               {profile.nameLocal}
             </span>{" "}
+            <EmojiBurst emojis={["🇻🇳", "🍜", "☕", "🛵"]} className="relative inline-flex cursor-default">
+              <span role="img" aria-label="Vietnam flag">🇻🇳</span>
+            </EmojiBurst>{" "}
             · {profile.location}
             {profile.availability ? ` · ${profile.availability}` : ""}
           </p>
         </div>
         <div className="w-full max-w-[320px] justify-self-center">
-          <Portrait src={profile.portrait} name={profile.name} className="rounded-[20px]" />
+          <Tilt>
+            <Portrait src={profile.portrait} name={profile.name} className="rounded-[20px]" />
+          </Tilt>
         </div>
       </section>
 
       <section aria-labelledby="experience" className="mx-auto max-w-[1100px] px-6 pt-24 md:px-10 md:pt-[150px]" data-testid="section-experience">
         <Heading id="experience">Experience</Heading>
         <ol className="mt-10 flex flex-col">
-          {main.map((job) => (
-            <li key={job.id} className="border-t border-hairline py-10 last:border-b">
+          {main.map((job, i) => (
+            <Reveal as="li" index={i % 3} key={job.id} className="border-t border-hairline py-10 last:border-b">
               <article className="grid gap-6 md:grid-cols-[260px_1fr]" data-testid="experience-item">
                 <div className="flex flex-col gap-1">
                   <p className="text-sm text-ink-3">{job.period}</p>
@@ -80,15 +88,15 @@ export default async function AboutPage() {
                   ) : null}
                 </div>
               </article>
-            </li>
+            </Reveal>
           ))}
         </ol>
         {earlier.length > 0 ? (
           <div className="mt-12">
             <h3 className="text-lg text-ink-3">Earlier experience</h3>
             <ul className="mt-4 grid gap-4 md:grid-cols-3">
-              {earlier.map((job) => (
-                <li key={job.id} className="rounded-[16px] bg-canvas p-6">
+              {earlier.map((job, i) => (
+                <Reveal as="li" index={i} key={job.id} className="rounded-[16px] bg-canvas p-6 transition-[transform,box-shadow] duration-300 [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:shadow-card-hover">
                   <article data-testid="experience-item">
                     <p className="text-sm text-ink-3">{job.period}</p>
                     <p className="font-display mt-2 text-xl text-ink-1" lang={job.company === "Chợ Tốt" ? "vi" : undefined}>
@@ -104,7 +112,7 @@ export default async function AboutPage() {
                     ) : null}
                     <DevGap note={job.gap} />
                   </article>
-                </li>
+                </Reveal>
               ))}
             </ul>
           </div>
@@ -114,17 +122,20 @@ export default async function AboutPage() {
       <section aria-labelledby="skills-title" className="mx-auto max-w-[1100px] px-6 pt-24 md:px-10 md:pt-[150px]" data-testid="section-skills">
         <Heading id="skills-title">Skills</Heading>
         <div className="mt-10 grid gap-8 md:grid-cols-2">
-          {site.skills.map((group) => (
-            <div key={group.id}>
+          {site.skills.map((group, i) => (
+            <Reveal index={i} key={group.id}>
               <h3 className="text-lg">{group.name}</h3>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {group.items.map((item) => (
-                  <li key={item} className="rounded-full border border-hairline px-3.5 py-1.5 text-sm text-ink-2">
+                  <li
+                    key={item}
+                    className="rounded-full border border-hairline px-3.5 py-1.5 text-sm text-ink-2 transition-[transform,background-color,color] duration-200 [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:bg-ink-1 [@media(hover:hover)]:hover:text-bg"
+                  >
                     {item}
                   </li>
                 ))}
               </ul>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -132,7 +143,7 @@ export default async function AboutPage() {
       <section aria-labelledby="recognition" className="mx-auto max-w-[1100px] px-6 pt-24 md:px-10 md:pt-[150px]" data-testid="section-recognition">
         <Heading id="recognition">Education, certifications, awards</Heading>
         <div className="mt-10 grid gap-5 md:grid-cols-3">
-          <div className="rounded-[20px] bg-canvas p-7">
+          <Reveal index={0} className="rounded-[20px] bg-canvas p-7">
             <h3 className="text-xl">Education</h3>
             <ul className="mt-5 flex flex-col gap-4">
               {site.education.map((edu) => (
@@ -146,8 +157,8 @@ export default async function AboutPage() {
                 </li>
               ))}
             </ul>
-          </div>
-          <div className="rounded-[20px] bg-canvas p-7">
+          </Reveal>
+          <Reveal index={1} className="rounded-[20px] bg-canvas p-7">
             <h3 className="text-xl">Certifications</h3>
             <ul className="mt-5 flex flex-col gap-4">
               {site.certifications.map((cert) => (
@@ -164,8 +175,8 @@ export default async function AboutPage() {
                 </li>
               ))}
             </ul>
-          </div>
-          <div className="rounded-[20px] bg-canvas p-7">
+          </Reveal>
+          <Reveal index={2} className="rounded-[20px] bg-canvas p-7">
             <h3 className="text-xl">Awards</h3>
             <ul className="mt-5 flex flex-col gap-4">
               {site.awards.map((award) => (
@@ -178,7 +189,7 @@ export default async function AboutPage() {
                 </li>
               ))}
             </ul>
-          </div>
+          </Reveal>
         </div>
       </section>
     </main>

@@ -33,6 +33,8 @@ const project = {
     ],
     headline: "Labour compliance, checked by 27 verified rules.",
     tone: "light",
+    emoji: "📒",
+    color: "#f97316",
     visual: {
       "kind": "mockup",
       "device": "laptop",

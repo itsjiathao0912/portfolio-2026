@@ -27,6 +27,8 @@ const project = {
     proof: [{ value: "6", label: "investor-facing modules" }],
     headline: "Real-world compute capacity, turned into on-chain funds.",
     tone: "light",
+    emoji: "🪙",
+    color: "#5b6cff",
     visual: {
       "kind": "mockup",
       "device": "laptop",

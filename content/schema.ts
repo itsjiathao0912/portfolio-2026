@@ -120,6 +120,13 @@ export const projectMetaSchema = z.object({
   /** Card variant: `light` = pastel tint; `deep` = solid navy with white text. */
   tone: z.enum(["light", "deep"]).default("light"),
   visual: projectVisualSchema.default({ kind: "illustration", motif: "lineage" }),
+  /** One emoji for the project (hover/tap bursts). Optional. */
+  emoji: z.string().min(1).max(8).optional(),
+  /** Accent colour (hex) for the hover colour flood and accents. Optional. */
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .optional(),
 });
 
 /** Authoring shape: what a file in content/projects/ exports. */

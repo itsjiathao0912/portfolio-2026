@@ -27,6 +27,8 @@ const project = {
     proof: [{ value: "4", label: "cloud providers' pricing standardized" }],
     headline: "Four cloud providers' pricing, one billing system.",
     tone: "light",
+    emoji: "☁️",
+    color: "#3b82f6",
     visual: {
       "kind": "illustration",
       "motif": "billing"

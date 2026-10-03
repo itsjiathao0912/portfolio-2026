@@ -11,6 +11,7 @@ import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import "./globals.css";
 
+import { MotionProvider } from "@/components/motion/motion-provider";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteNav } from "@/components/site/site-nav";
 import { loadSite } from "@/lib/load";
@@ -48,11 +49,13 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         >
           Skip to content
         </a>
-        <SiteNav name={profile?.name ?? "Thao Dao"} email={profile?.email ?? ""} linkedin={linkedin} />
-        <div id="main" className="flex-1">
-          {children}
-        </div>
-        <SiteFooter profile={profile} />
+        <MotionProvider>
+          <SiteNav name={profile?.name ?? "Thao Dao"} email={profile?.email ?? ""} linkedin={linkedin} />
+          <div id="main" className="flex-1">
+            {children}
+          </div>
+          <SiteFooter profile={profile} />
+        </MotionProvider>
       </body>
     </html>
   );

@@ -190,3 +190,29 @@ const site = {
 } satisfies SiteInput;
 
 export default site;
+
+/**
+ * Thao's own LinkedIn posts, shown on the home page as official LinkedIn
+ * embeds (https://www.linkedin.com/embed/feed/update/<urn>). `height` comes
+ * from LinkedIn's embed snippet; `url` is the public post link. Deduped by urn.
+ */
+export const linkedinPosts = [
+  {
+    urn: "urn:li:share:7504889327873626112",
+    height: 668,
+    title: "Vietnam's payment infrastructure: identity at its core",
+    url: "https://www.linkedin.com/feed/update/urn:li:share:7504889327873626112/",
+  },
+  {
+    urn: "urn:li:ugcPost:7505576167261966336",
+    height: 1007,
+    title: "Inside Vietnam's bank transfer system: NAPAS 247 and SIMO",
+    url: "https://www.linkedin.com/feed/update/urn:li:ugcPost:7505576167261966336/",
+  },
+  {
+    urn: "urn:li:activity:7483045282734104576",
+    height: 760,
+    title: "Agentic AI Build Week 2026: 2nd place with Cortex Sentinel",
+    url: "https://www.linkedin.com/posts/thaodao0912_aabw-aabw2026-activity-7483045282734104576-zhg8",
+  },
+] as const satisfies readonly { urn: string; height: number; title: string; url: string }[];

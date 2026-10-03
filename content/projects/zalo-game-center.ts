@@ -30,6 +30,8 @@ const project = {
     ],
     headline: "Ad revenue up 30% in six months, inside Zalo.",
     tone: "deep",
+    emoji: "🎮",
+    color: "#0068ff",
     visual: {
       "kind": "illustration",
       "motif": "games"

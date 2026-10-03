@@ -2,6 +2,7 @@ import { Mail } from "lucide-react";
 import Link from "next/link";
 import type { Site } from "@content/schema.ts";
 import { GithubIcon, LinkedinIcon } from "./brand-icons";
+import { Magnetic } from "@/components/motion/magnetic";
 import { LiquidLink } from "./liquid-link";
 
 function iconFor(label: string) {
@@ -34,7 +35,7 @@ export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${social.label} (opens in a new tab)`}
-                  className="flex size-12 items-center justify-center rounded-full bg-ink-1 text-bg transition-transform duration-200 hover:scale-110 motion-reduce:hover:scale-100"
+                  className="flex size-12 items-center justify-center rounded-full bg-ink-1 text-bg transition-transform duration-200 [@media(hover:hover)]:hover:scale-110 motion-reduce:hover:scale-100"
                 >
                   <Icon className="size-5" aria-hidden="true" />
                 </a>
@@ -46,7 +47,7 @@ export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
               <a
                 href={`mailto:${profile.email}`}
                 aria-label="Email"
-                className="flex size-12 items-center justify-center rounded-full bg-ink-1 text-bg transition-transform duration-200 hover:scale-110 motion-reduce:hover:scale-100"
+                className="flex size-12 items-center justify-center rounded-full bg-ink-1 text-bg transition-transform duration-200 [@media(hover:hover)]:hover:scale-110 motion-reduce:hover:scale-100"
               >
                 <Mail className="size-5" aria-hidden="true" />
               </a>
@@ -57,10 +58,12 @@ export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
           Want to get in touch? Drop me a line.
         </h2>
         {profile ? (
-          <LiquidLink href={`mailto:${profile.email}`} data-testid="footer-email" className="h-16 px-10 text-[17px]">
-            <Mail className="size-5" aria-hidden="true" />
-            {profile.email}
-          </LiquidLink>
+          <Magnetic>
+            <LiquidLink href={`mailto:${profile.email}`} data-testid="footer-email" className="h-16 px-10 text-[17px]">
+              <Mail className="size-5" aria-hidden="true" />
+              {profile.email}
+            </LiquidLink>
+          </Magnetic>
         ) : null}
       </section>
       <div className="border-t border-hairline">

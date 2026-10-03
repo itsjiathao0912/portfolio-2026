@@ -1,24 +1,27 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { EmojiBurst } from "@/components/motion/emoji-burst";
+import { RotatingWord } from "@/components/motion/rotating-word";
 
 interface HeroIntroProps {
   headline: string;
   intro: string;
+  /** Rolling words for "I build ___" (first one is the server-rendered word). */
+  builds?: readonly string[];
   children?: React.ReactNode;
 }
 
 /**
- * Hero text. Server-rendered already visible (opacity 0.3, never 0), then
- * settles up over ~500ms once hydrated — so the hero is never blank on load.
- * Reduced motion: a short fade only.
+ * Hero text. Server-rendered at FULL opacity (sharp first paint, never grey);
+ * once hydrated it only settles 12px upward in ~250ms. Reduced motion: static.
  */
-export function HeroIntro({ headline, intro, children }: HeroIntroProps) {
+export function HeroIntro({ headline, intro, builds = [], children }: HeroIntroProps) {
   const reduce = useReducedMotion();
   const item = (i: number) => ({
-    initial: { opacity: 0.3, y: reduce ? 0 : 16 },
+    initial: reduce ? false : ({ opacity: 1, y: 12 } as const),
     animate: { opacity: 1, y: 0 },
-    transition: { duration: reduce ? 0.15 : 0.5, ease: [0.22, 1, 0.36, 1] as const, delay: reduce ? 0 : 0.05 * i },
+    transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] as const, delay: 0.04 * i },
   });
 
   return (
@@ -30,12 +33,22 @@ export function HeroIntro({ headline, intro, children }: HeroIntroProps) {
       >
         {headline}
       </motion.h1>
-      {intro ? (
-        <motion.p {...item(1)} className="max-w-[832px] text-[24px] leading-[1.3] font-medium text-ink-1 md:text-[28px]">
-          {intro}
+      {builds.length > 0 ? (
+        <motion.p {...item(1)} className="font-display text-[24px] leading-[1.25] text-ink-1 md:text-[32px]" data-testid="hero-builds">
+          I build <RotatingWord words={builds} className="text-ink-3" />
         </motion.p>
       ) : null}
-      {children ? <motion.div {...item(2)} className="w-full">{children}</motion.div> : null}
+      {intro ? (
+        <motion.p {...item(2)} className="max-w-[832px] text-[20px] leading-[1.35] font-medium text-ink-1 md:text-[24px]">
+          {intro}{" "}
+          <EmojiBurst emojis={["🇻🇳", "🍜", "☕", "🛵", "🇻🇳"]} className="relative inline-flex cursor-default">
+            <span role="img" aria-label="Vietnam flag" data-testid="hero-flag">
+              🇻🇳
+            </span>
+          </EmojiBurst>
+        </motion.p>
+      ) : null}
+      {children ? <motion.div {...item(3)} className="w-full">{children}</motion.div> : null}
     </div>
   );
 }
