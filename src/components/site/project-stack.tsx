@@ -1,8 +1,15 @@
 "use client";
 
+import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import type { Project } from "@content/schema.ts";
+import { SPRING } from "@/components/motion/springs";
+import { usePersona } from "@/components/signature/participate/store";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
+import { emojiFor } from "./home/project-meta";
+import { PersonaControl } from "./home/persona-control";
+import { HOME_PERSONA_NOTE, homePersona, orderForPersona } from "./home/persona-order";
 import { StackCard, type StackSurface } from "./stack-card";
 
 interface Group {
@@ -10,10 +17,11 @@ interface Group {
   projects: Project[];
 }
 
-/** Split projects into the two TOC groups, keeping sortOrder. */
+/** Split projects into the TOC groups, keeping sortOrder. */
 export function groupProjects(projects: readonly Project[]) {
   const groups: Group[] = [
-    { label: "Shipped platforms", projects: projects.filter((p) => p.category !== "Personal") },
+    { label: "Shipped platforms", projects: projects.filter((p) => p.category !== "Personal" && p.category !== "Hackathon") },
+    { label: "Hackathons", projects: projects.filter((p) => p.category === "Hackathon") },
     { label: "Personal products", projects: projects.filter((p) => p.category === "Personal") },
   ];
   return groups.filter((g) => g.projects.length > 0);
@@ -25,20 +33,54 @@ export function surfaceFor(index: number, total: number): StackSurface {
   return index % 3 === 1 ? "gradient" : "white";
 }
 
+/** A TOC row: emoji, label, and the shared sliding glass pill behind the active one. */
+function TocItem({ project, active, reduce }: { project: Project; active: boolean; reduce: boolean }) {
+  return (
+    <li>
+      <a
+        href={`#project-${project.slug}`}
+        data-testid="toc-item"
+        data-active={active ? "true" : "false"}
+        aria-current={active ? "location" : undefined}
+        className={cn(
+          "relative flex h-10 items-center gap-2 rounded-full px-3 text-[15px] outline-none transition-colors duration-[120ms] focus-visible:ring-2 focus-visible:ring-accent",
+          active ? "font-semibold text-ink-1" : "text-ink-3 hover:text-ink-1"
+        )}
+      >
+        {active ? <motion.span layoutId="toc-pill" transition={reduce ? { duration: 0 } : SPRING.indicator} className="absolute inset-0 rounded-full bg-white/80 shadow-2" /> : null}
+        <motion.span
+          key={active ? "on" : "off"}
+          aria-hidden="true"
+          className="relative grid w-7 place-items-center text-[18px] leading-none"
+          initial={false}
+          animate={active && !reduce ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+          transition={active && !reduce ? { duration: 0.32, ease: "easeOut" } : { duration: 0 }}
+        >
+          {emojiFor(project.slug)}
+        </motion.span>
+        <span className="relative">{project.title}</span>
+      </a>
+    </li>
+  );
+}
+
 /**
- * Home project stack: a sticky grouped table of contents in a 300px gutter
- * (≥1024px) with scroll-spy, next to one centred card per project. Phones get
- * a horizontal chip bar instead of the TOC.
+ * Home project stack. Heading and the persona control sit on the same canvas
+ * surface as the highlights above and the cards below, so there is no seam. A
+ * sticky grouped TOC (≥1024px) has an emoji per project and a sliding active
+ * pill; phones get a chip rail. Choosing a persona reorders the cards (layout
+ * animation) and the TOC to match.
  */
 export function ProjectStack({ projects }: { projects: Project[] }) {
+  const reduce = useReducedMotion();
+  const { persona: stored, setPersona } = usePersona();
+  const persona = homePersona(stored);
   const groups = groupProjects(projects);
-  const ordered = groups.flatMap((g) => g.projects);
+  const ordered = persona ? orderForPersona(projects, persona) : groups.flatMap((g) => g.projects);
   const [active, setActive] = useState(ordered[0]?.slug ?? "");
 
   useEffect(() => {
-    const cards = ordered
-      .map((p) => document.getElementById(`project-${p.slug}`))
-      .filter((el): el is HTMLElement => el !== null);
+    const cards = ordered.map((p) => document.getElementById(`project-${p.slug}`)).filter((el): el is HTMLElement => el !== null);
     if (cards.length === 0) return;
     let ticking = false;
     function compute() {
@@ -60,69 +102,71 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-    // ordered is derived from props; slugs are the stable key.
+    // slugs are the stable key.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ordered.map((p) => p.slug).join("|")]);
 
-  return (
-    <section
-      id="work"
-      aria-labelledby="work-title"
-      className="bg-canvas pb-24 md:pb-[150px]"
-      data-testid="section-work"
-    >
-      <h2 id="work-title" className="sr-only">
-        Work
-      </h2>
-      <div className="mx-auto max-w-[1440px] px-2.5 md:px-[45px] lg:grid lg:grid-cols-[300px_1fr] lg:gap-0">
-        <nav aria-label="Projects" className="hidden lg:block" data-testid="home-toc">
-          <div className="sticky top-[120px] flex flex-col gap-10 pr-6 pl-4">
-            {groups.map((group) => (
-              <div key={group.label}>
-                <p className="text-[14px] font-semibold text-ink-3">{group.label}</p>
-                <ul className="mt-4 flex flex-col">
-                  {group.projects.map((p) => {
-                    const isActive = p.slug === active;
-                    return (
-                      <li key={p.slug}>
-                        <a
-                          href={`#project-${p.slug}`}
-                          data-active={isActive ? "true" : "false"}
-                          aria-current={isActive ? "location" : undefined}
-                          className={cn(
-                            "flex items-center gap-4 py-3 text-[15px] transition-colors duration-200",
-                            isActive ? "font-semibold text-ink-1" : "text-ink-3 hover:text-ink-1"
-                          )}
-                        >
-                          <span
-                            aria-hidden="true"
-                            className={cn("size-1.5 rounded-full transition-colors", isActive ? "bg-ink-1" : "bg-ink-3/50")}
-                          />
-                          {p.title}
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </nav>
+  const tocGroups: Group[] = persona ? [{ label: "In your order", projects: ordered }] : groups;
 
-        <div className="flex flex-col gap-6 md:gap-[100px]">
-          <ul className="-mx-2.5 flex gap-2 overflow-x-auto px-2.5 pb-1 [scrollbar-width:none] lg:hidden" aria-label="Jump to project">
-            {ordered.map((p) => (
-              <li key={p.slug} className="shrink-0">
-                <a href={`#project-${p.slug}`} className="flex h-10 items-center rounded-full bg-bg px-4 text-[14px] font-medium text-ink-1 shadow-card">
-                  {p.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-          {ordered.map((project, index) => (
-            <StackCard key={project.id} project={project} surface={surfaceFor(index, ordered.length)} />
-          ))}
+  return (
+    <section id="work" aria-labelledby="work-title" className="bg-canvas pb-20 md:pb-[96px]" data-testid="section-work">
+      <div className="mx-auto max-w-[1440px] px-2.5 md:px-[45px]">
+        <div className="px-3 pt-4 md:px-4">
+          <h2 id="work-title" className="text-[32px] md:text-[46px]">Selected work</h2>
+          <div className="mt-6">
+            <PersonaControl value={persona} onChange={setPersona} />
+            <div aria-live="polite" className="mt-3 min-h-6">
+              <AnimatePresence mode="wait">
+                {persona ? (
+                  <motion.p key={persona} data-testid="persona-note" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduce ? 0 : 0.32 }} className="text-[14px] text-ink-3">
+                    {HOME_PERSONA_NOTE[persona]}
+                  </motion.p>
+                ) : null}
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
+
+        <LayoutGroup id="stack">
+          <div className="mt-8 lg:grid lg:grid-cols-[300px_1fr] lg:gap-0">
+            <nav aria-label="Projects" className="hidden lg:block" data-testid="home-toc">
+              <div className="sticky top-[120px] flex flex-col gap-8 pr-6 pl-2">
+                {tocGroups.map((group) => (
+                  <div key={group.label}>
+                    <p className="label-mono px-3 text-[12px] uppercase text-ink-3">{group.label}</p>
+                    <ul className="mt-3 flex flex-col">
+                      {group.projects.map((p) => (
+                        <TocItem key={p.slug} project={p} active={p.slug === active} reduce={reduce} />
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </nav>
+
+            <div className="flex flex-col gap-10 md:gap-[56px]">
+              <ul className="sticky top-[76px] z-20 -mx-2.5 flex gap-2 overflow-x-auto bg-canvas/90 px-2.5 py-2 backdrop-blur-md [scrollbar-width:none] lg:hidden" aria-label="Jump to project" data-testid="toc-chips">
+                {ordered.map((p) => (
+                  <li key={p.slug} className="shrink-0">
+                    <a
+                      href={`#project-${p.slug}`}
+                      aria-current={p.slug === active ? "location" : undefined}
+                      className={cn("flex h-11 items-center gap-1.5 rounded-full px-4 text-[14px] font-medium transition-colors", p.slug === active ? "bg-white text-ink-1 shadow-2" : "text-ink-3")}
+                    >
+                      <span aria-hidden="true">{emojiFor(p.slug)}</span>
+                      {p.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              {ordered.map((project, index) => (
+                <motion.div key={project.id} layout={reduce ? false : "position"} transition={SPRING.sheet}>
+                  <StackCard project={project} surface={surfaceFor(index, ordered.length)} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </LayoutGroup>
       </div>
     </section>
   );

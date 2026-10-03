@@ -10,6 +10,10 @@ export type GlobeCanvasProps = {
   onSelect: (id: string, x: number, y: number) => void;
   /** Initial yaw so the story starts over South-East Asia. */
   startLon?: number;
+  /** "light" = white page style, no text labels (the list names the places). */
+  tone?: "dark" | "light";
+  /** Rotate to face this longitude (null = free spin). */
+  focusLon?: number | null;
 };
 
 const TILT = -0.32;
@@ -25,14 +29,17 @@ const ARC_GEOM = ARCS.map((c) => ({
   pts: arcPoints(latLonToVec(placeById(c.from).lat, placeById(c.from).lon), latLonToVec(placeById(c.to).lat, placeById(c.to).lon)),
 }));
 
-export default function GlobeCanvas({ activeId, onHover, onSelect, startLon = 100 }: GlobeCanvasProps) {
+export default function GlobeCanvas({ activeId, onHover, onSelect, startLon = 100, tone = "dark", focusLon = null }: GlobeCanvasProps) {
+  const light = tone === "light";
+  const focusRef = useRef<number | null>(focusLon);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const activeRef = useRef(activeId);
   const cbRef = useRef({ onHover, onSelect });
   useEffect(() => {
     activeRef.current = activeId;
+    focusRef.current = focusLon;
     cbRef.current = { onHover, onSelect };
-  }, [activeId, onHover, onSelect]);
+  }, [activeId, focusLon, onHover, onSelect]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -142,7 +149,13 @@ export default function GlobeCanvas({ activeId, onHover, onSelect, startLon = 10
       prev = now;
       if (!dragging) {
         if (vel !== 0) { yaw += vel * dt; vel = decay(vel, dt); }
-        else if (!activeRef.current) yaw += AUTO_SPIN * dt;
+        else if (focusRef.current != null) {
+          const target = (-focusRef.current * Math.PI) / 180;
+          let diff = (target - yaw) % (Math.PI * 2);
+          if (diff > Math.PI) diff -= Math.PI * 2;
+          if (diff < -Math.PI) diff += Math.PI * 2;
+          yaw += diff * Math.min(1, dt * 0.006);
+        } else if (!activeRef.current) yaw += AUTO_SPIN * dt;
       }
       draw(now);
       raf = requestAnimationFrame(frame);
@@ -157,6 +170,13 @@ export default function GlobeCanvas({ activeId, onHover, onSelect, startLon = 10
       const Y = yaw + scrollYaw;
 
       // Halo + ocean disc.
+      if (light) {
+        ctx.fillStyle = "#f7f7f7";
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "rgba(11,21,51,0.10)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      } else {
       const g = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.1, cx, cy, r * 1.15);
       g.addColorStop(0, "#1e3a8a");
       g.addColorStop(0.75, "#0b1b4a");
@@ -165,12 +185,13 @@ export default function GlobeCanvas({ activeId, onHover, onSelect, startLon = 10
       ctx.beginPath(); ctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = "#0b1b4a";
       ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+      }
 
       // Land dots, shaded by depth.
       for (const v of DOTS) {
         const p = project(rotate(v, Y, TILT), cx, cy, r);
         if (p.z <= 0) continue;
-        ctx.fillStyle = `rgba(191,219,254,${0.25 + p.z * 0.65})`;
+        ctx.fillStyle = light ? `rgba(107,108,114,${0.18 + p.z * 0.4})` : `rgba(191,219,254,${0.25 + p.z * 0.65})`;
         ctx.fillRect(p.x - 1, p.y - 1, 2, 2);
       }
 
@@ -181,11 +202,12 @@ export default function GlobeCanvas({ activeId, onHover, onSelect, startLon = 10
         const sp = pts.map((v) => project(rotate(v, Y, TILT), cx, cy, r));
         projected.push({ id: c.id, pts: sp });
         const on = active === c.id;
-        ctx.lineWidth = on ? 3 : 1.6;
-        ctx.strokeStyle = c.color;
+        ctx.lineWidth = on ? 3 : 1.5;
+        if (light) ctx.strokeStyle = "#2563eb";
+        ctx.strokeStyle = light ? "#2563eb" : c.color;
         ctx.globalAlpha = active && !on ? 0.35 : 0.9;
         ctx.shadowColor = c.color;
-        ctx.shadowBlur = on ? 14 : 6;
+        ctx.shadowBlur = light ? 0 : on ? 14 : 6;
         ctx.beginPath();
         let pen = false;
         for (const p of sp) {
@@ -196,7 +218,7 @@ export default function GlobeCanvas({ activeId, onHover, onSelect, startLon = 10
         const t = ((now / 2200) + c.id.length * 0.13) % 1;
         const p = sp[Math.floor(t * (sp.length - 1))];
         if (p.z > -0.05) {
-          ctx.fillStyle = "#ffffff";
+          ctx.fillStyle = light ? "#0b1533" : "#ffffff";
           ctx.beginPath(); ctx.arc(p.x, p.y, on ? 3.5 : 2.5, 0, Math.PI * 2); ctx.fill();
         }
         ctx.shadowBlur = 0;
@@ -209,6 +231,12 @@ export default function GlobeCanvas({ activeId, onHover, onSelect, startLon = 10
         const p = project(rotate(latLonToVec(pl.lat, pl.lon), Y, TILT), cx, cy, r);
         if (p.z <= 0.05) continue;
         const pulse = 4 + 3 * ((now / 1200) % 1);
+        if (light) {
+          ctx.fillStyle = "#0b1533";
+          ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke();
+          continue;
+        }
         ctx.strokeStyle = `rgba(255,255,255,${0.6 * (1 - ((now / 1200) % 1))})`;
         ctx.beginPath(); ctx.arc(p.x, p.y, pulse, 0, Math.PI * 2); ctx.stroke();
         ctx.fillStyle = "#ffffff";
@@ -238,7 +266,7 @@ export default function GlobeCanvas({ activeId, onHover, onSelect, startLon = 10
       canvas.removeEventListener("pointercancel", up);
       canvas.removeEventListener("pointerleave", leave);
     };
-  }, [startLon]);
+  }, [startLon, light]);
 
   return (
     <canvas

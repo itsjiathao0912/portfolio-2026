@@ -1,8 +1,7 @@
 import { ArrowUpRight, Award, ChartColumn, Cloud, Database, Gamepad2, Lightbulb, Rocket, Sparkles, Trophy } from "lucide-react";
 import type { Site } from "@content/schema.ts";
 import { EmojiBurst } from "@/components/motion/emoji-burst";
-import { cn } from "@/lib/utils";
-import { DotGrid } from "./dot-grid";
+import { LiftCard } from "@/components/ui/lift-card";
 import { Reveal } from "./reveal";
 
 const GLYPHS = { cloud: Cloud, database: Database, chart: ChartColumn, lightbulb: Lightbulb, rocket: Rocket, gamepad: Gamepad2, sparkles: Sparkles, award: Award } as const;
@@ -54,16 +53,15 @@ export function buildHighlights(site: Pick<Site, "awards" | "certifications">) {
  * bursts trophies on hover/tap) beside six white tiles, each with its own
  * coloured mark. Tiles fade up in a 60ms stagger; reduced motion: fade only.
  */
-export function HighlightsGrid({ site }: { site: Pick<Site, "awards" | "certifications"> }) {
+export function HighlightsGrid({ site, footer }: { site: Pick<Site, "awards" | "certifications">; footer?: React.ReactNode }) {
   const { lead, tiles } = buildHighlights(site);
   return (
     <section
       id="highlights"
       aria-labelledby="highlights-title"
-      className="relative overflow-hidden bg-canvas py-20 md:py-[130px]"
+      className="relative overflow-hidden bg-canvas py-14 md:py-[80px]"
       data-testid="section-highlights"
     >
-      <DotGrid className="opacity-25" />
       <h2 id="highlights-title" className="sr-only">
         Highlights
       </h2>
@@ -73,8 +71,10 @@ export function HighlightsGrid({ site }: { site: Pick<Site, "awards" | "certific
             as="li"
             index={0}
             stagger={0.06}
-            className="col-span-2 flex flex-col justify-between gap-6 rounded-[24px] bg-ink-1 p-7 text-bg md:p-9 lg:col-span-1 lg:row-span-2"
+            className="col-span-2 lg:col-span-1 lg:row-span-2"
           >
+            <LiftCard radius="rounded-[24px]" className="h-full">
+            <div className="flex h-full flex-col justify-between gap-6 rounded-[24px] bg-ink-1 p-7 text-bg md:p-9">
             <EmojiBurst emojis={["🏆", "🥈", "🇻🇳", "🎉"]} className="relative inline-flex self-start">
               <span className="flex size-14 items-center justify-center rounded-2xl bg-white/10">
                 <Trophy className="size-8 text-[#fbbf24]" aria-hidden="true" strokeWidth={1.8} />
@@ -89,6 +89,8 @@ export function HighlightsGrid({ site }: { site: Pick<Site, "awards" | "certific
                 {lead.result.includes("·") ? ` — with ${lead.result.split("·").slice(1).join("·").trim()}` : ""}.
               </p>
             </div>
+            </div>
+            </LiftCard>
           </Reveal>
         ) : null}
         {tiles.map((tile, index) => {
@@ -99,11 +101,10 @@ export function HighlightsGrid({ site }: { site: Pick<Site, "awards" | "certific
               key={tile.id}
               index={index + 1}
               stagger={0.06}
-              className={cn(
-                "flex flex-col gap-3 rounded-[24px] bg-bg p-5 shadow-card transition-[transform,box-shadow] duration-300 md:p-7",
-                "[@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:shadow-card-hover"
-              )}
+              className="flex"
             >
+              <LiftCard radius="rounded-[24px]" className="w-full">
+              <div className="flex h-full flex-col gap-3 rounded-[24px] bg-bg p-5 md:p-7">
               <span
                 data-testid="highlight-icon"
                 data-glyph={tile.glyph}
@@ -126,9 +127,12 @@ export function HighlightsGrid({ site }: { site: Pick<Site, "awards" | "certific
                   Credential <ArrowUpRight className="size-4" aria-hidden="true" />
                 </a>
               ) : null}
+              </div>
+              </LiftCard>
             </Reveal>
           );
         })}
+        {footer ? <li className="col-span-2 mt-2 lg:col-span-4">{footer}</li> : null}
       </ul>
     </section>
   );

@@ -7,7 +7,9 @@ import { Magnetic } from "@/components/motion/magnetic";
 import { RollingCounter } from "@/components/motion/rolling-counter";
 import { Tilt } from "@/components/motion/tilt";
 import { TransitionLink } from "@/components/motion/transition-link";
+import { LiftCard } from "@/components/ui/lift-card";
 import { cn } from "@/lib/utils";
+import { CardStamp } from "./home/card-stamp";
 import { ProjectVisual } from "./project-visual";
 
 export type StackSurface = "white" | "gradient" | "dark";
@@ -47,21 +49,20 @@ export function StackCard({ project, surface = "white" }: { project: Project; su
   }
 
   return (
-    <article
-      id={`project-${project.slug}`}
-      data-testid="stack-card"
-      data-slug={project.slug}
-      data-morph-root=""
-      onPointerEnter={onEnter}
-      style={{ ["--project-color" as string]: color }}
-      className={cn(
-        "flood group relative scroll-mt-28 overflow-hidden rounded-[16px] px-3 pt-12 pb-3 text-center md:px-5 md:pt-[60px] md:pb-5",
-        "transition-[transform,box-shadow] duration-300 ease-out [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:shadow-card-hover motion-reduce:hover:translate-y-0",
-        surface === "white" && "bg-bg",
-        surface === "gradient" && cn("bg-gradient-to-b to-bg to-60%", GRADIENT[meta.tint]),
-        dark && "bg-ink-1 text-bg"
-      )}
-    >
+    <div id={`project-${project.slug}`} data-testid="stack-card" data-slug={project.slug} className="relative scroll-mt-28">
+      <LiftCard radius="rounded-[16px]">
+        <CardStamp slug={project.slug} />
+        <article
+          data-morph-root=""
+          onPointerEnter={onEnter}
+          style={{ ["--project-color" as string]: color }}
+          className={cn(
+            "flood group/card relative overflow-hidden rounded-[16px] px-3 pt-12 pb-3 text-center md:px-5 md:pt-[52px] md:pb-5",
+            surface === "white" && "bg-bg",
+            surface === "gradient" && cn("bg-gradient-to-b to-bg to-60%", GRADIENT[meta.tint]),
+            dark && "bg-ink-1 text-bg"
+          )}
+        >
       <div className="relative z-[1]">
         <p className={cn("flex items-center justify-center gap-2 text-[15px] font-semibold", dark ? "text-white/70" : "text-ink-1")}>
           {meta.emoji ? (
@@ -76,20 +77,20 @@ export function StackCard({ project, surface = "white" }: { project: Project; su
             <span className={cn("font-normal", dark ? "text-white/50" : "text-ink-3")}> · {meta.company}</span>
           </span>
         </p>
-        <h3 className={cn("mx-auto mt-6 max-w-[620px] text-balance text-[30px] leading-[1.12] md:text-[46px]", dark && "!text-bg")}>
+        <h3 className={cn("mx-auto mt-5 max-w-[620px] text-balance text-[30px] leading-[1.12] md:text-[46px]", dark && "!text-bg")}>
           {meta.headline || meta.subtitle || project.title}
         </h3>
-        <p className={cn("mx-auto mt-6 max-w-[600px] px-2 text-[16px] leading-[1.6] md:text-[18px]", dark ? "text-white/80" : "text-ink-1")}>
+        <p className={cn("mx-auto mt-4 max-w-[600px] px-2 text-[16px] leading-[1.6] md:text-[18px]", dark ? "text-white/80" : "text-ink-1")}>
           {project.summary}
         </p>
-        <Tilt className="mx-auto mt-10 max-w-[760px] px-2 md:mt-12">
+        <Tilt className="mx-auto mt-10 max-w-[640px] px-2 md:mt-8">
           <div data-morph-target="">
             <ProjectVisual visual={meta.visual} label={project.title} logo={meta.logo} tone={dark ? "deep" : "light"} size="hero" />
           </div>
         </Tilt>
         <div
           className={cn(
-            "mt-10 flex flex-col items-center gap-6 rounded-[16px] p-6 text-left md:mt-12 md:flex-row md:justify-between md:px-10 md:py-8",
+            "mt-8 flex flex-col items-center gap-6 rounded-[16px] p-6 text-left md:mt-8 md:flex-row md:justify-between md:px-10 md:py-6",
             dark ? "bg-white/10" : "bg-black/[0.04]"
           )}
         >
@@ -124,6 +125,8 @@ export function StackCard({ project, surface = "white" }: { project: Project; su
           </Magnetic>
         </div>
       </div>
-    </article>
+        </article>
+      </LiftCard>
+    </div>
   );
 }

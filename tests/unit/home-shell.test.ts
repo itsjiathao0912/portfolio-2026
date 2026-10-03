@@ -35,9 +35,9 @@ describe("portrait", () => {
 
 describe("project stack", () => {
   const mk = (slug: string, category: string) => ({ slug, category }) as never;
-  test("groups personal projects after shipped platforms, keeping order", () => {
-    const groups = groupProjects([mk("a", "Product"), mk("b", "Personal"), mk("c", "Growth & data")]);
-    expect(groups.map((g) => g.label)).toEqual(["Shipped platforms", "Personal products"]);
+  test("groups hackathons then personal after shipped platforms, keeping order", () => {
+    const groups = groupProjects([mk("a", "Product"), mk("b", "Personal"), mk("c", "Growth & data"), mk("d", "Hackathon")]);
+    expect(groups.map((g) => g.label)).toEqual(["Shipped platforms", "Hackathons", "Personal products"]);
     expect(groups[0].projects.map((p) => p.slug)).toEqual(["a", "c"]);
   });
   test("surfaces: last card dark, every third gradient", () => {

@@ -21,7 +21,8 @@ const arcs = ARCS.map((c) => {
   return { c, d: pts.map((p, i) => `${i ? "L" : "M"}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ") };
 });
 
-export function GlobeStatic({ activeId }: { activeId?: string | null }) {
+export function GlobeStatic({ activeId, tone = "dark" }: { activeId?: string | null; tone?: "dark" | "light" }) {
+  const light = tone === "light";
   return (
     <svg viewBox={`0 0 ${S} ${S}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
       <defs>
@@ -30,17 +31,17 @@ export function GlobeStatic({ activeId }: { activeId?: string | null }) {
           <stop offset="1" stopColor="#0b1b4a" />
         </radialGradient>
       </defs>
-      <circle cx={S / 2} cy={S / 2} r={R} fill="url(#sg-ocean)" />
+      <circle cx={S / 2} cy={S / 2} r={R} fill={light ? "#f7f7f7" : "url(#sg-ocean)"} stroke={light ? "rgba(11,21,51,0.1)" : undefined} />
       {dots.map((p, i) => (
-        <rect key={i} x={p.x} y={p.y} width={2} height={2} fill="#bfdbfe" opacity={p.o} />
+        <rect key={i} x={p.x} y={p.y} width={2} height={2} fill={light ? "#6b6c72" : "#bfdbfe"} opacity={light ? +(p.o * 0.5).toFixed(2) : p.o} />
       ))}
       {arcs.map(({ c, d }) => (
-        <path key={c.id} d={d} fill="none" stroke={c.color} strokeWidth={activeId === c.id ? 3 : 1.8} strokeLinecap="round" />
+        <path key={c.id} d={d} fill="none" stroke={light ? "#2563eb" : c.color} strokeWidth={activeId === c.id ? 3 : 1.8} strokeLinecap="round" />
       ))}
       {PLACES.map((pl) => {
         const p = P(pl.lat, pl.lon);
         if (p.z <= 0.05) return null;
-        return <circle key={pl.id} cx={+p.x.toFixed(1)} cy={+p.y.toFixed(1)} r={3} fill="#fff" />;
+        return <circle key={pl.id} cx={+p.x.toFixed(1)} cy={+p.y.toFixed(1)} r={light ? 4 : 3} fill={light ? "#0b1533" : "#fff"} />;
       })}
     </svg>
   );
