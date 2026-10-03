@@ -175,6 +175,7 @@ export function CareerRail({ stops = buildRailStops(), heading = "The route so f
                 <p className="text-sm tabular-nums text-ink-3">{s.period}</p>
                 <h3 className="mt-2 text-xl">{s.company}</h3>
                 <p className="mt-1 text-[15px] text-ink-2">{s.role}</p>
+                {s.win ? <p className="mt-3 line-clamp-3 text-sm text-ink-2">{s.win}</p> : null}
                 {s.domain ? (
                   <p className="mt-4 self-start rounded-full px-3 py-1 text-xs font-medium" style={{ background: s.wash, color: s.ink }}>
                     {s.domain}

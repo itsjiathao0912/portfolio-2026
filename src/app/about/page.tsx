@@ -5,7 +5,6 @@ import { PortraitNote } from "@/components/about/portrait-note";
 import { Tilt } from "@/components/motion/tilt";
 import { PhotoMoments } from "@/components/site/photo-moments";
 import { photos } from "@content/site.ts";
-import { DevGap } from "@/components/site/dev-gap";
 import { Reveal } from "@/components/site/reveal";
 import { Portrait } from "@/components/site/portrait";
 import { CareerRail } from "@/components/signature/ledger";
@@ -33,7 +32,6 @@ export default async function AboutPage() {
   }
   const { profile } = site;
   const main = site.experience.filter((e) => !e.earlier);
-  const earlier = site.experience.filter((e) => e.earlier);
 
   return (
     <main data-testid="about">
@@ -55,7 +53,7 @@ export default async function AboutPage() {
         </div>
         <div className="relative w-full max-w-[320px] justify-self-center">
           <Tilt>
-            <Portrait src={profile.portrait} name={profile.name} className="rounded-[20px]" />
+            <Portrait src={profile.portrait} name={profile.name} className="rounded-xl" />
           </Tilt>
           <PortraitNote href="/work/cortex-sentinel" label="Start with Cortex Sentinel" />
         </div>
@@ -73,7 +71,7 @@ export default async function AboutPage() {
                   <p className="text-sm text-ink-3">{job.period}</p>
                   <h3 className="text-2xl">
                     {job.url ? (
-                      <a href={job.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-accent">
+                      <a href={job.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-1 hover:text-accent">
                         {job.company}
                         <ArrowUpRight className="size-4" aria-hidden="true" />
                       </a>
@@ -99,32 +97,6 @@ export default async function AboutPage() {
             </Reveal>
           ))}
         </ol>
-        {earlier.length > 0 ? (
-          <div className="mt-12">
-            <h3 className="text-lg text-ink-3">Earlier experience</h3>
-            <ul className="mt-4 grid gap-4 md:grid-cols-3">
-              {earlier.map((job, i) => (
-                <Reveal as="li" index={i} key={job.id} className="rounded-[16px] bg-canvas p-6 transition-[transform,box-shadow] duration-300 [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:shadow-card-hover">
-                  <article data-testid="experience-item">
-                    <p className="text-sm text-ink-3">{job.period}</p>
-                    <p className="font-display mt-2 text-xl text-ink-1" lang={job.company === "Chợ Tốt" ? "vi" : undefined}>
-                      {job.company}
-                    </p>
-                    {job.role ? <p className="mt-1 font-medium text-ink-1">{job.role}</p> : null}
-                    {job.bullets.length > 0 ? (
-                      <ul className="mt-3 flex flex-col gap-2 pl-4 text-sm text-ink-2 [list-style:disc]">
-                        {job.bullets.map((bullet) => (
-                          <li key={bullet}>{bullet}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                    <DevGap note={job.gap} />
-                  </article>
-                </Reveal>
-              ))}
-            </ul>
-          </div>
-        ) : null}
       </section>
 
       <PhotoMoments moments={photos.filter((p) => (p.place as readonly string[]).includes("about"))} title="Seen around" className="pb-0 md:pb-0" />
@@ -153,7 +125,7 @@ export default async function AboutPage() {
       <section aria-labelledby="recognition" className="mx-auto max-w-[1100px] px-6 pt-24 md:px-10 md:pt-[150px]" data-testid="section-recognition">
         <Heading id="recognition">Education, certifications, awards</Heading>
         <div className="mt-10 grid gap-5 md:grid-cols-3">
-          <Reveal index={0} className="rounded-[20px] bg-canvas p-7">
+          <Reveal index={0} className="rounded-xl bg-canvas p-7">
             <h3 className="text-xl">Education</h3>
             <ul className="mt-5 flex flex-col gap-4">
               {site.education.map((edu) => (
@@ -168,13 +140,13 @@ export default async function AboutPage() {
               ))}
             </ul>
           </Reveal>
-          <Reveal index={1} className="rounded-[20px] bg-canvas p-7">
+          <Reveal index={1} className="rounded-xl bg-canvas p-7">
             <h3 className="text-xl">Certifications</h3>
             <ul className="mt-5 flex flex-col gap-4">
               {site.certifications.map((cert) => (
                 <li key={cert.id}>
                   {cert.url ? (
-                    <a href={cert.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-start gap-1 font-medium text-ink-1 hover:text-accent">
+                    <a href={cert.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-1 font-medium text-ink-1 hover:text-accent">
                       {cert.name}
                       <ArrowUpRight className="mt-1 size-3.5 shrink-0" aria-hidden="true" />
                     </a>
@@ -186,7 +158,7 @@ export default async function AboutPage() {
               ))}
             </ul>
           </Reveal>
-          <Reveal index={2} className="rounded-[20px] bg-canvas p-7">
+          <Reveal index={2} className="rounded-xl bg-canvas p-7">
             <h3 className="text-xl">Awards</h3>
             <ul className="mt-5 flex flex-col gap-4">
               {site.awards.map((award) => (

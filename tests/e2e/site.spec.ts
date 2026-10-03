@@ -56,10 +56,12 @@ test("about page keeps every experience entry, skills and recognition", async ({
   await page.locator('nav[aria-label="Main"]').getByRole("link", { name: "About" }).click();
   await expect(page).toHaveURL(/\/about$/);
   await scrollThrough(page);
-  await expect(page.getByTestId("experience-item")).toHaveCount(6);
-  for (const company of ["SkyLab Group", "ReOrc AI", "Zalo", "Chợ Tốt", "MoMo", "Creatio Marketing Club"]) {
+  await expect(page.getByTestId("experience-item")).toHaveCount(3);
+  for (const company of ["SkyLab Group", "ReOrc AI", "Zalo"]) {
     await expect(page.getByTestId("section-experience").getByText(company, { exact: true }).first()).toBeVisible();
   }
+  // earlier roles live once, in the career rail
+  await expect(page.getByTestId("rail-card")).toHaveCount(6);
   await expect(page.getByTestId("section-skills")).toBeVisible();
   await expect(page.getByTestId("section-recognition")).toBeVisible();
   expect(errors).toEqual([]);

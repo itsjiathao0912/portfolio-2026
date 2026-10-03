@@ -74,7 +74,7 @@ export function barcodeBars(seed: string, count = 46): number[] {
   return out;
 }
 
-export type RailStop = { id: string; company: string; role: string; period: string; domain: string; wash: string; ink: string };
+export type RailStop = { id: string; company: string; role: string; period: string; domain: string; win: string; wash: string; ink: string };
 
 // Original colour washes per chapter, built from the site's tint tokens.
 const WASHES: Record<string, { wash: string; ink: string }> = {
@@ -93,6 +93,8 @@ export function buildRailStops(): RailStop[] {
     role: e.role,
     period: e.period,
     domain: "domain" in e && typeof e.domain === "string" ? e.domain : "",
+    // One-line outcome so earlier roles keep their substance without a second list.
+    win: ("highlight" in e && typeof e.highlight === "string" ? e.highlight : "") || ("bullets" in e && Array.isArray(e.bullets) ? ((e.bullets as string[])[0] ?? "") : ""),
     ...(WASHES[e.id] ?? { wash: "var(--tint-aqua)", ink: "#0e5566" }),
   }));
 }
