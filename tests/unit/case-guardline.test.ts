@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import project from "../../content/projects/guardline";
 import { blocks } from "../../src/components/case/guardline";
 import { route } from "../../src/components/case/guardline/action-desk";
-import { DECOY_DEVICES, RING_ACCOUNTS, RING_DEVICES, linkedCount, verdict } from "../../src/components/case/guardline/ring-unmask";
+import { RING_ACCOUNTS, verdict } from "../../src/components/case/guardline/ring-unmask";
 import { selfCheck } from "../../src/components/case/guardline/verdict-check";
 
 const base = { action: "hold", accounts: 4, novel: false, killSwitch: false } as const;
@@ -25,13 +25,12 @@ describe("guardline case study", () => {
     expect(route({ ...base, action: "limit", novel: true }).who).toBe("person");
     expect(route({ ...base, killSwitch: true }).who).toBe("recommend");
   });
-  test("ring is 14 accounts and escalates only past 10 (p.4, p.8)", () => {
-    expect(RING_DEVICES.reduce((n, d) => n + d.accounts, 0)).toBe(RING_ACCOUNTS);
-    expect(verdict("ring", linkedCount(RING_DEVICES, ["dev_a"]))).toBe("watch");
-    expect(verdict("ring", linkedCount(RING_DEVICES, ["dev_a", "dev_b"]))).toBe("watch");
-    expect(verdict("ring", linkedCount(RING_DEVICES, ["dev_a", "dev_b", "dev_c"]))).toBe("person");
-    expect(verdict("decoy", linkedCount(DECOY_DEVICES, ["dev_family"]))).toBe("clear");
+  test("ring is 14 accounts and escalates only past 10 (p.4, p.8); no invented split", () => {
+    expect(RING_ACCOUNTS).toBe(14);
     expect(verdict("ring", 0)).toBe("idle");
+    expect(verdict("ring", 10)).toBe("watch");
+    expect(verdict("ring", 11)).toBe("person");
+    expect(verdict("decoy", 0)).toBe("clear");
   });
   test("self-check rejects a record that does not exist (p.5)", () => {
     expect(selfCheck(["dev_2211", "ord_88410", "shop_517"]).ok).toBe(true);

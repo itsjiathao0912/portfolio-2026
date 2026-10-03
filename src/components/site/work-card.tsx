@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
 import type { Project } from "@content/schema.ts";
+import { LiftCard } from "@/components/ui/lift-card";
 import { TINT_BG } from "@/lib/tints";
 import { cn } from "@/lib/utils";
 import { ProjectVisual } from "./project-visual";
@@ -21,49 +21,25 @@ interface WorkCardProps {
  * centred eyebrow, title and one-line blurb, with the device mockup or
  * illustration anchored to the bottom and running off the edge.
  *
- * Hover (mouse only): scale 1.02 over 200 ms plus a tilt capped at 2 degrees.
- * Touch only gets an `active:` press, so nothing can stay stuck.
+ * Hover/press/touch behaviour comes from the shared LiftCard.
  */
 export function WorkCard({ project, className, priority, headingLevel = "h2" }: WorkCardProps) {
-  const ref = useRef<HTMLAnchorElement>(null);
   const { meta } = project;
   const deep = meta.tone === "deep";
   const Heading = headingLevel;
 
-  function onMove(event: React.PointerEvent<HTMLAnchorElement>) {
-    if (event.pointerType !== "mouse") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width - 0.5;
-    const y = (event.clientY - rect.top) / rect.height - 0.5;
-    el.style.setProperty("--rx", `${(-y * 2).toFixed(2)}deg`);
-    el.style.setProperty("--ry", `${(x * 2).toFixed(2)}deg`);
-  }
-  function onLeave() {
-    ref.current?.style.setProperty("--rx", "0deg");
-    ref.current?.style.setProperty("--ry", "0deg");
-  }
-
   return (
+    <LiftCard radius="rounded-2xl" className={cn("h-full bg-bg shadow-1", className)}>
     <Link
-      ref={ref}
       href={`/work/${project.slug}`}
-      onPointerMove={onMove}
-      onPointerLeave={onLeave}
       data-testid="project-card"
       data-slug={project.slug}
       data-category={project.category}
       data-tone={meta.tone}
       className={cn(
-        "group relative flex h-full min-h-[560px] flex-col items-center overflow-hidden rounded-[26px] px-6 pt-10 text-center md:rounded-[20px] md:px-10 xl:min-h-[742px]",
-        "[transform:perspective(1200px)_rotateX(var(--rx,0deg))_rotateY(var(--ry,0deg))] transition-[transform,box-shadow] duration-200 ease-out",
-        "hover:shadow-card-hover hover:[transform:perspective(1200px)_rotateX(var(--rx,0deg))_rotateY(var(--ry,0deg))_scale(1.02)]",
+        "group relative flex h-full min-h-[560px] flex-col items-center overflow-hidden rounded-2xl px-6 pt-10 text-center md:px-10 xl:min-h-[742px]",
         "focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-accent",
-        "active:scale-[0.985] motion-reduce:transition-[box-shadow] motion-reduce:hover:[transform:none]",
-        deep ? "bg-navy text-white" : TINT_BG[meta.tint],
-        className
+        deep ? "bg-navy text-white" : TINT_BG[meta.tint]
       )}
     >
       <p className={cn("text-base font-medium", deep ? "text-white/70" : "text-ink-2")}>
@@ -88,7 +64,7 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
         <div
           style={{ viewTransitionName: `project-card-${project.slug}` }}
           className={cn(
-            "shrink-0 transition-transform duration-300 ease-out group-hover:-translate-y-2 motion-reduce:transform-none",
+            "shrink-0 transition-transform duration-300 ease-out group-hover:-translate-y-1 motion-reduce:transform-none",
             meta.visual.kind === "illustration" ? "w-[112%] translate-y-[8%]" : "w-[118%] translate-y-[12%]"
           )}
         >
@@ -96,5 +72,6 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
         </div>
       </div>
     </Link>
+    </LiftCard>
   );
 }

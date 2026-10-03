@@ -71,7 +71,7 @@ export function ExpenseRelay({ source }: CaseBlockProps) {
               <li
                 key={s.label}
                 aria-current={i === active ? "step" : undefined}
-                className={cn("rounded-xl border px-4 py-3 text-sm transition-colors motion-reduce:transition-none", i < active ? "border-emerald-300 bg-emerald-50 text-ink-1" : i === active ? "border-ink-1 bg-bg text-ink-1" : "border-hairline text-ink-2")}
+                className={cn("rounded-md border px-4 py-3 text-sm transition-colors motion-reduce:transition-none", i < active ? "border-emerald-300 bg-emerald-50 text-ink-1" : i === active ? "border-ink-1 bg-bg text-ink-1" : "border-hairline text-ink-2")}
               >
                 <span className="font-medium">{i + 1}. {s.label}</span> <span className="text-xs uppercase tracking-wide">{s.who}</span>
                 <span className="block text-ink-2">{s.detail}</span>

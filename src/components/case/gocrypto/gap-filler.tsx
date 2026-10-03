@@ -35,7 +35,7 @@ export function GapFiller({ source }: CaseBlockProps) {
           <span>Gap ₱4.0B a year</span>
         </div>
         <div
-          className="relative h-12 overflow-hidden rounded-xl border border-hairline bg-bg"
+          className="relative h-12 overflow-hidden rounded-md border border-hairline bg-bg"
           role="img"
           aria-label={`Trading at ${s.label} earns ₱${s.revenue}M, closing ${s.share}% of the ₱4.0B gap`}
         >

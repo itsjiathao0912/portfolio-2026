@@ -59,7 +59,7 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
               onClick={() => setFilter(name)}
               className={cn(
                 "flex h-11 shrink-0 snap-start items-center gap-1.5 rounded-full px-4 text-[0.94rem] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent",
-                selected ? "bg-bg text-ink-1 shadow-nav" : "text-ink-3 hover:text-ink-1"
+                selected ? "bg-bg text-ink-1 shadow-2" : "text-ink-3 hover:text-ink-1"
               )}
             >
               {name}

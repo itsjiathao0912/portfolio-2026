@@ -29,7 +29,7 @@ function Phone({ slot, name, picked, dim }: { slot: "top" | "bottom"; name: stri
     <div
       aria-hidden
       className={cn(
-        "mx-auto flex w-32 flex-col rounded-[22px] border-2 bg-bg p-2 transition-all motion-reduce:transition-none sm:w-36",
+        "mx-auto flex w-32 flex-col rounded-2xl border-2 bg-bg p-2 transition-all motion-reduce:transition-none sm:w-36",
         picked ? "border-ink-1" : "border-hairline",
         dim && "opacity-60",
       )}

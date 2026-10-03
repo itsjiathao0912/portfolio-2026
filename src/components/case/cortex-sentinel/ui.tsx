@@ -36,7 +36,7 @@ export function Pills<T extends string>({
               if (sibling instanceof HTMLElement) sibling.focus();
             }}
             className={cn(
-              "min-h-10 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2",
+              "min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2",
               on ? "border-ink-1 bg-ink-1 text-white" : "border-hairline bg-bg text-ink-2 hover:border-border-strong",
             )}
           >

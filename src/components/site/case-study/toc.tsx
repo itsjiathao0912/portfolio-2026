@@ -4,6 +4,8 @@ import { ArrowUp, List, Mail, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from "motion/react";
 import { useEffect, useState } from "react";
 import type { SectionIcon } from "@content/schema.ts";
+import { emojiFor } from "@/components/site/home/project-meta";
+import { SPRING as SITE_SPRING } from "@/components/motion/springs";
 import { cn } from "@/lib/utils";
 import { sectionIcon } from "../case-study-toc";
 
@@ -17,6 +19,9 @@ interface TocProps {
   entries: Entry[];
   /** Id of the element where the body starts; navigators appear when it reaches the reading line. */
   startId: string;
+  /** Project slug and title: the TOC shows the same emoji as the home stack. */
+  slug?: string;
+  title?: string;
 }
 
 /** Last heading whose top has passed the reading line; bottom-of-page fallback. */
@@ -118,10 +123,10 @@ function useReadingDown() {
   return down;
 }
 
-const SPRING = { type: "spring", stiffness: 420, damping: 32 } as const;
+const SPRING = SITE_SPRING.indicator;
 
 /** Desktop navigator in the left margin (xl+), visible from the start of the body. */
-export function CaseToc({ entries, startId }: TocProps) {
+export function CaseToc({ entries, startId, slug, title }: TocProps) {
   const active = useActiveSection(entries);
   const inBody = useInBody(startId);
   const wide = useWideInView();
@@ -135,13 +140,19 @@ export function CaseToc({ entries, startId }: TocProps) {
   return (
     <nav
       aria-label="On this page"
-      data-testid="toc"
+      data-testid="case-toc"
       data-shown={shown ? "true" : "false"}
       className={cn(
         "fixed top-[162px] left-[84px] z-30 hidden w-[228px] transition-[opacity,transform] duration-300 ease-out xl:block",
         shown ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-3 opacity-0",
       )}
     >
+      {slug ? (
+        <p className="mb-2 flex items-center gap-3 px-4 text-sm font-semibold text-ink-1" data-testid="case-toc-title">
+          <span aria-hidden="true" className="text-xl leading-none">{emojiFor(slug)}</span>
+          <span className="truncate">{title}</span>
+        </p>
+      ) : null}
       <ol className="flex flex-col">
         {rows.map((row, i) => {
           const isActive = row.section && row.id === active;
@@ -164,10 +175,18 @@ export function CaseToc({ entries, startId }: TocProps) {
                 )}
               >
                 {isActive ? (
-                  <motion.span layoutId="case-toc-pill" aria-hidden="true" className="absolute inset-0 -z-10 rounded-full bg-bg shadow-nav" transition={reduce ? { duration: 0 } : SPRING} />
+                  <motion.span layoutId="case-toc-pill" aria-hidden="true" className="absolute inset-0 -z-10 rounded-full bg-bg shadow-2" transition={reduce ? { duration: 0 } : SPRING} />
                 ) : null}
                 <span className="flex items-center gap-3 transition-transform duration-200 ease-out group-hover:translate-x-[5px] motion-reduce:transform-none">
-                  <row.Icon className="size-6 shrink-0" strokeWidth={1.6} aria-hidden="true" />
+                  <motion.span
+                    aria-hidden="true"
+                    className="flex"
+                    initial={false}
+                    animate={isActive && !reduce ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+                    transition={SITE_SPRING.ui}
+                  >
+                    <row.Icon className="size-6 shrink-0" strokeWidth={1.6} aria-hidden="true" />
+                  </motion.span>
                   <span className="truncate">{row.label}</span>
                 </span>
               </a>
@@ -199,7 +218,7 @@ export function CaseProgress() {
  * the safe area. It hides while you scroll down to read and comes back on a
  * scroll up or at the end of the page, so it never sits on the text you read.
  */
-export function CaseSectionMenu({ entries, startId }: TocProps) {
+export function CaseSectionMenu({ entries, startId, slug }: TocProps) {
   const active = useActiveSection(entries);
   const inBody = useInBody(startId);
   const down = useReadingDown();
@@ -251,7 +270,7 @@ export function CaseSectionMenu({ entries, startId }: TocProps) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: reduce ? 0 : 20, scale: reduce ? 1 : 0.96 }}
               transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 32 }}
-              className="pointer-events-auto mb-3 w-full max-w-md origin-bottom rounded-[26px] bg-bg p-3 shadow-nav"
+              className="pointer-events-auto mb-3 w-full max-w-md origin-bottom rounded-2xl bg-bg p-3 shadow-2"
             >
               <ol className="flex flex-col">
                 {entries.map((entry) => {
@@ -288,9 +307,10 @@ export function CaseSectionMenu({ entries, startId }: TocProps) {
           tabIndex={shown ? undefined : -1}
           data-testid="section-menu-button"
           onClick={() => setOpen((v) => !v)}
-          className="pointer-events-auto flex h-11 max-w-[min(100%,18rem)] items-center gap-2 rounded-full bg-navy/95 px-4 text-sm font-medium text-white shadow-nav backdrop-blur active:scale-95"
+          className="pointer-events-auto flex h-11 max-w-[min(100%,18rem)] items-center gap-2 rounded-full bg-navy/95 px-4 text-sm font-medium text-white shadow-2 backdrop-blur active:scale-95"
         >
           {open ? <X className="size-4 shrink-0" aria-hidden="true" /> : <List className="size-4 shrink-0" aria-hidden="true" />}
+          {!open && slug ? <span aria-hidden="true">{emojiFor(slug)}</span> : null}
           <span className="truncate">{open ? "Close" : (current?.label ?? "Sections")}</span>
         </button>
       </motion.div>

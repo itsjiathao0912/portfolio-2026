@@ -68,7 +68,7 @@ export function LineChart({ xLabel, yLabel, points, ...frame }: LineChartProps) 
                   transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 360, damping: 18, delay: 0.5 + vizDelay(i, 0.15) }}
                   data-testid="point"
                 >
-                  <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-md bg-bg px-1.5 text-sm font-semibold whitespace-nowrap text-ink-1 tabular-nums shadow-nav">
+                  <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-md bg-bg px-1.5 text-sm font-semibold whitespace-nowrap text-ink-1 tabular-nums shadow-2">
                     {formatValue(p.value)}
                   </span>
                   <span className="absolute top-1/2 left-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-bg bg-accent shadow" />

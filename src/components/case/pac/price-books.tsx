@@ -62,7 +62,7 @@ export function PriceBooks({ source }: CaseBlockProps) {
             type="button"
             aria-pressed={guess === b.id}
             onClick={() => setGuess(b.id)}
-            className={cn("min-h-10 rounded-full border px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2", guess === b.id ? "border-ink-1 bg-ink-1 text-white" : "border-hairline bg-bg text-ink-2 hover:border-border-strong")}
+            className={cn("min-h-11 rounded-full border px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2", guess === b.id ? "border-ink-1 bg-ink-1 text-white" : "border-hairline bg-bg text-ink-2 hover:border-border-strong")}
           >
             {b.id}
           </button>
@@ -71,7 +71,7 @@ export function PriceBooks({ source }: CaseBlockProps) {
           type="button"
           aria-pressed={normal}
           onClick={() => setNormal((n) => !n)}
-          className="min-h-10 rounded-full border border-hairline bg-bg px-4 text-sm font-semibold text-ink-1 hover:border-border-strong focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="min-h-11 rounded-full border border-hairline bg-bg px-4 text-sm font-semibold text-ink-1 hover:border-border-strong focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           {normal ? "Show raw quotes" : "Normalise to one unit"}
         </button>

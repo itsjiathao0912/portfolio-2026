@@ -24,7 +24,7 @@ export function InvestorJourney({ source }: CaseBlockProps) {
         if (e.key === "ArrowLeft") setI((v) => Math.max(0, v - 1));
       }}>
         {JOURNEY.map((s, k) => (
-          <button key={s.n} role="tab" type="button" aria-selected={k === i} tabIndex={k === i ? 0 : -1} onClick={() => setI(k)} className={cn("flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center rounded-xl border px-2 py-1 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-accent", k === i ? "border-ink-1 bg-ink-1 text-bg" : s.layer === "chain" ? "border-accent/40 bg-accent-tint text-ink-1" : "border-hairline bg-bg text-ink-2")}>
+          <button key={s.n} role="tab" type="button" aria-selected={k === i} tabIndex={k === i ? 0 : -1} onClick={() => setI(k)} className={cn("flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center rounded-md border px-2 py-1 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-accent", k === i ? "border-ink-1 bg-ink-1 text-bg" : s.layer === "chain" ? "border-accent/40 bg-accent-tint text-ink-1" : "border-hairline bg-bg text-ink-2")}>
             <span className="text-base">{s.n}</span>
             <span className="hidden sm:block">{s.layer === "chain" ? "token" : "record"}</span>
           </button>
@@ -32,7 +32,7 @@ export function InvestorJourney({ source }: CaseBlockProps) {
       </div>
       <p className="-mt-3 text-xs text-ink-3">Steps 1 to {chainStart() - 1}: platform records. Steps {chainStart()} to {JOURNEY.length}: tokens and chain.</p>
 
-      <div role="tabpanel" className="rounded-xl border border-hairline bg-bg p-5" aria-live="polite">
+      <div role="tabpanel" className="rounded-md border border-hairline bg-bg p-5" aria-live="polite">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-canvas px-3 py-1 text-xs font-semibold tracking-wide text-ink-2 uppercase">{step.actor} acts</span>
           <span className={cn("rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase", onChain ? "bg-accent-tint text-ink-1" : "bg-canvas text-ink-2")}>{onChain ? "Recorded as tokens and on-chain state" : "Recorded in the platform"}</span>

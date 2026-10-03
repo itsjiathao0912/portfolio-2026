@@ -66,7 +66,7 @@ export function ApproveDeploy({ source }: CaseBlockProps) {
         {(["you", "b", "c"] as const).map((id, i) => {
           const done = approved.includes(id);
           return (
-            <li key={id} className={cn("rounded-xl border p-4 transition-colors", done ? "border-success" : "border-hairline bg-bg")} style={done ? { backgroundColor: "var(--tint-mint)" } : undefined}>
+            <li key={id} className={cn("rounded-md border p-4 transition-colors", done ? "border-success" : "border-hairline bg-bg")} style={done ? { backgroundColor: "var(--tint-mint)" } : undefined}>
               <p className="text-xs font-semibold tracking-wide text-ink-3 uppercase">Approver {i + 1}{id === "you" ? " (you)" : ""}</p>
               <p className="mt-1 text-sm font-semibold text-ink-1">{done ? "Approved" : id === "you" ? "Waiting for you" : youIn ? "Not yet signed" : "Waits for you first"}</p>
               {id !== "you" && !done ? (
@@ -80,7 +80,7 @@ export function ApproveDeploy({ source }: CaseBlockProps) {
       </ol>
 
       {!youIn ? (
-        <div className="flex flex-col gap-2 rounded-xl border border-hairline bg-bg p-4 sm:flex-row sm:items-end">
+        <div className="flex flex-col gap-2 rounded-md border border-hairline bg-bg p-4 sm:flex-row sm:items-end">
           <label className="flex flex-1 flex-col gap-1 text-sm text-ink-2">
             Approval two-factor code (second factor, after your login)
             <input inputMode="numeric" autoComplete="off" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder={DEMO_CODE} aria-describedby="lc-code-hint" className="rounded-lg border border-border-strong bg-bg px-3 py-2 font-mono text-ink-1 focus-visible:outline-2 focus-visible:outline-accent" />
@@ -92,7 +92,7 @@ export function ApproveDeploy({ source }: CaseBlockProps) {
         </div>
       ) : null}
 
-      <div className="rounded-xl border border-hairline bg-bg p-4" aria-live="polite">
+      <div className="rounded-md border border-hairline bg-bg p-4" aria-live="polite">
         <p className="text-sm font-semibold text-ink-1">
           {phase === "requested" && "A fund admin has requested the deploy. Nothing can happen yet."}
           {phase === "collecting" && `${approved.length} of 3 approved. One more is needed: the keys are still locked away.`}
@@ -125,7 +125,7 @@ export function ApproveDeploy({ source }: CaseBlockProps) {
           ["Signatures stored", db.signatures],
           ["Private keys stored", db.privateKeys],
         ].map(([label, n]) => (
-          <div key={label as string} className="rounded-xl border border-hairline bg-bg p-3">
+          <div key={label as string} className="rounded-md border border-hairline bg-bg p-3">
             <dt className="text-xs font-semibold tracking-wide text-ink-3 uppercase">{label}</dt>
             <dd className="mt-1 text-2xl font-semibold text-ink-1">{n}</dd>
           </div>

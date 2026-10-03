@@ -35,7 +35,7 @@ export function VizFigure({ kind, title, caption, source, badge, legend, hidden,
       data-testid="dataviz"
       data-viz={kind}
       data-wide={className?.includes("left-1/2") ? "" : undefined}
-      className={cn("my-10 flex flex-col gap-6 rounded-[26px] bg-canvas p-5 sm:p-8", className)}
+      className={cn("my-10 flex flex-col gap-6 rounded-2xl bg-canvas p-5 sm:p-8", className)}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <p id={`${id}-title`} className="max-w-[34rem] text-lg leading-snug font-semibold text-ink-1 md:text-xl">
@@ -66,7 +66,7 @@ export function VizFigure({ kind, title, caption, source, badge, legend, hidden,
                   type="button"
                   aria-pressed={!off}
                   onClick={() => onLegendToggle(name)}
-                  className={cn("flex min-h-9 items-center gap-2 rounded-full border border-hairline px-3 transition-opacity hover:border-border-strong", off && "opacity-40 line-through")}
+                  className={cn("flex min-h-11 items-center gap-2 rounded-full border border-hairline px-3 transition-opacity hover:border-border-strong", off && "opacity-40 line-through")}
                   data-testid="legend-toggle"
                 >
                   {swatch}

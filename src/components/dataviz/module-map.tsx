@@ -27,7 +27,7 @@ export function ModuleMap({ center, items, ...frame }: ModuleMapProps) {
         <span className="self-center rounded-full bg-navy px-5 py-2.5 font-semibold text-white">{center}</span>
         <ul className="grid grid-cols-2 gap-2">
           {items.map((item) => (
-            <li key={item.label} className="rounded-xl bg-bg p-3 text-sm shadow-nav">
+            <li key={item.label} className="rounded-lg bg-bg p-3 text-sm shadow-1">
               <span className="font-semibold text-ink-1">{item.label}</span>
               {item.detail ? <span className="mt-0.5 block leading-snug text-ink-2">{item.detail}</span> : null}
             </li>
@@ -44,19 +44,18 @@ export function ModuleMap({ center, items, ...frame }: ModuleMapProps) {
               y1={50}
               x2={p.x}
               y2={p.y}
-              className="stroke-border-strong"
-              strokeWidth={1.5}
-              strokeDasharray="4 4"
+              className="stroke-ink-3/60"
+              strokeWidth={2}
               vectorEffect="non-scaling-stroke"
-              initial={{ pathLength: reduce ? 1 : 0 }}
-              whileInView={{ pathLength: 1 }}
+              initial={{ opacity: reduce ? 1 : 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={VIZ_VIEWPORT}
               transition={reduce ? { duration: 0 } : { duration: 0.6, delay: 0.2 + vizDelay(i) }}
             />
           ))}
         </svg>
         <motion.span
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-navy px-6 py-3 text-center font-semibold whitespace-nowrap text-white shadow-nav"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-navy px-7 py-3.5 text-center font-semibold whitespace-nowrap text-white shadow-2"
           initial={{ scale: reduce ? 1 : 0.6, opacity: reduce ? 1 : 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
           viewport={VIZ_VIEWPORT}
@@ -68,7 +67,7 @@ export function ModuleMap({ center, items, ...frame }: ModuleMapProps) {
           {items.map((item, i) => (
             <motion.li
               key={item.label}
-              className="absolute w-[30%] max-w-[13rem] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-bg px-3 py-2.5 text-center text-sm shadow-nav"
+              className="absolute w-[32%] max-w-[15rem] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-bg px-4 py-3 text-center text-base shadow-2"
               style={{ left: `${pos[i].x}%`, top: `${pos[i].y}%` }}
               initial={{ opacity: reduce ? 1 : 0, scale: reduce ? 1 : 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -76,7 +75,7 @@ export function ModuleMap({ center, items, ...frame }: ModuleMapProps) {
               transition={reduce ? { duration: 0 } : { ...VIZ_SPRING, stiffness: 300, delay: 0.35 + vizDelay(i) }}
             >
               <span className="font-semibold text-ink-1">{item.label}</span>
-              {item.detail ? <span className="mt-0.5 block text-xs leading-snug text-ink-2">{item.detail}</span> : null}
+              {item.detail ? <span className="mt-0.5 block text-sm leading-snug text-ink-2">{item.detail}</span> : null}
             </motion.li>
           ))}
         </ul>

@@ -29,12 +29,12 @@ export function CrossCheck({ source }: CaseBlockProps) {
       source={source}
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-hairline bg-bg p-4">
+        <div className="rounded-md border border-hairline bg-bg p-4">
           <p className="text-xs font-semibold tracking-wide text-ink-2 uppercase">Labour contract</p>
           <p className="mt-2 text-2xl font-semibold text-ink-1">{m(WAGE)} / month</p>
           <p className="text-sm text-ink-2">= {m(r.annual)} a year</p>
         </div>
-        <div className="rounded-xl border border-hairline bg-bg p-4">
+        <div className="rounded-md border border-hairline bg-bg p-4">
           <p className="text-xs font-semibold tracking-wide text-ink-2 uppercase">Year-end PIT return</p>
           <p className="mt-2 text-2xl font-semibold text-ink-1">{m(taxable)} taxable</p>
           <label className="mt-2 flex flex-col gap-1 text-sm text-ink-2">
@@ -43,7 +43,7 @@ export function CrossCheck({ source }: CaseBlockProps) {
           </label>
         </div>
       </div>
-      <p className={cn("rounded-xl border px-4 py-3 text-sm font-semibold", s.cls)} aria-live="polite">
+      <p className={cn("rounded-md border px-4 py-3 text-sm font-semibold", s.cls)} aria-live="polite">
         {s.text} · gap {(r.gap * 100).toFixed(1)}% ({r.delta >= 0 ? "+" : "−"}{m(Math.abs(r.delta))})
       </p>
     </VizFigure>

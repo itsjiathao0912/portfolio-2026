@@ -65,7 +65,7 @@ test("case study: TOC hidden on phone, section pill opens a sheet", async ({ pag
   const errors = trackErrors(page);
   await page.goto("/work/ledgr");
   // The TOC is desktop-only.
-  await expect(page.getByTestId("toc")).toBeHidden();
+  await expect(page.getByTestId("case-toc")).toBeHidden();
   // Jump instantly so the scroll direction is unambiguous.
   await page.evaluate(() => (document.documentElement.style.scrollBehavior = "auto"));
   // Below xl a "sections" pill replaces it once the cover scrolls away.

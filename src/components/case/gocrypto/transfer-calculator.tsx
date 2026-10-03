@@ -66,16 +66,16 @@ export function TransferCalculator({ source }: CaseBlockProps) {
         <p className="text-sm font-semibold text-ink-2 uppercase tracking-wide">2 · Miguel sends $317 from Riyadh. Pick the route.</p>
         <Segmented label="Route" options={ROUTES} value={route} onChange={setRoute} />
         <div className="grid grid-cols-3 gap-3 text-sm" aria-live="polite" data-testid="transfer-result">
-          <div className="rounded-xl bg-bg p-3">
+          <div className="rounded-md bg-bg p-3">
             <span className="block text-ink-3">Ana receives</span>
             <strong className="text-xl text-ink-1">₱{r.arrives.toLocaleString("en-US")}</strong>
           </div>
-          <div className="rounded-xl bg-bg p-3">
+          <div className="rounded-md bg-bg p-3">
             <span className="block text-ink-3">Lost on the way</span>
             <strong className="text-xl text-ink-1">₱{lost.toLocaleString("en-US")}</strong>
             <span className="block text-ink-3">{r.cost}%</span>
           </div>
-          <div className="rounded-xl bg-bg p-3">
+          <div className="rounded-md bg-bg p-3">
             <span className="block text-ink-3">Arrives in</span>
             <strong className="text-xl text-ink-1">{r.time}</strong>
           </div>

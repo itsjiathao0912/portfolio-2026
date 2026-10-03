@@ -27,7 +27,7 @@ export function PauseSwitch({ source }: CaseBlockProps) {
       caption="Pausing blocks token transfers until the incident is resolved. The deck's demo confirms the pause and the approvals on the blockchain; here the reasons are made up and nothing is real."
       source={source}
     >
-      <div className={cn("rounded-xl border p-5 transition-colors", s.paused ? "border-danger" : "border-hairline bg-bg")} style={s.paused ? { backgroundColor: "#fff1f1" } : undefined}>
+      <div className={cn("rounded-md border p-5 transition-colors", s.paused ? "border-danger" : "border-hairline bg-bg")} style={s.paused ? { backgroundColor: "#fff1f1" } : undefined}>
         <p className="text-lg font-semibold text-ink-1" aria-live="polite">{s.paused ? "PAUSED: all token transfers blocked" : "Running: token transfers allowed"}</p>
         {!s.paused ? (
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">

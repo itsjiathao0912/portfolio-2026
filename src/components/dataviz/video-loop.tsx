@@ -31,7 +31,7 @@ export function VideoLoop({ src, poster, alt, caption, aspect }: { src: string; 
     <figure className="my-8 flex flex-col items-center gap-3" data-testid="video-loop">
       <video
         ref={ref}
-        className={cn("w-full rounded-[22px] bg-canvas object-cover shadow-lg", aspect === "portrait" ? "aspect-[9/16] max-w-[340px]" : "aspect-video")}
+        className={cn("w-full rounded-2xl bg-canvas object-cover shadow-lg", aspect === "portrait" ? "aspect-[9/16] max-w-[340px]" : "aspect-video")}
         src={src}
         poster={poster}
         muted

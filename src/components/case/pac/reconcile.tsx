@@ -65,7 +65,7 @@ export function Reconcile({ source }: CaseBlockProps) {
                     type="button"
                     aria-pressed={p === a.value}
                     onClick={() => setPicked((s) => ({ ...s, [i]: a.value }))}
-                    className={cn("min-h-10 rounded-full border px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2", p === a.value ? "border-ink-1 bg-ink-1 text-white" : "border-hairline bg-bg text-ink-2 hover:border-border-strong")}
+                    className={cn("min-h-11 rounded-full border px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2", p === a.value ? "border-ink-1 bg-ink-1 text-white" : "border-hairline bg-bg text-ink-2 hover:border-border-strong")}
                   >
                     {a.label}
                   </button>

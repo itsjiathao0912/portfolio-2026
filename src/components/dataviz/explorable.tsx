@@ -83,7 +83,7 @@ export function Explorable({ nodes, edges, quorum, ...frame }: ExplorableProps) 
         aria-pressed={quorum?.nodes.includes(n.id) ? isApproved : selected === n.id}
         aria-disabled={locked(n.id)}
         className={cn(
-          "flex min-h-12 w-full items-center justify-between gap-2 rounded-xl border px-3.5 py-2 text-left text-sm font-semibold text-ink-1 transition-all",
+          "flex min-h-12 w-full items-center justify-between gap-2 rounded-md border px-3.5 py-2 text-left text-sm font-semibold text-ink-1 transition-all",
           selected === n.id ? "border-ink-1 ring-2 ring-ink-1" : "border-hairline",
           !on(n.id) && "opacity-35",
           extra,

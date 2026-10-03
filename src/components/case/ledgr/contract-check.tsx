@@ -87,7 +87,7 @@ export function ContractCheck({ source }: CaseBlockProps) {
           </p>
           <ul className="flex flex-col gap-2">
             {findings.map((x) => (
-              <li key={x.key} className="rounded-xl border border-hairline bg-bg p-3">
+              <li key={x.key} className="rounded-md border border-hairline bg-bg p-3">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm font-semibold text-ink-1">{x.label}</span>
                   <span className={cn("rounded-full border px-2.5 py-0.5 text-xs font-semibold", SEV_STYLE[x.severity].chip)}>{SEV_STYLE[x.severity].label}</span>

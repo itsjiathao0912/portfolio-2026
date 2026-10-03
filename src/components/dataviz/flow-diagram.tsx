@@ -47,7 +47,7 @@ export function FlowDiagram({ fanIn = [], steps, ...frame }: FlowProps) {
                 ))}
               </motion.ul>
             ) : (
-              <motion.div {...pop(i)} className="flex w-full flex-1 flex-col gap-1 rounded-2xl bg-bg p-4 shadow-nav" data-testid="flow-step">
+              <motion.div {...pop(i)} className="flex w-full flex-1 flex-col gap-1 rounded-2xl bg-bg p-4 shadow-2" data-testid="flow-step">
                 <span className="font-display text-sm text-accent tabular-nums">{String(node.n).padStart(2, "0")}</span>
                 <span className="text-[0.95rem] leading-snug font-semibold text-ink-1">{node.step.label}</span>
                 {node.step.detail ? <span className="text-sm leading-snug text-ink-2">{node.step.detail}</span> : null}

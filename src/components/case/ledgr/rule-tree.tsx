@@ -45,7 +45,7 @@ export function RuleTree({ source }: CaseBlockProps) {
           );
         })}
       </ul>
-      <p className="rounded-xl border border-dashed border-hairline px-4 py-3 text-sm text-ink-2">
+      <p className="rounded-md border border-dashed border-hairline px-4 py-3 text-sm text-ink-2">
         <span className="font-semibold text-ink-1">Roadmap: 100+ rules.</span> A goal on the landing page, not shipped.
       </p>
     </VizFigure>

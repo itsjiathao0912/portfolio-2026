@@ -45,7 +45,7 @@ export function ScrubTimeline({ tracks, ...frame }: ScrubTimelineProps) {
                   setTrackIndex(i);
                   setPos(0);
                 }}
-                className={cn("min-h-9 rounded-full px-4 text-sm font-semibold transition-colors", i === trackIndex ? "bg-ink-1 text-white" : "text-ink-2 hover:text-ink-1")}
+                className={cn("min-h-11 rounded-full px-4 text-sm font-semibold transition-colors", i === trackIndex ? "bg-ink-1 text-white" : "text-ink-2 hover:text-ink-1")}
                 data-testid="track-tab"
               >
                 {t.name}

@@ -67,14 +67,14 @@ export function LoopToggle({ source }: CaseBlockProps) {
               type="button"
               aria-pressed={i === idx}
               onClick={() => setI(idx)}
-              className={cn("min-h-11 rounded-xl border px-3 py-3 text-left text-sm font-medium transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2", i === idx ? "border-ink-1 bg-bg text-ink-1" : "border-hairline text-ink-2")}
+              className={cn("min-h-11 rounded-md border px-3 py-3 text-left text-sm font-medium transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2", i === idx ? "border-ink-1 bg-bg text-ink-1" : "border-hairline text-ink-2")}
             >
               <span className="text-xs text-ink-2">{idx + 1}</span> {s.n}
             </button>
           ))}
         </div>
-        <p role="status" aria-live="polite" className="rounded-xl bg-bg p-4 text-sm text-ink-1">{step.d}</p>
-        <p className="rounded-xl border border-dashed border-hairline p-3 text-xs text-ink-2">
+        <p role="status" aria-live="polite" className="rounded-md bg-bg p-4 text-sm text-ink-1">{step.d}</p>
+        <p className="rounded-md border border-dashed border-hairline p-3 text-xs text-ink-2">
           Stays underneath: ERP · accounting · HR software · e-invoice and tax portals · banks and cards. The Automate loop produces clean data as a by-product, and the Optimize loop only works because of it.
         </p>
       </div>

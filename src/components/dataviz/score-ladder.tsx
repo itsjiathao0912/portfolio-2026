@@ -67,7 +67,7 @@ export function ScoreLadder({ rules, bands, preset = [], ...frame }: ScoreLadder
             <span className="rounded-lg bg-ink-1 px-2.5 py-1 text-sm font-semibold text-white tabular-nums">{score}</span>
             <span aria-hidden="true" className="h-3 w-0.5 bg-ink-1" />
           </motion.div>
-          <div className="flex h-10 overflow-hidden rounded-xl">
+          <div className="flex h-10 overflow-hidden rounded-md">
             {sorted.map((b, i) => {
               const end = i + 1 < sorted.length ? sorted[i + 1].from : top;
               return (

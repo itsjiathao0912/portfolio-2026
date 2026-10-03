@@ -33,7 +33,7 @@ export function StackedBar({ unit = "%", segments, highlight, ...frame }: Stacke
   return (
     <VizFigure kind="stacked" {...frame}>
       <div className="flex flex-col gap-4">
-        <div className="flex h-14 w-full overflow-hidden rounded-xl bg-bg" role="list">
+        <div className="flex h-14 w-full overflow-hidden rounded-md bg-bg" role="list">
           {segments.map((s, i) => (
             <motion.button
               key={s.label}
@@ -74,7 +74,7 @@ export function StackedBar({ unit = "%", segments, highlight, ...frame }: Stacke
               {highlight.note ? ` · ${highlight.note}` : ""}
             </>
           ) : (
-            "Hover or tap a segment to read it."
+            "Hover a segment, or tap a name below, to read it."
           )}
         </p>
 
@@ -88,7 +88,7 @@ export function StackedBar({ unit = "%", segments, highlight, ...frame }: Stacke
                   setLit(false);
                   setFocus(focus === s.label ? null : s.label);
                 }}
-                className={cn("flex min-h-9 items-center gap-2 rounded-full border border-hairline px-3 hover:border-border-strong", focus === s.label && "border-ink-1 text-ink-1")}
+                className={cn("flex min-h-11 items-center gap-2 rounded-full border border-hairline px-3 hover:border-border-strong", focus === s.label && "border-ink-1 text-ink-1")}
                 data-testid="legend-toggle"
               >
                 <span aria-hidden="true" className={cn("size-3 rounded-sm", FILLS[i % FILLS.length])} />
@@ -105,7 +105,7 @@ export function StackedBar({ unit = "%", segments, highlight, ...frame }: Stacke
                   setFocus(null);
                   setLit(!lit);
                 }}
-                className={cn("flex min-h-9 items-center rounded-full px-4 font-semibold", lit ? "bg-ink-1 text-white" : "bg-accent-tint text-accent")}
+                className={cn("flex min-h-11 items-center rounded-full px-4 font-semibold", lit ? "bg-ink-1 text-white" : "bg-accent-tint text-accent")}
                 data-testid="highlight-toggle"
               >
                 {lit ? `Showing ${highlight.label}` : `Show ${highlight.label}`}

@@ -137,7 +137,7 @@ test("every project page opens from /work in the same tab", async ({ page }) => 
     await expect(page.getByTestId("case-study-body")).toBeVisible();
     await expect(page.getByTestId("next-project")).toHaveCount(1);
     // Every TOC entry points at a real heading.
-    const anchors = await page.getByTestId("toc").locator("a").evaluateAll((els) => els.map((a) => a.getAttribute("href")));
+    const anchors = await page.getByTestId("case-toc").locator("a").evaluateAll((els) => els.map((a) => a.getAttribute("href")));
     expect(anchors.length).toBeGreaterThanOrEqual(2);
     for (const anchor of anchors) await expect(page.locator(anchor!)).toHaveCount(1);
     // No broken images.
@@ -151,7 +151,7 @@ test("every project page opens from /work in the same tab", async ({ page }) => 
 
 test("case-study table of contents appears after the cover and follows the reader", async ({ page }) => {
   await page.goto("/work/ledgr");
-  const toc = page.getByTestId("toc");
+  const toc = page.getByTestId("case-toc");
   await page.evaluate(() => (document.documentElement.style.scrollBehavior = "auto"));
   // Hidden while the hero cover is on screen, shown once it scrolls away.
   await expect(toc).toHaveAttribute("data-shown", "false");

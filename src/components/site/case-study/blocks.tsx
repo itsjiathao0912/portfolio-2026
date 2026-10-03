@@ -94,7 +94,10 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
         </ListTag>
       );
     }
-    case "metrics":
+    case "metrics": {
+      // Long values (e.g. "US$11.1B") outgrow a 4-column cell: use fewer columns and a smaller size.
+      const longest = Math.max(...block.items.map((item) => item.value.length));
+      const long = longest > 6;
       return (
         <div className="my-6 flex flex-col gap-4" data-testid="metrics-block">
           {block.badge ? (
@@ -105,20 +108,21 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
           <dl
             className={cn(
               "grid gap-x-8 gap-y-8 border-t border-hairline pt-8",
-              block.items.length === 4 ? "grid-cols-2 md:grid-cols-4" : block.items.length === 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2",
+              block.items.length === 4 ? (long ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4") : block.items.length === 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2",
             )}
             data-testid="metrics"
           >
             {block.items.map((item) => (
-              <div key={item.label} className="flex flex-col-reverse justify-end gap-2">
+              <div key={item.label} className="flex min-w-0 flex-col-reverse justify-end gap-2">
                 <dt className="text-sm leading-snug text-ink-3">{item.label}</dt>
-                <dd className="font-display text-[2.5rem] leading-none text-ink-1 md:text-[3rem]">{item.value}</dd>
+                <dd className={cn("font-display leading-none break-words text-ink-1", long ? "text-[2rem] md:text-[2.5rem]" : "text-[2.5rem] md:text-[3rem]")}>{item.value}</dd>
               </div>
             ))}
           </dl>
           {block.source ? <p className="text-xs text-ink-3">Source: {block.source}</p> : null}
         </div>
       );
+    }
     case "steps":
     case "features":
       return (
@@ -172,7 +176,7 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
         </ul>
       );
     case "callout":
-      return <p className="rounded-[var(--radius)] bg-accent-tint px-5 py-4 text-ink-1">{block.text}</p>;
+      return <p className="rounded-lg bg-accent-tint px-5 py-4 text-ink-1">{block.text}</p>;
     case "barChart":
       return <BarChart className={wideViz} {...block} />;
     case "lineChart":
@@ -204,7 +208,7 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
     case "code":
       return (
         <figure className="my-6 flex flex-col gap-3" data-testid="code-block">
-          <pre className="overflow-x-auto rounded-[20px] bg-ink-1 p-5 font-mono text-[0.85rem] leading-relaxed text-white/90" tabIndex={0} aria-label={`${block.language} sample`}>
+          <pre className="overflow-x-auto rounded-2xl bg-ink-1 p-5 font-mono text-[0.85rem] leading-relaxed text-white/90" tabIndex={0} aria-label={`${block.language} sample`}>
             <code>{block.code}</code>
           </pre>
           {block.caption ? <figcaption className="text-sm text-ink-3">{block.caption}</figcaption> : null}

@@ -48,8 +48,8 @@ export default async function CaseStudyPage({ params }: Params) {
       {/* Reading column (680 px for magazine, 800 px otherwise); the TOC lives in the left margin (xl+). */}
       {toc.length > 1 ? (
         <>
-          <CaseToc entries={toc} startId={BODY_ID} />
-          <CaseSectionMenu entries={toc} startId={BODY_ID} />
+          <CaseToc entries={toc} startId={BODY_ID} slug={project.slug} title={project.title} />
+          <CaseSectionMenu entries={toc} startId={BODY_ID} slug={project.slug} />
         </>
       ) : null}
       <article id={BODY_ID} className={cn("mx-auto px-5 pt-16 md:pt-24", meta.layout === "magazine" ? "max-w-[720px]" : "max-w-[800px]")}>

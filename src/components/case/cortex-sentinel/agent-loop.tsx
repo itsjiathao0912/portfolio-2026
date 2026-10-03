@@ -58,7 +58,7 @@ export function AgentLoop({ source }: CaseBlockProps) {
               key={s.id}
               aria-current={here ? "step" : undefined}
               className={cn(
-                "rounded-xl border px-1.5 py-2 text-[11px] leading-tight break-words sm:rounded-2xl sm:px-3 sm:py-3 sm:text-sm transition-colors motion-reduce:transition-none",
+                "rounded-md border px-1.5 py-2 text-[11px] leading-tight break-words sm:rounded-2xl sm:px-3 sm:py-3 sm:text-sm transition-colors motion-reduce:transition-none",
                 here && p.failed ? "border-danger bg-danger/10 text-ink-1" : here ? "border-ink-1 bg-ink-1 text-white" : done ? "border-hairline bg-tint-mint text-ink-1" : "border-hairline bg-bg text-ink-3",
               )}
             >
@@ -79,7 +79,7 @@ export function AgentLoop({ source }: CaseBlockProps) {
           <>
             <p>{current.text}</p>
             {current.id === "generate" || current.id === "validate" || atHuman ? (
-              <code className="mt-3 block overflow-x-auto rounded-xl bg-ink-1 px-3 py-2 text-xs text-white">{AST}</code>
+              <code className="mt-3 block overflow-x-auto rounded-md bg-ink-1 px-3 py-2 text-xs text-white">{AST}</code>
             ) : null}
             {current.id === "validate" ? <p className="mt-2 text-ink-1">Draft {p.attempt} is valid.</p> : null}
           </>
