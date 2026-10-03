@@ -16,7 +16,7 @@ const project = {
   year: 2026,
   category: "Hackathon",
   tags: ["OpenAI Responses API", "Agents", "Graph detection", "Policy guard", "Fraud"],
-  cover: null,
+  cover: "/work/guardline/deck-title.webp",
   links: [],
   sortOrder: 75,
   published: true,
@@ -27,13 +27,13 @@ const project = {
     status: "Hackathon build · targets, not results",
     tint: "peach",
     logo: null,
-    coverAlt: "Abstract graph of linked accounts, devices and shops",
+    coverAlt: "Guardline title slide: a graph of linked accounts with one highlighted cluster",
     featured: false,
     proof: [{ value: "~95%", label: "of orders cleared by cheap checks, no AI (target)" }],
     headline: "An AI fraud desk that knows its limits.",
     tone: "light",
     layout: "magazine",
-    lede: "Stopping SPayLater cash-out rings without blocking real families: the agent recommends, code decides, people own the big calls.",
+    lede: "Stopping SPayLater cash-out rings without blocking real families. The insight: clear most orders with cheap checks, let the AI work only the hard cases, and never let it have the last word.",
     screens: [],
     emoji: "🔎",
     color: "#ea580c",
@@ -43,7 +43,14 @@ const project = {
     { type: "heading", text: "The problem", icon: "circle-alert", eyebrow: "Sea × OpenAI Codex Hackathon Vietnam 2026" },
     {
       type: "paragraph",
-      text: "Fraudsters use many accounts to place fake orders at a shop they work with, take the cash, and never repay. Each order looks normal on its own; the fraud only shows across accounts, shops, phones and addresses. Blunt rules catch it by blocking families and renters who share a phone, and that slows growth.",
+      text: "Fraudsters use many accounts to place fake orders at a shop they work with, take the cash, and never repay. Each order looks normal on its own; the fraud only shows across accounts, shops, phones and addresses. The blunt fix, blocking anyone who shares a phone, hits families and renters and slows growth. That is the tension: fraud is the biggest threat to holding bad loans near 1%, and a heavy hand is its own cost.",
+    },
+    {
+      type: "image",
+      src: "/work/guardline/deck-title.webp",
+      alt: "Guardline title slide: the problem, the build direction and the AI used",
+      caption: "The team's proposal deck, title slide. Slide design by the team.",
+      device: "plain",
     },
     {
       type: "metrics",
@@ -59,12 +66,12 @@ const project = {
     { type: "heading", text: "My role", icon: "user-round", eyebrow: "Team lead" },
     {
       type: "paragraph",
-      text: "I led a team of three, with a tech lead and an AI engineer I had shipped fintech with at SkyLab. I turned fraud rules into specs and tests, wrote the fraud scenarios and user flows, and designed the three-minute demo.",
+      text: "I led a team of three. The tech lead built the investigation backend, orchestration, evidence checks and action limits; the AI engineer built the agent runtime, rule writer, anomaly scoring and evals. I owned the product side: I turned fraud rules into specs and tests, wrote the fraud scenarios and user flows, and designed the three-minute demo. The decision I pushed hardest on: write down what the agent may not do before writing what it does.",
     },
     { type: "heading", text: "How it decides", icon: "workflow", eyebrow: "AI flow" },
     {
       type: "paragraph",
-      text: "Cheap signals first, the agent for judgement, and a code guard before any action. The agent never acts itself. Tap a step to follow its path and see what it is allowed to do.",
+      text: "Cheap signals first, the agent for judgement, and a code guard before any action. The agent never acts itself. Tap a step to follow its path.",
     },
     {
       type: "explorable",
@@ -98,16 +105,28 @@ const project = {
       ],
     },
     {
-      type: "code",
-      language: "json",
-      code: `{
-  "decision": "hold_and_escalate",
-  "pattern": "cash_out_colluding_shop",
-  "risk": 0.91, "confidence": 0.88, "novel": false,
-  "evidence": ["dev_2211", "ord_88410", "shop_517"],
-  "report_vi": "14 tài khoản, 3 thiết bị …"
-}`,
-      caption: "A verdict, never an action. Structured output from the OpenAI Responses API; the guard checks every cited record ID before anything happens. (Deck p.5, demo data.)",
+      type: "heading",
+      text: "What it may, and may not, do",
+      icon: "shield-check",
+      eyebrow: "Policy guard",
+    },
+    {
+      type: "paragraph",
+      text: "Trust came from the limits, not the model. Play the guard: propose an action, change how many accounts it touches, and see who is allowed to take it.",
+    },
+    {
+      type: "custom",
+      component: "guardline/ActionDesk",
+      source: `${DECK}, p.7 (who decides, and the limit) and p.4 (more than 10 accounts goes to a person).`,
+    },
+    {
+      type: "paragraph",
+      text: "The agent's output is a verdict, never an action. Every claim has to cite a real record, and the code checks that before anything happens.",
+    },
+    {
+      type: "custom",
+      component: "guardline/VerdictCheck",
+      source: `${DECK}, p.5 (verdict and self-check, demo data) and p.6 (novel cases).`,
     },
     { type: "heading", text: "How it adapts", icon: "git-branch", eyebrow: "New tactics" },
     {
@@ -129,7 +148,23 @@ const project = {
         },
       ],
     },
+    {
+      type: "image",
+      src: "/work/guardline/deck-loop.webp",
+      alt: "Guardline one-loop slide: detect, investigate, act safely, adapt, daily review",
+      caption: "The whole idea on one slide: it learns only from human decisions and confirmed outcomes, never from its own verdicts.",
+      device: "plain",
+    },
     { type: "heading", text: "The demo", icon: "badge-check", eyebrow: "Three minutes" },
+    {
+      type: "paragraph",
+      text: "The demo opens on the hardest thing to see: a ring no single order reveals, then the decoy that must not be caught. Try both.",
+    },
+    {
+      type: "custom",
+      component: "guardline/RingUnmask",
+      source: `${DECK}, p.8 (14 accounts sharing devices; the decoy) and p.4 (more than 10 accounts goes to a person).`,
+    },
     {
       type: "steps",
       items: [
