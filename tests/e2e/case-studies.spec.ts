@@ -126,8 +126,20 @@ for (const slug of SLUGS) {
         expect(st.lines, `stat "${st.text}" wrapped`).toBeLessThanOrEqual(1);
         expect(st.clipped, `stat "${st.text}" overflows its cell`).toBe(false);
       }
-      await page.evaluate(() => window.scrollTo(0, 1600));
+      // The margin TOC hides by design while a full-width block is in view, so
+      // park each section heading under the reading line until it shows.
       const toc = page.getByTestId("case-toc");
+      const headings = await page.locator("[data-toc-section]").count();
+      expect(headings, "case has TOC sections").toBeGreaterThan(0);
+      let shown = false;
+      for (let i = 0; i < headings && !shown; i++) {
+        await page.evaluate((n) => {
+          const el = document.querySelectorAll("[data-toc-section]")[n] as HTMLElement;
+          window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top - 220);
+        }, i);
+        await page.waitForTimeout(250);
+        shown = (await toc.getAttribute("data-shown")) === "true";
+      }
       await expect(toc).toHaveAttribute("data-shown", "true");
       const outside = await page.evaluate(() => {
         const box = document.querySelector('[data-testid="case-toc"]')!.getBoundingClientRect();

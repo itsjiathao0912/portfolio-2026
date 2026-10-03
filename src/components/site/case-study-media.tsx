@@ -58,7 +58,7 @@ export function ZoomImage({ src, alt, className, sizes, aspect = "aspect-[16/10]
         aria-label={`Enlarge image: ${alt}`}
         data-testid="zoom-image"
         className={cn(
-          "group relative block w-full cursor-zoom-in overflow-hidden rounded-[20px] bg-canvas focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-accent",
+          "group relative block w-full cursor-zoom-in overflow-hidden rounded-2xl bg-canvas focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-accent",
           aspect,
           className
         )}

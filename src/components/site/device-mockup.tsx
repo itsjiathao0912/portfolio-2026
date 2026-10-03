@@ -49,7 +49,7 @@ export function DeviceMockup({ variant, src, alt, className, priority, sizes }: 
   if (variant === "browser-free") {
     return (
       <div data-device="browser-free" className={cn("relative w-full", className)}>
-        <div className="relative aspect-[16/10] overflow-hidden rounded-[20px] bg-canvas shadow-[0_30px_70px_-24px_rgba(11,31,77,0.45)] ring-1 ring-black/5">
+        <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-canvas shadow-3 ring-1 ring-black/5">
           {screen}
         </div>
       </div>
@@ -61,7 +61,7 @@ export function DeviceMockup({ variant, src, alt, className, priority, sizes }: 
       {/* Lid: dark bezel with a tiny camera dot. */}
       <div className="relative mx-[6%] rounded-t-[18px] bg-[#11141c] px-[2.2%] pt-[2.2%] pb-[1.6%] shadow-[0_30px_70px_-24px_rgba(11,31,77,0.5)] ring-1 ring-white/10">
         <span aria-hidden="true" className="absolute top-[0.9%] left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-white/25" />
-        <div className="relative aspect-[16/10] overflow-hidden rounded-[6px] bg-canvas">{screen}</div>
+        <div className="relative aspect-[16/10] overflow-hidden rounded-sm bg-canvas">{screen}</div>
       </div>
       {/* Base: thin aluminium deck with a finger notch. */}
       <div aria-hidden="true" className="relative h-3 rounded-b-[14px] bg-gradient-to-b from-[#d9dde6] to-[#aeb4c2] md:h-4">

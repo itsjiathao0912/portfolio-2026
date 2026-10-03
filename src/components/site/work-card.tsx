@@ -37,7 +37,7 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
       data-category={project.category}
       data-tone={meta.tone}
       className={cn(
-        "group relative flex h-full min-h-[560px] flex-col items-center overflow-hidden rounded-2xl px-6 pt-10 text-center md:px-10 xl:min-h-[742px]",
+        "group relative flex h-full min-h-[440px] flex-col items-center overflow-hidden rounded-2xl px-6 pt-10 text-center md:px-10 xl:min-h-[500px]",
         "focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-accent",
         TINT_BG[meta.tint]
       )}
@@ -52,7 +52,7 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
       </p>
       {/* Visual: anchored to the bottom, wider than the card, running off the
           bottom edge (and the sides, for laptops). */}
-      <div className="relative flex w-full flex-1 items-end justify-center pt-12">
+      <div className="relative mt-6 -mx-6 flex h-[300px] w-[calc(100%+3rem)] flex-none items-end justify-center overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,#000_8%)] md:-mx-10 md:h-[340px] md:w-[calc(100%+5rem)]">
         {/* Soft spotlight behind the visual so the lower half never reads empty. */}
         <span
           aria-hidden="true"
@@ -62,7 +62,7 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
           style={{ viewTransitionName: `project-card-${project.slug}` }}
           className={cn(
             "shrink-0",
-            meta.visual.kind === "illustration" ? "w-[112%] translate-y-[8%]" : "w-[118%] translate-y-[12%]"
+            meta.visual.kind === "illustration" ? "w-[110%] translate-y-[6%]" : "w-[112%] translate-y-[8%]"
           )}
         >
           <ProjectVisual visual={meta.visual} label={project.title} logo={meta.logo} tone="light" priority={priority} />

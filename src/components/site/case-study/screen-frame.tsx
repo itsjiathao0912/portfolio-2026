@@ -54,7 +54,7 @@ export function ScreenFrame({
     return (
       <div data-device="laptop" className={cn("relative w-full", className)}>
         <div className="relative mx-[6%] rounded-t-[18px] bg-[#11141c] px-[2.2%] pt-[2.2%] pb-[1.6%] shadow-[0_40px_80px_-24px_rgba(11,31,77,0.5)] ring-1 ring-white/10">
-          <div className="relative aspect-[16/10] overflow-hidden rounded-[6px] bg-canvas">{layers}</div>
+          <div className="relative aspect-[16/10] overflow-hidden rounded-sm bg-canvas">{layers}</div>
         </div>
         <div aria-hidden="true" className="relative h-3 rounded-b-[14px] bg-gradient-to-b from-[#d9dde6] to-[#aeb4c2] md:h-4">
           <span className="absolute top-0 left-1/2 h-1.5 w-[14%] -translate-x-1/2 rounded-b-md bg-[#9aa1b0]" />
@@ -64,7 +64,7 @@ export function ScreenFrame({
   }
   if (device === "browser") {
     return (
-      <div data-device="browser" className={cn("relative w-full overflow-hidden rounded-[18px] bg-bg shadow-[0_30px_70px_-28px_rgba(11,31,77,0.45)] ring-1 ring-black/5", className)}>
+      <div data-device="browser" className={cn("relative w-full overflow-hidden rounded-2xl bg-bg shadow-3 ring-1 ring-black/5", className)}>
         <div aria-hidden="true" className="flex h-7 items-center gap-1.5 border-b border-hairline px-3">
           <span className="size-2.5 rounded-full bg-hairline" />
           <span className="size-2.5 rounded-full bg-hairline" />
@@ -76,7 +76,7 @@ export function ScreenFrame({
   }
   return (
     <div data-device={device} className={cn("relative w-full", className)}>
-      <div className="relative aspect-[16/10] overflow-hidden rounded-[20px] bg-canvas shadow-[0_30px_70px_-24px_rgba(11,31,77,0.45)] ring-1 ring-black/5">{layers}</div>
+      <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-canvas shadow-3 ring-1 ring-black/5">{layers}</div>
     </div>
   );
 }

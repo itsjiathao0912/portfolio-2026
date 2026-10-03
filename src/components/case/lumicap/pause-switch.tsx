@@ -33,7 +33,7 @@ export function PauseSwitch({ source }: CaseBlockProps) {
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
             <label className="flex flex-1 flex-col gap-1 text-sm text-ink-2">
               Justification
-              <select value={reason} onChange={(e) => setReason(e.target.value)} className="rounded-lg border border-border-strong bg-bg px-3 py-2 text-ink-1 focus-visible:outline-2 focus-visible:outline-accent">
+              <select value={reason} onChange={(e) => setReason(e.target.value)} className="min-h-11 rounded-lg border border-border-strong bg-bg px-3 py-2 text-ink-1 focus-visible:outline-2 focus-visible:outline-accent">
                 {REASONS.map((r) => (<option key={r}>{r}</option>))}
               </select>
             </label>

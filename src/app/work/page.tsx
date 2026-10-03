@@ -15,8 +15,14 @@ export default async function WorkPage() {
       className="bg-canvas px-5 pt-[calc(var(--nav-top-sm)+var(--nav-h-sm)+40px)] pb-24 md:px-8 md:pb-[150px] md:pt-[calc(var(--nav-top)+var(--nav-h)+67px)] xl:px-0"
       data-testid="work-page"
     >
-      {/* No page header: the grid is the page. One sr-only H1 keeps the outline. */}
-      <h1 className="sr-only">All projects</h1>
+      <header className="mx-auto mb-8 max-w-2xl text-center md:mb-10">
+        <h1 className="text-[2.25rem] leading-[1.1] md:text-[3.5rem]" data-testid="work-title">
+          Selected work
+        </h1>
+        <p className="mt-3 text-base leading-[1.6] text-ink-2 md:text-lg">
+          Platforms owned end to end, growth and data work, and a few products of my own.
+        </p>
+      </header>
       <div className="mx-auto xl:max-w-none">
         {projects.length === 0 ? (
           <p className="text-center text-ink-3" data-testid="empty-state">

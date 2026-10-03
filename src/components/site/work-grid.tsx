@@ -1,8 +1,11 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
+import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Project } from "@content/schema.ts";
+import { INSTANT, SPRING } from "@/components/motion/springs";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { WorkCard } from "./work-card";
 import { Reveal } from "./reveal";
@@ -17,6 +20,7 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
     for (const project of projects) if (project.category && !seen.includes(project.category)) seen.push(project.category);
     return seen;
   }, [projects]);
+  const reduce = useReducedMotion();
   const [filter, setFilter] = useState<string>("All");
   const visible = filter === "All" ? projects : projects.filter((p) => p.category === filter);
   // Phone: the chip row scrolls sideways. While more chips sit off the right
@@ -58,10 +62,19 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
               data-testid="filter-chip"
               onClick={() => setFilter(name)}
               className={cn(
-                "flex h-11 shrink-0 snap-start items-center gap-1.5 rounded-full px-4 text-[0.94rem] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent",
-                selected ? "bg-bg text-ink-1 shadow-2" : "text-ink-3 hover:text-ink-1"
+                "relative isolate flex h-11 shrink-0 snap-start items-center gap-1.5 rounded-full px-4 text-[0.94rem] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent",
+                selected ? "text-ink-1" : "text-ink-3 hover:text-ink-1"
               )}
             >
+              {selected ? (
+                <motion.span
+                  layoutId="work-filter-thumb"
+                  data-testid="filter-thumb"
+                  aria-hidden="true"
+                  transition={reduce ? INSTANT : SPRING.indicator}
+                  className="absolute inset-0 -z-10 rounded-full bg-bg shadow-2"
+                />
+              ) : null}
               {name}
               <span className="text-xs text-ink-3 tabular-nums">{count}</span>
             </button>
@@ -82,14 +95,26 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
       <p className="sr-only" aria-live="polite">
         Showing {visible.length} project{visible.length === 1 ? "" : "s"}
       </p>
-      <ul className="grid gap-5 md:grid-cols-2 md:gap-8 xl:grid-cols-3 xl:gap-10" data-testid="work-grid">
-        {/* Work index cards: 400 ms reveal (other pages keep the default timing). */}
-        {visible.map((project, index) => (
-          <Reveal as="li" key={project.id} index={index} duration={0.4} stagger={0.05} className="h-full">
-            <WorkCard project={project} priority={index < 3} />
-          </Reveal>
-        ))}
-      </ul>
+      <LayoutGroup>
+        <ul className="relative grid gap-5 md:grid-cols-2 md:gap-8 xl:grid-cols-3 xl:gap-10" data-testid="work-grid">
+          {/* Work index cards: 400 ms reveal (other pages keep the default timing). */}
+          <AnimatePresence mode="popLayout" initial={false}>
+            {visible.map((project, index) => (
+              <motion.li
+                key={project.id}
+                layout={reduce ? false : "position"}
+                transition={reduce ? INSTANT : SPRING.sheet}
+                exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.2 } }}
+                className="h-full"
+              >
+                <Reveal index={index} duration={0.4} stagger={0.05} className="h-full">
+                  <WorkCard project={project} priority={index < 3} />
+                </Reveal>
+              </motion.li>
+            ))}
+          </AnimatePresence>
+        </ul>
+      </LayoutGroup>
     </div>
   );
 }
