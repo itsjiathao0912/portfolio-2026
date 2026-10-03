@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { SPRING } from "@/components/motion/springs";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { buildRailStops, railSummary, type RailStop } from "./ledger-data";
-import { inertiaTarget, markerPercent, nearestCardIndex, stepScrollTarget } from "./career-rail-logic";
+import { dragReleaseTarget, markerPercent, nearestCardIndex, stepScrollTarget } from "./career-rail-logic";
 
 type Props = {
   stops?: RailStop[];
@@ -108,7 +108,12 @@ export function CareerRail({ stops = buildRailStops(), heading = "The route so f
     drag.current = null;
     if (!d || !el || !d.moved) return;
     el.releasePointerCapture?.(e.pointerId);
-    const target = inertiaTarget(el.scrollLeft, reduce ? 0 : d.v * 6, el.scrollWidth - el.clientWidth);
+    const rect = el.getBoundingClientRect();
+    const snaps = Array.from(el.children).map((c) => {
+      const r = c.getBoundingClientRect();
+      return r.left - rect.left + el.scrollLeft + r.width / 2 - el.clientWidth / 2;
+    });
+    const target = dragReleaseTarget(el.scrollLeft, reduce ? 0 : d.v, el.scrollWidth - el.clientWidth, snaps);
     el.style.scrollSnapType = "";
     el.style.scrollBehavior = "";
     el.scrollTo({ left: target, behavior });
