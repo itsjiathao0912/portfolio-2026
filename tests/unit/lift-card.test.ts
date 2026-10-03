@@ -1,10 +1,19 @@
 import { describe, expect, test } from "bun:test";
-import { LIFT_SHADOW, PARALLAX_MAX, liftTarget, parallaxOffset } from "../../src/components/motion/lift.ts";
+import { LIFT_SCALE, LIFT_SHADOW, PARALLAX_MAX, hoverTranslate, liftTarget, parallaxOffset, topEdgeRise } from "../../src/components/motion/lift.ts";
 import { DURATION, SPRING } from "../../src/components/motion/springs.ts";
 
 describe("lift card poses", () => {
-  test("hover lifts 12px, grows 1.025 and deepens the shadow", () => {
-    expect(liftTarget("hover")).toEqual({ y: -12, scale: 1.025, boxShadow: LIFT_SHADOW.hover });
+  test("hover grows 1.4% and deepens the shadow", () => {
+    expect(liftTarget("hover", "card", false, 300)).toMatchObject({ scale: LIFT_SCALE, boxShadow: LIFT_SHADOW.hover });
+  });
+  test("top edge rises 10-14px on any card height (300, 500, 900, 1400)", () => {
+    for (const h of [120, 300, 500, 900, 1400]) {
+      const t = liftTarget("hover", "card", false, h);
+      const rise = topEdgeRise(t.y, t.scale, h);
+      expect(rise).toBeGreaterThanOrEqual(10);
+      expect(rise).toBeLessThanOrEqual(14);
+    }
+    expect(hoverTranslate(300)).toBeLessThan(hoverTranslate(900));
   });
   test("press squishes to 0.985; rest is flat", () => {
     expect(liftTarget("press").scale).toBe(0.985);
@@ -34,7 +43,7 @@ describe("lift card poses", () => {
 
 describe("motion tokens", () => {
   test("lift and stamp springs match the design system", () => {
-    expect(SPRING.lift).toMatchObject({ stiffness: 190, damping: 20, mass: 1 });
+    expect(SPRING.lift).toMatchObject({ stiffness: 150, damping: 16, mass: 1 });
     expect(SPRING.stamp).toMatchObject({ stiffness: 520, damping: 22 });
     expect(DURATION.reveal).toBe(0.52);
   });

@@ -30,7 +30,7 @@ export function SketchHint({ name }: { name: string }) {
         onBlur={() => setHint(false)}
         onPointerEnter={(e) => e.pointerType === "mouse" && setHint(true)}
         onPointerLeave={() => setHint(false)}
-        className="font-medium text-ink-1"
+        className="-mx-2 inline-flex min-h-11 items-center px-2 font-medium text-ink-1"
         aria-describedby="sketch-hint-note"
       >
         {name}

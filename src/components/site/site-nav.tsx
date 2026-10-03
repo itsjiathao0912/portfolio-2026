@@ -136,10 +136,14 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
       list[next]?.focus();
     }
     document.addEventListener("keydown", onKey);
+    // Everything behind the open sheet is inert: no Tab stop can leak to the page underneath.
+    const behind = Array.from(document.querySelectorAll<HTMLElement>("#main, [data-testid=site-footer]"));
+    behind.forEach((el) => el.setAttribute("inert", ""));
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
+      behind.forEach((el) => el.removeAttribute("inert"));
       document.body.style.overflow = previous;
     };
   }, [open]);
@@ -171,7 +175,7 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
         transition={reduce ? INSTANT : SPRING.sheet}
         style={{ transformOrigin: "50% 0%" }}
       >
-        <LiquidGlass radius={PILL_H / 2} tint="light" style={{ height: PILL_H }} className="flex items-center">
+        <LiquidGlass radius={PILL_H / 2} tint="light" blur={24} saturation={1.6} style={{ height: PILL_H }} className="flex items-center">
           <nav aria-label="Main" className="flex items-center gap-0.5 px-2" onPointerLeave={() => setHovered(null)} onBlur={() => setHovered(null)}>
             <LayoutGroup id="main-nav">
               {all.map((item) => (
@@ -208,7 +212,7 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
         transition={SPRING.press}
         className="pointer-events-auto relative z-10 rounded-full md:hidden"
       >
-        <LiquidGlass radius={PILL_H_SM / 2} tint="light" className="flex items-center justify-center text-ink-1" style={{ width: PILL_H_SM, height: PILL_H_SM }}>
+        <LiquidGlass radius={PILL_H_SM / 2} tint="light" blur={24} saturation={1.6} className="flex items-center justify-center text-ink-1" style={{ width: PILL_H_SM, height: PILL_H_SM }}>
           <span className="sr-only">{name}</span>
           <span
             aria-hidden="true"

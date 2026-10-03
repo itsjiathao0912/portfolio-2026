@@ -15,8 +15,8 @@ export const SPRING = {
   sheet: { type: "spring", stiffness: 400, damping: 40 },
   /** Soft tilt for cards and pointer parallax. */
   tilt: { type: "spring", stiffness: 180, damping: 24 },
-  /** Card hover lift (LiftCard): one small overshoot, settles in ~0.5s. */
-  lift: { type: "spring", stiffness: 190, damping: 20, mass: 1 },
+  /** Card hover lift (LiftCard): soft iOS spring, one gentle overshoot (~7%), settles in ~0.5s. */
+  lift: { type: "spring", stiffness: 150, damping: 16, mass: 1 },
   /** Stamp landing (project stamps). */
   stamp: { type: "spring", stiffness: 520, damping: 22, mass: 0.9 },
   /** Pointer-follow (sheen, cursor masks): slow and smooth. */

@@ -92,7 +92,7 @@ export const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function
     };
   }, [radius, bezel]);
 
-  const frosted = `blur(${blur + 6}px) saturate(${saturation})`;
+  const frosted = `blur(${Math.max(blur, 8)}px) saturate(${saturation})`;
   const filter = map ? `url(#${filterId}) blur(${blur}px) saturate(${saturation})` : frosted;
 
   return (
@@ -101,7 +101,9 @@ export const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function
       data-glass={map ? "refract" : "frost"}
       data-tint={tint}
       className={cn("glass", className)}
-      style={{ ...style, borderRadius: radius, ["--glass-filter" as string]: filter }}
+      // The unprefixed property is set inline on purpose: the production CSS pipeline merges the
+      // `.glass` rule's pair and keeps only -webkit-backdrop-filter, which Chromium ignores.
+      style={{ ...style, borderRadius: radius, backdropFilter: filter, WebkitBackdropFilter: filter, ["--glass-filter" as string]: filter }}
       {...rest}
     >
       {map ? (

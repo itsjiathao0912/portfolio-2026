@@ -9,7 +9,7 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 
 interface LiftCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart"> {
-  /** "card" lifts 12px and grows; "row" (list rows) lifts 2px, no scale. */
+  /** "card" lifts ~11.5px at the top edge and grows slightly; "row" (list rows) lifts 2px, no scale. */
   variant?: LiftVariant;
   /** Corner radius utility for the card and its sheen, e.g. "rounded-2xl". Default rounded-lg (16px). */
   radius?: string;
@@ -20,7 +20,7 @@ interface LiftCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onDr
 /**
  * The one card hover for the whole site (iOS/iPadOS lift-and-pop).
  *
- * - Mouse hover: rises 12px, grows to 1.025, shadow deepens (spring `lift`),
+ * - Mouse hover: top edge rises ~11.5px (translate is computed from the card height so a 300px and a 900px card read the same), grows 1.4%, shadow deepens (spring `lift`),
  *   content drifts up to 4px against the pointer, a soft glass highlight
  *   follows the pointer.
  * - Press: gentle squish to 0.985, then springs back.
@@ -36,6 +36,7 @@ export function LiftCard({ variant = "card", radius = "rounded-lg", sheen = true
   const fine = useFinePointer();
   const [mode, setMode] = useState<LiftMode>("rest");
   const [hovered, setHovered] = useState(false);
+  const [height, setHeight] = useState(0);
   const px = useSpring(useMotionValue(0), SPRING.tilt);
   const py = useSpring(useMotionValue(0), SPRING.tilt);
   const sx = useSpring(useMotionValue(50), SPRING.glide);
@@ -58,7 +59,8 @@ export function LiftCard({ variant = "card", radius = "rounded-lg", sheen = true
     py.set(0);
   }
 
-  const target = liftTarget(mode, variant, reduce);
+  const target = liftTarget(mode, variant, reduce, height);
+  const measure = () => setHeight(ref.current?.offsetHeight ?? 0);
 
   return (
     <motion.div
@@ -71,6 +73,7 @@ export function LiftCard({ variant = "card", radius = "rounded-lg", sheen = true
       onPointerEnter={(e) => {
         onPointerEnter?.(e);
         if (e.pointerType !== "mouse") return;
+        measure();
         setHovered(true);
         setMode("hover");
       }}
@@ -86,6 +89,7 @@ export function LiftCard({ variant = "card", radius = "rounded-lg", sheen = true
       }}
       onPointerDown={(e) => {
         onPointerDown?.(e);
+        measure();
         setMode("press");
       }}
       onPointerUp={(e) => {
@@ -101,7 +105,10 @@ export function LiftCard({ variant = "card", radius = "rounded-lg", sheen = true
       }}
       onFocusCapture={(e) => {
         onFocusCapture?.(e);
-        if ((e.target as HTMLElement).matches(":focus-visible")) setMode("hover");
+        if ((e.target as HTMLElement).matches(":focus-visible")) {
+          measure();
+          setMode("hover");
+        }
       }}
       onBlurCapture={(e) => {
         onBlurCapture?.(e);
