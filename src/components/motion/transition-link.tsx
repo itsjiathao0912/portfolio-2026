@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useReducedMotion } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useRef } from "react";
 
 type ViewTransitionDoc = Document & { startViewTransition?: (cb: () => Promise<void>) => { finished: Promise<void> } };

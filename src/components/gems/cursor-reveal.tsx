@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducedMotion } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useRef, useState } from "react";
 import { useFinePointer } from "@/components/motion/use-fine-pointer";
 import { cn } from "@/lib/utils";
