@@ -43,7 +43,7 @@ describe("lift card poses", () => {
 
 describe("motion tokens", () => {
   test("lift and stamp springs match the design system", () => {
-    expect(SPRING.lift).toMatchObject({ stiffness: 150, damping: 16, mass: 1 });
+    expect(SPRING.lift).toMatchObject({ stiffness: 150, damping: 13, mass: 1 });
     expect(SPRING.stamp).toMatchObject({ stiffness: 520, damping: 22 });
     expect(DURATION.reveal).toBe(0.52);
   });

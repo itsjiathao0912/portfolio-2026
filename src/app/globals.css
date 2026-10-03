@@ -201,7 +201,7 @@
   :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
-    border-radius: 6px;
+    border-radius: var(--r-sm);
   }
 }
 
@@ -321,8 +321,16 @@
     inset 0 0 0 1px rgba(255, 255, 255, 0.35),
     var(--shadow-nav);
 }
+/* Fill is high enough that headlines scrolling behind the nav never ghost through the labels;
+   the extra inner hairline keeps the rim crisp against the page. */
 .glass[data-tint="light"] {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    inset 0 0 0 2px rgba(17, 24, 39, 0.05),
+    var(--shadow-nav);
 }
 .glass[data-tint="dark"] {
   background: rgba(0, 0, 0, 0.4);
