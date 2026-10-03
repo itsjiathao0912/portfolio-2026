@@ -34,8 +34,9 @@ function recaptchaParent(url: URL) {
  * reCAPTCHA themselves, and any other origin's errors still count.
  */
 export function isThirdPartyMessage(sourceUrl: string, text = "") {
-  // Only an iframe can log this; the LinkedIn embeds are the site's only iframes.
-  if (!sourceUrl && /only supported in top-level browsing contexts/.test(text)) return true;
+  // Only a subframe can log this, so it is never our top-level page; the
+  // LinkedIn embeds (and what they nest) are the site's only iframes.
+  if (/only supported in top-level browsing contexts/.test(text)) return true;
   try {
     const url = new URL(sourceUrl);
     const host = recaptchaParent(url) ?? url.hostname;
@@ -85,7 +86,11 @@ export function trackErrors(page: Page) {
     if (url && hostOf(url) !== hostOf(page.url()) && insideLinkedinFrame(page, url)) return;
     errors.push(msg.text());
   });
-  page.on("pageerror", (error) => errors.push(error.message));
+  // Chromium can surface a subframe's uncaught rejection here too; only the
+  // subframe-only API error is dropped, every other page error still counts.
+  page.on("pageerror", (error) => {
+    if (!isThirdPartyMessage("", error.message)) errors.push(error.message);
+  });
   return errors;
 }
 

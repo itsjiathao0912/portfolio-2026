@@ -3,12 +3,17 @@
 import { motion, useReducedMotion } from "motion/react";
 import { EmojiBurst } from "@/components/motion/emoji-burst";
 import { RotatingWord } from "@/components/motion/rotating-word";
+import { CursorReveal } from "@/components/gems/cursor-reveal";
+
+const H1 = "text-balance text-[39px] leading-[1.12] md:text-[64px] md:leading-[1.1] lg:text-[80px]";
 
 interface HeroIntroProps {
   headline: string;
   intro: string;
   /** Rolling words for "I build ___" (first one is the server-rendered word). */
   builds?: readonly string[];
+  /** Casual rewrite of the headline revealed under the cursor (hidden gem). */
+  casual?: string;
   children?: React.ReactNode;
 }
 
@@ -16,7 +21,7 @@ interface HeroIntroProps {
  * Hero text. Server-rendered at FULL opacity (sharp first paint, never grey);
  * once hydrated it only settles 12px upward in ~250ms. Reduced motion: static.
  */
-export function HeroIntro({ headline, intro, builds = [], children }: HeroIntroProps) {
+export function HeroIntro({ headline, intro, builds = [], casual, children }: HeroIntroProps) {
   const reduce = useReducedMotion();
   const item = (i: number) => ({
     initial: reduce ? false : ({ opacity: 1, y: 12 } as const),
@@ -26,13 +31,17 @@ export function HeroIntro({ headline, intro, builds = [], children }: HeroIntroP
 
   return (
     <div className="relative mx-auto flex max-w-[1180px] flex-col items-start gap-6 px-10 pt-[120px] md:items-center md:px-8 md:pt-[180px] md:text-center">
-      <motion.h1
-        {...item(0)}
-        id="hero-title"
-        className="text-balance text-[39px] leading-[1.12] md:text-[64px] md:leading-[1.1] lg:text-[80px]"
-      >
-        {headline}
-      </motion.h1>
+      {casual ? (
+        <CursorReveal alt={casual} altClassName={`${H1} justify-start md:justify-center`}>
+          <motion.h1 {...item(0)} id="hero-title" className={H1}>
+            {headline}
+          </motion.h1>
+        </CursorReveal>
+      ) : (
+        <motion.h1 {...item(0)} id="hero-title" className={H1}>
+          {headline}
+        </motion.h1>
+      )}
       {builds.length > 0 ? (
         <motion.p {...item(1)} className="font-display text-[24px] leading-[1.25] text-ink-1 md:text-[32px]" data-testid="hero-builds">
           I build <RotatingWord words={builds} className="text-ink-3" />

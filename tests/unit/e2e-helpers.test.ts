@@ -10,3 +10,16 @@ describe("e2e console filter", () => {
     expect(isThirdPartyMessage("")).toBe(false);
   });
 });
+
+describe("nested LinkedIn frames", () => {
+  const co = (origin: string) => btoa(origin).replace(/=/g, ".");
+  test("reCAPTCHA inside the LinkedIn embed is LinkedIn's", () => {
+    expect(isThirdPartyMessage(`https://www.google.com/recaptcha/enterprise/anchor?co=${co("https://www.linkedin.com:443")}`)).toBe(true);
+    expect(isThirdPartyMessage(`https://www.google.com/recaptcha/enterprise/anchor?co=${co("http://127.0.0.1:3003")}`)).toBe(false);
+    expect(isThirdPartyMessage("https://www.google.com/recaptcha/api.js")).toBe(false);
+  });
+  test("subframe-only API errors with no source are attributed to the embed", () => {
+    expect(isThirdPartyMessage("", "getInstalledRelatedApps() is only supported in top-level browsing contexts.")).toBe(true);
+    expect(isThirdPartyMessage("", "TypeError: x is undefined")).toBe(false);
+  });
+});

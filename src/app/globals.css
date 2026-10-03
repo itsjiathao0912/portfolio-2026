@@ -389,3 +389,58 @@
     animation: none !important;
   }
 }
+
+/* ── Hidden gems (src/components/gems) ─────────────────────────────────────
+ * Cursor reveal: the casual layer is masked to a circle at (--rx, --ry); the
+ * radius (--rr) is a registered property so it can ease in/out on hover.
+ */
+@property --rr {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+.cursor-reveal-host {
+  --rx: 50%;
+  --ry: 50%;
+  --rr: 0px;
+  transition: --rr 260ms var(--ease-out);
+}
+.cursor-reveal-host[data-active="true"] {
+  --rr: 140px;
+}
+.cursor-reveal-layer {
+  -webkit-mask-image: radial-gradient(circle var(--rr) at var(--rx) var(--ry), #000 78%, transparent 100%);
+  mask-image: radial-gradient(circle var(--rr) at var(--rx) var(--ry), #000 78%, transparent 100%);
+  color: var(--ink-3);
+  font-style: italic;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cursor-reveal-host {
+    transition: none;
+  }
+}
+
+/* Sketch mode (type "thao"): pencil outlines on paper. Pure CSS on
+ * <html data-sketch="on">; nothing moves, so reduced motion is unaffected. */
+html[data-sketch="on"] body {
+  background-color: #fffdf6;
+  background-image:
+    linear-gradient(rgba(37, 99, 235, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+html[data-sketch="on"] :is(.bg-bg, .bg-canvas) {
+  background-color: transparent;
+}
+html[data-sketch="on"] :is(h1, h2, h3) {
+  text-decoration: underline wavy rgba(0, 0, 0, 0.35);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.18em;
+}
+html[data-sketch="on"] img {
+  filter: grayscale(1) contrast(1.25);
+}
+html[data-sketch="on"] :is([class*="rounded-[20px]"], [class*="rounded-[24px]"], [class*="rounded-[16px]"]) {
+  outline: 1.5px dashed rgba(0, 0, 0, 0.55);
+  outline-offset: 3px;
+}

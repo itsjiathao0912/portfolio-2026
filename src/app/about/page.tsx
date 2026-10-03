@@ -1,7 +1,10 @@
 import { ArrowUpRight } from "lucide-react";
 import type { Metadata } from "next";
 import { EmojiBurst } from "@/components/motion/emoji-burst";
+import { PeelSticker } from "@/components/gems/peel-sticker";
 import { Tilt } from "@/components/motion/tilt";
+import { PhotoMoments } from "@/components/site/photo-moments";
+import { photos } from "@content/site.ts";
 import { DevGap } from "@/components/site/dev-gap";
 import { Reveal } from "@/components/site/reveal";
 import { Portrait } from "@/components/site/portrait";
@@ -48,10 +51,12 @@ export default async function AboutPage() {
             {profile.availability ? ` · ${profile.availability}` : ""}
           </p>
         </div>
-        <div className="w-full max-w-[320px] justify-self-center">
+        <div className="relative w-full max-w-[320px] justify-self-center">
           <Tilt>
             <Portrait src={profile.portrait} name={profile.name} className="rounded-[20px]" />
           </Tilt>
+          {/* Hidden gem: peel the sticker for a note */}
+          <PeelSticker className="absolute -bottom-6 -left-6 md:-left-10" />
         </div>
       </section>
 
@@ -118,6 +123,8 @@ export default async function AboutPage() {
           </div>
         ) : null}
       </section>
+
+      <PhotoMoments moments={photos.filter((p) => (p.place as readonly string[]).includes("about"))} title="Seen around" className="pb-0 md:pb-0" />
 
       <section aria-labelledby="skills-title" className="mx-auto max-w-[1100px] px-6 pt-24 md:px-10 md:pt-[150px]" data-testid="section-skills">
         <Heading id="skills-title">Skills</Heading>

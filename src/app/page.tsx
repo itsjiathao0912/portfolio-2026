@@ -1,12 +1,15 @@
 import { HeroIntro } from "@/components/site/hero-intro";
 import { HighlightsGrid } from "@/components/site/highlights-grid";
+import { Mascot } from "@/components/gems/mascot";
+import { ScrollWords } from "@/components/gems/scroll-words";
 import { LinkedinPosts } from "@/components/site/linkedin-posts";
 import { LogoStrip, type LogoItem } from "@/components/site/logo-strip";
+import { PhotoMoments } from "@/components/site/photo-moments";
 import { Portrait } from "@/components/site/portrait";
 import { ProjectStack } from "@/components/site/project-stack";
 import { heroHeadline } from "@/lib/hero";
 import { loadProjects, loadSite } from "@/lib/load";
-import { linkedinPosts } from "@content/site.ts";
+import { linkedinPosts, photos } from "@content/site.ts";
 
 // Full-colour originals on a light band. SkyLab only ships a white wordmark,
 // so that one is rendered dark.
@@ -19,6 +22,9 @@ const LOGOS: LogoItem[] = [
 ];
 
 // What she builds, in her own words (profile tagline): the hero's rolling word.
+// Hidden under the cursor on the hero headline (gem): the same claim, said casually.
+const CASUAL = "Thao turns messy whiteboards into software that ships.";
+
 const BUILDS = ["billing engines", "on-chain ledgers", "ERP modules", "compliance copilots"] as const;
 
 export default async function HomePage() {
@@ -39,7 +45,7 @@ export default async function HomePage() {
     <main data-testid="home">
       {/* 1 · Hero: one sentence, a rolling "I build ___", a portrait that bleeds into the logo band */}
       <section aria-labelledby="hero-title" className="relative overflow-hidden bg-bg" data-testid="hero">
-        <HeroIntro headline={heroHeadline(profile)} intro={profile.intro} builds={BUILDS} />
+        <HeroIntro headline={heroHeadline(profile)} intro={profile.intro} builds={BUILDS} casual={CASUAL} />
         <div className="relative z-[1] mx-auto mt-10 -mb-px w-full max-w-[440px] px-4 md:mt-[64px] md:max-w-[800px]" data-testid="hero-portrait">
           <Portrait src={profile.portrait} name={profile.name} priority sizes="(min-width: 768px) 800px, 92vw" />
         </div>
@@ -50,14 +56,25 @@ export default async function HomePage() {
         <LogoStrip logos={LOGOS} />
       </section>
 
+      {/* 2b · One statement, words ink in as it scrolls */}
+      <section aria-label="What I do" className="mx-auto max-w-[1100px] px-6 py-20 md:px-10 md:py-[130px]" data-testid="section-statement">
+        <ScrollWords text={profile.tagline} className="font-display text-[28px] leading-[1.25] text-ink-1 md:text-[46px] md:leading-[1.15]" />
+      </section>
+
       {/* 3 · Highlights bento */}
       <HighlightsGrid site={site} />
+
+      {/* 3b · Real photos from events */}
+      <PhotoMoments moments={photos.filter((p) => (p.place as readonly string[]).includes("home"))} />
 
       {/* 4 · Project stack with sticky TOC */}
       <ProjectStack projects={projects} />
 
       {/* 5 · LinkedIn posts (official embeds, lazy) */}
       <LinkedinPosts posts={linkedinPosts} profileUrl={profile.socials.find((s) => s.label === "LinkedIn")?.href ?? null} />
+
+      {/* Hidden gem: Noto peeks in once the reader reaches the bottom */}
+      <Mascot />
     </main>
   );
 }

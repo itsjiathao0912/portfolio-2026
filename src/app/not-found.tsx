@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { LostNoteGame } from "@/components/gems/lost-note-game";
 import { LiquidLink } from "@/components/site/liquid-link";
 
 export default function NotFound() {
@@ -12,6 +13,9 @@ export default function NotFound() {
         <LiquidLink href="/work" variant="outline">
           See the work <ArrowRight className="size-4" aria-hidden="true" />
         </LiquidLink>
+      </div>
+      <div className="mt-6 w-full border-t border-hairline pt-8">
+        <LostNoteGame />
       </div>
     </main>
   );

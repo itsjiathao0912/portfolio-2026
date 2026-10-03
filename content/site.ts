@@ -216,3 +216,44 @@ export const linkedinPosts = [
     url: "https://www.linkedin.com/posts/thaodao0912_aabw-aabw2026-activity-7483045282734104576-zhg8",
   },
 ] as const satisfies readonly { urn: string; height: number; title: string; url: string }[];
+
+// Real photos of Thao (optimised copies of her own uploads; see
+// research-private/materials/media). `place` says where each one is used.
+// Never add the laptop-at-desk photo: its on-screen windows were not reviewed.
+export const photos = [
+  {
+    id: "aabw-winners",
+    src: "/photos/aabw-winners-stage.webp",
+    width: 1600,
+    height: 1067,
+    alt: "Thao with her team on stage as Financial Services II track winners at Agentic AI Build Week 2026",
+    caption: "Agentic AI Build Week 2026 · track winners on stage",
+    place: ["home", "about"],
+  },
+  {
+    id: "conviction-2026",
+    src: "/photos/conviction-2026.webp",
+    width: 900,
+    height: 1200,
+    alt: "Thao standing in front of the CONVICTION 2026 stage sign",
+    caption: "CONVICTION 2026",
+    place: ["home", "about"],
+  },
+  {
+    id: "ledgr-meetup",
+    src: "/photos/ledgr-meetup-group.webp",
+    width: 1600,
+    height: 900,
+    alt: "Group photo of builders at the meetup where Ledgr was demoed",
+    caption: "Ledgr demo night · the whole room",
+    place: ["home"],
+  },
+] as const satisfies readonly {
+  id: string;
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+  caption: string;
+  place: readonly ("home" | "about")[];
+}[];

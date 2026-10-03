@@ -4,6 +4,7 @@ import { AnimatePresence, LayoutGroup, motion, useMotionValueEvent, useReducedMo
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { LocalTime } from "@/components/gems/local-time";
 import { LiquidGlass } from "@/components/glass/liquid-glass";
 import { Magnetic } from "@/components/motion/magnetic";
 import { INSTANT, PRESS_SCALE, SPRING } from "@/components/motion/springs";
@@ -162,6 +163,9 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
       data-compact={compact ? "true" : "false"}
       className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-end px-4 pt-[var(--nav-top-sm)] md:justify-center md:pt-[var(--nav-top)]"
     >
+      {/* Thao's local time, a quiet human touch (hidden at md where the pill fills the row). */}
+      <LocalTime className="absolute top-[calc(var(--nav-top-sm)+20px)] left-5 md:hidden lg:top-[calc(var(--nav-top)+24px)] lg:left-8 lg:block" />
+
       {/* Desktop: floating liquid-glass pill. */}
       <motion.div
         className="pointer-events-auto hidden md:block"

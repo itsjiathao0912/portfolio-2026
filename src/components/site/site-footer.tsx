@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { Site } from "@content/schema.ts";
 import { GithubIcon, LinkedinIcon } from "./brand-icons";
 import { Magnetic } from "@/components/motion/magnetic";
+import { DoodlePad } from "@/components/gems/doodle-pad";
+import { SketchHint } from "@/components/gems/sketch-hint";
 import { LiquidLink } from "./liquid-link";
 
 function iconFor(label: string) {
@@ -65,11 +67,12 @@ export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
             </LiquidLink>
           </Magnetic>
         ) : null}
+        <DoodlePad />
       </section>
       <div className="border-t border-hairline">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-8 text-sm text-ink-3 md:flex-row md:items-center md:justify-between">
           <p>
-            <span className="font-medium text-ink-1">{profile?.name ?? "Thao Dao"}</span>{" "}
+            <SketchHint name={profile?.name ?? "Thao Dao"} />{" "}
             <span lang="vi">· {profile?.nameLocal ?? "Gia Thảo"}</span>
             {profile ? ` · ${profile.location}` : null}
           </p>

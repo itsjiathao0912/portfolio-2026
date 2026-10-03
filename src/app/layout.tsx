@@ -11,6 +11,7 @@ import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import "./globals.css";
 
+import { SecretWord } from "@/components/gems/secret-word";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteNav } from "@/components/site/site-nav";
@@ -55,6 +56,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             {children}
           </div>
           <SiteFooter profile={profile} />
+          <SecretWord />
         </MotionProvider>
       </body>
     </html>
