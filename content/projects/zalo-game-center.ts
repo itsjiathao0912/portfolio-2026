@@ -40,11 +40,37 @@ const project = {
     },
   },
   blocks: [
-    { type: "heading", text: "Overview", icon: "compass", eyebrow: "Context" },
+    { type: "heading", text: "The job", icon: "compass", eyebrow: "Context" },
     {
       type: "paragraph",
-      text: "At Zalo I owned the roadmap and delivery for 1 new product launch and 4 existing products, coordinating engineering, design, and data teams.",
+      text: "Zalo Game Center is the games platform inside Zalo, Vietnam's leading messaging app. As Product Owner I owned the roadmap and delivery for one new launch and four live products, working with engineering, design and data teams. My claim here is narrow: I did not build the games or the pipelines, I decided what got measured, tested and run, and in what order.",
     },
+    {
+      type: "custom",
+      component: "zalo-game-center/OwnershipLens",
+      source: "Thao's CV (Zalo, Feb 2023 to Apr 2024) and her Notion profile (BRDs, specs, UAT, product-health monitoring).",
+    },
+    { type: "heading", text: "The decision: measure first", icon: "chart-column", eyebrow: "Insight" },
+    {
+      type: "paragraph",
+      text: "The tension was simple. Reporting was manual, so every question about the games cost someone a data request, and an ad placement is easy to argue about and hard to settle. I put the tracking dashboard first so that experiments and events would have a scoreboard. Step through the three workstreams and watch the results appear.",
+    },
+    {
+      type: "custom",
+      component: "zalo-game-center/MeasureFirst",
+      source: "Thao's CV (Zalo, Feb 2023 to Apr 2024): dashboard −40% manual data extraction; ad placement A/B tests +30% total ad revenue in six months; monthly events +15% engagement, +3% paying users. Baselines are not disclosed.",
+    },
+    { type: "heading", text: "Why test at all", icon: "flask-conical", eyebrow: "Monetization" },
+    {
+      type: "paragraph",
+      text: "Ad placement looks like a design opinion. It is a revenue lever, and at this scale the cheapest way to find out which placement is better is to ask the players. Try the call yourself, then see why a picture is not evidence.",
+    },
+    {
+      type: "custom",
+      component: "zalo-game-center/ExperimentReveal",
+      source: "Thao's CV (Zalo, Feb 2023 to Apr 2024): +30% total ad revenue within six months. The phone layouts are a schematic, not Zalo screens; placement positions and per-test results are not disclosed.",
+    },
+    { type: "heading", text: "Outcome", icon: "calendar-days", eyebrow: "Results" },
     {
       type: "metrics",
       items: [
@@ -53,39 +79,13 @@ const project = {
         { value: "+3%", label: "paying users" },
         { value: "−40%", label: "manual data extraction" },
       ],
-      badge: "CV figure",
-      source: "Thao's CV (Zalo, Feb 2023 to Apr 2024). Baselines are not disclosed.",
+      badge: "Company figure",
+      source: "Thao's CV (Zalo, Feb 2023 to Apr 2024). Baselines are not disclosed, and the figures are shown exactly as written.",
     },
     {
-      type: "barChart",
-      title: "Change in each metric I owned",
-      caption: "Size of each change, in percent. Manual data extraction went down; the other three went up.",
-      source: "Thao's CV (Zalo, Feb 2023 to Apr 2024). Baselines are not disclosed.",
-      badge: "CV figure",
-      unit: "%",
-      items: [
-        { label: "Manual data extraction", value: 40, group: "Went down" },
-        { label: "Total ad revenue", value: 30, group: "Went up" },
-        { label: "User engagement", value: 15, group: "Went up" },
-        { label: "Paying users", value: 3, group: "Went up" },
-      ],
+      type: "callout",
+      text: "What I would do next: write the baseline and the test log down next to every number, so the result can be checked, not just believed.",
     },
-    { type: "heading", text: "Tracking dashboard", icon: "chart-column", eyebrow: "Data" },
-    {
-      type: "paragraph",
-      text: "I developed and rolled out a tracking dashboard for Zalo Game Center, replacing manual reporting with a self-serve surface. Manual data extraction dropped by 40% and decisions could rest on data instead of requests.",
-    },
-    { type: "heading", text: "Ad placement experiments", icon: "flask-conical", eyebrow: "Monetization" },
-    {
-      type: "paragraph",
-      text: "I optimized in-game ad placements through A/B testing across the Game Center portfolio, increasing total ad revenue by 30% within six months.",
-    },
-    { type: "heading", text: "Monthly events", icon: "calendar-days", eyebrow: "Engagement" },
-    {
-      type: "paragraph",
-      text: "I ran a monthly cadence of in-game events, which lifted user engagement by 15% and grew paying users by 3%.",
-    },
-    { type: "image", src: null, alt: "Zalo Game Center tracking dashboard (screenshot not yet available)", caption: "Internal screens; a sanitized capture will replace this frame." },
   ],
 } satisfies ProjectInput;
 
