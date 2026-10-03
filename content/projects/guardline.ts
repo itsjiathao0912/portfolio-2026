@@ -40,13 +40,14 @@ const project = {
     visual: { kind: "illustration", motif: "fraudRing" },
   },
   blocks: [
-    { type: "heading", text: "The problem", icon: "circle-alert", eyebrow: "Sea × OpenAI Codex Hackathon Vietnam 2026" },
+    { type: "heading", text: "The problem", icon: "circle-alert", eyebrow: "Sea × OpenAI Codex Hackathon Vietnam 2026", depth: "skim" },
     {
       type: "paragraph",
       text: "Fraudsters use many accounts to place fake orders at a shop they work with, take the cash, and never repay. Each order looks normal on its own; the fraud only shows across accounts, shops, phones and addresses. The blunt fix, blocking anyone who shares a phone, hits families and renters and slows growth. That is the tension: fraud is the biggest threat to holding bad loans near 1%, and a heavy hand is its own cost.",
     },
     {
       type: "image",
+      depth: "read",
       src: "/work/guardline/deck-title.webp",
       alt: "Guardline title slide: the problem, the build direction and the AI used",
       caption: "The team's proposal deck, title slide. Slide design by the team.",
@@ -66,6 +67,7 @@ const project = {
     { type: "heading", text: "My role", icon: "user-round", eyebrow: "Team lead" },
     {
       type: "paragraph",
+      owner: "owned",
       text: "I led a team of three. The tech lead built the investigation backend, orchestration, evidence checks and action limits; the AI engineer built the agent runtime, rule writer, anomaly scoring and evals. I owned the product side: I turned fraud rules into specs and tests, wrote the fraud scenarios and user flows, and designed the three-minute demo. The decision I pushed hardest on: write down what the agent may not do before writing what it does.",
     },
     { type: "heading", text: "How it decides", icon: "workflow", eyebrow: "AI flow" },
@@ -74,7 +76,17 @@ const project = {
       text: "Cheap signals first, the agent for judgement, and a code guard before any action. The agent never acts itself. Tap a step to follow its path.",
     },
     {
+      type: "decision",
+      title: "Block shared phones, or investigate in tiers?",
+      rejected: { label: "Block on shared signals", text: "Block anyone who shares a phone." },
+      chosen: { label: "Cheap signals, then an agent, then a code guard", text: "Cheap signals clear most orders with no AI. An agent works the hard cases and never acts itself. A code guard checks every proposed action against fixed limits." },
+      because: "The blunt fix hits families and renters and slows growth. Trust came from the limits, not the model.",
+      cost: "Anything touching more than 10 accounts, or a novel case, goes to a person.",
+      source: `${DECK}, p.2, p.4 and p.7.`,
+    },
+    {
       type: "explorable",
+      owner: "team",
       title: "From an order to a decision",
       caption: "Solid: detect and investigate. Dashed: learning, only from human decisions and confirmed outcomes.",
       source: `${DECK}, p.4 (flow) and p.7 (who decides, and the limits).`,
@@ -167,6 +179,7 @@ const project = {
     },
     {
       type: "steps",
+      owner: "owned",
       items: [
         { title: "A ring no single order reveals", text: "14 accounts sharing devices. Orders are held automatically; the credit freeze goes to the bank." },
         { title: "The decoy", text: "A family sharing one phone and a busy rental house. The desk clears them; a blunt rule would not." },
@@ -174,17 +187,16 @@ const project = {
         { title: "Why you can trust it", text: "An audit trail, a consistency flag between two analysts, and a kill switch that drops it to recommend-only." },
       ],
     },
-    {
-      type: "metrics",
-      badge: "Target, synthetic data",
-      source: `${DECK}, p.8: "Targets, not results. All numbers are computed live on synthetic data."`,
-      items: [
-        { value: "~95%", label: "cases resolved without AI" },
-        { value: "0 → 90%+", label: "catch rate on a new tactic, after adapting" },
-        { value: "0", label: "genuine users blocked" },
-      ],
-    },
     { type: "quote", text: "It learns only from human decisions and confirmed outcomes, never from its own verdicts.", attribution: "Guardline design principle" },
+    {
+      type: "results",
+      items: [
+        { value: "~95%", label: "cases resolved without AI", badge: "Target, synthetic data" },
+        { value: "0 → 90%+", label: "catch rate on a new tactic, after adapting", badge: "Target, synthetic data" },
+        { value: "0", label: "genuine users blocked", badge: "Target, synthetic data" },
+      ],
+      source: `${DECK}, p.8: "Targets, not results. All numbers are computed live on synthetic data."`,
+    },
   ],
 } satisfies ProjectInput;
 

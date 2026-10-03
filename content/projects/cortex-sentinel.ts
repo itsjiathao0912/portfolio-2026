@@ -46,7 +46,7 @@ const project = {
     },
   },
   blocks: [
-    { type: "heading", text: "The insight", icon: "circle-alert", eyebrow: "The problem" },
+    { type: "heading", text: "The insight", icon: "circle-alert", eyebrow: "The problem", depth: "skim" },
     {
       type: "quote",
       text: "The bottleneck isn't detecting risk. It's changing the rules.",
@@ -72,6 +72,7 @@ const project = {
     { type: "heading", text: "What I owned", icon: "user-round", eyebrow: "Ownership" },
     {
       type: "paragraph",
+      owner: "owned",
       text: "This was a team build on top of the open-source Marble decision engine. I led the product side: I researched Vietnamese AML law and the FATF Travel Rule, wrote a 14-file user-story set, and specced every workflow as a clickable mockup before any UI existed. Then I re-skinned the console to match those mockups and wrote the pitch. Teammates built most of the backend and AI plumbing.",
     },
     {
@@ -85,6 +86,7 @@ const project = {
     },
     {
       type: "imageRow",
+      owner: "owned",
       caption: "Two of my seven workflow mockups, specced before the console was built. All names are fictional.",
       images: [
         { src: "/work/cortex-sentinel/spec-copilot.webp", alt: "Disposition copilot mockup: a case with a 0.86 confidence score, a recommended escalation and cited reason codes", caption: "Disposition copilot: every reason cites its evidence", device: "plain" },
@@ -98,6 +100,7 @@ const project = {
     },
     {
       type: "custom",
+      owner: "platform",
       component: "cortex-sentinel/AgentLoop",
       source: "Cortex Sentinel pitch deck, p.5 (example prompt and rule), p.6 (self-correction up to 3×), p.13 (plan, ground, generate, validate, human saves). Repo: api/usecases/ai_agent/ai_rule_assist.go.",
     },
@@ -144,6 +147,7 @@ const project = {
     },
     {
       type: "custom",
+      owner: "team",
       component: "cortex-sentinel/AutoClearGate",
       source: "Cortex Sentinel pitch deck, p.15 (fails safe, guard chain), p.16 (10/10 classes vs kyt_high_exposure ≈ 53/52), p.19 (precedent vote ≥ 3 cleared, 0 escalated). Project story (sanctions and Travel Rule never auto-close; 6.5% backtest).",
     },
@@ -168,6 +172,15 @@ const project = {
       before: { label: "Baseline rules", value: 100 },
       after: { label: "With the triage gate", value: 81.6 },
     },
+    {
+      type: "decision",
+      title: "Who is allowed to close an alert?",
+      rejected: { label: "A black-box score", text: "A machine-learning score decides which alerts to close, with no written reason attached." },
+      chosen: { label: "Transparent rules with a written reason", text: "A model recommends, but a fixed, auditable gate decides, and it fails closed: if anything is uncertain, a person gets the alert." },
+      because: "A regulator can ask why an alert was closed on any date, and a bare score cannot answer that.",
+      cost: "Only a small share of alerts is closed automatically: 6.5% in the backtest, on sample data.",
+      source: "Cortex Sentinel pitch deck, p.15 (fails safe, guard chain) and p.19; project story (backtest on sample data).",
+    },
     { type: "heading", text: "The console", icon: "package", eyebrow: "What shipped" },
     {
       type: "story",
@@ -187,9 +200,19 @@ const project = {
       caption: "On stage after placing second. What I'd do next: wire the scorer into the live decision path and add a four-eyes publish gate.",
       device: "plain",
     },
-    { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology" },
+    { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology", depth: "deep" },
     { type: "stack", items: ["Go", "React", "PostgreSQL", "Elasticsearch + yente", "OpenSanctions", "Docker Compose"] },
     { type: "links", items: [{ label: "Source on GitHub", href: "https://github.com/cortex-sentinel-az/setinel" }] },
+    {
+      type: "results",
+      items: [
+        { value: "2nd", label: "place, Agentic AI Build Week 2026", badge: "Public result" },
+        { value: "6.5%", label: "of alerts auto-closed by the triage gate", badge: "Backtest, sample data" },
+        { value: "0", label: "true positives among the auto-closed alerts", badge: "Backtest, sample data" },
+      ],
+      next: "wire the scorer into the live decision path and add a four-eyes publish gate.",
+      source: "Cortex Sentinel pitch deck, p.16; project story (team backtest on sample/seed data, not production results). Placement from the event result.",
+    },
   ],
 } satisfies ProjectInput;
 

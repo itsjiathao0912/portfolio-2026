@@ -52,17 +52,19 @@ const project = {
     },
   },
   blocks: [
-    { type: "heading", text: "The question", icon: "compass", eyebrow: "Situation" },
+    { type: "heading", text: "The question", icon: "compass", eyebrow: "Situation", depth: "skim" },
     {
       type: "paragraph",
       text: "GoTyme Bank is winning the race it set out to win: more than 10 million customers, about 300,000 new ones a month. But each customer keeps less money with GoTyme than Maya's customers keep with Maya. The bank wins the sign-up and loses the balance. So the real question is not how to sell more crypto. It is what moves balances per customer.",
     },
     {
       type: "callout",
+      owner: "owned",
       text: "Independent work. I wrote this strategy alone, from public sources only: the research, the sizing model, the strategy and the concept screens. It is not a GoTyme deliverable, and I am not affiliated with GoTyme.",
     },
     {
       type: "barChart",
+      depth: "read",
       title: "Deposits per customer (₱)",
       caption: "GoTyme trails Maya by about 25% per account.",
       source: `${DECK}, p.6: Maya ₱67.7B / 10.7M, sector ₱119.5B / 20.4M, GoTyme ₱43.5B / ~9M.`,
@@ -114,18 +116,17 @@ const project = {
       type: "paragraph",
       text: "My call: stop treating crypto as something people trade, and use it as the rail that brings remittances home and keeps them in the bank. Ana sees pesos in minutes. She never sees a stablecoin. That only works if the vocabulary is disciplined, so I wrote it as a rule.",
     },
-    { type: "custom", component: "gocrypto/LanguageRule", source: `${DECK}, p.18.` },
     {
-      type: "story",
-      device: "phone",
-      steps: [
-        { title: "Ana asks", text: "She shares a request link. Her brother pays wherever he already is, through a licensed partner in his country. He never needs a GoTyme account.", src: "/work/gocrypto/screen-1.webp", alt: "Request money screen: you'll receive ₱18,290; Miguel pays $317.00, GoTyme fee ₱0" },
-        { title: "It arrives in minutes", text: "The money lands in an account she already has, with every step on a timeline and nothing deducted on the way.", src: "/work/gocrypto/screen-2.webp", alt: "Money received screen: ₱18,290 arrived in 3 minutes, with a timeline of the transfer" },
-        { title: "The business case", text: "The moment money arrives is the moment to give her a reason to keep it. Balances, not trades, are what the bank is short of.", src: "/work/gocrypto/screen-3.webp", alt: "₱18,290 is yours: keep it growing at 3% a year, earning ₱46 this month" },
-        { title: "Protection, at the decision", text: "Deposit insurance, sender checks and a way to report a transfer appear where she decides, not on a help page.", src: "/work/gocrypto/screen-4.webp", alt: "How your money is protected: insured pesos, verified sender, report a transfer" },
-        { title: "Crypto becomes the rail", text: "The transfer settled in digital dollars in 1 minute 30 seconds. Trading is still there, as a supporting product.", src: "/work/gocrypto/screen-5.webp", alt: "GoCrypto home: today's transfer settled over digital dollars in 1 min 30 s; crypto holdings and a gold savings plan" },
-      ],
+      type: "decision",
+      title: "Grow trading, or build a remittance rail?",
+      rejected: { label: "More trading features", text: "Keep growing Go Crypto's trading to lift balances per customer." },
+      chosen: { label: "Crypto as the remittance rail", text: "Use crypto to bring remittances home and keep them in the bank. Trading stays as a supporting product." },
+      because: "The model says trading cannot get close: the bank is about ₱4.0B a year short of breakeven.",
+      cost: "Trading stops being the headline and becomes a supporting product.",
+      source: `${DECK}, p.11 and p.44 (trading gap), p.50 (corrected figures).`,
     },
+    { type: "custom", component: "gocrypto/LanguageRule", source: `${DECK}, p.18.` },
+    { type: "custom", component: "gocrypto/PhoneWalkthrough", source: `${DECK}, p.35 (five concept screens).` },
     { type: "heading", text: "Build order and outcome", icon: "calendar-days", eyebrow: "The plan" },
     {
       type: "timeline",
@@ -157,6 +158,15 @@ const project = {
     },
     { type: "custom", component: "gocrypto/RetentionStress", source: `${DECK}, p.46 (retention) and p.48 (2029 lines, appendix values).` },
     { type: "quote", text: "Crypto is a supporting product in a bigger machine.", attribution: "From the strategy's closing slide" },
+    {
+      type: "results",
+      items: [
+        { value: "~25%", label: "GoTyme trails Maya in deposits per customer", badge: "Public data" },
+        { value: "₱85M", label: "contribution in Phase 0, mid-2027 (modelled)", badge: "Strategy model, not a result" },
+        { value: "₱1.5B", label: "contribution at scale, 2029 (modelled)", badge: "Strategy model, not a result" },
+      ],
+      source: `${DECK}, p.6 (deposits per customer) and p.45–48 (corrected figures, per p.50). Independent strategy built from public sources.`,
+    },
   ],
 } satisfies ProjectInput;
 

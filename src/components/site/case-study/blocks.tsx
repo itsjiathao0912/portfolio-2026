@@ -1,11 +1,19 @@
 import { ArrowUpRight } from "lucide-react";
 import { headingAnchor, type CaseLayout, type ContentBlock } from "@content/schema.ts";
+import { glossBlocks, type BlockGloss } from "@/lib/glossary-blocks";
 import { BarChart, BeforeAfter, CompareSlider, Explorable, FlowDiagram, Funnel, LineChart, ModuleMap, ScoreLadder, ScrubTimeline, StackedBar, Timeline, VideoLoop } from "@/components/dataviz";
 import { CustomBlock } from "@/components/case/custom-block";
 import { cn } from "@/lib/utils";
 import { ZoomImage } from "../case-study-media";
 import { MediaFrame } from "../media-frame";
 import { ImageRow } from "./image-row";
+import { DecisionCard } from "./reading/decision-card";
+import { DepthBody, type BodyRun } from "./reading/depth-body";
+import { EvidenceBadge } from "./reading/evidence-badge";
+import { GlossText } from "./reading/gloss-text";
+import { effectiveDepths, groupRuns } from "./reading/logic";
+import { ResultsBand } from "./reading/results-band";
+import { RoleBadge } from "./reading/role-badge";
 import { StoryScroller } from "./story-scroller";
 
 const IMAGE_SIZE = {
@@ -25,16 +33,43 @@ const WIDE = "relative left-1/2 w-[min(960px,calc(100vw-2.5rem))] -translate-x-1
  * - showcase: galleries become a bento of screens; charts break out wider.
  */
 export function CaseBlocks({ blocks, title, layout }: { blocks: readonly ContentBlock[]; title: string; layout: CaseLayout }) {
+  const gloss = glossBlocks(blocks);
+  const runs: BodyRun[] = groupRuns(effectiveDepths(blocks)).map((run) => ({
+    depth: run.depth,
+    headings: blocks.slice(run.start, run.end).flatMap((b) => (b.type === "heading" && b.level === 2 ? [b.text] : [])),
+    node: blocks.slice(run.start, run.end).map((block, offset) => {
+      const index = run.start + offset;
+      return <Block key={index} block={block} title={title} first={index === 0} layout={layout} gloss={gloss.get(index)} />;
+    }),
+  }));
   return (
-    <div className="flex flex-col gap-7" data-testid="case-study-body" data-layout={layout}>
-      {blocks.map((block, index) => (
-        <Block key={index} block={block} title={title} first={index === 0} layout={layout} />
-      ))}
+    <div className="flex flex-col" data-testid="case-study-body" data-layout={layout}>
+      <DepthBody runs={runs} />
     </div>
   );
 }
 
-function Block({ block, title, first, layout }: { block: ContentBlock; title: string; first: boolean; layout: CaseLayout }) {
+/** Wraps a block with its role badge when the content says who built it. */
+function Block(props: BlockProps) {
+  const owner = props.block.owner;
+  if (!owner || props.block.type === "heading") return <BlockBody {...props} />;
+  return (
+    <div className="flex flex-col gap-3">
+      <RoleBadge owner={owner} />
+      <BlockBody {...props} />
+    </div>
+  );
+}
+
+interface BlockProps {
+  block: ContentBlock;
+  title: string;
+  first: boolean;
+  layout: CaseLayout;
+  gloss?: BlockGloss;
+}
+
+function BlockBody({ block, title, first, layout, gloss }: BlockProps) {
   const wideViz = layout === "showcase" ? WIDE : undefined;
   switch (block.type) {
     case "heading": {
@@ -50,7 +85,11 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
       );
     }
     case "paragraph":
-      return <p className={cn("leading-[1.75] text-ink-1/85", layout === "magazine" ? "text-[1.15rem]" : "text-[1.07rem]")}>{block.text}</p>;
+      return (
+        <p className={cn("leading-[1.75] text-ink-1/85", layout === "magazine" ? "text-[1.15rem]" : "text-[1.07rem]")}>
+          <GlossText segments={gloss?.text} fallback={block.text} />
+        </p>
+      );
     case "image":
       return (
         <figure className={cn("my-6 flex flex-col gap-3", IMAGE_SIZE[block.size])} data-size={block.size}>
@@ -88,8 +127,10 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
       const ListTag = block.ordered ? "ol" : "ul";
       return (
         <ListTag className={cn("flex flex-col gap-3 pl-5 text-[1.07rem] leading-relaxed text-ink-2", block.ordered ? "list-decimal" : "list-disc marker:text-accent")}>
-          {block.items.map((item) => (
-            <li key={item}>{item}</li>
+          {block.items.map((item, i) => (
+            <li key={item}>
+              <GlossText segments={gloss?.items?.[i]} fallback={item} />
+            </li>
           ))}
         </ListTag>
       );
@@ -100,11 +141,7 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
       const long = longest > 6;
       return (
         <div className="my-6 flex flex-col gap-4" data-testid="metrics-block">
-          {block.badge ? (
-            <span className="self-start rounded-full border border-hairline bg-canvas px-3 py-1 text-xs font-semibold tracking-wide text-ink-2 uppercase" data-testid="viz-badge">
-              {block.badge}
-            </span>
-          ) : null}
+          {block.badge ? <EvidenceBadge label={block.badge} /> : null}
           <dl
             className={cn(
               "grid gap-x-8 gap-y-8 border-t border-hairline pt-8",
@@ -112,9 +149,11 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
             )}
             data-testid="metrics"
           >
-            {block.items.map((item) => (
+            {block.items.map((item, i) => (
               <div key={item.label} className="flex min-w-0 flex-col-reverse justify-end gap-2">
-                <dt className="text-sm leading-snug text-ink-3">{item.label}</dt>
+                <dt className="text-sm leading-snug text-ink-3">
+                  <GlossText segments={gloss?.items?.[i]} fallback={item.label} />
+                </dt>
                 <dd className={cn("font-display leading-none whitespace-nowrap text-ink-1", long ? "text-[1.75rem] sm:text-[2rem]" : block.items.length >= 4 ? "text-[2.25rem] md:text-[2rem]" : "text-[2.25rem] sm:text-[2.5rem] md:text-[3rem]")}>{item.value}</dd>
               </div>
             ))}
@@ -133,7 +172,9 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
                 {i + 1}.
               </span>
               <p className="mt-4 text-xl font-semibold text-ink-1 md:text-2xl">{item.title}</p>
-              <p className="mt-2 text-base leading-[1.6] text-ink-1/80">{item.text}</p>
+              <p className="mt-2 text-base leading-[1.6] text-ink-1/80">
+                <GlossText segments={gloss?.items?.[i]} fallback={item.text} />
+              </p>
             </li>
           ))}
         </ol>
@@ -176,7 +217,11 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
         </ul>
       );
     case "callout":
-      return <p className="rounded-lg bg-accent-tint px-5 py-4 text-ink-1">{block.text}</p>;
+      return (
+        <p className="rounded-lg bg-accent-tint px-5 py-4 text-ink-1">
+          <GlossText segments={gloss?.text} fallback={block.text} />
+        </p>
+      );
     case "barChart":
       return <BarChart className={wideViz} {...block} />;
     case "lineChart":
@@ -203,6 +248,10 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
       return <Explorable className={WIDE} {...block} />;
     case "video":
       return <VideoLoop {...block} />;
+    case "decision":
+      return <DecisionCard block={block} gloss={gloss} />;
+    case "results":
+      return <ResultsBand block={block} gloss={gloss} />;
     case "custom":
       return <CustomBlock component={block.component} props={block.props} source={block.source} />;
     case "code":

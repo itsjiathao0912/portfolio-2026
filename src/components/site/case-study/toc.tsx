@@ -3,17 +3,21 @@
 import { ArrowUp, List, Mail, X } from "lucide-react";
 import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
-import { useEffect, useState } from "react";
-import type { SectionIcon } from "@content/schema.ts";
+import { useEffect, useMemo, useState } from "react";
+import type { Depth, SectionIcon } from "@content/schema.ts";
 import { emojiFor } from "@/components/site/home/project-meta";
 import { SPRING as SITE_SPRING } from "@/components/motion/springs";
 import { cn } from "@/lib/utils";
 import { sectionIcon } from "../case-study-toc";
+import { useReadingDepth } from "./reading/depth-context";
+import { visibleToc } from "./reading/logic";
 
 interface Entry {
   id: string;
   label: string;
   icon?: SectionIcon;
+  /** Depth this section needs; the TOC lists only the sections visible at the reader's depth. */
+  depth?: Depth;
 }
 
 interface TocProps {
@@ -140,7 +144,9 @@ function useFooterInView() {
 const SPRING = SITE_SPRING.indicator;
 
 /** Desktop navigator in the left margin (xl+), visible from the start of the body. */
-export function CaseToc({ entries, startId, slug, title }: TocProps) {
+export function CaseToc({ entries: allEntries, startId, slug, title }: TocProps) {
+  const { depth } = useReadingDepth();
+  const entries = useMemo(() => visibleToc(allEntries, depth), [allEntries, depth]);
   const active = useActiveSection(entries);
   const inBody = useInBody(startId);
   const wide = useWideInView();
@@ -175,7 +181,8 @@ export function CaseToc({ entries, startId, slug, title }: TocProps) {
               key={row.id}
               initial={false}
               animate={shown || reduce ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-              transition={reduce ? { duration: 0 } : { ...SPRING, delay: shown ? i * 0.03 : 0 }}
+              // Tween, not spring: a spring overshoots to +x and briefly pushes a long label past the TOC box.
+              transition={reduce ? { duration: 0 } : { type: "tween", duration: 0.22, ease: "easeOut", delay: shown ? i * 0.03 : 0 }}
             >
               <a
                 href={row.href}
@@ -232,7 +239,9 @@ export function CaseProgress() {
  * the safe area. It hides while you scroll down to read and comes back on a
  * scroll up or at the end of the page, so it never sits on the text you read.
  */
-export function CaseSectionMenu({ entries, startId, slug }: TocProps) {
+export function CaseSectionMenu({ entries: allEntries, startId, slug }: TocProps) {
+  const { depth } = useReadingDepth();
+  const entries = useMemo(() => visibleToc(allEntries, depth), [allEntries, depth]);
   const active = useActiveSection(entries);
   const inBody = useInBody(startId);
   const down = useReadingDown();

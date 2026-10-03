@@ -37,7 +37,7 @@ const project = {
     },
   },
   blocks: [
-    { type: "heading", text: "The insight", icon: "compass", eyebrow: "The problem" },
+    { type: "heading", text: "The insight", icon: "compass", eyebrow: "The problem", depth: "skim" },
     {
       type: "quote",
       text: "Billing only works once every provider's usage speaks one unit.",
@@ -51,13 +51,23 @@ const project = {
       text: "So the tension was not collecting usage. It was that four price books cannot be compared, or billed from, until they are translated into one model. Try it below with made-up rates: guess which book is cheapest, then normalise.",
     },
     {
+      type: "decision",
+      title: "Bill each provider's price book, or one model?",
+      rejected: { label: "Provider price books as they are", text: "Bill from each provider's own pricing model and reconcile the differences afterwards." },
+      chosen: { label: "One pricing model", text: "Translate the four price books into one canonical model, then meter per tenant per service." },
+      because: "Four price books cannot be compared, or billed from, until they speak one unit. Left alone they produce inconsistent invoices and cost that cannot be attributed to the right tenant.",
+      source: "Thao's CV (SkyLab Group, PAC billing).",
+    },
+    {
       type: "custom",
+      depth: "read",
       component: "pac/PriceBooks",
       source: "Illustration of the problem class, built from my CV description (pricing standardised across four providers). Rates and units are invented, not any provider's real pricing.",
     },
     { type: "heading", text: "What I owned", icon: "user-round", eyebrow: "Ownership" },
     {
       type: "paragraph",
+      owner: "owned",
       text: "I owned the billing domain end to end at SkyLab Group: usage metering, multi-currency pricing, invoices, credit notes and revenue dashboards. I specified the API-heavy integrations that turn multi-service usage into tenant invoices, and I designed and shipped the cost monitoring dashboard and the payment reconciliation workflows.",
     },
     {
@@ -104,8 +114,19 @@ const project = {
       type: "callout",
       text: "Product screens and outcome metrics for PAC are private, so this page shows the logic with illustrative data rather than the product. No figures here are measured results.",
     },
-    { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology" },
+    { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology", depth: "deep" },
     { type: "stack", items: ["Cloud usage metering", "Multi-currency", "API-first integration"] },
+    {
+      type: "results",
+      heading: "What shipped",
+      shipped: [
+        "A cost monitoring dashboard across AWS, Azure, Huawei Cloud and Alibaba Cloud",
+        "Payment reconciliation workflows: metered usage against invoice against payment",
+        "One pricing logic across four providers, billed in the tenant's currency",
+        "Invoices and credit notes issued from metered usage",
+      ],
+      source: "Thao's CV (SkyLab Group). Product screens and outcome metrics for PAC are private, so no figures are claimed.",
+    },
   ],
 } satisfies ProjectInput;
 

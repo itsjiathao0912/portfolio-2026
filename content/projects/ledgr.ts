@@ -52,7 +52,7 @@ const project = {
     },
   },
   blocks: [
-    { type: "heading", text: "The problem", icon: "circle-alert", eyebrow: "Context" },
+    { type: "heading", text: "The problem", icon: "circle-alert", eyebrow: "Context", depth: "skim" },
     {
       type: "paragraph",
       text: "At a 10–50 person Vietnamese company, one person often runs HR, operations and payroll at once. Vietnam updates minimum wage, social insurance, overtime and tax rules by decree, and most small companies cannot afford a compliance specialist to keep up.",
@@ -65,6 +65,15 @@ const project = {
     {
       type: "paragraph",
       text: "I split the work in two. The language model reads the document and pulls out facts: wage, probation length, overtime, clauses. A deterministic rule engine, with every limit stored next to the article it comes from, decides pass or fail. Then the model explains the result in plain Vietnamese.",
+    },
+    {
+      type: "decision",
+      title: "Ask an AI for the answer, or keep the AI away from the verdict?",
+      rejected: { label: "A chatbot that “knows the law”", text: "Hand the whole contract to a language model and trust its answer." },
+      chosen: { label: "Extract, then rules decide", text: "The model only reads the document and pulls out facts. A rule engine with every limit stored next to its article decides pass or fail. Then the model explains the result." },
+      because: "A language model can sound certain while being wrong, and in compliance a confident wrong answer is worse than no answer.",
+      cost: "Coverage grows rule by rule: 27 seeded rules across 6 document types today. The 100+ on the landing page is the roadmap, not the count.",
+      source: "Ledgr repository: src/lib/compliance (extractor.ts, engine.ts, narrator.ts); seed migrations 20260616000002 and 20260618000001.",
     },
     {
       type: "flow",
@@ -130,7 +139,7 @@ const project = {
         { src: "/projects/ledgr/meetup/room.webp", alt: "Build Stuffs #33: the room during demos, with the projector screen", caption: "Build Stuffs #33, 20 June 2026" },
       ],
     },
-    { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology" },
+    { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology", depth: "deep" },
     { type: "stack", items: ["Next.js (App Router)", "TypeScript", "Supabase", "Anthropic Claude SDK", "Tailwind + shadcn/ui", "next-intl"] },
     {
       type: "links",
@@ -138,6 +147,14 @@ const project = {
         { label: "Open the live app", href: "https://ledgr-webapp.vercel.app" },
         { label: "Source on GitHub", href: "https://github.com/itsjiathao0912/ledgr-webapp" },
       ],
+    },
+    {
+      type: "results",
+      items: [
+        { value: "27", label: "rules seeded across 6 document types (100+ is the roadmap)", badge: "Live, seeded rules" },
+        { value: "~20", label: "people I talked it through with at Build Stuffs #33", badge: "My account" },
+      ],
+      source: "Ledgr repository: seed migrations 20260616000002 and 20260618000001 (rules added at runtime are not counted); my own account of Build Stuffs #33, 20 June 2026.",
     },
   ],
 } satisfies ProjectInput;

@@ -45,7 +45,7 @@ const project = {
     },
   },
   blocks: [
-    { type: "heading", text: "The problem", icon: "compass", eyebrow: "Overview" },
+    { type: "heading", text: "The problem", icon: "compass", eyebrow: "Overview", depth: "skim" },
     {
       type: "paragraph",
       text: "Lumicap turns real-world assets, starting with GPU and compute capacity, into on-chain investment funds. Its investors are not crypto-native. They need to see what they hold, what it is worth, and where their money moved, without learning how a blockchain works.",
@@ -56,6 +56,7 @@ const project = {
     },
     {
       type: "video",
+      depth: "read",
       src: "/work/lumicap/landing-scroll.mp4",
       poster: "/work/lumicap/landing-scroll-poster.webp",
       alt: "Scroll through the public Lumicap site: highlight numbers, funds and security sections",
@@ -75,10 +76,12 @@ const project = {
     { type: "heading", text: "What I owned", icon: "user-round", eyebrow: "My role" },
     {
       type: "paragraph",
+      owner: "owned",
       text: "I led the build and owned the crypto core. That is the part where a mistake loses money, so it was also the part I wanted legible to people outside the team.",
     },
     {
       type: "moduleMap",
+      owner: "owned",
       title: "The crypto core, and who it serves",
       source: "Thao's CV (SkyLab, Lumicap)",
       center: "Lumicap",
@@ -102,6 +105,15 @@ const project = {
     {
       type: "paragraph",
       text: "The detail that matters is what the database holds. Approvals are stored as plain records. The signing keys sit in HashiCorp Vault and are fetched only at the moment of execution; the quorum is verified inside Privy's trusted execution environment; the signature is never persisted. Even a breach of the application database yields no ability to sign.",
+    },
+    {
+      type: "decision",
+      title: "Who can move a fund?",
+      rejected: { label: "Keys in the app, one approver", text: "Keep signing keys in the application and let one approver deploy a fund." },
+      chosen: { label: "Two of three approvers, keys outside the database", text: "Two of three approvers sign, each with two-factor authentication. The keys sit in a vault and are fetched only at execution; the signature is never stored." },
+      because: "Even a breach of the application database yields no ability to sign.",
+      cost: "Every deployment waits for a second approver.",
+      source: "Luminet, How it Works (January 2026), p.8 and p.9.",
     },
     { type: "heading", text: "Ledger: one history, two kinds of record", icon: "package", eyebrow: "Ledger" },
     {
@@ -158,14 +170,27 @@ const project = {
     },
     {
       type: "gallery",
+      depth: "deep",
       images: [
         { src: "/projects/lumicap/site-desktop.jpg", alt: "Lumicap public website home page", caption: "The public marketing site" },
         { src: "/work/lumicap/highlights.webp", alt: "Lumicap highlight numbers band", caption: "Company-published figures" },
         { src: "/work/lumicap/hero-detail.webp", alt: "Lumicap hero headline detail", caption: "Hero detail" },
       ],
     },
-    { type: "stack", items: ["Multi-chain / EVM", "ERC-20", "USDC", "Privy", "HashiCorp Vault", "Arweave"] },
-    { type: "links", items: [{ label: "Visit lumicap.io", href: "https://lumicap.io/" }] },
+    { type: "stack", depth: "deep", items: ["Multi-chain / EVM", "ERC-20", "USDC", "Privy", "HashiCorp Vault", "Arweave"] },
+    { type: "links", depth: "deep", items: [{ label: "Visit lumicap.io", href: "https://lumicap.io/" }] },
+    {
+      type: "results",
+      heading: "What shipped",
+      items: [{ value: "6", label: "investor-facing modules I led the build of", badge: "My CV" }],
+      shipped: [
+        "Custody: two-of-three approval, with signing keys kept out of the application database",
+        "Ledger and investor journey across seven stages, on and off chain",
+        "Fund lifecycle for closed-end and open-end funds",
+        "An emergency pause, designed to be fast to use and slow to reverse",
+      ],
+      source: "Thao's CV (SkyLab, Lumicap); Luminet decks (January 2026). The platform shipped in a pre-launch state. The company's own figures sit above and are not claimed as mine.",
+    },
   ],
 } satisfies ProjectInput;
 

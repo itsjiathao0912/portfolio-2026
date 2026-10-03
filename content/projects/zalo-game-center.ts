@@ -40,13 +40,15 @@ const project = {
     },
   },
   blocks: [
-    { type: "heading", text: "The job", icon: "compass", eyebrow: "Context" },
+    { type: "heading", text: "The job", icon: "compass", eyebrow: "Context", depth: "skim" },
     {
       type: "paragraph",
       text: "Zalo Game Center is the games platform inside Zalo, Vietnam's leading messaging app. As Product Owner I owned the roadmap and delivery for one new launch and four live products, working with engineering, design and data teams. My claim here is narrow: I did not build the games or the pipelines, I decided what got measured, tested and run, and in what order.",
     },
     {
       type: "custom",
+      depth: "read",
+      owner: "owned",
       component: "zalo-game-center/OwnershipLens",
       source: "Thao's CV (Zalo, Feb 2023 to Apr 2024) and her Notion profile (BRDs, specs, UAT, product-health monitoring).",
     },
@@ -54,6 +56,15 @@ const project = {
     {
       type: "paragraph",
       text: "The tension was simple. Reporting was manual, so every question about the games cost someone a data request, and an ad placement is easy to argue about and hard to settle. I put the tracking dashboard first so that experiments and events would have a scoreboard. Step through the three workstreams and watch the results appear.",
+    },
+    {
+      type: "decision",
+      title: "Run experiments first, or build the scoreboard first?",
+      rejected: { label: "Experiments straight away", text: "Argue about ad placements and test them on manual, request-by-request reporting." },
+      chosen: { label: "The tracking dashboard first", text: "Put the tracking dashboard first, so experiments and events have a scoreboard." },
+      because: "Reporting was manual, so every question about the games cost someone a data request, and an ad placement is easy to argue about and hard to settle.",
+      cost: "Experiments waited until the scoreboard existed.",
+      source: "Thao's CV (Zalo, Feb 2023 to Apr 2024) and her description of the roadmap.",
     },
     {
       type: "custom",
@@ -70,21 +81,15 @@ const project = {
       component: "zalo-game-center/ExperimentReveal",
       source: "Thao's CV (Zalo, Feb 2023 to Apr 2024): +30% total ad revenue within six months. The phone layouts are a schematic, not Zalo screens; placement positions and per-test results are not disclosed.",
     },
-    { type: "heading", text: "Outcome", icon: "calendar-days", eyebrow: "Results" },
     {
-      type: "metrics",
+      type: "results",
       items: [
-        { value: "+30%", label: "total ad revenue within six months" },
-        { value: "+15%", label: "user engagement from monthly events" },
-        { value: "+3%", label: "paying users" },
-        { value: "−40%", label: "manual data extraction" },
+        { value: "+30%", label: "total ad revenue within six months", badge: "Company figure" },
+        { value: "+15%", label: "user engagement from monthly events", badge: "Company figure" },
+        { value: "+3%", label: "paying users", badge: "Company figure" },
       ],
-      badge: "Company figure",
-      source: "Thao's CV (Zalo, Feb 2023 to Apr 2024). Baselines are not disclosed, and the figures are shown exactly as written.",
-    },
-    {
-      type: "callout",
-      text: "What I would do next: write the baseline and the test log down next to every number, so the result can be checked, not just believed.",
+      next: "write the baseline and the test log down next to every number, so the result can be checked, not just believed.",
+      source: "Thao's CV (Zalo, Feb 2023 to Apr 2024). Baselines are not disclosed, and the figures are shown exactly as written. The −40% manual data extraction from the dashboard is in the walkthrough above.",
     },
   ],
 } satisfies ProjectInput;

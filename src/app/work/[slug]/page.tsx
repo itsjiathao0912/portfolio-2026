@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { tocEntries } from "@content/schema.ts";
 import { MetaStrip } from "@/components/site/case-study-blocks";
 import { CaseBlocks } from "@/components/site/case-study/blocks";
 import { CaseHero } from "@/components/site/case-study/case-hero";
+import { ReadingDepthProvider } from "@/components/site/case-study/reading/depth-context";
+import { DepthPill } from "@/components/site/case-study/reading/depth-pill";
+import { tocWithDepth } from "@/components/site/case-study/reading/logic";
 import { CaseProgress, CaseSectionMenu, CaseToc } from "@/components/site/case-study/toc";
 import { LiquidLink } from "@/components/site/liquid-link";
 import { WorkCard } from "@/components/site/work-card";
@@ -41,7 +43,7 @@ export default async function CaseStudyPage({ params }: Params) {
   if (!project) notFound();
 
   const { meta } = project;
-  const toc = tocEntries(project.blocks);
+  const toc = tocWithDepth(project.blocks);
   const index = projects.findIndex((p) => p.id === project.id);
   const next = projects.length > 1 ? projects[(index + 1) % projects.length] : null;
   const metaRow = [
@@ -55,6 +57,7 @@ export default async function CaseStudyPage({ params }: Params) {
     <main id="top" data-testid="case-study" data-slug={project.slug} data-layout={meta.layout}>
       <JsonLd data={caseStudyJsonLd(project)} />
       <CaseProgress />
+      <ReadingDepthProvider>
       <CaseHero project={project} coverId={COVER_ID} />
 
       {/* Reading column (680 px for magazine, 800 px otherwise); the TOC lives in the left margin (xl+). */}
@@ -65,11 +68,13 @@ export default async function CaseStudyPage({ params }: Params) {
         </>
       ) : null}
       <article id={BODY_ID} className={cn("mx-auto px-5 pt-16 md:pt-24", meta.layout === "magazine" ? "max-w-[720px]" : "max-w-[800px]")}>
+        <DepthPill />
         <MetaStrip items={metaRow} />
         <div className="pt-16 md:pt-24">
           <CaseBlocks blocks={project.blocks} title={project.title} layout={meta.layout} />
         </div>
       </article>
+      </ReadingDepthProvider>
 
       {/* Next project, drawn as a full work-index card */}
       {next ? (

@@ -45,13 +45,14 @@ const project = {
     },
   },
   blocks: [
-    { type: "heading", text: "The bet", icon: "compass", eyebrow: "Core insight" },
+    { type: "heading", text: "The bet", icon: "compass", eyebrow: "Core insight", depth: "skim" },
     {
       type: "paragraph",
       text: "Small and mid-sized companies rarely lack software. They lack something that catches the error before it posts. COSAP is built around that idea: an AI-powered ERP for Korean SMBs, positioned as an affordable alternative to SAP, covering accounting, legal compliance and payroll in one multi-tenant product.",
     },
     {
       type: "metrics",
+      owner: "owned",
       items: [{ value: "8", label: "modules I led product design across" }, { value: "2", label: "client markets: Korea and Singapore" }],
       source: "Thao's CV (SkyLab, COSAP)",
     },
@@ -64,6 +65,14 @@ const project = {
     {
       type: "paragraph",
       text: "SMBs will not rip out the ERP, accounting and HR tools they already run, and a new system means weeks of training. So the product stance became a layer above those systems, with Telegram as the everyday surface. Toggle the two pillars below.",
+    },
+    {
+      type: "decision",
+      title: "Replace the company's ERP, or sit above it?",
+      rejected: { label: "A new system", text: "Ask small companies to replace the ERP, accounting and HR tools they already run." },
+      chosen: { label: "A layer above existing systems", text: "Sit above those tools and catch errors before they post, with Telegram as the everyday surface." },
+      because: "SMBs will not rip out what they already run, and a new system means weeks of training.",
+      source: "COSAP company introduction deck v7, p.4 and launch deck v3, p.8 (confidential decks; paraphrased).",
     },
     {
       type: "custom",
@@ -140,7 +149,7 @@ const project = {
         { title: "The company's", text: "The figures above, the launch decks and the public site. I cite them; I do not claim them." },
       ],
     },
-    { type: "heading", text: "The public site", icon: "package", eyebrow: "Live" },
+    { type: "heading", text: "The public site", icon: "package", eyebrow: "Live", depth: "deep" },
     {
       type: "gallery",
       images: [
@@ -149,9 +158,18 @@ const project = {
         { src: "/work/cosap/landing-mobile-2.webp", alt: "COSAP product stack section on a phone", caption: "The COSAP stack" },
       ],
     },
-    { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology" },
+    { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology", depth: "deep" },
     { type: "stack", items: ["Multi-tenant SaaS", "Toss Payments", "Lago", "RAG pipelines", "LLM orchestration"] },
     { type: "links", items: [{ label: "Visit cosap.ai", href: "https://cosap.ai/" }] },
+    {
+      type: "results",
+      items: [
+        { value: "−83%", label: "purchase-order errors per month at a manufacturing client", badge: "Company figure" },
+        { value: "~4 h", label: "month-end close, from about three days", badge: "Company figure" },
+        { value: "8", label: "modules I led product design across", badge: "My CV" },
+      ],
+      source: "COSAP company introduction deck v7, p.18 and launch deck v3, p.14 (company figures, client name withheld); Thao's CV (SkyLab, COSAP). The company figures describe the product at client sites, not my personal outcome.",
+    },
   ],
 } satisfies ProjectInput;
 

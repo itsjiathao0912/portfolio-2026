@@ -40,7 +40,7 @@ const project = {
     },
   },
   blocks: [
-    { type: "heading", text: "The problem", icon: "compass", eyebrow: "Context" },
+    { type: "heading", text: "The problem", icon: "compass", eyebrow: "Context", depth: "skim" },
     {
       type: "paragraph",
       text: "Recurve is ReOrc's microservice data platform: connect a database, build data models, chain them into scheduled pipelines, watch their health. A platform like this is only useful if the person reading a report can trust the number on it. And a number is only as trustworthy as the requirements behind the feature that produced it.",
@@ -62,6 +62,7 @@ const project = {
     { type: "heading", text: "What I decided", icon: "git-branch", eyebrow: "My part" },
     {
       type: "list",
+      owner: "owned",
       items: [
         "Benchmark enterprise data platforms first, then design the governance and access-control frameworks from what the good ones do.",
         "Design and launch data modeling and lineage features, so business users can trace where data comes from and what depends on it.",
@@ -70,7 +71,16 @@ const project = {
       ],
     },
     {
+      type: "decision",
+      title: "Let developers ask as they build, or write the requirement first?",
+      rejected: { label: "Loose requirements", text: "Start building from loose requirements and let developers ask questions along the way." },
+      chosen: { label: "A requirement framework", text: "Replace loose requirements with a clear requirement framework, and put validation checkpoints before anything is called done." },
+      because: "In a data product a vague requirement is the most expensive bug: it ships as code, and every question asked mid-build is a delay while every guess gone wrong is rework.",
+      source: "Thao's CV (ReOrc AI, Apr 2024 to Mar 2025).",
+    },
+    {
       type: "moduleMap",
+      owner: "owned",
       title: "The platform areas I worked on",
       source: "Thao's CV and the public Recurve documentation",
       center: "Recurve",
@@ -114,18 +124,16 @@ const project = {
       component: "reorc-data-platform/UatCheckpoints",
       source: "Invented defects illustrating the three checkpoints in Thao's CV (requirement framework, validation checkpoints, UAT scenarios).",
     },
-    { type: "heading", text: "What changed", icon: "shield-check", eyebrow: "Outcome" },
+    { type: "links", depth: "deep", items: [{ label: "Visit reorc.com", href: "https://reorc.com/" }] },
     {
-      type: "metrics",
+      type: "results",
       items: [
-        { value: "−40%", label: "rework" },
-        { value: "+20%", label: "faster feature delivery" },
-        { value: "95%", label: "first-pass UAT success" },
+        { value: "−40%", label: "rework", badge: "Company figure" },
+        { value: "+20%", label: "faster feature delivery", badge: "Company figure" },
+        { value: "95%", label: "first-pass UAT success", badge: "Company figure" },
       ],
-      badge: "Company figure",
       source: "Thao's CV (ReOrc AI, Apr 2024 to Mar 2025). Baselines and measurement method are not disclosed.",
     },
-    { type: "links", items: [{ label: "Visit reorc.com", href: "https://reorc.com/" }] },
   ],
 } satisfies ProjectInput;
 

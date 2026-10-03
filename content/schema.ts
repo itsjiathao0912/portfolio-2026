@@ -81,11 +81,21 @@ const vizBase = {
 };
 const vizPoint = z.object({ label: z.string().min(1), value: z.number() });
 
+// ── Reading aids (additive, all optional) ──────────────────────────────────────
+/** How deep a reader has to be to see a block. Missing = "read". A heading sets the depth of its whole section. */
+export const DEPTHS = ["skim", "read", "deep"] as const;
+export const depthSchema = z.enum(DEPTHS);
+/** Who built the thing a block shows: Thao, her team, or the underlying platform. */
+export const OWNERS = ["owned", "team", "platform"] as const;
+export const ownerSchema = z.enum(OWNERS);
+const readingMixin = { depth: depthSchema.optional(), owner: ownerSchema.optional() };
+
 /** Ordered, typed content blocks that make up a case-study body. */
 export const contentBlockSchema = z.discriminatedUnion("type", [
   // Horizontal bar chart. `group` colours bars and builds the legend.
   z.object({
     type: z.literal("barChart"),
+    ...readingMixin,
     ...vizBase,
     unit: z.string().default(""),
     items: z.array(vizPoint.extend({ group: z.string().optional() })).min(1),
@@ -93,6 +103,7 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   // Line chart over ordered categories (dates, sessions).
   z.object({
     type: z.literal("lineChart"),
+    ...readingMixin,
     ...vizBase,
     xLabel: z.string().min(1),
     yLabel: z.string().min(1),
@@ -101,12 +112,14 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   // Funnel in percent of the first stage (first stage = 100).
   z.object({
     type: z.literal("funnel"),
+    ...readingMixin,
     ...vizBase,
     stages: z.array(vizPoint.extend({ detail: z.string().optional() })).min(2),
   }),
   // Left-to-right sequence; `fanIn` lists inputs drawn as a column feeding step 1.
   z.object({
     type: z.literal("flow"),
+    ...readingMixin,
     ...vizBase,
     source: z.string().default(""),
     fanIn: z.array(z.string().min(1)).default([]),
@@ -115,6 +128,7 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   // Hub-and-spoke map of modules around a core.
   z.object({
     type: z.literal("moduleMap"),
+    ...readingMixin,
     ...vizBase,
     source: z.string().default(""),
     center: z.string().min(1),
@@ -122,6 +136,7 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("timeline"),
+    ...readingMixin,
     ...vizBase,
     source: z.string().default(""),
     items: z.array(z.object({ date: z.string().min(1), label: z.string().min(1), detail: z.string().optional() })).min(2),
@@ -129,6 +144,7 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   // Two bars, before vs after, with the change called out.
   z.object({
     type: z.literal("beforeAfter"),
+    ...readingMixin,
     ...vizBase,
     unit: z.string().default(""),
     before: vizPoint,
@@ -138,6 +154,7 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   // (e.g. "the Gulf corridors"); click a legend chip to isolate one segment.
   z.object({
     type: z.literal("stackedBar"),
+    ...readingMixin,
     ...vizBase,
     unit: z.string().default("%"),
     segments: z.array(vizPoint.extend({ detail: z.string().optional() })).min(2).max(8),
@@ -147,6 +164,7 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   // in one of the bands. `preset` = rules fired on load (a worked example).
   z.object({
     type: z.literal("scoreLadder"),
+    ...readingMixin,
     ...vizBase,
     rules: z.array(z.object({ label: z.string().min(1), points: z.number() })).min(2).max(10),
     bands: z.array(z.object({ label: z.string().min(1), from: z.number(), tone: z.enum(["calm", "watch", "alert", "stop"]) })).min(2).max(5),
@@ -156,6 +174,7 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   // every row morphs. Values per row share a unit, so units can differ by row.
   z.object({
     type: z.literal("compareSlider"),
+    ...readingMixin,
     ...vizBase,
     beforeLabel: z.string().min(1),
     afterLabel: z.string().min(1),
@@ -176,6 +195,7 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   // `tracks` add a toggle (e.g. closed-end vs open-end fund).
   z.object({
     type: z.literal("scrubTimeline"),
+    ...readingMixin,
     ...vizBase,
     source: z.string().default(""),
     tracks: z
@@ -193,6 +213,7 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   // until `need` of the quorum nodes are clicked (e.g. 2-of-3 signing).
   z.object({
     type: z.literal("explorable"),
+    ...readingMixin,
     ...vizBase,
     source: z.string().default(""),
     nodes: z
@@ -214,6 +235,7 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   // Muted ambient video loop (autoplays only in view; poster otherwise).
   z.object({
     type: z.literal("video"),
+    ...readingMixin,
     src: assetSchema,
     poster: assetSchema,
     alt: z.string().min(1),
@@ -222,10 +244,11 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
     aspect: z.enum(["portrait", "landscape"]).default("landscape"),
   }),
   // A short code / data sample rendered as real text.
-  z.object({ type: z.literal("code"), code: z.string().min(1), language: z.string().default("json"), caption: z.string().optional() }),
+  z.object({ type: z.literal("code"), ...readingMixin, code: z.string().min(1), language: z.string().default("json"), caption: z.string().optional() }),
   // Horizontal, swipeable row of images (magazine / showcase galleries).
   z.object({
     type: z.literal("imageRow"),
+    ...readingMixin,
     caption: z.string().optional(),
     images: z
       .array(z.object({ src: assetSchema, alt: z.string().min(1), caption: z.string().optional(), device: z.enum(["phone", "browser", "plain"]).default("browser") }))
@@ -234,22 +257,25 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   // Pinned device whose screen changes as each step scrolls past (story layout).
   z.object({
     type: z.literal("story"),
+    ...readingMixin,
     device: z.enum(["laptop", "phone", "browser-free"]).default("laptop"),
     steps: z.array(z.object({ title: z.string().min(1), text: z.string().min(1), src: assetSchema, alt: z.string().min(1) })).min(2),
   }),
   // `toc` (default true for level 2) puts the heading in the case-study table of contents.
   z.object({
     type: z.literal("heading"),
+    ...readingMixin,
     text: z.string().min(1),
     level: z.union([z.literal(2), z.literal(3)]).default(2),
     eyebrow: z.string().optional(),
     /** TOC icon for this section; omitted = matched from the heading text. */
     icon: sectionIconSchema.optional(),
   }),
-  z.object({ type: z.literal("paragraph"), text: z.string().min(1) }),
+  z.object({ type: z.literal("paragraph"), ...readingMixin, text: z.string().min(1) }),
   // `src: null` renders a designed placeholder frame instead of a broken image.
   z.object({
     type: z.literal("image"),
+    ...readingMixin,
     src: assetSchema.nullable(),
     alt: z.string().min(1),
     caption: z.string().optional(),
@@ -257,30 +283,56 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
     /** `column` = 800 px reading column, `wide` = 1040 px, `bleed` = full screen width. */
     size: z.enum(["column", "wide", "bleed"]).default("column"),
   }),
-  z.object({ type: z.literal("quote"), text: z.string().min(1), attribution: z.string().optional() }),
-  z.object({ type: z.literal("list"), items: z.array(z.string().min(1)).min(1), ordered: z.boolean().default(false) }),
+  z.object({ type: z.literal("quote"), ...readingMixin, text: z.string().min(1), attribution: z.string().optional() }),
+  z.object({ type: z.literal("list"), ...readingMixin, items: z.array(z.string().min(1)).min(1), ordered: z.boolean().default(false) }),
   z.object({
     type: z.literal("metrics"),
+    ...readingMixin,
     items: z.array(metricSchema).min(1).max(4),
     /** Optional honesty chip; the source line is REQUIRED so no number ships unsourced. */
     badge: z.string().optional(),
     source: z.string().min(1),
   }),
   // Numbered two-column story grid ("1." / "2." numerals above a title + text).
-  z.object({ type: z.literal("steps"), items: z.array(stepSchema).min(1) }),
+  z.object({ type: z.literal("steps"), ...readingMixin, items: z.array(stepSchema).min(1) }),
   // Legacy name for `steps`, kept so older stored rows still render; renders identically.
-  z.object({ type: z.literal("features"), items: z.array(stepSchema).min(1) }),
+  z.object({ type: z.literal("features"), ...readingMixin, items: z.array(stepSchema).min(1) }),
   z.object({
     type: z.literal("gallery"),
+    ...readingMixin,
     images: z.array(z.object({ src: assetSchema, alt: z.string().min(1), caption: z.string().optional() })).min(1),
   }),
-  z.object({ type: z.literal("stack"), items: z.array(z.string().min(1)).min(1) }),
-  z.object({ type: z.literal("links"), items: z.array(linkSchema).min(1) }),
-  z.object({ type: z.literal("callout"), text: z.string().min(1) }),
+  z.object({ type: z.literal("stack"), ...readingMixin, items: z.array(z.string().min(1)).min(1) }),
+  z.object({ type: z.literal("links"), ...readingMixin, items: z.array(linkSchema).min(1) }),
+  z.object({ type: z.literal("callout"), ...readingMixin, text: z.string().min(1) }),
+  // One real trade-off: the option not taken, the one chosen, why, and the cost accepted.
+  // Only decisions stated in Thao's own drafts or decks; `source` is required.
+  z.object({
+    type: z.literal("decision"),
+    ...readingMixin,
+    title: z.string().min(1),
+    rejected: z.object({ label: z.string().min(1), text: z.string().min(1) }),
+    chosen: z.object({ label: z.string().min(1), text: z.string().min(1) }),
+    because: z.string().min(1),
+    cost: z.string().optional(),
+    source: z.string().min(1),
+  }),
+  // The shared closing band: up to three sourced numbers, or (when no outcome can
+  // be verified) what shipped. Never both empty; see parseProjects.
+  z.object({
+    type: z.literal("results"),
+    ...readingMixin,
+    heading: z.string().default("Results"),
+    items: z.array(z.object({ value: z.string().min(1), label: z.string().min(1), badge: z.string().optional() })).max(3).default([]),
+    shipped: z.array(z.string().min(1)).max(6).default([]),
+    next: z.string().optional(),
+    source: z.string().min(1),
+  }),
   // Per-case-study bespoke interactive piece, resolved via src/components/case/registry.tsx.
   // `component` is "<slug>/<Name>"; unknown keys render nothing in production.
   z.object({
     type: z.literal("custom"),
+    ...readingMixin,
     component: z.string().regex(/^[a-z0-9-]+\/[A-Za-z0-9]+$/, "component must be <slug>/<Name>"),
     props: z.record(z.string(), z.unknown()).optional(),
     source: z.string().optional(),
@@ -344,6 +396,8 @@ export type ProjectLink = z.infer<typeof projectLinkSchema>;
 export type ProjectMeta = z.output<typeof projectMetaSchema>;
 export type Tint = z.infer<typeof tintSchema>;
 export type ProjectVisual = z.output<typeof projectVisualSchema>;
+export type Depth = z.infer<typeof depthSchema>;
+export type Owner = z.infer<typeof ownerSchema>;
 export type SectionIcon = z.infer<typeof sectionIconSchema>;
 export type CaseLayout = z.infer<typeof caseLayoutSchema>;
 /** One content block of a given `type`. */
@@ -404,6 +458,13 @@ export function parseProjects(inputs: readonly unknown[]) {
     const anchors = tocEntries(project.blocks).map((entry) => entry.id);
     const dupes = anchors.filter((id, i) => anchors.indexOf(id) !== i);
     if (dupes.length > 0) errors.push(`${project.slug}: duplicate section heading ${dupes[0]}`);
+    const decisions = project.blocks.filter((b) => b.type === "decision").length;
+    if (decisions > 2) errors.push(`${project.slug}: at most 2 decision cards, found ${decisions}`);
+    const results = project.blocks.filter((b) => b.type === "results");
+    if (results.length > 1) errors.push(`${project.slug}: at most 1 results band, found ${results.length}`);
+    for (const r of results) {
+      if (r.type === "results" && r.items.length === 0 && r.shipped.length === 0) errors.push(`${project.slug}: results band needs items or shipped`);
+    }
     for (const block of project.blocks) {
       if (block.type === "explorable") {
         const ids = new Set(block.nodes.map((n) => n.id));
