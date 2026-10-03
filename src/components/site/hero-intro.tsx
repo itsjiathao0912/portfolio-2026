@@ -3,40 +3,39 @@
 import { motion, useReducedMotion } from "motion/react";
 
 interface HeroIntroProps {
-  eyebrow: string;
   headline: string;
-  nameLine: React.ReactNode;
-  tagline: string;
-  children: React.ReactNode;
+  intro: string;
+  children?: React.ReactNode;
 }
 
-/** Hero text with a short staggered entrance (fade only under reduced motion). */
-export function HeroIntro({ eyebrow, headline, nameLine, tagline, children }: HeroIntroProps) {
+/**
+ * Hero text. Server-rendered already visible (opacity 0.3, never 0), then
+ * settles up over ~500ms once hydrated — so the hero is never blank on load.
+ * Reduced motion: a short fade only.
+ */
+export function HeroIntro({ headline, intro, children }: HeroIntroProps) {
   const reduce = useReducedMotion();
   const item = (i: number) => ({
-    initial: { opacity: 0, y: reduce ? 0 : 18 },
+    initial: { opacity: 0.3, y: reduce ? 0 : 16 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: reduce ? 0.2 : 0.6, ease: [0.22, 1, 0.36, 1] as const, delay: reduce ? 0 : 0.08 * i },
+    transition: { duration: reduce ? 0.15 : 0.5, ease: [0.22, 1, 0.36, 1] as const, delay: reduce ? 0 : 0.05 * i },
   });
 
   return (
-    <div className="relative mx-auto flex max-w-5xl flex-col items-start gap-6 px-5 pt-36 pb-28 md:items-center md:px-8 md:pt-48 md:pb-36 md:text-center">
-      <motion.p {...item(0)} className="label-mono flex items-center gap-2 text-ink-3">
-        <span className="size-2 rounded-full bg-success" aria-hidden="true" />
-        {eyebrow}
-      </motion.p>
-      <motion.h1 {...item(1)} id="hero-title" className="text-[2.75rem] leading-[1.08] md:text-[5.5rem]">
+    <div className="relative mx-auto flex max-w-[1180px] flex-col items-start gap-6 px-10 pt-[120px] md:items-center md:px-8 md:pt-[180px] md:text-center">
+      <motion.h1
+        {...item(0)}
+        id="hero-title"
+        className="text-balance text-[39px] leading-[1.12] md:text-[64px] md:leading-[1.1] lg:text-[80px]"
+      >
         {headline}
       </motion.h1>
-      <motion.p {...item(2)} className="font-display text-xl text-ink-1 md:text-2xl">
-        {nameLine}
-      </motion.p>
-      <motion.p {...item(3)} className="max-w-2xl text-lg leading-relaxed text-ink-2 md:text-xl">
-        {tagline}
-      </motion.p>
-      <motion.div {...item(4)} className="mt-2 flex flex-wrap gap-3 md:justify-center">
-        {children}
-      </motion.div>
+      {intro ? (
+        <motion.p {...item(1)} className="max-w-[832px] text-[24px] leading-[1.3] font-medium text-ink-1 md:text-[28px]">
+          {intro}
+        </motion.p>
+      ) : null}
+      {children ? <motion.div {...item(2)} className="w-full">{children}</motion.div> : null}
     </div>
   );
 }

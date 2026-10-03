@@ -170,6 +170,12 @@ export const profileSchema = z.object({
   email: z.string().email(),
   socials: z.array(z.object({ label: z.string().min(1), href: z.string().url() })).min(1),
   cv: assetSchema.nullable().default(null),
+  /** Headshot shown in the home hero (B/W, colour on hover). Null renders a placeholder. */
+  portrait: assetSchema.nullable().default(null),
+  /** One short line under the hero headline, e.g. "4+ years in product. Vietnamese." */
+  intro: z.string().default(""),
+  /** Company named in the hero sentence "<name> is <title> at <company>". */
+  company: z.string().default(""),
 });
 
 export const experienceSchema = z.object({

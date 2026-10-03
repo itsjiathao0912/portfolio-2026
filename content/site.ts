@@ -11,7 +11,9 @@ const site = {
     title: "Technical Product Manager",
     location: "Ho Chi Minh City, Vietnam",
     availability: "Available for product roles",
-    headline: "GM, I'm Thao.",
+    headline: "Thao Dao is Technical Product Manager at SkyLab Group",
+    company: "SkyLab Group",
+    intro: "4+ years in product. Vietnamese. Based in Ho Chi Minh City.",
     tagline:
       "I turn ambiguous business problems into shipped software — billing engines, on-chain ledgers, and ERP modules that hold up in regulated markets.",
     summary:
@@ -22,6 +24,8 @@ const site = {
       { label: "GitHub", href: "https://github.com/itsjiathao0912" },
     ],
     cv: null,
+    // Background-removed LinkedIn headshot; "-color" has a matching "-bw" file for the hover swap.
+    portrait: "/portrait/thao-color.webp",
   },
   experience: [
     {
