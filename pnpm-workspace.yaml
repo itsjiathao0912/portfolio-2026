@@ -1,0 +1,18 @@
+# Build-script approval. BOTH keys are required because pnpm renamed this setting:
+#   - pnpm 10.x reads `onlyBuiltDependencies` (a list) and ignores `allowBuilds`.
+#   - pnpm 11.x reads `allowBuilds` (a map) and silently ignores `onlyBuiltDependencies`.
+# Neither major warns about the other's key, so keeping both makes
+# `pnpm install --frozen-lockfile` succeed on either major. Keep the two in sync.
+#
+# Policy: only better-sqlite3 is built (its native binding backs local D1
+# emulation). Every other postinstall stays unrun. pnpm 11 hard-errors on any
+# undecided build script, hence the explicit `false` entries.
+onlyBuiltDependencies:
+  - better-sqlite3
+
+allowBuilds:
+  better-sqlite3: true
+  esbuild: false
+  sharp: false
+  unrs-resolver: false
+  workerd: false

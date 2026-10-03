@@ -1,0 +1,14 @@
+# Cloudflare Workers Assets custom headers.
+# https://developers.cloudflare.com/workers/static-assets/headers
+#
+# Copied by Next.js from public/ into the build output, then by OpenNext into
+# .open-next/assets/_headers, where Workers Assets applies it to static files
+# served DIRECTLY (before the Worker runs). Without this file Workers Assets
+# defaults to `max-age=0, must-revalidate` and every visit re-downloads the JS.
+#
+# Only content-hashed, immutable assets get the 1-year cache: a content change
+# produces a new URL, so caching forever is safe. HTML (SSR'd by the Worker) and
+# non-hashed public files are deliberately NOT matched here.
+
+/_next/static/*
+  Cache-Control: public,max-age=31536000,immutable

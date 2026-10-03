@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# pre-push: run `pnpm typecheck` (app + tests) and block the push if it fails.
+#
+# Why: tsconfig.json excludes tests/, and Bun strips types instead of checking
+# them, so a broken test type is invisible to `bun test` and to the editor
+# unless `tsconfig.test.json` is checked. This hook catches it before CI does.
+# Deliberately ONLY the fast check — a slow hook gets bypassed and then
+# protects nothing.
+#
+# Installed by the `prepare` script (`git config core.hooksPath .githooks`).
+# Bypass when genuinely necessary: git push --no-verify
+
+zero='0000000000000000000000000000000000000000'
+saw_line=0
+saw_non_delete=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+    [ -z "$local_sha" ] && continue
+    saw_line=1
+    [ "$local_sha" != "$zero" ] && saw_non_delete=1
+done
+
+if [ "$saw_line" -eq 1 ] && [ "$saw_non_delete" -eq 0 ]; then
+    echo "pre-push: branch deletion only -- skipping typecheck."
+    exit 0
+fi
+
+if ! command -v pnpm >/dev/null 2>&1; then
+    echo "pre-push: BLOCKED -- pnpm not found on PATH (the hook fails closed)."
+    echo "  Bypass: git push --no-verify"
+    exit 1
+fi
+
+echo "pre-push: running 'pnpm typecheck'..."
+if ! pnpm typecheck; then
+    echo ""
+    echo "pre-push: BLOCKED -- 'pnpm typecheck' failed. Fix the errors above, then push again."
+    echo "  Bypass when genuinely necessary: git push --no-verify"
+    exit 1
+fi
+
+echo "pre-push: typecheck passed."
+exit 0

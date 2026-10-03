@@ -1,0 +1,25 @@
+{
+  "program": "unified-slot-ownership",
+  "createdAt": "2026-08-12T09:00:00.000Z",
+  "updatedAt": "2026-08-12T09:30:00.000Z",
+  "phases": {
+    "phase-2": {
+      "status": "running",
+      "lane": "slot-ownership-manifest.ts agentAccess rows + policy.ts",
+      "worktree": ".claude/worktrees/phase-2",
+      "attempts": 1,
+      "startedAt": "2026-08-12T09:10:00.000Z",
+      "endedAt": null,
+      "note": null
+    },
+    "phase-3": {
+      "status": "queued",
+      "lane": "slot-ownership-manifest.ts inBundle rows",
+      "worktree": null,
+      "attempts": 0,
+      "startedAt": null,
+      "endedAt": null,
+      "note": null
+    }
+  }
+}

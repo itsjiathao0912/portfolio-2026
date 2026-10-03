@@ -1,0 +1,39 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portfolio-2026",
+  // OpenNext's generated Worker. No crons / Durable Objects / containers, so no
+  // custom entrypoint wrapper is needed (a wrapper is only required if a
+  // scheduled() handler is ever added — OpenNext does not generate one).
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "portfolio-db",
+      // Written by `pnpm cf:setup` (scripts/cf-setup.mjs) after it creates the
+      // database. Do not hand-edit unless you know the real id.
+      "database_id": "TBD-created-by-setup-script"
+    }
+  ],
+  "r2_buckets": [
+    {
+      // Accessed through the binding only — no S3 API keys anywhere.
+      "binding": "MEDIA",
+      "bucket_name": "portfolio-media"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+  // Domain is TBD. When chosen, add (the zone must be on this Cloudflare account):
+  // ,"routes": [
+  //   { "pattern": "example.com", "custom_domain": true },
+  //   { "pattern": "www.example.com", "custom_domain": true }
+  // ]
+  // Until then the Worker is reachable on its *.workers.dev URL.
+}

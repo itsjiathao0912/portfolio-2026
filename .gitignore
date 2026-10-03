@@ -1,0 +1,68 @@
+# ── dependencies ────────────────────────────────────────────────────────────
+/node_modules
+/.pnp
+.pnp.*
+.pnpm-store/
+
+# ── env files ───────────────────────────────────────────────────────────────
+# Every .env* is ignored. The committed templates are the explicit exceptions
+# below — they hold variable NAMES and safe local defaults only, never values.
+.env*
+!.env.example
+!.env.prod.example
+
+# ── Next.js build output ────────────────────────────────────────────────────
+# `.next*` (not just `.next/`) covers every per-run / per-worktree NEXT_DIST_DIR
+# (e.g. `.next-e2e-*`, `.next-dev`). This is load-bearing, not tidiness:
+# Tailwind v4 discovers source files by scanning everything git does NOT ignore,
+# so an un-ignored build dir gets read as source, its binary bytes become
+# "class candidates", and the generated CSS fails to parse — blank page, with an
+# error that names globals.css and nothing else.
+.next*
+/out/
+/build
+
+# ── Cloudflare / OpenNext ───────────────────────────────────────────────────
+.open-next
+.wrangler
+
+# ── local SQLite databases (same Tailwind-v4 reason as above) ───────────────
+*.db
+*.db-*
+*.db.*
+
+# ── testing ─────────────────────────────────────────────────────────────────
+/coverage
+playwright/.auth/
+playwright/.tmp/
+playwright-report/
+test-results/
+blob-report/
+
+# ── TypeScript ──────────────────────────────────────────────────────────────
+*.tsbuildinfo
+next-env.d.ts
+
+# ── misc ────────────────────────────────────────────────────────────────────
+.DS_Store
+*.pem
+/tmp/
+.scratch/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ── agent harness runtime artifacts ─────────────────────────────────────────
+.claude/hooks/.logs/
+.codex/hooks/.logs/
+.claude/worktrees/
+.claude/scheduled_tasks.lock
+.claude/chrome-devtools/
+.playwright-mcp/
+.vibecode-backup*/
+
+# ── private research (reference-site screenshots etc.) ──────────────────────
+# Public pattern notes are committed; copyrighted captures of other people's
+# sites stay local only.
+process/features/**/research-private/

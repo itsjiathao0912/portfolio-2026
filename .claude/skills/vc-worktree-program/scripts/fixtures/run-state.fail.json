@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-08-12T09:00:00.000Z",
+  "phases": {
+    "phase-2": {
+      "status": "running",
+      "lane": null,
+      "worktree": null,
+      "attempts": "one"
+    },
+    "phase-3": {
+      "status": "in-progress",
+      "lane": "inBundle rows",
+      "worktree": ".claude/worktrees/phase-3",
+      "attempts": 0
+    }
+  }
+}

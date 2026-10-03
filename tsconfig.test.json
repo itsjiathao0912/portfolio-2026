@@ -1,0 +1,13 @@
+{
+  // tsconfig.json EXCLUDES tests/, and Bun strips types instead of checking
+  // them — so this config is the ONLY thing that type-checks test files.
+  // `pnpm typecheck` runs both halves; the pre-push hook runs this one.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false,
+    "types": ["@cloudflare/workers-types", "bun-types", "node"]
+  },
+  "include": ["tests/**/*.ts", "playwright.config.ts", "src/**/*.ts", "content/**/*.ts"],
+  "exclude": ["node_modules"]
+}
