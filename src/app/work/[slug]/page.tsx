@@ -8,6 +8,10 @@ import { CaseProgress, CaseSectionMenu, CaseToc } from "@/components/site/case-s
 import { LiquidLink } from "@/components/site/liquid-link";
 import { WorkCard } from "@/components/site/work-card";
 import { loadProject, loadProjects } from "@/lib/load";
+import { JsonLd } from "@/components/seo/json-ld";
+import { caseStudyJsonLd } from "@/lib/seo/json-ld";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { caseStudyDescription } from "@/lib/seo/site-meta";
 import { cn } from "@/lib/utils";
 
 interface Params {
@@ -17,8 +21,15 @@ interface Params {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const project = await loadProject(slug);
-  if (!project) return { title: "Not found" };
-  return { title: project.title, description: project.meta.lede || project.summary };
+  if (!project) return { title: "Not found", robots: { index: false, follow: false } };
+  const description = caseStudyDescription(project);
+  return pageMetadata({
+    title: `${project.title} case study`,
+    description,
+    path: `/work/${project.slug}`,
+    type: "article",
+    socialTitle: `${project.title}: ${project.meta.headline || project.summary}`.slice(0, 120),
+  });
 }
 
 const COVER_ID = "case-cover";
@@ -42,6 +53,7 @@ export default async function CaseStudyPage({ params }: Params) {
 
   return (
     <main id="top" data-testid="case-study" data-slug={project.slug} data-layout={meta.layout}>
+      <JsonLd data={caseStudyJsonLd(project)} />
       <CaseProgress />
       <CaseHero project={project} coverId={COVER_ID} />
 

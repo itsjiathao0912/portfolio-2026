@@ -17,20 +17,41 @@ import { MotionProvider } from "@/components/motion/motion-provider";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteNav } from "@/components/site/site-nav";
 import { loadSite } from "@/lib/load";
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_TITLE } from "@/lib/seo/site-meta";
+import { SITE_URL } from "@/lib/seo/site-url";
 
 // Every page reads the database per request; there is no Cloudflare context at
 // build time, so nothing may be prerendered.
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const site = await loadSite();
-  const name = site?.profile.name ?? "Thao Dao";
-  const title = site?.profile.title ?? "Technical Product Manager";
-  return {
-    title: { default: `${name} — ${title}`, template: `%s · ${name}` },
-    description: site?.profile.tagline,
-  };
-}
+// Static (no DB read) so the head is identical at build and request time.
+// Pages override title/description/canonical via src/lib/seo/metadata.ts; the
+// share image for each route is its colocated opengraph-image file.
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_TITLE, template: `%s · ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  applicationName: SITE_NAME,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    locale: "en_US",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: { card: "summary_large_image", title: SITE_TITLE, description: SITE_DESCRIPTION },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
+};
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",

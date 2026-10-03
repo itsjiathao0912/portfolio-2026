@@ -10,8 +10,17 @@ import { Portrait } from "@/components/site/portrait";
 import { CareerRail } from "@/components/signature/ledger";
 import { projectEntries } from "@content/index.ts";
 import { loadSite } from "@/lib/load";
+import { JsonLd } from "@/components/seo/json-ld";
+import { personJsonLd } from "@/lib/seo/json-ld";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = { title: "About" };
+export const metadata: Metadata = pageMetadata({
+  title: "About",
+  description:
+    "Thao Dao is a Technical Product Manager with 4+ years delivering B2B SaaS across fintech, cloud and blockchain: experience, skills, education and awards. Based in Ho Chi Minh City.",
+  path: "/about",
+  socialTitle: "About Thao Dao · Technical Product Manager",
+});
 
 function Heading({ id, children }: { id: string; children: React.ReactNode }) {
   return (
@@ -35,6 +44,7 @@ export default async function AboutPage() {
 
   return (
     <main data-testid="about">
+      <JsonLd data={personJsonLd()} />
       <section className="mx-auto grid max-w-[1100px] items-end gap-12 px-6 pt-[120px] md:grid-cols-[1fr_320px] md:px-10 md:pt-[180px]">
         <div className="flex flex-col gap-6">
           <h1 className="text-[39px] md:text-[64px]">About {profile.name.split(" ")[0]}</h1>

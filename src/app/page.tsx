@@ -13,6 +13,10 @@ import { ProjectStack } from "@/components/site/project-stack";
 import { heroHeadline } from "@/lib/hero";
 import { loadProjects, loadSite } from "@/lib/load";
 import { linkedinPosts, photos } from "@content/site.ts";
+import { JsonLd } from "@/components/seo/json-ld";
+import { personJsonLd, websiteJsonLd } from "@/lib/seo/json-ld";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { SITE_DESCRIPTION, SITE_TITLE } from "@/lib/seo/site-meta";
 
 // Full-colour originals on a light band. SkyLab only ships a white wordmark,
 // so that one is rendered dark.
@@ -29,6 +33,12 @@ const LOGOS: LogoItem[] = [
 const CASUAL = "Thao turns messy whiteboards into software that ships.";
 
 const BUILDS = ["billing engines", "on-chain ledgers", "ERP modules", "compliance copilots"] as const;
+
+// Home keeps the root default title (no "· Thao Dao" suffix).
+export const metadata = {
+  ...pageMetadata({ title: SITE_TITLE, description: SITE_DESCRIPTION, path: "/", socialTitle: SITE_TITLE }),
+  title: { absolute: SITE_TITLE },
+};
 
 export default async function HomePage() {
   const [site, projects] = await Promise.all([loadSite(), loadProjects()]);
@@ -47,6 +57,7 @@ export default async function HomePage() {
 
   return (
     <main data-testid="home">
+      <JsonLd data={[websiteJsonLd(), personJsonLd()]} />
       <section aria-labelledby="hero-title" className="relative overflow-hidden bg-bg" data-testid="hero">
         <HeroIntro headline={heroHeadline(profile)} intro={profile.intro} builds={BUILDS} casual={CASUAL} />
         <div className="relative z-[1] mx-auto mt-10 -mb-px w-full max-w-[440px] px-4 md:mt-[64px] md:max-w-[800px]" data-testid="hero-portrait">

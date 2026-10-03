@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import { WorkGrid } from "@/components/site/work-grid";
 import { loadProjects } from "@/lib/load";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Work",
-  description: "Every project: platforms owned end-to-end, growth and data work, and personal products.",
-};
+  description:
+    "Selected work by Thao Dao: fintech, payments and compliance platforms owned end to end, growth and data work, and a few products of her own.",
+  path: "/work",
+  socialTitle: "Selected work · Thao Dao",
+});
 
 export default async function WorkPage() {
   const projects = await loadProjects();
