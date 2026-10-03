@@ -15,21 +15,23 @@
 :root {
   /* surfaces */
   --bg: #ffffff;
-  --canvas: #f4f6fb;
+  --canvas: #f7f7f7;
   /* ink */
-  --ink-1: #0b1f4d; /* headings (navy) */
-  --ink-2: #38466a; /* body */
-  --ink-3: #5f6b85; /* muted — not on periwinkle/lavender */
-  --hairline: #e2e7f0;
-  --border-strong: #8592ab;
+  --ink-1: #000000; /* headings (black, like the reference) */
+  --ink-2: #1a1b1f; /* body */
+  --ink-3: #6b6c72; /* muted — not on periwinkle/lavender */
+  --hairline: #e6e6e8;
+  --border-strong: #a3a4aa;
   /* accent */
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
   --accent-pressed: #1e40af;
   --accent-tint: #eaf1ff;
+  /* black pill hover (reference #32343a) */
+  --ink-hover: #32343a;
   /* navy bands */
-  --navy: #0b1f4d;
-  --navy-deep: #071536;
+  --navy: #0a0a0a; /* bands are black now (B/W palette); name kept for compatibility */
+  --navy-deep: #000000;
   --indigo: #4f46e5;
   /* status */
   --success: #15803d;
@@ -45,9 +47,9 @@
   --tint-aqua: #d9f1f7;
   /* shape + depth */
   --radius: 16px;
-  --shadow-nav: 0 0 3px rgba(11, 31, 77, 0.14), 0 20px 13px -4px rgba(11, 31, 77, 0.06);
-  --shadow-card: 0 1px 2px rgba(11, 31, 77, 0.06);
-  --shadow-card-hover: 4px 20px 16px rgba(11, 31, 77, 0.11);
+  --shadow-nav: 0 0 3px rgba(0, 0, 0, 0.14), 0 20px 13px -4px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-card-hover: 4px 20px 16px rgba(0, 0, 0, 0.11);
   /* motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -66,6 +68,7 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-pressed: var(--accent-pressed);
   --color-accent-tint: var(--accent-tint);
+  --color-ink-hover: var(--ink-hover);
   --color-navy: var(--navy);
   --color-navy-deep: var(--navy-deep);
   --color-indigo: var(--indigo);
@@ -140,6 +143,7 @@
 
   body {
     @apply min-h-dvh bg-bg text-ink-2;
+    line-height: 1.75;
   }
 
   h1,
@@ -149,8 +153,8 @@
     font-family: var(--font-display);
     font-stretch: 118%;
     font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
+    line-height: 1.12;
+    letter-spacing: 0;
     color: var(--ink-1);
   }
 
@@ -223,8 +227,8 @@
 /* ── Page transition (src/app/template.tsx) ─────────────────────────────── */
 @keyframes page-in {
   from {
-    opacity: 0;
-    transform: translateY(10px);
+    opacity: 0.4;
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -240,7 +244,7 @@
   }
 }
 .page-enter {
-  animation: page-in 380ms var(--ease-out) both;
+  animation: page-in 250ms var(--ease-out) both;
 }
 @media (prefers-reduced-motion: reduce) {
   /* Scroll reveals: content simply appears (overrides motion's inline styles). */
@@ -251,4 +255,9 @@
   .page-enter {
     animation: page-fade 150ms linear both;
   }
+}
+
+/* White logos on the black band, derived from the original files. */
+.logo-white {
+  filter: brightness(0) invert(1);
 }

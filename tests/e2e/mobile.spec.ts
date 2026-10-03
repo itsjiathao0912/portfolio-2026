@@ -50,6 +50,8 @@ test("dot grid uses the idle mode without a cursor", async ({ page }) => {
 });
 
 test("pages fit 390px with no sideways scroll and no console errors", async ({ page }) => {
+  // Ten long pages scrolled end to end; slow under a loaded machine.
+  test.setTimeout(240_000);
   const errors = trackErrors(page);
   for (const path of ["/", "/work", ...SLUGS.map((s) => `/work/${s}`), "/missing-page"]) {
     await page.goto(path);

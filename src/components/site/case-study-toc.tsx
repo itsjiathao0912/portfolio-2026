@@ -87,7 +87,7 @@ export function sectionIcon(label: string) {
 
 /**
  * Scroll-spy: the active section is the last heading whose top has passed the
- * fixed TOC's top line (about 170 px), with a bottom-of-page fallback.
+ * fixed TOC area (up to 300 px down, past the anchor scroll offset), with a bottom-of-page fallback.
  */
 function useActiveSection(entries: Entry[]) {
   const [active, setActive] = useState(entries[0]?.id ?? "");
@@ -99,7 +99,7 @@ function useActiveSection(entries: Entry[]) {
     let ticking = false;
     function compute() {
       ticking = false;
-      const line = Math.min(window.innerHeight * 0.35, 200);
+      const line = Math.min(window.innerHeight * 0.45, 300);
       let current = headings[0].id;
       for (const heading of headings)
         if (heading.getBoundingClientRect().top <= line) current = heading.id;

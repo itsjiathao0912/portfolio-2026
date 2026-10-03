@@ -5,21 +5,20 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const VARIANTS = {
-  // Solid accent pill; the fill is a deeper navy.
-  primary:
-    "bg-accent text-bg [--liquid-fill:var(--navy)] [--liquid-text:var(--bg)] shadow-[0_8px_20px_-8px_rgba(37,99,235,0.6)]",
-  // Outlined pill; fills accent, label flips white.
-  outline: "border border-hairline bg-bg text-ink-1 [--liquid-fill:var(--accent)] [--liquid-text:var(--bg)]",
-  // On a navy band.
-  inverse: "border border-white/25 bg-white/5 text-bg [--liquid-fill:var(--bg)] [--liquid-text:var(--navy)]",
-  // Nav chip: soft tint fill, label stays navy.
-  nav: "text-ink-2 [--liquid-fill:var(--accent-tint)] [--liquid-text:var(--ink-1)]",
+  // Solid black pill; the fill is the reference's softer charcoal.
+  primary: "bg-ink-1 text-bg [--liquid-fill:var(--ink-hover)] [--liquid-text:var(--bg)]",
+  // Outlined pill; fills black, label flips white.
+  outline: "border border-hairline bg-bg text-ink-1 [--liquid-fill:var(--ink-1)] [--liquid-text:var(--bg)]",
+  // On a black band.
+  inverse: "border border-white/25 bg-white/5 text-bg [--liquid-fill:var(--bg)] [--liquid-text:var(--ink-1)]",
+  // Nav item: plain text, soft grey chip grows behind it on hover.
+  nav: "text-ink-1 [--liquid-fill:rgba(0,0,0,0.06)] [--liquid-text:var(--ink-1)]",
 } as const;
 
 const SIZES = {
   md: "h-12 px-6 text-[0.95rem]",
   sm: "h-10 px-4 text-sm",
-  nav: "h-9 px-3.5 text-[0.9rem]",
+  nav: "h-[42px] px-5 text-[15px]",
 } as const;
 
 interface LiquidLinkProps {
@@ -73,7 +72,7 @@ export function LiquidLink({
       "liquid inline-flex select-none items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap",
       VARIANTS[variant],
       SIZES[size],
-      active && variant === "nav" && "bg-accent-tint/60 text-ink-1",
+      active && variant === "nav" && "bg-black/[0.06] text-ink-1",
       className
     ),
     "data-filled": filled ? "true" : "false",

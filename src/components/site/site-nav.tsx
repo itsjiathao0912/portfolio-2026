@@ -7,9 +7,9 @@ import { useEffect, useRef, useState } from "react";
 import { LiquidLink } from "./liquid-link";
 
 const ITEMS = [
-  { href: "/work", label: "Work" },
-  { href: "/#experience", label: "Experience" },
-  { href: "/#recognition", label: "Recognition" },
+  { href: "/#highlights", label: "Highlights" },
+  { href: "/#work", label: "Work" },
+  { href: "/about", label: "About" },
 ] as const;
 
 interface SiteNavProps {
@@ -19,7 +19,9 @@ interface SiteNavProps {
 }
 
 function isActive(pathname: string, href: string) {
-  return href === "/work" ? pathname === "/work" || pathname.startsWith("/work/") : false;
+  if (href === "/#work") return pathname === "/work" || pathname.startsWith("/work/");
+  if (href === "/about") return pathname === "/about";
+  return false;
 }
 
 export function SiteNav({ name, email, linkedin }: SiteNavProps) {
@@ -67,22 +69,41 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
     };
   }, [open]);
 
+  // Hide the pill while reading downwards, bring it back on any upward scroll.
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    let last = window.scrollY;
+    let ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const y = window.scrollY;
+        if (Math.abs(y - last) < 6) return;
+        setHidden(y > last && y > 240);
+        last = y;
+      });
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const mail = `mailto:${email}`;
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 md:pt-4">
+    <header
+      data-hidden={hidden && !open ? "true" : "false"}
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-end px-4 pt-4 transition-transform duration-300 ease-out md:justify-center md:pt-[29px] md:data-[hidden=true]:-translate-y-[140%] motion-reduce:transition-none"
+    >
       {/* Desktop: floating pill */}
       <nav
         aria-label="Main"
-        className="pointer-events-auto hidden items-center gap-1 rounded-full border border-hairline/80 bg-white/80 p-1.5 shadow-nav backdrop-blur-xl backdrop-saturate-150 md:flex"
+        className="pointer-events-auto hidden h-[54px] items-center gap-1 rounded-full bg-white/85 px-1.5 shadow-nav backdrop-blur-xl backdrop-saturate-150 transition-transform duration-200 ease-out hover:scale-[1.05] motion-reduce:hover:scale-100 md:flex"
       >
-        <Link
-          href="/"
-          className="font-display rounded-full px-4 text-[0.95rem] text-ink-1"
-          aria-current={pathname === "/" ? "page" : undefined}
-        >
+        <LiquidLink href="/" variant="nav" size="nav" active={false}>
           {name}
-        </Link>
+        </LiquidLink>
         {ITEMS.map((item) => (
           <LiquidLink key={item.href} href={item.href} variant="nav" size="nav" active={isActive(pathname, item.href)}>
             {item.label}
@@ -93,43 +114,39 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
             LinkedIn
           </LiquidLink>
         ) : null}
-        <LiquidLink href={mail} size="nav" className="ml-1" data-testid="nav-contact">
+        <LiquidLink href={mail} variant="nav" size="nav" data-testid="nav-contact">
           Get in touch
         </LiquidLink>
       </nav>
 
-      {/* Mobile: name + round menu button */}
-      <div className="pointer-events-auto flex w-full items-center justify-between rounded-full border border-hairline/80 bg-white/85 py-1.5 pr-1.5 pl-5 shadow-nav backdrop-blur-xl md:hidden">
-        <Link href="/" className="font-display text-base text-ink-1">
-          {name}
-        </Link>
-        <button
-          ref={toggleRef}
-          type="button"
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          aria-label={open ? "Close menu" : "Open menu"}
-          data-testid="menu-toggle"
-          onClick={() => setOpen((v) => !v)}
-          className="relative flex size-11 items-center justify-center rounded-full bg-navy text-bg active:scale-95"
-        >
-          <span
-            aria-hidden="true"
-            className={`absolute h-0.5 w-4.5 rounded bg-current transition-transform duration-300 ${open ? "rotate-45" : "-translate-y-1"}`}
-          />
-          <span
-            aria-hidden="true"
-            className={`absolute h-0.5 w-4.5 rounded bg-current transition-transform duration-300 ${open ? "-rotate-45" : "translate-y-1"}`}
-          />
-        </button>
-      </div>
+      {/* Mobile: floating round menu button */}
+      <button
+        ref={toggleRef}
+        type="button"
+        aria-expanded={open}
+        aria-controls="mobile-menu"
+        aria-label={open ? "Close menu" : "Open menu"}
+        data-testid="menu-toggle"
+        onClick={() => setOpen((v) => !v)}
+        className="pointer-events-auto relative z-10 flex size-14 items-center justify-center rounded-full bg-white text-ink-1 shadow-nav active:scale-95 md:hidden"
+      >
+        <span className="sr-only">{name}</span>
+        <span
+          aria-hidden="true"
+          className={`absolute h-0.5 w-5 rounded bg-current transition-transform duration-300 ${open ? "rotate-45" : "-translate-y-1"}`}
+        />
+        <span
+          aria-hidden="true"
+          className={`absolute h-0.5 w-5 rounded bg-current transition-transform duration-300 ${open ? "-rotate-45" : "translate-y-1"}`}
+        />
+      </button>
 
       <AnimatePresence>
         {open ? (
           <>
             <motion.div
               key="backdrop"
-              className="pointer-events-auto fixed inset-0 -z-10 bg-navy/20 md:hidden"
+              className="pointer-events-auto fixed inset-0 -z-10 bg-black/20 md:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -145,7 +162,7 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
               aria-modal="true"
               aria-label="Menu"
               data-testid="mobile-menu"
-              className="pointer-events-auto absolute inset-x-3 top-[4.75rem] rounded-[22px] border border-hairline bg-bg p-3 shadow-card-hover md:hidden"
+              className="pointer-events-auto absolute inset-x-2.5 top-2.5 rounded-[20px] bg-bg px-3 pt-20 pb-4 shadow-card-hover md:hidden"
               initial={reduce ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.98 }}
@@ -157,7 +174,7 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
                     key={item.href}
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="font-display rounded-2xl px-4 py-3.5 text-center text-2xl text-ink-1 active:bg-accent-tint"
+                    className="font-display rounded-2xl px-6 py-3 text-left text-[32px] text-ink-1 active:bg-black/5"
                   >
                     {item.label}
                   </Link>
@@ -167,14 +184,14 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
                     href={linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-display rounded-2xl px-4 py-3.5 text-center text-2xl text-ink-1 active:bg-accent-tint"
+                    className="font-display rounded-2xl px-6 py-3 text-left text-[32px] text-ink-1 active:bg-black/5"
                   >
                     LinkedIn
                   </a>
                 ) : null}
-                <LiquidLink href={mail} className="mt-2 w-full">
+                <a href={mail} className="font-display rounded-2xl px-6 py-3 text-left text-[32px] text-ink-1 active:bg-black/5">
                   Get in touch
-                </LiquidLink>
+                </a>
               </nav>
             </motion.div>
           </>

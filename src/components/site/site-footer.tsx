@@ -1,40 +1,80 @@
+import { Mail } from "lucide-react";
 import Link from "next/link";
 import type { Site } from "@content/schema.ts";
+import { GithubIcon, LinkedinIcon } from "./brand-icons";
+import { LiquidLink } from "./liquid-link";
 
+function iconFor(label: string) {
+  const key = label.toLowerCase();
+  if (key.includes("linkedin")) return LinkedinIcon;
+  if (key.includes("github")) return GithubIcon;
+  return Mail;
+}
+
+/**
+ * Light footer: a row of round social icons, a big "drop me a line" email
+ * CTA (no form — by decision), then a quiet credit line.
+ */
 export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
+  const socials = profile?.socials ?? [];
   return (
-    <footer className="border-t border-hairline">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-10 md:flex-row md:items-center md:justify-between md:px-8">
-        <div className="flex flex-col gap-1">
-          <p className="font-display text-ink-1">
-            {profile?.name ?? "Thao Dao"}{" "}
-            <span className="font-sans font-normal text-ink-3" lang="vi">
-              · {profile?.nameLocal ?? "Gia Thảo"}
-            </span>
-          </p>
-          <p className="text-sm text-ink-3">{profile ? `${profile.title} · ${profile.location}` : null}</p>
-        </div>
-        <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-          <Link href="/work" className="text-ink-2 underline-offset-4 hover:text-accent hover:underline">
-            Work
-          </Link>
+    <footer className="bg-bg" data-testid="site-footer">
+      <section
+        id="get-in-touch"
+        aria-labelledby="footer-title"
+        className="mx-auto flex max-w-[832px] flex-col items-center gap-10 px-6 pt-24 pb-20 text-center md:pt-[150px]"
+      >
+        <ul className="flex items-center gap-4" aria-label="Social links" data-testid="social-icons">
+          {socials.map((social) => {
+            const Icon = iconFor(social.label);
+            return (
+              <li key={social.href}>
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${social.label} (opens in a new tab)`}
+                  className="flex size-12 items-center justify-center rounded-full bg-ink-1 text-bg transition-transform duration-200 hover:scale-110 motion-reduce:hover:scale-100"
+                >
+                  <Icon className="size-5" aria-hidden="true" />
+                </a>
+              </li>
+            );
+          })}
           {profile ? (
-            <a href={`mailto:${profile.email}`} className="text-ink-2 underline-offset-4 hover:text-accent hover:underline">
-              {profile.email}
-            </a>
+            <li>
+              <a
+                href={`mailto:${profile.email}`}
+                aria-label="Email"
+                className="flex size-12 items-center justify-center rounded-full bg-ink-1 text-bg transition-transform duration-200 hover:scale-110 motion-reduce:hover:scale-100"
+              >
+                <Mail className="size-5" aria-hidden="true" />
+              </a>
+            </li>
           ) : null}
-          {profile?.socials.map((social) => (
-            <a
-              key={social.href}
-              href={social.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-ink-2 underline-offset-4 hover:text-accent hover:underline"
-            >
-              {social.label}
-            </a>
-          ))}
-        </nav>
+        </ul>
+        <h2 id="footer-title" className="text-[28px] leading-[1.2] md:text-[32px]">
+          Want to get in touch? Drop me a line.
+        </h2>
+        {profile ? (
+          <LiquidLink href={`mailto:${profile.email}`} data-testid="footer-email" className="h-16 px-10 text-[17px]">
+            <Mail className="size-5" aria-hidden="true" />
+            {profile.email}
+          </LiquidLink>
+        ) : null}
+      </section>
+      <div className="border-t border-hairline">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-8 text-sm text-ink-3 md:flex-row md:items-center md:justify-between">
+          <p>
+            <span className="font-medium text-ink-1">{profile?.name ?? "Thao Dao"}</span>{" "}
+            <span lang="vi">· {profile?.nameLocal ?? "Gia Thảo"}</span>
+            {profile ? ` · ${profile.location}` : null}
+          </p>
+          <nav aria-label="Footer" className="flex gap-6">
+            <Link href="/work" className="hover:text-ink-1">Work</Link>
+            <Link href="/about" className="hover:text-ink-1">About</Link>
+          </nav>
+        </div>
       </div>
     </footer>
   );
