@@ -178,11 +178,12 @@ test("case-study hero is centred with a sentence headline and a real visual", as
   await expect(page.getByTestId("project-badge")).toContainText("Ledgr");
   await expect(page.locator("#case-cover [data-device]").first()).toBeVisible();
   await expect(page.locator("[data-placeholder]")).toHaveCount(0);
-  // Story layout: pinned-device walkthrough plus charts that cite a source.
+  // Story layout: the round-5 Ledgr page is led by three interactive pieces
+  // (no pinned-device walkthrough) whose figures cite a source.
   await expect(page.getByTestId("case-study")).toHaveAttribute("data-layout", "story");
-  await expect(page.getByTestId("story")).toBeVisible();
+  await expect(page.getByTestId("custom-block")).toHaveCount(3, { timeout: 30_000 });
   const charts = page.getByTestId("dataviz");
-  expect(await charts.count()).toBeGreaterThanOrEqual(4);
+  expect(await charts.count()).toBeGreaterThanOrEqual(1);
   for (const chart of await charts.all()) await expect(chart.getByTestId("viz-source")).toContainText("Source:");
   // The lede is a different sentence from the headline.
   expect((await page.getByTestId("case-lede").innerText()).trim()).not.toBe((await h1.innerText()).trim());

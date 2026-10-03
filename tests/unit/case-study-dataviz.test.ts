@@ -53,12 +53,14 @@ describe("case-study content", () => {
         if (b.type === "barChart" || b.type === "lineChart" || b.type === "funnel" || b.type === "beforeAfter") expect(b.source.length).toBeGreaterThan(0);
   });
 
-  test("Ledgr rule chart matches the seeded split: 27 rules, 6 types, 15 labour", () => {
-    const chart = byslug("ledgr").blocks.find((b) => b.type === "barChart");
-    if (chart?.type !== "barChart") throw new Error("missing Ledgr bar chart");
-    expect(chart.items.length).toBe(6);
-    expect(chart.items.reduce((sum, i) => sum + i.value, 0)).toBe(27);
-    expect(chart.items.find((i) => i.label === "Labour contract")?.value).toBe(15);
+  test("Ledgr rule tree matches the seeded split: 27 rules, 6 types, 15 labour", () => {
+    // The bar chart became the interactive ledgr/RuleTree; the seeded facts must still hold.
+    const l = byslug("ledgr");
+    const tree = l.blocks.find((b) => b.type === "custom" && b.component === "ledgr/RuleTree");
+    if (tree?.type !== "custom") throw new Error("missing Ledgr rule tree");
+    expect(tree.source).toMatch(/15 labour rules/);
+    expect(tree.source).toMatch(/12 rules over 5 document types/);
+    expect(JSON.stringify(l.meta)).toMatch(/"27"[^}]*6 document types/);
   });
 
   test("Cortex numbers are labelled as backtest", () => {

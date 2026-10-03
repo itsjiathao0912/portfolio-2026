@@ -45,6 +45,7 @@ export function CustomBlock({ component, props, source }: { component: string; p
     <Boundary id={component}>
       <Suspense fallback={<div className="my-6 h-64 animate-pulse rounded-[20px] bg-ink-1/5" data-testid="custom-block-skeleton" aria-hidden />}>
         <div data-testid="custom-block" data-component={component}>
+          {/* eslint-disable-next-line react-hooks/static-components -- lazyFor caches one component per key (module-level Map), so identity is stable across renders */}
           <Loaded {...(props ?? {})} source={source} />
         </div>
       </Suspense>

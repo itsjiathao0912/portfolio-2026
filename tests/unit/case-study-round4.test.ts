@@ -55,10 +55,9 @@ describe("round-4 content rules", () => {
   test("Lumicap is titled by Luminet; multisig needs 2 of 3", () => {
     const l = bySlug("lumicap");
     expect(l.meta.subtitle).toBe("by Luminet");
-    const x = l.blocks.find((b) => b.type === "explorable");
-    if (x?.type !== "explorable" || !x.quorum) throw new Error("missing multisig");
-    expect(x.quorum.need).toBe(2);
-    expect(x.quorum.nodes.length).toBe(3);
+    // The multisig explorable became the interactive lumicap/ApproveDeploy; the quorum fact must still hold.
+    expect(l.blocks.some((b) => b.type === "custom" && b.component === "lumicap/ApproveDeploy")).toBe(true);
+    expect(JSON.stringify(l.blocks)).toMatch(/two of three approvers/);
   });
   test("every new chart names a source and case studies keep ≤2 heavy interactives", () => {
     const heavy = ["scoreLadder", "compareSlider", "scrubTimeline", "explorable"];
@@ -67,8 +66,8 @@ describe("round-4 content rules", () => {
       expect(p.blocks.filter((b) => heavy.includes(b.type)).length).toBeLessThanOrEqual(2);
     }
   });
-  test("the Cortex video is a small loop, never the full file", async () => {
-    const { statSync } = await import("node:fs");
-    expect(statSync("public/work/cortex-sentinel/demo-loop.mp4").size).toBeLessThan(2 * 1024 * 1024);
+  test("the Cortex page no longer ships the bystander demo clip", async () => {
+    const { existsSync } = await import("node:fs");
+    expect(existsSync("public/work/cortex-sentinel/demo-loop.mp4")).toBe(false);
   });
 });
