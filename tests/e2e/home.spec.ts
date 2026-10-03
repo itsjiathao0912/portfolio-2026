@@ -1,10 +1,10 @@
 import { expect, test } from "./fixtures";
 
 // The calm home: hero, logos, statement, ticker, highlights + globe, project stack,
-// people, photos, LinkedIn notes, say hello. Busy machine: generous timeout.
+// people, photos, LinkedIn notes (the footer is the one contact block). Busy machine: generous timeout.
 test.describe.configure({ timeout: 120_000 });
 
-const ORDER = ["hero", "section-logos", "section-statement", "proof-ticker", "section-highlights", "section-work", "section-people", "section-say-hello"];
+const ORDER = ["hero", "section-logos", "section-statement", "proof-ticker", "section-highlights", "section-work", "section-people"];
 
 test.describe("desktop", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
@@ -100,20 +100,11 @@ test.describe("desktop", () => {
     await control.getByRole("radio", { name: /Founder/ }).click();
     await page.waitForTimeout(900);
     const seen = await page.evaluate(() => (window as unknown as { __seen: { visible: number; maxShift: number; minOpacity: number } }).__seen);
-    expect(seen.maxShift).toBeLessThanOrEqual(400.5);
+    expect(seen.maxShift).toBeLessThanOrEqual(40.5);
+    expect(seen.visible).toBeGreaterThan(0);
     expect(seen.minOpacity).toBeGreaterThan(0.3);
     const heading = await page.locator("#work-title").boundingBox();
     expect(heading!.y).toBeGreaterThan(80);
-  });
-
-  test("say hello: the dotted track stays inside the card", async ({ page }) => {
-    await page.goto("/");
-    const card = page.getByTestId("section-say-hello").locator("div").first();
-    await card.scrollIntoViewIfNeeded();
-    const box = (await card.boundingBox())!;
-    const svg = (await page.getByTestId("section-say-hello").locator("svg").first().boundingBox())!;
-    expect(svg.x).toBeGreaterThanOrEqual(box.x);
-    expect(svg.x + svg.width).toBeLessThanOrEqual(box.x + box.width);
   });
 
   test("globe card lists corridors, and the page keeps at most one canvas", async ({ page }) => {
@@ -135,47 +126,6 @@ test.describe("desktop", () => {
     expect(await page.getByTestId("avatar-stack").count()).toBeGreaterThan(0);
   });
 
-  test("say hello: tap sends, Enter sends without page errors, and it points to the footer for contact details", async ({ page }) => {
-    const errors: string[] = [];
-    page.on("pageerror", (e) => errors.push(String(e)));
-    await page.goto("/");
-    const coin = page.getByTestId("hello-coin");
-    await coin.scrollIntoViewIfNeeded();
-    await coin.focus();
-    await page.keyboard.press("Enter");
-    await expect(page.getByTestId("hello-wallet")).toHaveAttribute("data-stage", "settled");
-    await expect(page.getByTestId("hello-contact")).toHaveAttribute("href", "#get-in-touch");
-    await page.getByRole("button", { name: "Send another" }).click();
-    await expect(page.getByTestId("hello-wallet")).toHaveAttribute("data-stage", "idle");
-    await coin.click();
-    await expect(page.getByTestId("hello-wallet")).toHaveAttribute("data-stage", "settled");
-    expect(errors).toEqual([]);
-  });
-
-  test("say hello: a slow, many-step drag to the wallet sends; a short drag springs back", async ({ page }) => {
-    await page.goto("/");
-    const coin = page.getByTestId("hello-coin");
-    await coin.scrollIntoViewIfNeeded();
-    const a = (await coin.boundingBox())!;
-    const w = (await page.getByTestId("hello-wallet").boundingBox())!;
-    const y = a.y + a.height / 2;
-    // Partial: ~40% of the way in 2px steps, then release.
-    await page.mouse.move(a.x + a.width / 2, y);
-    await page.mouse.down();
-    const reach = (w.x + w.width / 2 - (a.x + a.width / 2)) * 0.4;
-    for (let d = 2; d <= reach; d += 2) await page.mouse.move(a.x + a.width / 2 + d, y);
-    await page.mouse.up();
-    await expect(page.getByTestId("hello-wallet")).toHaveAttribute("data-stage", "idle");
-    await expect.poll(async () => Math.abs(((await coin.boundingBox())!.x) - a.x)).toBeLessThan(3);
-    // Full: all the way in 2px steps.
-    const b = (await coin.boundingBox())!;
-    await page.mouse.move(b.x + b.width / 2, y);
-    await page.mouse.down();
-    const full = w.x + w.width / 2 - (b.x + b.width / 2);
-    for (let d = 2; d <= full + 10; d += 2) await page.mouse.move(b.x + b.width / 2 + d, y);
-    await page.mouse.up();
-    await expect(page.getByTestId("hello-wallet")).toHaveAttribute("data-stage", "settled");
-  });
 });
 
 test.describe("mobile", () => {

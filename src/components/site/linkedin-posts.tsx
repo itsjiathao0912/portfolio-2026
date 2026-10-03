@@ -163,8 +163,8 @@ function CardPost({ post }: { post: Extract<LinkedinPost, { kind?: "card" }> }) 
   const when = useSyncExternalStore(noop, () => relativeDate(post.date, Date.now()) || formatPostDate(post.date), () => formatPostDate(post.date));
   const counts = [post.reactions !== undefined ? `${post.reactions} reactions` : null, post.comments !== undefined ? `${post.comments} comments` : null].filter(Boolean);
   return (
-    <LiftCard radius="rounded-2xl" className="flex-1 bg-bg shadow-card ring-1 ring-black/5" data-testid="linkedin-card" data-state="card">
-      <article className="flex h-full flex-col gap-4 p-5 md:p-6">
+    <LiftCard radius="rounded-2xl" className="flex-1 border border-hairline bg-bg shadow-1" data-testid="linkedin-card" data-state="card">
+      <article className="relative flex h-full flex-col gap-4 p-5 md:p-6">
         <header className="flex items-center gap-3">
           <Image src={author.avatar} alt="" width={40} height={40} className="size-10 rounded-full object-cover" />
           <div className="min-w-0 flex-1">
@@ -178,11 +178,11 @@ function CardPost({ post }: { post: Extract<LinkedinPost, { kind?: "card" }> }) 
         <div>
           {post.title ? <h3 className="mb-1.5 text-[17px] leading-[1.3] font-semibold text-ink-1">{post.title}</h3> : null}
           <p className="line-clamp-4 text-[15px] leading-[1.55] text-ink-2" data-testid="linkedin-excerpt">{post.excerpt}</p>
-          <a href={post.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-[14px] font-medium text-ink-3 hover:text-ink-1">…more</a>
         </div>
         {post.image ? (
-          <div className="relative -mx-5 mt-auto aspect-[4/3] overflow-hidden bg-canvas md:-mx-6">
-            <Image src={post.image} alt={post.imageAlt ?? ""} fill sizes="(min-width: 768px) 384px, 320px" className="object-cover" />
+          // The whole image, never cropped: it keeps its own shape inside a fixed-height frame on a soft backdrop.
+          <div className="relative mt-auto h-[220px] overflow-hidden rounded-xl bg-canvas md:h-[260px]" data-testid="linkedin-image">
+            <Image src={post.image} alt={post.imageAlt ?? ""} fill sizes="(min-width: 768px) 336px, 280px" className="object-contain" />
           </div>
         ) : null}
         <footer className={`flex flex-wrap items-center justify-between gap-x-3 text-[13px] text-ink-3 ${post.image ? "" : "mt-auto"}`}>
@@ -190,7 +190,7 @@ function CardPost({ post }: { post: Extract<LinkedinPost, { kind?: "card" }> }) 
             {post.reactions !== undefined ? <ReactionGlyphs /> : null}
             <span>{counts.join(" · ")}</span>
           </span>
-          <a href={post.url} target="_blank" rel="noopener noreferrer" aria-label={`View on LinkedIn: ${post.title ?? "post"} (opens in a new tab)`} className="inline-flex min-h-11 shrink-0 items-center gap-1 text-[14px] font-medium text-ink-1 hover:text-[#0a66c2]">
+          <a href={post.url} target="_blank" rel="noopener noreferrer" aria-label={`View on LinkedIn: ${post.title ?? "post"} (opens in a new tab)`} className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-sm text-[14px] font-medium text-ink-1 outline-none after:absolute after:inset-0 after:rounded-2xl after:content-[''] hover:text-[#0a66c2] focus-visible:after:ring-2 focus-visible:after:ring-accent">
             View on LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" />
           </a>
         </footer>

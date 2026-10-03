@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { type FocusEvent, useRef } from "react";
 
 export interface LogoItem {
   name: string;
@@ -53,21 +56,53 @@ function Track({ logos, copy }: { logos: LogoItem[]; copy: boolean }) {
   );
 }
 
+/** Matches `.marquee-track` in globals.css. */
+const MARQUEE_SECONDS = 32;
+
 /**
  * Full-bleed light band with the original full-colour logos drifting in an
  * infinite marquee (CSS only: two identical tracks shifted by -50%). Hover or
- * keyboard focus pauses it. Reduced motion: a static row. The duplicate track
- * is hidden from assistive tech and the tab order.
+ * keyboard focus pauses it AND slides the focused logo into view (a CSS-animated
+ * logo can sit off-screen when it takes focus). Reduced motion: a static row.
+ * The duplicate track is hidden from assistive tech and the tab order.
  */
 export function LogoStrip({ logos }: { logos: LogoItem[] }) {
   // Repeat short lists so one track is always wider than the viewport.
   const filled = logos.length >= 6 ? logos : [...logos, ...logos.map((l) => ({ ...l, name: `${l.name} ` }))];
   const first = logos;
   const rest = filled.slice(logos.length);
+  const frame = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+
+  /** Freeze the track where it is, moved just enough that the focused logo sits in the middle of the band. */
+  function revealFocused(e: FocusEvent<HTMLDivElement>) {
+    const f = frame.current;
+    const t = track.current;
+    const link = (e.target as HTMLElement).closest("a");
+    if (!f || !t || !link) return;
+    f.scrollLeft = 0;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // static row: native focus scrolling
+    let x = new DOMMatrixReadOnly(getComputedStyle(t).transform).m41;
+    const band = f.getBoundingClientRect();
+    const r = link.getBoundingClientRect();
+    if (r.left < band.left + 24 || r.right > band.right - 24) x = Math.min(0, x + band.left + band.width / 2 - (r.left + r.width / 2));
+    t.style.animation = "none";
+    t.style.transform = `translateX(${x}px)`;
+  }
+  /** Focus left the band: let the drift carry on from where it stopped. */
+  function resume(e: FocusEvent<HTMLDivElement>) {
+    const t = track.current;
+    if (!t || e.currentTarget.contains(e.relatedTarget as Node | null) || !t.style.animation) return;
+    const x = new DOMMatrixReadOnly(getComputedStyle(t).transform).m41;
+    t.style.animation = "";
+    t.style.transform = "";
+    t.style.animationDelay = `${(x / (t.offsetWidth / 2)) * MARQUEE_SECONDS}s`;
+  }
+
   return (
-    <div className="marquee group relative overflow-hidden border-y border-hairline bg-bg py-7 md:py-[36px]">
+    <div ref={frame} onFocus={revealFocused} onBlur={resume} className="marquee group relative overflow-hidden border-y border-hairline bg-bg py-7 md:py-[36px]">
       <div style={{ maskImage: "linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)" }}>
-      <div className="marquee-track flex w-max">
+      <div ref={track} className="marquee-track flex w-max">
         <div className="flex">
           <Track logos={first} copy={false} />
           <Track logos={rest} copy />

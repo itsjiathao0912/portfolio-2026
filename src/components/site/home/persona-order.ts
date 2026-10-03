@@ -35,6 +35,9 @@ export function orderForPersona<T extends { slug: string }>(items: readonly T[],
 /** Furthest a card glides when the persona changes. Cards further off than this appear in place. */
 export const FLIP_MAX = 400;
 
+/** What the reorder animation actually shows: a short nudge (px) from the final place, so no frame is ever empty. */
+export const GLIDE_NUDGE = 40;
+
 /**
  * Persona reorder as a viewport-local FLIP. `delta` is how far a card was above (+) the
  * place it now sits (old top minus new top). Returns the starting offset to animate from,

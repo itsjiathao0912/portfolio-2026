@@ -105,9 +105,10 @@ export function ProofTicker() {
               data-ticker-pause
               data-testid="ticker-resume"
               onClick={() => setTouchPaused(false)}
-              className="absolute top-1/2 right-2 z-20 inline-flex min-h-11 -translate-y-1/2 items-center gap-1.5 rounded-full bg-bg/95 px-4 text-[13px] font-semibold text-ink-1 shadow-2 ring-1 ring-black/5"
+              aria-label="Ticker paused. Resume"
+              className="absolute top-1/2 right-1 z-20 inline-flex min-h-11 -translate-y-1/2 items-center gap-1 rounded-full bg-bg/95 px-3 text-[13px] font-semibold text-ink-1 shadow-2 ring-1 ring-black/5"
             >
-              <span aria-hidden="true">⏸</span> Paused · tap to resume
+              <span aria-hidden="true">▶</span> Resume
             </button>
           ) : null}
           <style>{`@keyframes ticker-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}`}</style>

@@ -9,7 +9,7 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { emojiFor } from "./home/project-meta";
 import { PersonaControl } from "./home/persona-control";
-import { FLIP_MAX, HOME_PERSONA_NOTE, flipOffset, homePersona, orderForPersona } from "./home/persona-order";
+import { GLIDE_NUDGE, HOME_PERSONA_NOTE, flipOffset, homePersona, orderForPersona } from "./home/persona-order";
 import { StackCard, type StackSurface } from "./stack-card";
 
 interface Group {
@@ -110,10 +110,11 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
       if (old === undefined) return;
       const offset = flipOffset(old, el.getBoundingClientRect().top + window.scrollY, window.scrollY, window.innerHeight);
       if (offset === null) return;
-      const far = Math.abs(offset) >= FLIP_MAX;
+      // Cards already sit at their final place, so the viewport is never empty; only a short nudge + fade shows the reorder.
+      const nudge = Math.sign(offset) * Math.min(Math.abs(offset), GLIDE_NUDGE);
       el.animate(
         [
-          { transform: `translateY(${offset}px)`, opacity: far ? 0.35 : 0.85 },
+          { transform: `translateY(${nudge}px)`, opacity: 0.6 },
           { transform: "translateY(0)", opacity: 1 },
         ],
         { duration: 460, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }

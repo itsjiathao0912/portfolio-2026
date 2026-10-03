@@ -56,13 +56,13 @@ export function GlobeCard() {
                     onFocus={() => setActiveId(a.id)}
                     onBlur={() => setActiveId(null)}
                     className={cn(
-                      "flex min-h-12 items-center gap-3 rounded-xl px-4 py-2 text-[15px] outline-none transition-colors duration-[120ms] focus-visible:ring-2 focus-visible:ring-accent",
+                      "flex min-h-12 flex-wrap items-center gap-x-3 rounded-xl px-4 py-2 text-[15px] outline-none transition-colors duration-[120ms] focus-visible:ring-2 focus-visible:ring-accent",
                       activeId === a.id ? "bg-accent-tint" : "hover:bg-accent-tint"
                     )}
                   >
                     <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-accent" />
                     <span className="font-medium text-ink-1">{placeById(a.from).name} → {placeById(a.to).name}</span>
-                    <span className="text-ink-3">· {a.title}</span>
+                    <span className="whitespace-nowrap text-ink-3">· {a.title}</span>
                   </Link>
                 </LiftCard>
               </li>

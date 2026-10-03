@@ -16,7 +16,7 @@ export type GlobeCanvasProps = {
   focusLon?: number | null;
 };
 
-const TILT = -0.32;
+const TILT = 0.3;
 const AUTO_SPIN = 0.00004; // rad per ms
 
 const DOTS: Vec3[] = fibonacciSphere(5200).filter((v) => {

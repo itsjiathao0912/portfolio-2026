@@ -45,7 +45,7 @@ export function PersonaControl({ value, onChange }: { value: HomePersona | null;
                   if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); pick(idx - 1); }
                 }}
                 className={cn(
-                  "relative min-h-11 shrink-0 rounded-full px-4 text-[14px] font-medium outline-none transition-colors duration-[120ms] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 md:min-h-9",
+                  "relative min-h-11 shrink-0 rounded-full px-2.5 text-[14px] md:px-4 font-medium outline-none transition-colors duration-[120ms] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 md:min-h-9",
                   on ? "text-ink-1" : "text-ink-3 hover:text-ink-1"
                 )}
               >

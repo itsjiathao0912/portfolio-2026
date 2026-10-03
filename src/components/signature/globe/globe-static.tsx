@@ -4,7 +4,7 @@ import { arcPoints, fibonacciSphere, isLand, latLonToVec, project, rotate, vecTo
 // Static SVG version of the globe: same projection, fixed rotation. Used for
 // reduced motion, no-canvas, and as the pre-hydration placeholder (so the
 // slot never shifts layout).
-const S = 400, R = 168, YAW = (-100 * Math.PI) / 180, TILT = -0.32;
+const S = 400, R = 168, YAW = (-100 * Math.PI) / 180, TILT = 0.3;
 const P = (lat: number, lon: number) => project(rotate(latLonToVec(lat, lon), YAW, TILT), S / 2, S / 2, R);
 
 const dots = fibonacciSphere(1400)

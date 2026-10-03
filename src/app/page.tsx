@@ -4,7 +4,6 @@ import { ScrollWords } from "@/components/gems/scroll-words";
 import { GlobeCard } from "@/components/site/home/globe-card";
 import { PeopleSection } from "@/components/site/home/people-section";
 import { ProofTicker } from "@/components/site/home/proof-ticker";
-import { SayHello } from "@/components/site/home/say-hello";
 import { LinkedinPosts } from "@/components/site/linkedin-posts";
 import { LogoStrip, type LogoItem } from "@/components/site/logo-strip";
 import { PhotoMoments } from "@/components/site/photo-moments";
@@ -80,7 +79,6 @@ export default async function HomePage() {
       <PeopleSection />
       <PhotoMoments moments={photos.filter((p) => (p.place as readonly string[]).includes("home"))} className="pt-0 md:pt-0" />
       <LinkedinPosts posts={linkedinPosts} profileUrl={linkedin} />
-      <SayHello />
     </main>
   );
 }
