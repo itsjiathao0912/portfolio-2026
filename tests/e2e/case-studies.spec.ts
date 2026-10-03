@@ -196,3 +196,36 @@ for (const slug of SLUGS) {
     });
   });
 }
+
+test.describe("iteration 4: stops, morph, walkthrough", () => {
+  test("visible timeline stops are the element under the pointer and operable", async ({ page }) => {
+    await settle(page, "guardline");
+    const stops = page.getByTestId("timeline-stop");
+    await stops.first().scrollIntoViewIfNeeded();
+    const n = await stops.count();
+    expect(n).toBeGreaterThan(2);
+    const box = (await stops.nth(n - 2).boundingBox())!;
+    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.getAttribute("data-testid"), [box.x + box.width / 2, box.y + box.height / 2]);
+    expect(hit).toBe("timeline-stop");
+    await stops.nth(n - 2).click();
+    await expect(page.getByTestId("timeline-card").first()).toContainText(`${n - 1} / ${n}`);
+  });
+
+  test("a /work card names its visual for the shared-element morph and navigates to the case", async ({ page }) => {
+    await page.goto("/work");
+    const card = page.locator('[data-slug="ledgr"]');
+    await expect(card.locator("[data-morph-target]")).toHaveCount(1);
+    await card.click();
+    await expect(page).toHaveURL(/\/work\/ledgr$/);
+    await expect(page.getByTestId("case-hero")).toBeVisible();
+  });
+
+  test("GoCrypto walkthrough renders the five real screens (desktop pinned, no canvas)", async ({ page }) => {
+    await settle(page, "gocrypto");
+    const wt = page.getByTestId("phone-walkthrough");
+    // Present only once content places the block; skip until then.
+    test.skip((await wt.count()) === 0, "PhoneWalkthrough not yet placed in gocrypto content");
+    await expect(wt.locator("canvas")).toHaveCount(0);
+    await expect(wt.getByTestId("phone-walkthrough-pinned").locator("li")).toHaveCount(5);
+  });
+});

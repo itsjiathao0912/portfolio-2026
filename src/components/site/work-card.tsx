@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import type { Project } from "@content/schema.ts";
+import { TransitionLink } from "@/components/motion/transition-link";
 import { LiftCard } from "@/components/ui/lift-card";
 import { TINT_BG } from "@/lib/tints";
 import { cn } from "@/lib/utils";
@@ -27,11 +27,13 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
   const { meta } = project;
   // Minimal direction: every card is light (project tint); `meta.tone` no longer makes a black slab.
   const Heading = headingLevel;
+  const topAnchored = meta.visual.kind === "mockup" && meta.visual.device !== "phone";
 
   return (
-    <LiftCard radius="rounded-2xl" className={cn("h-full bg-bg shadow-1", className)}>
-    <Link
+    <LiftCard radius="rounded-2xl" data-morph-root="" className={cn("h-full bg-bg shadow-1", className)}>
+    <TransitionLink
       href={`/work/${project.slug}`}
+      morphSelector="[data-morph-target]"
       data-testid="project-card"
       data-slug={project.slug}
       data-category={project.category}
@@ -50,25 +52,31 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
       <p className={"mt-3 max-w-[22rem] text-base leading-[1.6] text-ink-2"}>
         {meta.subtitle}
       </p>
-      {/* Visual: anchored to the bottom, wider than the card, running off the
-          bottom edge (and the sides, for laptops). */}
-      <div className="relative mt-6 -mx-6 flex h-[300px] w-[calc(100%+3rem)] flex-none items-end justify-center overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,#000_8%)] md:-mx-10 md:h-[340px] md:w-[calc(100%+5rem)]">
+      {/* Visual: fills the rest of the card (no blank band whatever the row
+          height). Laptops/browsers are centred in the remaining space (even air
+          above and below, no blank band under the subtitle); phones and illustrations stay bottom-anchored. */}
+      <div
+        className={cn(
+          "relative -mx-6 mt-6 flex min-h-[300px] w-[calc(100%+3rem)] flex-1 justify-center overflow-hidden md:-mx-10 md:min-h-[340px] md:w-[calc(100%+5rem)]",
+          topAnchored ? "items-center" : "items-end [mask-image:linear-gradient(to_bottom,transparent,#000_8%)]"
+        )}
+      >
         {/* Soft spotlight behind the visual so the lower half never reads empty. */}
         <span
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-[-10%] bottom-[-10%] h-[85%] rounded-[50%] bg-white/55 blur-2xl"
         />
         <div
-          style={{ viewTransitionName: `project-card-${project.slug}` }}
+          data-morph-target=""
           className={cn(
             "shrink-0",
-            meta.visual.kind === "illustration" ? "w-[110%] translate-y-[6%]" : "w-[112%] translate-y-[8%]"
+            topAnchored ? "w-[116%]" : meta.visual.kind === "illustration" ? "w-[110%] translate-y-[6%]" : "w-[112%] translate-y-[8%]"
           )}
         >
           <ProjectVisual visual={meta.visual} label={project.title} logo={meta.logo} tone="light" priority={priority} />
         </div>
       </div>
-    </Link>
+    </TransitionLink>
     </LiftCard>
   );
 }

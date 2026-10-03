@@ -38,6 +38,9 @@ export function TransitionLink({
   children: React.ReactNode;
   className?: string;
   "data-testid"?: string;
+  "data-slug"?: string;
+  "data-category"?: string;
+  "data-tone"?: string;
 }) {
   const router = useRouter();
   const reduce = useReducedMotion();
@@ -59,7 +62,16 @@ export function TransitionLink({
   }
 
   return (
-    <Link ref={ref} href={href} onClick={onClick} className={className} data-testid={rest["data-testid"]}>
+    <Link
+      ref={ref}
+      href={href}
+      onClick={onClick}
+      className={className}
+      data-testid={rest["data-testid"]}
+      data-slug={rest["data-slug"]}
+      data-category={rest["data-category"]}
+      data-tone={rest["data-tone"]}
+    >
       {children}
     </Link>
   );

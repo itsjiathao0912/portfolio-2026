@@ -17,7 +17,9 @@ interface ScrubTimelineProps extends VizFrameProps {
 
 /**
  * Scrubbable timeline: drag the playhead (a range input, so keys work too) or
- * tap a stop; the card under it swaps to that stop. With 2+ tracks a toggle
+ * tap a stop. The stops are real buttons (44px hit area) layered ABOVE the
+ * invisible range input, so tapping a visible stop always hits that stop;
+ * the input only handles drags/keys on the track between them; the card under it swaps to that stop. With 2+ tracks a toggle
  * switches between them.
  */
 export function ScrubTimeline({ tracks, ...frame }: ScrubTimelineProps) {
@@ -55,11 +57,11 @@ export function ScrubTimeline({ tracks, ...frame }: ScrubTimelineProps) {
           </div>
         ) : null}
 
-        <div className="relative px-3 pt-2">
+        <div className="relative rounded-full px-3 pt-2 has-[input[type=range]:focus-visible]:outline-3 has-[input[type=range]:focus-visible]:outline-offset-4 has-[input[type=range]:focus-visible]:outline-accent">
           <div className="relative h-1.5 rounded-full bg-hairline">
             <span className="absolute inset-y-0 left-0 rounded-full bg-accent transition-[width] duration-150" style={{ width: `${pos * 100}%` }} />
           </div>
-          <ol className="relative -mt-[11px] h-4">
+          <ol className="relative z-10 -mt-[11px] h-4">
             {track.stops.map((s, i) => (
               <li key={`${track.name}-${s.label}`} className="absolute -translate-x-1/2" style={{ left: `${at(i)}%` }}>
                 <button

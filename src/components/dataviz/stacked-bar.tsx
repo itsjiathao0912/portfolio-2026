@@ -19,7 +19,9 @@ const FILLS = ["bg-navy", "bg-accent", "bg-indigo", "bg-[#7c9cff]", "bg-[#a5b4fc
 
 /**
  * One bar split into segments (shares of a whole). Segments grow in on scroll.
- * Tap/hover/focus a segment or its legend chip to focus it; the optional
+ * Hover a segment (mouse) or use its 44px legend toggle (touch/keyboard, the
+ * accessible control; thin segments are too small to tap, so they are
+ * pointer-only and skipped by Tab); the optional
  * `highlight` switch lights a named subset and sums it.
  */
 export function StackedBar({ unit = "%", segments, highlight, ...frame }: StackedBarProps) {
@@ -39,6 +41,7 @@ export function StackedBar({ unit = "%", segments, highlight, ...frame }: Stacke
             <motion.button
               key={s.label}
               type="button"
+              tabIndex={-1}
               role="listitem"
               className={cn(
                 "relative h-full origin-left border-r-2 border-canvas text-left text-xs font-semibold text-white transition-opacity duration-200 last:border-r-0 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none",

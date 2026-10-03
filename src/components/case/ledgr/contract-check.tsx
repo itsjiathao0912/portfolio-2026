@@ -72,7 +72,7 @@ export function ContractCheck({ source }: CaseBlockProps) {
             Renewals: {f.renewals}
             <input type="range" min={0} max={3} value={f.renewals} onChange={(e) => set("renewals", Number(e.target.value))} className="h-11 accent-[#1f5bff]" />
           </label>
-          <label className="flex min-h-11 items-center gap-2 self-end text-sm text-ink-1">
+          <label className="flex min-h-11 min-w-11 cursor-pointer items-center gap-2 self-end text-sm text-ink-1">
             <input type="checkbox" checked={f.bhxhClause} onChange={(e) => set("bhxhClause", e.target.checked)} className="size-6 accent-[#1f5bff]" />
             Mentions social insurance
           </label>
