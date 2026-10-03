@@ -1,6 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import { headingAnchor, type CaseLayout, type ContentBlock } from "@content/schema.ts";
 import { BarChart, BeforeAfter, CompareSlider, Explorable, FlowDiagram, Funnel, LineChart, ModuleMap, ScoreLadder, ScrubTimeline, StackedBar, Timeline, VideoLoop } from "@/components/dataviz";
+import { CustomBlock } from "@/components/case/custom-block";
 import { cn } from "@/lib/utils";
 import { ZoomImage } from "../case-study-media";
 import { MediaFrame } from "../media-frame";
@@ -198,6 +199,8 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
       return <Explorable className={WIDE} {...block} />;
     case "video":
       return <VideoLoop {...block} />;
+    case "custom":
+      return <CustomBlock component={block.component} props={block.props} source={block.source} />;
     case "code":
       return (
         <figure className="my-6 flex flex-col gap-3" data-testid="code-block">

@@ -277,6 +277,14 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("stack"), items: z.array(z.string().min(1)).min(1) }),
   z.object({ type: z.literal("links"), items: z.array(linkSchema).min(1) }),
   z.object({ type: z.literal("callout"), text: z.string().min(1) }),
+  // Per-case-study bespoke interactive piece, resolved via src/components/case/registry.tsx.
+  // `component` is "<slug>/<Name>"; unknown keys render nothing in production.
+  z.object({
+    type: z.literal("custom"),
+    component: z.string().regex(/^[a-z0-9-]+\/[A-Za-z0-9]+$/, "component must be <slug>/<Name>"),
+    props: z.record(z.string(), z.unknown()).optional(),
+    source: z.string().optional(),
+  }),
 ]);
 
 export const projectLinkSchema = linkSchema;
