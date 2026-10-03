@@ -12,7 +12,7 @@ import { loadProjects, loadSite } from "@/lib/load";
 
 const LOGOS: LogoItem[] = [
   { name: "SkyLab Group", src: "/logos/skylab-icon.svg", href: "https://www.skylabteam.com/", width: 40, height: 40 },
-  { name: "Lumicap", src: "/logos/lumicap-dark.png", href: "https://lumicap.io/", width: 640, height: 191 },
+  { name: "Lumicap", src: "/logos/lumicap-light.png", href: "https://lumicap.io/", width: 640, height: 191 },
   { name: "COSAP", src: "/logos/cosap.png", href: "https://cosap.ai/", width: 640, height: 163 },
   { name: "ReOrc AI", src: "/logos/reorc.svg", href: "https://reorc.com/", width: 120, height: 32 },
   { name: "Zalo", src: "/logos/zalo.svg", href: "https://zalo.me/vi/", width: 80, height: 32 },

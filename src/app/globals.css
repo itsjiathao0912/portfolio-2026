@@ -243,6 +243,11 @@
   animation: page-in 380ms var(--ease-out) both;
 }
 @media (prefers-reduced-motion: reduce) {
+  /* Scroll reveals: content simply appears (overrides motion's inline styles). */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
   .page-enter {
     animation: page-fade 150ms linear both;
   }

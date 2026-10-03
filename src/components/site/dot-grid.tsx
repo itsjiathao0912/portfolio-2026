@@ -48,7 +48,10 @@ export function DotGrid({ className }: { className?: string }) {
     const strength: number[] = [];
     const pointer = { x: -9999, y: -9999, active: false };
     let frame = 0;
-    let running = false;
+    let allowed = false; // on screen and tab visible
+    let scheduled = false;
+    let lastIdleDraw = 0;
+    let settled = true;
     let inView = true;
 
     function resize() {
@@ -67,6 +70,7 @@ export function DotGrid({ className }: { className?: string }) {
 
     function draw(time: number) {
       ctx!.clearRect(0, 0, width, height);
+      let max = 0;
       for (let i = 0; i < points.length; i++) {
         const p = points[i];
         let target = 0;
@@ -75,6 +79,7 @@ export function DotGrid({ className }: { className?: string }) {
         // Ease towards the target so dots settle back smoothly.
         strength[i] += (target - strength[i]) * 0.18;
         const s = strength[i];
+        if (Math.abs(target - s) > max) max = Math.abs(target - s);
         const r = BASE_R + (MAX_R - BASE_R) * s;
         const c = base.map((v, k) => Math.round(v + (hot[k] - v) * s));
         ctx!.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.35 + 0.6 * s})`;
@@ -82,23 +87,42 @@ export function DotGrid({ className }: { className?: string }) {
         ctx!.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx!.fill();
       }
+      settled = max < 0.004;
     }
 
+    // Pointer mode only animates while the pointer is over the grid or dots are
+    // still easing back; the idle wave is throttled to ~30 fps. Both stop
+    // entirely off screen or in a hidden tab.
     function loop(time: number) {
-      draw(time);
+      scheduled = false;
+      if (!allowed) return;
+      if (mode === "idle") {
+        if (time - lastIdleDraw >= 33) {
+          lastIdleDraw = time;
+          draw(time);
+        }
+      } else {
+        draw(time);
+        if (!pointer.active && settled) return;
+      }
+      schedule();
+    }
+
+    function schedule() {
+      if (scheduled || !allowed || mode === "static") return;
+      scheduled = true;
       frame = requestAnimationFrame(loop);
     }
 
-    function setRunning(next: boolean) {
-      if (mode === "static" || next === running) return;
-      running = next;
-      canvas!.dataset.running = String(next);
-      if (next) frame = requestAnimationFrame(loop);
-      else cancelAnimationFrame(frame);
-    }
-
     function update() {
-      setRunning(inView && document.visibilityState === "visible");
+      const next = mode !== "static" && inView && document.visibilityState === "visible";
+      allowed = next;
+      canvas!.dataset.running = String(next);
+      if (next) schedule();
+      else {
+        cancelAnimationFrame(frame);
+        scheduled = false;
+      }
     }
 
     function onMove(event: PointerEvent) {
@@ -108,10 +132,12 @@ export function DotGrid({ className }: { className?: string }) {
       pointer.y = event.clientY - rect.top;
       pointer.active = true;
       canvas!.dataset.pointer = "active";
+      schedule();
     }
     function onLeave() {
       pointer.active = false;
       canvas!.dataset.pointer = "idle";
+      schedule();
     }
 
     const resizeObserver = new ResizeObserver(resize);

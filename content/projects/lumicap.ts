@@ -21,7 +21,7 @@ const project = {
     subtitle: "Blockchain RWA investment platform",
     status: "Shipped · pre-launch",
     tint: "periwinkle",
-    logo: "/logos/lumicap-dark.png",
+    logo: "/logos/lumicap-light.png",
     coverAlt: "Lumicap public website, top of the home page",
     featured: true,
     proof: [{ value: "6", label: "investor-facing modules" }],

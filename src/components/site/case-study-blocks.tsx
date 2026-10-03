@@ -60,7 +60,11 @@ function Block({ block, title, first }: { block: ContentBlock; title: string; fi
         <dl
           className={cn(
             "my-2 grid gap-3",
-            block.items.length >= 3 ? "grid-cols-2 md:grid-cols-4" : "grid-cols-1 sm:grid-cols-2"
+            block.items.length === 4
+              ? "grid-cols-2 md:grid-cols-4"
+              : block.items.length === 3
+                ? "grid-cols-1 sm:grid-cols-3"
+                : "grid-cols-1 sm:grid-cols-2"
           )}
           data-testid="metrics"
         >

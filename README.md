@@ -1,16 +1,18 @@
 # portfolio-2026
 
 Personal portfolio site — Next.js 16 on Cloudflare Workers (OpenNext), D1 for content, R2 for
-media, light theme. **Foundation only:** the placeholder home page proves the stack; the real
-design comes later.
+media, light theme. Pages: home, `/work` (filterable), `/work/[slug]` case studies, 404.
 
 ## Quick start
 
 ```bash
 pnpm install              # Node 22, pnpm 10.34.5 (pinned); also installs the pre-push hook
 pnpm db:seed:local        # create ./local.db and load content/ into it
-pnpm dev                  # http://localhost:3000
+pnpm dev                  # open the URL it prints ("Local: http://localhost:XXXX")
 ```
+
+If port 3000 is already taken, Next picks the next free port (3001, 3002 …) — always use the
+URL `pnpm dev` prints, not a hard-coded 3000.
 
 ## Commands
 
