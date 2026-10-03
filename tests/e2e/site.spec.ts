@@ -206,9 +206,12 @@ test("dot grid reacts to the cursor", async ({ page }) => {
   await page.goto("/");
   const grid = page.getByTestId("dot-grid").first();
   await expect(grid).toHaveAttribute("data-mode", "pointer");
+  // The grid lives behind the highlights band (paused while off screen).
+  await grid.scrollIntoViewIfNeeded();
   await expect(grid).toHaveAttribute("data-running", "true");
-  await page.mouse.move(200, 300);
-  await page.mouse.move(260, 320);
+  const box = (await grid.boundingBox())!;
+  await page.mouse.move(box.x + 200, box.y + 120);
+  await page.mouse.move(box.x + 260, box.y + 140);
   await expect(grid).toHaveAttribute("data-pointer", "active");
 });
 
