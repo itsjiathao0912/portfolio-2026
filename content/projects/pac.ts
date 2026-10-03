@@ -37,25 +37,36 @@ const project = {
     },
   },
   blocks: [
-    { type: "heading", text: "Overview", icon: "compass", eyebrow: "The product" },
+    { type: "heading", text: "The insight", icon: "compass", eyebrow: "The problem" },
     {
-      type: "paragraph",
-      text: "PAC is a cloud platform that sells compute, storage, and network services to tenants across multiple regions. Its billing has to turn multi-service usage into accurate tenant invoices.",
+      type: "quote",
+      text: "Billing only works once every provider's usage speaks one unit.",
     },
-    { type: "metrics", items: [{ value: "4", label: "providers: AWS, Azure, Huawei, Alibaba Cloud" }], source: "Thao's CV (SkyLab, PAC billing platform)" },
-    { type: "heading", text: "My role", icon: "user-round", eyebrow: "Ownership" },
     {
       type: "paragraph",
-      text: "I owned the billing domain end-to-end: usage metering, multi-currency pricing, invoices, credit notes, and revenue dashboards. I specified the API-heavy integrations that turn multi-service usage into tenant invoices.",
+      text: "PAC is a cloud platform that sells compute, storage and network services to tenants across multiple regions. Underneath, four providers (AWS, Azure, Huawei Cloud and Alibaba Cloud) each price their services their own way. Left alone, that shows up as inconsistent invoices and cost that cannot be attributed to the right tenant.",
+    },
+    {
+      type: "paragraph",
+      text: "So the tension was not collecting usage. It was that four price books cannot be compared, or billed from, until they are translated into one model. Try it below with made-up rates: guess which book is cheapest, then normalise.",
+    },
+    {
+      type: "custom",
+      component: "pac/PriceBooks",
+      source: "Illustration of the problem class, built from my CV description (pricing standardised across four providers). Rates and units are invented, not any provider's real pricing.",
+    },
+    { type: "heading", text: "What I owned", icon: "user-round", eyebrow: "Ownership" },
+    {
+      type: "paragraph",
+      text: "I owned the billing domain end to end at SkyLab Group: usage metering, multi-currency pricing, invoices, credit notes and revenue dashboards. I specified the API-heavy integrations that turn multi-service usage into tenant invoices, and I designed and shipped the cost monitoring dashboard and the payment reconciliation workflows.",
     },
     {
       type: "list",
       items: [
-        "Usage metering: per tenant, per service, across compute, storage and network.",
-        "Multi-currency pricing: one price logic, billed in the tenant's currency.",
-        "Invoices and credit notes: issued from metered usage, with corrections as credit notes rather than edits.",
-        "Revenue dashboards: what was used, invoiced and paid, in one view.",
-        "API-heavy integrations: the specs that connect provider usage feeds to billing.",
+        "Metering: usage per tenant, per service, across compute, storage and network.",
+        "Pricing: one price logic across four providers, billed in the tenant's currency.",
+        "Invoices and credit notes: issued from metered usage, with corrections made as credit notes rather than edits.",
+        "Dashboards and reconciliation: what was used, invoiced and paid, in one view.",
       ],
     },
     {
@@ -71,16 +82,28 @@ const project = {
         { label: "Payment reconciliation", detail: "Usage vs invoice vs payment" },
       ],
     },
-    { type: "heading", text: "What shipped", icon: "sparkles", eyebrow: "Features" },
+    { type: "heading", text: "Closing the loop", icon: "sparkles", eyebrow: "Reconciliation" },
+    {
+      type: "paragraph",
+      text: "An invoice is only half of billing. The other half is knowing the three numbers agree: what was metered, what was invoiced, what was paid. When they do not, the fix depends on which one is off, and an issued invoice is corrected with a credit note, never edited. Play the operator on four fictional tenants.",
+    },
+    {
+      type: "custom",
+      component: "pac/Reconcile",
+      source: "Illustration of the reconciliation workflow I shipped, from my CV. Tenants and amounts are fictional.",
+    },
     {
       type: "steps",
       items: [
-        { title: "Cost monitoring dashboard", text: "Unified cost attribution across AWS, Azure, Huawei, and Alibaba Cloud." },
+        { title: "Cost monitoring dashboard", text: "Unified cost attribution across AWS, Azure, Huawei and Alibaba Cloud." },
         { title: "Payment reconciliation", text: "Workflows that close the gap between metered usage and issued invoices." },
-        { title: "Pricing standardization", text: "One pricing logic across four providers, removing inconsistencies in invoicing and cost attribution." },
+        { title: "Pricing standardisation", text: "One pricing logic across four providers, removing inconsistencies in invoicing and cost attribution." },
       ],
     },
-    { type: "image", src: null, alt: "PAC billing dashboard (screenshot not yet available)", caption: "Product screens are private; a sanitized capture will replace this frame." },
+    {
+      type: "callout",
+      text: "Product screens and outcome metrics for PAC are private, so this page shows the logic with illustrative data rather than the product. No figures here are measured results.",
+    },
     { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology" },
     { type: "stack", items: ["Cloud usage metering", "Multi-currency", "API-first integration"] },
   ],
