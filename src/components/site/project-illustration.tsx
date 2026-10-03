@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-type Motif = "billing" | "games" | "lineage";
+type Motif = "billing" | "games" | "lineage" | "fraudRing";
 
 interface ProjectIllustrationProps {
   motif: Motif;
@@ -35,6 +35,7 @@ export function ProjectIllustration({ motif, logo, label, tone = "light", classN
         {motif === "billing" ? <Billing ink={ink} soft={soft} mid={mid} pop={pop} /> : null}
         {motif === "games" ? <Games ink={ink} soft={soft} mid={mid} pop={pop} /> : null}
         {motif === "lineage" ? <Lineage ink={ink} soft={soft} mid={mid} pop={pop} /> : null}
+        {motif === "fraudRing" ? <FraudRing ink={ink} soft={soft} mid={mid} pop={pop} /> : null}
       </svg>
       {logo ? (
         <span
@@ -123,6 +124,38 @@ function Lineage({ ink, soft, mid, pop }: Palette) {
       <rect x="304" y="77" width="64" height="36" rx="10" fill={soft} stroke={mid} strokeWidth="2" />
       <rect x="304" y="187" width="64" height="36" rx="10" fill={pop} />
       <path d="M322 205 l8 8 l16 -16" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  );
+}
+
+/**
+ * Fraud-ring graph: scattered account dots, one tight ring of linked accounts
+ * sharing a device, circled and flagged, with a shield standing guard.
+ */
+function FraudRing({ ink, soft, mid, pop }: Palette) {
+  const loose = [
+    [50, 70], [110, 40], [60, 230], [130, 265], [330, 50], [365, 120], [350, 250], [300, 280],
+  ] as const;
+  const ring = Array.from({ length: 6 }, (_, i) => {
+    const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
+    return [175 + Math.cos(a) * 58, 150 + Math.sin(a) * 58] as const;
+  });
+  return (
+    <g>
+      {loose.map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r="9" fill={soft} stroke={mid} strokeWidth="2" />
+      ))}
+      <path d="M50 70 L110 40 M60 230 L130 265 M330 50 L365 120 M350 250 L300 280" stroke={mid} strokeWidth="2" strokeDasharray="3 6" />
+      <circle cx="175" cy="150" r="88" fill={soft} stroke={pop} strokeWidth="3" strokeDasharray="8 8" />
+      {ring.map(([x, y], i) => (
+        <path key={`e${i}`} d={`M${x} ${y} L175 150`} stroke={mid} strokeWidth="2.5" />
+      ))}
+      <rect x="160" y="135" width="30" height="30" rx="8" fill={ink} />
+      {ring.map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r="12" fill={i % 2 ? pop : "white"} stroke={pop} strokeWidth="3" />
+      ))}
+      <path d="M318 150 l34 -12 l34 12 v26 c0 24 -16 40 -34 48 c-18 -8 -34 -24 -34 -48 Z" fill={pop} />
+      <path d="M338 182 l10 10 l20 -22" stroke="white" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
     </g>
   );
 }

@@ -53,6 +53,8 @@ const project = {
         { value: "+3%", label: "paying users" },
         { value: "−40%", label: "manual data extraction" },
       ],
+      badge: "CV figure",
+      source: "Thao's CV (Zalo, Feb 2023 to Apr 2024). Baselines are not disclosed.",
     },
     {
       type: "barChart",

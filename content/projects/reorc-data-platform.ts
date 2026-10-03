@@ -52,6 +52,8 @@ const project = {
         { value: "+20%", label: "faster feature delivery" },
         { value: "95%", label: "first-pass UAT success" },
       ],
+      badge: "CV figure",
+      source: "Thao's CV (ReOrc AI, Apr 2024 to Mar 2025). Baselines are not disclosed.",
     },
     { type: "heading", text: "Governance", icon: "shield-check", eyebrow: "Research" },
     {

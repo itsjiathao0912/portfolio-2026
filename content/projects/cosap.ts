@@ -50,7 +50,7 @@ const project = {
       type: "paragraph",
       text: "COSAP is an AI-powered ERP built as an affordable alternative to SAP for Korean small and medium businesses. It covers accounting, legal compliance, and payroll in one multi-tenant product.",
     },
-    { type: "metrics", items: [{ value: "8", label: "modules in the product design" }, { value: "2", label: "client markets: Korea and Singapore" }] },
+    { type: "metrics", items: [{ value: "8", label: "modules in the product design" }, { value: "2", label: "client markets: Korea and Singapore" }], source: "Thao's CV (SkyLab, COSAP)" },
     {
       type: "barChart",
       title: "What COSAP says it delivers",

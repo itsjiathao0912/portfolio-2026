@@ -37,7 +37,7 @@ const project = {
     screens: [],
     emoji: "🔎",
     color: "#ea580c",
-    visual: { kind: "illustration", motif: "lineage" },
+    visual: { kind: "illustration", motif: "fraudRing" },
   },
   blocks: [
     { type: "heading", text: "The problem", icon: "circle-alert", eyebrow: "Sea × OpenAI Codex Hackathon Vietnam 2026" },

@@ -69,6 +69,7 @@ const project = {
         { value: "6", label: "document types covered" },
         { value: "100+", label: "rules on the roadmap (goal, not shipped)" },
       ],
+      source: "Ledgr repository, Supabase seed migrations (27 rules, 6 document types). The 100+ is the roadmap figure on the Ledgr landing page.",
     },
     {
       type: "paragraph",
@@ -158,7 +159,6 @@ const project = {
       type: "gallery",
       images: [
         { src: "/projects/ledgr/meetup/room.webp", alt: "Build Stuffs #33: the room during demos, with the projector screen", caption: "Build Stuffs #33" },
-        { src: "/projects/ledgr/meetup/laptop-2.webp", alt: "Ledgr landing page open on a laptop at the meetup", caption: "Demo setup" },
       ],
     },
     { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology" },

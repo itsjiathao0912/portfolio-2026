@@ -61,7 +61,7 @@ export const projectVisualSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("illustration"),
     /** Which original abstract motif to draw. */
-    motif: z.enum(["billing", "games", "lineage"]),
+    motif: z.enum(["billing", "games", "lineage", "fraudRing"]),
   }),
 ]);
 
@@ -262,9 +262,9 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("metrics"),
     items: z.array(metricSchema).min(1).max(4),
-    /** Optional honesty chip + source line (e.g. company-published figures). */
+    /** Optional honesty chip; the source line is REQUIRED so no number ships unsourced. */
     badge: z.string().optional(),
-    source: z.string().optional(),
+    source: z.string().min(1),
   }),
   // Numbered two-column story grid ("1." / "2." numerals above a title + text).
   z.object({ type: z.literal("steps"), items: z.array(stepSchema).min(1) }),

@@ -138,6 +138,10 @@
     font-family: var(--font-sans);
     scroll-padding-top: 6rem;
     -webkit-tap-highlight-color: transparent;
+    /* Full-bleed rows (w-screen) are 100vw wide, which counts the scrollbar,
+       so they spill a few px sideways. `clip` (not `hidden`) stops that
+       without making a scroll container, so sticky TOC and steps still work. */
+    overflow-x: clip;
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -149,6 +153,7 @@
   body {
     @apply min-h-dvh bg-bg text-ink-2;
     line-height: 1.75;
+    overflow-x: clip;
   }
 
   h1,

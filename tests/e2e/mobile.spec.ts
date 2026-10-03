@@ -49,17 +49,22 @@ test("dot grid uses the idle mode without a cursor", async ({ page }) => {
   await expect(page.getByTestId("dot-grid").first()).toHaveAttribute("data-mode", "idle");
 });
 
-test("pages fit 390px with no sideways scroll and no console errors", async ({ page }) => {
-  // Ten long pages scrolled end to end; slow under a loaded machine.
-  test.setTimeout(240_000);
-  const errors = trackErrors(page);
-  for (const path of ["/", "/about", "/work", ...SLUGS.map((s) => `/work/${s}`), "/missing-page"]) {
+// One test per page so each gets its own time budget and they run in
+// parallel; a single test walking every page timed out under machine load.
+for (const path of ["/", "/about", "/work", ...SLUGS.map((s) => `/work/${s}`), "/missing-page"]) {
+  test(`${path} fits 390px with no sideways scroll and no console errors`, async ({ page }) => {
+    const errors = trackErrors(page);
     await page.goto(path);
     await scrollThrough(page);
     await expectNoHorizontalOverflow(page);
-  }
-  // The TOC is desktop-only.
+    expect(errors.filter((e) => !e.includes("404"))).toEqual([]);
+  });
+}
+
+test("case study: TOC hidden on phone, section pill opens a sheet", async ({ page }) => {
+  const errors = trackErrors(page);
   await page.goto("/work/ledgr");
+  // The TOC is desktop-only.
   await expect(page.getByTestId("toc")).toBeHidden();
   // Jump instantly so the scroll direction is unambiguous.
   await page.evaluate(() => (document.documentElement.style.scrollBehavior = "auto"));
@@ -82,4 +87,26 @@ test("pages fit 390px with no sideways scroll and no console errors", async ({ p
   await sheet.getByRole("link").first().click();
   await expect(sheet).toHaveCount(0);
   expect(errors.filter((e) => !e.includes("404"))).toEqual([]);
+});
+
+test("/work filter chips show they scroll sideways, and the hint clears at the end", async ({ page }) => {
+  await page.goto("/work");
+  const row = page.getByTestId("filter-chips");
+  const more = page.getByTestId("filter-chips-more");
+  const box = (await row.boundingBox())!;
+  expect(await row.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+  // A chip is cut by the right edge: partly visible, not hidden entirely.
+  const cut = await page.getByTestId("filter-chip").evaluateAll(
+    (els, right) => els.some((el) => {
+      const r = el.getBoundingClientRect();
+      return r.left < right && r.right > right;
+    }),
+    box.x + box.width
+  );
+  expect(cut).toBe(true);
+  await expect(row).toHaveAttribute("data-more-right", "true");
+  await expect(more).toHaveCSS("opacity", "1");
+  await row.evaluate((el) => el.scrollTo({ left: el.scrollWidth }));
+  await expect(row).toHaveAttribute("data-more-right", "false");
+  await expect(more).toHaveCSS("opacity", "0");
 });

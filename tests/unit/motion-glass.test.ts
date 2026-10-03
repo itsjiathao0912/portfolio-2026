@@ -113,11 +113,15 @@ describe("linkedin posts", () => {
     const a = { urn: "urn:li:share:1" };
     expect(dedupePosts([a, a, { urn: "bad" }, { urn: "urn:li:ugcPost:2" }]).map((p) => p.urn)).toEqual(["urn:li:share:1", "urn:li:ugcPost:2"]);
   });
-  test("content: three distinct posts with snippet heights", async () => {
+  test("content: three distinct posts, each with an excerpt and a valid date", async () => {
     const { linkedinPosts } = await import("../../content/site.ts");
+    const { formatPostDate } = await import("../../src/components/site/linkedin-posts.tsx");
     expect(new Set(linkedinPosts.map((p) => p.urn)).size).toBe(linkedinPosts.length);
-    expect(linkedinPosts.find((p) => p.urn.endsWith("7504889327873626112"))?.height).toBe(668);
-    expect(linkedinPosts.find((p) => p.urn.endsWith("7505576167261966336"))?.height).toBe(1007);
+    for (const p of linkedinPosts) {
+      expect(p.excerpt.length).toBeGreaterThan(80);
+      expect(formatPostDate(p.date)).toMatch(/^\d{1,2} [A-Z][a-z]{2} 2026$/);
+    }
+    expect(formatPostDate("2026-09-13")).toBe("13 Sep 2026");
   });
 });
 

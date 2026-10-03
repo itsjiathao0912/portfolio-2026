@@ -59,17 +59,27 @@ test.describe("desktop home additions", () => {
     expect(keys.filter((k) => k.startsWith("/projects/")).length).toBeGreaterThanOrEqual(4);
   });
 
-  test("LinkedIn embeds stay unloaded until near the viewport", async ({ page }) => {
-    await page.route("https://www.linkedin.com/**", (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<p>post</p>" }));
+  test("LinkedIn shows static previews; an embed loads only after a tap", async ({ page }) => {
+    let linkedinRequests = 0;
+    await page.route("https://www.linkedin.com/**", (route) => {
+      linkedinRequests++;
+      return route.fulfill({ status: 200, contentType: "text/html", body: "<p>post</p>" });
+    });
     await page.goto("/");
     const section = page.getByTestId("section-linkedin");
-    await expect(section).toHaveCount(1);
-    await expect(page.getByTestId("linkedin-embed")).toHaveCount(0);
-    await expect(page.getByTestId("linkedin-placeholder")).toHaveCount(3);
     await section.scrollIntoViewIfNeeded();
-    await expect(page.getByTestId("linkedin-embed")).toHaveCount(3);
-    const srcs = await page.getByTestId("linkedin-embed").evaluateAll((els) => els.map((e) => e.getAttribute("src")));
-    for (const src of srcs) expect(src).toMatch(/^https:\/\/www\.linkedin\.com\/embed\/feed\/update\/urn:li:/);
+    await expect(page.getByTestId("linkedin-preview")).toHaveCount(3);
+    await expect(page.getByTestId("linkedin-embed")).toHaveCount(0);
+    expect(linkedinRequests).toBe(0);
+    const heights = await page.getByTestId("linkedin-card").evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
+    expect(new Set(heights).size).toBe(1);
+    await section.getByRole("button", { name: /Load post/ }).first().click();
+    const embed = page.getByTestId("linkedin-embed");
+    await expect(embed).toHaveCount(1);
+    await expect(embed).toHaveAttribute("src", /^https:\/\/www\.linkedin\.com\/embed\/feed\/update\/urn:li:/);
+    await expect(page.getByTestId("linkedin-preview")).toHaveCount(2);
+    const after = await page.getByTestId("linkedin-card").evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
+    expect(after).toEqual(heights);
     await expect(section.getByRole("link", { name: /View on LinkedIn/ })).toHaveCount(3);
   });
 });

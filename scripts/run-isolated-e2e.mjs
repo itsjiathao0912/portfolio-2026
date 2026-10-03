@@ -19,6 +19,7 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import net from "node:net";
 import path from "node:path";
+import { restoredTsconfigText } from "./tsconfig-restore.mjs";
 
 const root = process.cwd();
 const runId = `${Date.now()}-${process.pid}`;
@@ -32,31 +33,24 @@ if (path.resolve(root, distDir) === path.resolve(root, ".next")) {
   throw new Error("refusing to run: computed build dir is the shared .next");
 }
 
-// `next build` rewrites tsconfig.json to add `<distDir>/types/**` includes. With
-// a per-run dir those entries go stale the moment we delete it, so remove them
-// afterwards. Only entries for `.next-e2e-*` dirs that no longer exist are
-// touched; any other difference (someone edited the file mid-run) is left alone.
+// `next build` rewrites tsconfig.json (reformats it and adds `<distDir>/types/**`
+// includes). With a per-run dir those entries go stale the moment we delete it.
+// Restore by content snapshot: drop every `.next-e2e-*` include whose dir no
+// longer exists from BOTH the before and after versions; if what is left is the
+// same, write the clean before-text back. Idempotent: a file that was already
+// dirty with stale entries from older runs comes back clean, never dirtier.
+// Any other difference (someone edited the file mid-run) is left alone.
 const tsconfigPath = path.join(root, "tsconfig.json");
 const tsconfigBefore = readFileSync(tsconfigPath, "utf8");
 
 function restoreTsconfig() {
   const after = readFileSync(tsconfigPath, "utf8");
-  if (after === tsconfigBefore) return;
-  try {
-    const parsed = JSON.parse(after);
-    if (Array.isArray(parsed.include)) {
-      parsed.include = parsed.include.filter(
-        (entry) => !(typeof entry === "string" && entry.startsWith(".next-e2e-") && !existsSync(path.join(root, entry.split("/")[0])))
-      );
-    }
-    if (JSON.stringify(parsed) === JSON.stringify(JSON.parse(tsconfigBefore))) {
-      writeFileSync(tsconfigPath, tsconfigBefore);
-      return;
-    }
-  } catch {
-    // fall through
+  const text = restoredTsconfigText(tsconfigBefore, after, (dir) => existsSync(path.join(root, dir)));
+  if (text === null) {
+    console.warn("[e2e] tsconfig.json changed during the run beyond Next's own edits — left as is.");
+    return;
   }
-  console.warn("[e2e] tsconfig.json changed during the run beyond Next's own edits — left as is.");
+  if (text !== after) writeFileSync(tsconfigPath, text);
 }
 
 let server = null;

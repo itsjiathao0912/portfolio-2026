@@ -192,30 +192,38 @@ const site = {
 export default site;
 
 /**
- * Thao's own LinkedIn posts, shown on the home page as official LinkedIn
- * embeds (https://www.linkedin.com/embed/feed/update/<urn>). `height` comes
- * from LinkedIn's embed snippet; `url` is the public post link. Deduped by urn.
+ * Thao's own LinkedIn posts, shown on the home page as static preview cards.
+ * The official embed (https://www.linkedin.com/embed/feed/update/<urn>) loads
+ * only after a "Load post" tap, so no LinkedIn request (or cookie banner)
+ * happens until the visitor asks. `excerpt` is the post's own opening text
+ * (public embed page, fetched 3 Oct 2026); `date` comes from the post id.
  */
 export const linkedinPosts = [
   {
     urn: "urn:li:share:7504889327873626112",
-    height: 668,
     title: "Vietnam's payment infrastructure: identity at its core",
+    date: "2026-09-13",
+    excerpt:
+      "Vietnam's fintech story is often told through wallets, QR codes, and super apps. But the more important story may be the payment infrastructure behind them. In many markets, KYC is procurement. In Vietnam, identity is a state database you connect to.",
     url: "https://www.linkedin.com/feed/update/urn:li:share:7504889327873626112/",
   },
   {
     urn: "urn:li:ugcPost:7505576167261966336",
-    height: 1007,
     title: "Inside Vietnam's bank transfer system: NAPAS 247 and SIMO",
+    date: "2026-09-15",
+    excerpt:
+      "I was scammed through a bank transfer, less than VND 2 million for a hotel booking that did not exist. My starting question: what could my bank know about the account I was paying? I explored how NAPAS 247 carries interbank payments, and how SIMO helps banks assess suspicious destinations.",
     url: "https://www.linkedin.com/feed/update/urn:li:ugcPost:7505576167261966336/",
   },
   {
     urn: "urn:li:activity:7483045282734104576",
-    height: 760,
     title: "Agentic AI Build Week 2026: 2nd place with Cortex Sentinel",
+    date: "2026-07-15",
+    excerpt:
+      "Runner-Up at the largest agentic AI buildathon in Southeast Asia. Our solution, Cortex Sentinel, is an AML compliance hub where analysts write detection rules in plain English. AI proposes, humans decide.",
     url: "https://www.linkedin.com/posts/thaodao0912_aabw-aabw2026-activity-7483045282734104576-zhg8",
   },
-] as const satisfies readonly { urn: string; height: number; title: string; url: string }[];
+] as const satisfies readonly { urn: string; title: string; date: string; excerpt: string; url: string }[];
 
 // Real photos of Thao (optimised copies of her own uploads; see
 // research-private/materials/media). `place` says where each one is used.
@@ -226,8 +234,8 @@ export const photos = [
     src: "/photos/aabw-winners-stage.webp",
     width: 1600,
     height: 1067,
-    alt: "Thao with her team on stage as Financial Services II track winners at Agentic AI Build Week 2026",
-    caption: "Agentic AI Build Week 2026 · track winners on stage",
+    alt: "Thao with her team on stage after taking 2nd place at Agentic AI Build Week 2026",
+    caption: "Agentic AI Build Week 2026 · 2nd place",
     place: ["home", "about"],
   },
   {
@@ -240,12 +248,12 @@ export const photos = [
     place: ["home", "about"],
   },
   {
-    id: "ledgr-meetup",
-    src: "/photos/ledgr-meetup-group.webp",
+    id: "bs33-ledgr-demo",
+    src: "/photos/bs33-ledgr-demo-room.webp",
     width: 1600,
     height: 900,
-    alt: "Group photo of builders at the meetup where Ledgr was demoed",
-    caption: "Ledgr demo night · the whole room",
+    alt: "The darkened room at Build Stuffs #33 during demos, builders facing the projector screen",
+    caption: "Build Stuffs #33 · Ledgr demo",
     place: ["home"],
   },
 ] as const satisfies readonly {

@@ -190,7 +190,7 @@ const project = {
     {
       type: "image",
       src: "/work/cortex-sentinel/stage.webp",
-      alt: "Thao and the Cortex Sentinel team on stage as track winners, Agentic AI Build Week 2026",
+      alt: "Thao and the Cortex Sentinel team on stage after taking 2nd place, Agentic AI Build Week 2026",
       caption: "On stage with the team after placing second.",
       size: "wide",
     },

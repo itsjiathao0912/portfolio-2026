@@ -42,7 +42,7 @@ const project = {
       type: "paragraph",
       text: "PAC is a cloud platform that sells compute, storage, and network services to tenants across multiple regions. Its billing has to turn multi-service usage into accurate tenant invoices.",
     },
-    { type: "metrics", items: [{ value: "4", label: "providers: AWS, Azure, Huawei, Alibaba Cloud" }] },
+    { type: "metrics", items: [{ value: "4", label: "providers: AWS, Azure, Huawei, Alibaba Cloud" }], source: "Thao's CV (SkyLab, PAC billing platform)" },
     { type: "heading", text: "My role", icon: "user-round", eyebrow: "Ownership" },
     {
       type: "paragraph",

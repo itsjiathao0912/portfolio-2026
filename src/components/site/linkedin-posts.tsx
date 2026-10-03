@@ -1,15 +1,17 @@
 "use client";
 
 import { ArrowUpRight } from "lucide-react";
-import { useInView } from "motion/react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { LinkedinIcon } from "./brand-icons";
 import { Reveal } from "./reveal";
 
 export interface LinkedinPost {
   urn: string;
-  height: number;
   title: string;
+  /** ISO date (YYYY-MM-DD). */
+  date: string;
+  /** The post's own opening text, shown before the embed is loaded. */
+  excerpt: string;
   url: string;
 }
 
@@ -26,54 +28,60 @@ export function dedupePosts<T extends { urn: string }>(posts: readonly T[]) {
   return posts.filter((p) => linkedinEmbedSrc(p.urn) && !seen.has(p.urn) && (seen.add(p.urn), true));
 }
 
-const FRAME_W = 504;
+/** Every card is the same height, preview or loaded, so the row stays even. */
+export const CARD_H = 520;
 
-function Embed({ post }: { post: LinkedinPost }) {
-  const ref = useRef<HTMLDivElement>(null);
-  // Load LinkedIn only when the card is near the viewport (privacy + perf).
-  const near = useInView(ref, { once: true, margin: "600px 0px" });
-  const [loaded, setLoaded] = useState(false);
+const DATE_FMT = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+
+/** "13 Sep 2026" for an ISO date; the raw string when it does not parse. */
+export function formatPostDate(iso: string) {
+  const d = new Date(`${iso}T00:00:00Z`);
+  return Number.isNaN(d.getTime()) ? iso : DATE_FMT.format(d);
+}
+
+function PostCard({ post }: { post: LinkedinPost }) {
+  // No LinkedIn request until the visitor asks: a cross-origin embed always
+  // opens with LinkedIn's own cookie banner, which we cannot hide.
+  const [open, setOpen] = useState(false);
   const src = linkedinEmbedSrc(post.urn)!;
   return (
-    <div ref={ref} className="relative isolate z-0 overflow-hidden rounded-[20px] bg-bg shadow-card ring-1 ring-black/5" style={{ height: post.height }}>
-      {!loaded ? (
-        <div data-testid="linkedin-placeholder" className="absolute inset-0 flex flex-col gap-4 p-6" aria-hidden="true">
-          <div className="flex items-center gap-3">
-            <span className="size-12 rounded-full bg-canvas" />
-            <span className="flex flex-col gap-2">
-              <span className="h-3 w-32 rounded bg-canvas" />
-              <span className="h-3 w-20 rounded bg-canvas" />
-            </span>
-          </div>
-          <p className="text-[15px] font-medium text-ink-1">{post.title}</p>
-          <span className="mt-2 h-48 rounded-xl bg-canvas" />
-          <LinkedinIcon className="mt-auto size-6 self-end text-[#0a66c2]" />
-        </div>
-      ) : null}
-      {near ? (
+    <div className="relative isolate z-0 overflow-hidden rounded-[20px] bg-bg shadow-card ring-1 ring-black/5" style={{ height: CARD_H }} data-testid="linkedin-card">
+      {open ? (
         <iframe
           src={src}
           title={`LinkedIn post: ${post.title}`}
-          width={FRAME_W}
-          height={post.height}
-          loading="lazy"
           referrerPolicy="strict-origin-when-cross-origin"
-          onLoad={() => setLoaded(true)}
           data-testid="linkedin-embed"
-          data-loaded={loaded ? "true" : "false"}
-          // Until LinkedIn has painted, the frame is invisible and inert so a
-          // half-loaded third-party document can never catch taps or scrolls.
-          className={loaded ? "block h-full w-full border-0" : "pointer-events-none block h-full w-full border-0 opacity-0"}
+          className="block h-full w-full border-0"
         />
-      ) : null}
+      ) : (
+        <div data-testid="linkedin-preview" className="flex h-full flex-col gap-4 p-6">
+          <div className="flex items-center justify-between gap-3">
+            <time dateTime={post.date} className="text-[13px] text-ink-3">
+              {formatPostDate(post.date)}
+            </time>
+            <LinkedinIcon className="size-6 text-[#0a66c2]" />
+          </div>
+          <p className="text-[18px] leading-[1.3] font-semibold text-ink-1">{post.title}</p>
+          <p className="line-clamp-[9] text-[15px] leading-[1.55] text-ink-2">{post.excerpt}</p>
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="mt-auto inline-flex min-h-11 items-center justify-center rounded-full bg-ink-1 px-5 text-[14px] font-medium text-bg transition-opacity hover:opacity-85"
+            aria-label={`Load post from LinkedIn: ${post.title}`}
+          >
+            Load post
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 /**
- * "On LinkedIn": Thao's posts as official embeds. Desktop: a row of cards;
- * phone: a horizontal snap scroller. Each iframe mounts only near the
- * viewport, with a placeholder card until it loads.
+ * "On LinkedIn": Thao's posts as static preview cards (excerpt + date). A
+ * "Load post" tap swaps in the official embed. Desktop: a row of equal-height
+ * cards; phone: a horizontal snap scroller.
  */
 export function LinkedinPosts({ posts, profileUrl }: { posts: readonly LinkedinPost[]; profileUrl: string | null }) {
   const list = dedupePosts(posts);
@@ -98,9 +106,8 @@ export function LinkedinPosts({ posts, profileUrl }: { posts: readonly LinkedinP
       <ul className="mt-10 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-6 pb-4 [scrollbar-width:none] md:gap-6 md:px-10 lg:justify-center lg:px-[60px]">
         {list.map((post, i) => (
           <Reveal as="li" index={i} key={post.urn} className="w-[86vw] max-w-[504px] shrink-0 snap-center md:w-[420px] lg:w-[400px]">
-            <Embed post={post} />
-            <div className="mt-4 flex items-start justify-between gap-4 px-1">
-              <p className="text-[15px] leading-[1.4] font-medium text-ink-1">{post.title}</p>
+            <PostCard post={post} />
+            <div className="mt-4 flex justify-end px-1">
               <a
                 href={post.url}
                 target="_blank"

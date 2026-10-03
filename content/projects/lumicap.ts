@@ -50,7 +50,7 @@ const project = {
       type: "paragraph",
       text: "Lumicap turns real-world assets — GPU and compute capacity — into on-chain investment funds. Investors who are not crypto-native need to understand what they hold, what it is worth, and where their money moved.",
     },
-    { type: "metrics", items: [{ value: "6", label: "modules in the investor-facing product" }] },
+    { type: "metrics", items: [{ value: "6", label: "modules in the investor-facing product" }], source: "Thao's CV (SkyLab, Lumicap)" },
     {
       type: "metrics",
       badge: "Company figure",
