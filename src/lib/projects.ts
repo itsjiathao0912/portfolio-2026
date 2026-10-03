@@ -1,5 +1,5 @@
 import { queryAll, queryFirst } from "./db";
-import { rowToProject, type ProjectRow } from "./project-rows";
+import { PROJECT_SELECT, rowToProject, type ProjectRow } from "./project-rows";
 
 /**
  * Published projects in display order. Rows that fail validation are skipped
@@ -8,7 +8,7 @@ import { rowToProject, type ProjectRow } from "./project-rows";
 export async function listPublishedProjects(db: D1Database) {
   const rows = await queryAll<ProjectRow>(
     db,
-    `SELECT * FROM "Project" WHERE "published" = 1 ORDER BY "sortOrder" ASC, "title" ASC`
+    `${PROJECT_SELECT} WHERE p."published" = 1 ORDER BY p."sortOrder" ASC, p."title" ASC`
   );
   const projects = [];
   const errors: string[] = [];
@@ -17,15 +17,12 @@ export async function listPublishedProjects(db: D1Database) {
     if (parsed.ok) projects.push(parsed.project);
     else errors.push(parsed.error);
   }
+  if (errors.length > 0) console.error("[projects] skipped invalid rows:", errors);
   return { projects, errors };
 }
 
 export async function getPublishedProjectBySlug(db: D1Database, slug: string) {
-  const row = await queryFirst<ProjectRow>(
-    db,
-    `SELECT * FROM "Project" WHERE "slug" = ? AND "published" = 1`,
-    slug
-  );
+  const row = await queryFirst<ProjectRow>(db, `${PROJECT_SELECT} WHERE p."slug" = ? AND p."published" = 1`, slug);
   if (!row) return { ok: false, error: "not-found" } as const;
   return rowToProject(row);
 }

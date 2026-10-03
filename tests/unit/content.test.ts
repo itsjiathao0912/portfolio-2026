@@ -30,6 +30,7 @@ describe("content/", () => {
       published: false,
       sortOrder: 0,
     });
+    expect(result.projects[0].meta).toMatchObject({ tint: "sky", featured: false, proof: [], logo: null });
   });
 
   test("rejects a non-kebab-case slug", () => {

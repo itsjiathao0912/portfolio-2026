@@ -28,3 +28,24 @@ CREATE TABLE IF NOT EXISTS "Project" (
 
 CREATE UNIQUE INDEX IF NOT EXISTS "Project_slug_key" ON "Project" ("slug");
 CREATE INDEX IF NOT EXISTS "Project_published_sortOrder_idx" ON "Project" ("published", "sortOrder");
+
+-- Presentation fields for a project (company, tint, proof numbers, logo).
+-- A separate table rather than new Project columns, so this file stays a pure
+-- CREATE IF NOT EXISTS script that is safe on an existing database.
+CREATE TABLE IF NOT EXISTS "ProjectMeta" (
+  "projectId" TEXT PRIMARY KEY NOT NULL,
+  "data"      TEXT NOT NULL DEFAULT '{}',
+  "updatedAt" TEXT NOT NULL
+);
+
+-- Site-wide content (profile, experience, education, certifications, awards,
+-- skills). One row per item, grouped by collection, JSON body in data.
+CREATE TABLE IF NOT EXISTS "ContentEntry" (
+  "id"         TEXT PRIMARY KEY NOT NULL,
+  "collection" TEXT NOT NULL,
+  "sortOrder"  INTEGER NOT NULL DEFAULT 0,
+  "data"       TEXT NOT NULL,
+  "updatedAt"  TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS "ContentEntry_collection_sortOrder_idx" ON "ContentEntry" ("collection", "sortOrder");

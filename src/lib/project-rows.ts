@@ -5,6 +5,12 @@
 
 import { projectInputSchema, type Project } from "../../content/schema.ts";
 
+type SqlParam = string | number | null;
+export interface Statement {
+  sql: string;
+  params: SqlParam[];
+}
+
 /** Columns of the "Project" table, in INSERT order. */
 export const PROJECT_COLUMNS = [
   "id",
@@ -41,10 +47,12 @@ export interface ProjectRow {
   sortOrder: number;
   published: number;
   updatedAt: string;
+  /** ProjectMeta.data, joined in by the read queries (null when no meta row). */
+  meta?: string | null;
 }
 
 export function projectToRow(project: Project) {
-  return {
+  const row = {
     id: project.id,
     slug: project.slug,
     title: project.title,
@@ -61,6 +69,7 @@ export function projectToRow(project: Project) {
     published: project.published ? 1 : 0,
     updatedAt: project.updatedAt,
   } satisfies ProjectRow;
+  return { ...row, meta: JSON.stringify(project.meta) };
 }
 
 function parseJson(value: string) {
@@ -79,7 +88,8 @@ export function rowToProject(row: ProjectRow) {
   const tags = parseJson(row.tags);
   const blocks = parseJson(row.blocks);
   const links = parseJson(row.links);
-  if (!tags.ok || !blocks.ok || !links.ok) {
+  const meta = row.meta == null ? ({ ok: true, value: {} } as const) : parseJson(row.meta);
+  if (!tags.ok || !blocks.ok || !links.ok || !meta.ok) {
     return { ok: false, error: `Project ${row.id}: a JSON column is not valid JSON` } as const;
   }
 
@@ -88,6 +98,7 @@ export function rowToProject(row: ProjectRow) {
     tags: tags.value,
     blocks: blocks.value,
     links: links.value,
+    meta: meta.value,
     published: row.published === 1,
   });
   if (!parsed.success) {
@@ -107,7 +118,23 @@ export function buildProjectUpsert(project: Project) {
   return {
     sql: `INSERT INTO "Project" (${columns}) VALUES (${placeholders}) ON CONFLICT("id") DO UPDATE SET ${updates}`,
     params: PROJECT_COLUMNS.map((c) => row[c]),
-  };
+  } satisfies Statement;
+}
+
+function buildMetaUpsert(project: Project) {
+  return {
+    sql: `INSERT INTO "ProjectMeta" ("projectId", "data", "updatedAt") VALUES (?, ?, ?) ON CONFLICT("projectId") DO UPDATE SET "data" = excluded."data", "updatedAt" = excluded."updatedAt"`,
+    params: [project.id, JSON.stringify(project.meta), project.updatedAt],
+  } satisfies Statement;
+}
+
+function pruneStatement(table: string, column: string, ids: readonly string[]) {
+  return ids.length === 0
+    ? ({ sql: `DELETE FROM "${table}"`, params: [] } satisfies Statement)
+    : ({
+        sql: `DELETE FROM "${table}" WHERE "${column}" NOT IN (${ids.map(() => "?").join(", ")})`,
+        params: [...ids],
+      } satisfies Statement);
 }
 
 /**
@@ -117,14 +144,18 @@ export function buildProjectUpsert(project: Project) {
  */
 export function buildSeedStatements(projects: readonly Project[]) {
   const ids = projects.map((p) => p.id);
-  const prune =
-    ids.length === 0
-      ? { sql: `DELETE FROM "Project"`, params: [] as (string | number | null)[] }
-      : { sql: `DELETE FROM "Project" WHERE "id" NOT IN (${ids.map(() => "?").join(", ")})`, params: ids };
-  return [...projects.map(buildProjectUpsert), prune];
+  return [
+    ...projects.map(buildProjectUpsert),
+    ...projects.map(buildMetaUpsert),
+    pruneStatement("Project", "id", ids),
+    pruneStatement("ProjectMeta", "projectId", ids),
+  ];
 }
 
-function sqlLiteral(value: string | number | null) {
+/** SELECT list used by every project read: the row plus its joined meta. */
+export const PROJECT_SELECT = `SELECT p.*, m."data" AS "meta" FROM "Project" p LEFT JOIN "ProjectMeta" m ON m."projectId" = p."id"`;
+
+function sqlLiteral(value: SqlParam) {
   if (value === null) return "NULL";
   if (typeof value === "number") {
     if (!Number.isFinite(value)) throw new Error(`Non-finite number cannot be written as SQL: ${value}`);
@@ -139,7 +170,7 @@ function sqlLiteral(value: string | number | null) {
  * (the standard SQLite string-literal escape). Placeholders are substituted in
  * one pass over the TEMPLATE, so a `?` inside a value is never re-substituted.
  */
-export function renderStatementsAsSql(statements: readonly { sql: string; params: readonly (string | number | null)[] }[]) {
+export function renderStatementsAsSql(statements: readonly { sql: string; params: readonly SqlParam[] }[]) {
   return statements
     .map(({ sql, params }) => {
       let i = 0;

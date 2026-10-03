@@ -12,9 +12,10 @@
 import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { projectEntries } from "../content/index.ts";
-import { parseProjects } from "../content/schema.ts";
+import { projectEntries, siteEntry } from "../content/index.ts";
+import { parseProjects, parseSite } from "../content/schema.ts";
 import { buildSeedStatements, renderStatementsAsSql } from "../src/lib/project-rows.ts";
+import { buildSiteSeedStatements } from "../src/lib/site-rows.ts";
 import { capture, D1_DATABASE_NAME, loadProdEnvOrExit } from "./lib/prod-env.mjs";
 
 const target = process.argv.includes("--remote") ? "remote" : process.argv.includes("--local") ? "local" : null;
@@ -30,7 +31,17 @@ if (!parsed.ok) {
   process.exit(1);
 }
 
-const statements = buildSeedStatements(parsed.projects);
+const site = parseSite(siteEntry);
+if (!site.ok) {
+  console.error("Site content is invalid — nothing was written:");
+  for (const error of site.errors) console.error(`  - ${error}`);
+  process.exit(1);
+}
+
+// Site entries share one timestamp: the newest project update (deterministic, so
+// re-seeding unchanged content writes identical rows).
+const siteUpdatedAt = parsed.projects.map((p) => p.updatedAt).sort().at(-1) ?? "2026-01-01T00:00:00.000Z";
+const statements = [...buildSeedStatements(parsed.projects), ...buildSiteSeedStatements(site.site, siteUpdatedAt)];
 const migration = readFileSync(path.join(process.cwd(), "schema", "migration.sql"), "utf8");
 
 if (target === "local") {
@@ -44,8 +55,9 @@ if (target === "local") {
   });
   apply();
   const count = db.prepare(`SELECT COUNT(*) AS n FROM "Project"`).get().n;
+  const entries = db.prepare(`SELECT COUNT(*) AS n FROM "ContentEntry"`).get().n;
   db.close();
-  console.log(`Seeded ${parsed.projects.length} project(s) into ${path.relative(process.cwd(), dbPath) || dbPath} (table now has ${count}).`);
+  console.log(`Seeded ${parsed.projects.length} project(s) into ${path.relative(process.cwd(), dbPath) || dbPath} (table now has ${count}) and ${entries} site entries.`);
 } else {
   loadProdEnvOrExit();
   const probe = capture("npx", ["wrangler", "d1", "list", "--json"]);
