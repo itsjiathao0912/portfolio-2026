@@ -27,6 +27,8 @@ const project = {
     proof: [{ value: "4", label: "cloud providers' pricing standardized" }],
     headline: "Four cloud providers' pricing, one billing system.",
     tone: "light",
+    layout: "magazine",
+    lede: "Billing for a multi-region cloud platform, owned end to end at SkyLab Group.",
     emoji: "☁️",
     color: "#3b82f6",
     visual: {
@@ -45,6 +47,19 @@ const project = {
     {
       type: "paragraph",
       text: "I owned the billing domain end-to-end: usage metering, multi-currency pricing, invoices, credit notes, and revenue dashboards. I specified the API-heavy integrations that turn multi-service usage into tenant invoices.",
+    },
+    {
+      type: "flow",
+      title: "Four price books into one invoice",
+      caption: "The scope of the billing domain, as described in my CV. A conceptual view, not a system diagram.",
+      source: "Thao's CV",
+      fanIn: ["AWS", "Azure", "Huawei Cloud", "Alibaba Cloud"],
+      steps: [
+        { label: "One pricing model", detail: "Standardised, multi-currency" },
+        { label: "Usage metering", detail: "Per tenant, per service" },
+        { label: "Invoices and credit notes", detail: "Issued to tenants" },
+        { label: "Payment reconciliation", detail: "Usage vs invoice vs payment" },
+      ],
     },
     { type: "heading", text: "What shipped", icon: "sparkles", eyebrow: "Features" },
     {

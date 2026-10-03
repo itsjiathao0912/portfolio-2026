@@ -65,8 +65,89 @@ export const projectVisualSchema = z.discriminatedUnion("kind", [
   }),
 ]);
 
+/** Case-study page layout: how the body and hero are arranged. */
+export const CASE_LAYOUTS = ["story", "magazine", "showcase"] as const;
+export const caseLayoutSchema = z.enum(CASE_LAYOUTS);
+
+// ── Data-visualisation blocks ──────────────────────────────────────────────────
+// Every chart carries a title, an optional caption and a REQUIRED source line, so
+// no number can appear on the site without saying where it came from.
+const vizBase = {
+  title: z.string().min(1),
+  caption: z.string().optional(),
+  source: z.string().min(1),
+  /** Short honesty label shown as a chip, e.g. "Backtest" or "Company figure". */
+  badge: z.string().optional(),
+};
+const vizPoint = z.object({ label: z.string().min(1), value: z.number() });
+
 /** Ordered, typed content blocks that make up a case-study body. */
 export const contentBlockSchema = z.discriminatedUnion("type", [
+  // Horizontal bar chart. `group` colours bars and builds the legend.
+  z.object({
+    type: z.literal("barChart"),
+    ...vizBase,
+    unit: z.string().default(""),
+    items: z.array(vizPoint.extend({ group: z.string().optional() })).min(1),
+  }),
+  // Line chart over ordered categories (dates, sessions).
+  z.object({
+    type: z.literal("lineChart"),
+    ...vizBase,
+    xLabel: z.string().min(1),
+    yLabel: z.string().min(1),
+    points: z.array(vizPoint).min(2),
+  }),
+  // Funnel in percent of the first stage (first stage = 100).
+  z.object({
+    type: z.literal("funnel"),
+    ...vizBase,
+    stages: z.array(vizPoint.extend({ detail: z.string().optional() })).min(2),
+  }),
+  // Left-to-right sequence; `fanIn` lists inputs drawn as a column feeding step 1.
+  z.object({
+    type: z.literal("flow"),
+    ...vizBase,
+    source: z.string().default(""),
+    fanIn: z.array(z.string().min(1)).default([]),
+    steps: z.array(z.object({ label: z.string().min(1), detail: z.string().optional() })).min(2),
+  }),
+  // Hub-and-spoke map of modules around a core.
+  z.object({
+    type: z.literal("moduleMap"),
+    ...vizBase,
+    source: z.string().default(""),
+    center: z.string().min(1),
+    items: z.array(z.object({ label: z.string().min(1), detail: z.string().optional() })).min(2).max(8),
+  }),
+  z.object({
+    type: z.literal("timeline"),
+    ...vizBase,
+    source: z.string().default(""),
+    items: z.array(z.object({ date: z.string().min(1), label: z.string().min(1), detail: z.string().optional() })).min(2),
+  }),
+  // Two bars, before vs after, with the change called out.
+  z.object({
+    type: z.literal("beforeAfter"),
+    ...vizBase,
+    unit: z.string().default(""),
+    before: vizPoint,
+    after: vizPoint,
+  }),
+  // Horizontal, swipeable row of images (magazine / showcase galleries).
+  z.object({
+    type: z.literal("imageRow"),
+    caption: z.string().optional(),
+    images: z
+      .array(z.object({ src: assetSchema, alt: z.string().min(1), caption: z.string().optional(), device: z.enum(["phone", "browser", "plain"]).default("browser") }))
+      .min(2),
+  }),
+  // Pinned device whose screen changes as each step scrolls past (story layout).
+  z.object({
+    type: z.literal("story"),
+    device: z.enum(["laptop", "phone", "browser-free"]).default("laptop"),
+    steps: z.array(z.object({ title: z.string().min(1), text: z.string().min(1), src: assetSchema, alt: z.string().min(1) })).min(2),
+  }),
   // `toc` (default true for level 2) puts the heading in the case-study table of contents.
   z.object({
     type: z.literal("heading"),
@@ -89,7 +170,13 @@ export const contentBlockSchema = z.discriminatedUnion("type", [
   }),
   z.object({ type: z.literal("quote"), text: z.string().min(1), attribution: z.string().optional() }),
   z.object({ type: z.literal("list"), items: z.array(z.string().min(1)).min(1), ordered: z.boolean().default(false) }),
-  z.object({ type: z.literal("metrics"), items: z.array(metricSchema).min(1).max(4) }),
+  z.object({
+    type: z.literal("metrics"),
+    items: z.array(metricSchema).min(1).max(4),
+    /** Optional honesty chip + source line (e.g. company-published figures). */
+    badge: z.string().optional(),
+    source: z.string().optional(),
+  }),
   // Numbered two-column story grid ("1." / "2." numerals above a title + text).
   z.object({ type: z.literal("steps"), items: z.array(stepSchema).min(1) }),
   // Legacy name for `steps`, kept so older stored rows still render; renders identically.
@@ -120,6 +207,12 @@ export const projectMetaSchema = z.object({
   /** Card variant: `light` = pastel tint; `deep` = solid navy with white text. */
   tone: z.enum(["light", "deep"]).default("light"),
   visual: projectVisualSchema.default({ kind: "illustration", motif: "lineage" }),
+  /** Case-study layout. */
+  layout: caseLayoutSchema.default("story"),
+  /** One-line hero context under the headline; must not repeat it. Empty = summary. */
+  lede: z.string().default(""),
+  /** Extra real screens for the showcase fan / hero (beyond `visual`). */
+  screens: z.array(mockupScreenSchema.extend({ device: z.enum(["laptop", "phone", "browser-free"]).default("browser-free") })).max(4).default([]),
   /** One emoji for the project (hover/tap bursts). Optional. */
   emoji: z.string().min(1).max(8).optional(),
   /** Accent colour (hex) for the hover colour flood and accents. Optional. */
@@ -155,6 +248,9 @@ export type ProjectMeta = z.output<typeof projectMetaSchema>;
 export type Tint = z.infer<typeof tintSchema>;
 export type ProjectVisual = z.output<typeof projectVisualSchema>;
 export type SectionIcon = z.infer<typeof sectionIconSchema>;
+export type CaseLayout = z.infer<typeof caseLayoutSchema>;
+/** One content block of a given `type`. */
+export type BlockOf<T extends ContentBlock["type"]> = Extract<ContentBlock, { type: T }>;
 /** Input type for authors (defaults may be omitted). */
 export type ProjectInput = z.input<typeof projectInputSchema>;
 /** Fully-resolved project after validation. */

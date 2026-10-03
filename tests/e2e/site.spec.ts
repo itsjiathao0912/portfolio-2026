@@ -135,6 +135,7 @@ test("every project page opens from /work in the same tab", async ({ page }) => 
 test("case-study table of contents appears after the cover and follows the reader", async ({ page }) => {
   await page.goto("/work/ledgr");
   const toc = page.getByTestId("toc");
+  await page.evaluate(() => (document.documentElement.style.scrollBehavior = "auto"));
   // Hidden while the hero cover is on screen, shown once it scrolls away.
   await expect(toc).toHaveAttribute("data-shown", "false");
   await page.evaluate(() => {
@@ -160,9 +161,18 @@ test("case-study hero is centred with a sentence headline and a real visual", as
   await expect(page.getByTestId("project-badge")).toContainText("Ledgr");
   await expect(page.locator("#case-cover [data-device]").first()).toBeVisible();
   await expect(page.locator("[data-placeholder]")).toHaveCount(0);
-  // Features render as the numbered story grid; body images open in a lightbox.
-  await expect(page.getByTestId("steps")).toBeVisible();
-  await page.getByTestId("zoom-image").first().click();
+  // Story layout: pinned-device walkthrough plus charts that cite a source.
+  await expect(page.getByTestId("case-study")).toHaveAttribute("data-layout", "story");
+  await expect(page.getByTestId("story")).toBeVisible();
+  const charts = page.getByTestId("dataviz");
+  expect(await charts.count()).toBeGreaterThanOrEqual(4);
+  for (const chart of await charts.all()) await expect(chart.getByTestId("viz-source")).toContainText("Source:");
+  // The lede is a different sentence from the headline.
+  expect((await page.getByTestId("case-lede").innerText()).trim()).not.toBe((await h1.innerText()).trim());
+  // Showcase layout: a fan of real screens; bento images open in a lightbox.
+  await page.goto("/work/cosap");
+  await expect(page.getByTestId("fan")).toBeVisible();
+  await page.getByTestId("bento").getByTestId("zoom-image").first().click();
   await expect(page.getByTestId("lightbox")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByTestId("lightbox")).toHaveCount(0);

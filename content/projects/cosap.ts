@@ -27,6 +27,12 @@ const project = {
     proof: [{ value: "8", label: "modules designed" }, { value: "2", label: "markets: Korea and Singapore" }],
     headline: "An affordable SAP alternative for Korean SMBs.",
     tone: "light",
+    layout: "showcase",
+    lede: "One multi-tenant product for accounting, legal compliance and payroll, built for Korean SMBs.",
+    screens: [
+      { src: "/work/cosap/landing-mobile.webp", alt: "COSAP landing page on a phone", device: "phone" },
+      { src: "/work/cosap/landing-mobile-2.webp", alt: "COSAP product stack section on a phone", device: "phone" },
+    ],
     emoji: "🧾",
     color: "#10b981",
     visual: {
@@ -46,8 +52,27 @@ const project = {
     },
     { type: "metrics", items: [{ value: "8", label: "modules in the product design" }, { value: "2", label: "client markets: Korea and Singapore" }] },
     {
-      type: "callout",
-      text: "Company-published figures (cosap.ai, not my personal outcomes): 60% reduced review time, 24-hour risk detection and 40% fewer inquiries.",
+      type: "barChart",
+      title: "What COSAP says it delivers",
+      caption: "COSAP also advertises risk detection within 24 hours. These are company marketing figures, not my personal outcomes.",
+      source: "cosap.ai public website (company-published)",
+      badge: "Company figure",
+      unit: "%",
+      items: [
+        { label: "Less time spent on review", value: 60 },
+        { label: "Fewer customer inquiries", value: 40 },
+      ],
+    },
+    {
+      type: "flow",
+      title: "COSAP's three-tier AI engine",
+      caption: "How the public site describes the AI layer that runs under every module.",
+      source: "cosap.ai public website",
+      steps: [
+        { label: "Classification", detail: "Every card transaction is sorted" },
+        { label: "Anomaly detection", detail: "Fraud and risk scanning" },
+        { label: "Assistants", detail: "AI answers common questions" },
+      ],
     },
     { type: "heading", text: "My role", icon: "user-round", eyebrow: "Ownership" },
     {
@@ -63,7 +88,14 @@ const project = {
       ],
     },
     { type: "heading", text: "The product", icon: "package", eyebrow: "Public site" },
-    { type: "image", src: "/projects/cosap/site-desktop.jpg", alt: "COSAP public website home page", caption: "The public landing page." },
+    {
+      type: "gallery",
+      images: [
+        { src: "/projects/cosap/site-desktop.jpg", alt: "COSAP public website home page", caption: "The public landing page" },
+        { src: "/work/cosap/landing-mobile.webp", alt: "COSAP landing page on a phone", caption: "On a phone" },
+        { src: "/work/cosap/landing-mobile-2.webp", alt: "COSAP product stack section on a phone", caption: "The COSAP stack" },
+      ],
+    },
     { type: "heading", text: "Stack", icon: "layers", eyebrow: "Technology" },
     { type: "stack", items: ["Multi-tenant SaaS", "Toss Payments", "Lago", "RAG pipelines", "LLM orchestration"] },
     { type: "links", items: [{ label: "Visit cosap.ai", href: "https://cosap.ai/" }] },

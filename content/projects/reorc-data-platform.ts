@@ -30,6 +30,8 @@ const project = {
     ],
     headline: "Data people can trust, with 40% less rework.",
     tone: "light",
+    layout: "magazine",
+    lede: "Governance, lineage and UAT for Recurve, ReOrc's microservice data platform.",
     emoji: "🔗",
     color: "#8b5cf6",
     visual: {
@@ -56,10 +58,33 @@ const project = {
       type: "paragraph",
       text: "I benchmarked enterprise data platforms to design governance and access-control frameworks, improving compliance and the reliability of decisions made on the data.",
     },
+    {
+      type: "moduleMap",
+      title: "The platform areas I worked on",
+      source: "Thao's CV and the public Recurve documentation",
+      center: "Recurve",
+      items: [
+        { label: "Governance", detail: "Access control frameworks" },
+        { label: "Modeling and lineage", detail: "Trace where numbers come from" },
+        { label: "Pipeline health", detail: "Health tracking dashboard" },
+      ],
+    },
     { type: "heading", text: "Lineage and modeling", icon: "git-branch", eyebrow: "Features" },
     {
       type: "paragraph",
       text: "I designed and launched data modeling and lineage features that let business users trace where data comes from and what depends on it, reducing reporting ambiguity.",
+    },
+    {
+      type: "flow",
+      title: "From source to report in Recurve",
+      caption: "The product flow lineage has to explain, end to end.",
+      source: "Recurve public documentation (docs.reorc.com, getting started)",
+      steps: [
+        { label: "Connect sources", detail: "Databases and connectors" },
+        { label: "Build data models", detail: "From sources and SQL models" },
+        { label: "Chain pipelines", detail: "Scheduled jobs" },
+        { label: "Track health", detail: "Monitor runs on a dashboard" },
+      ],
     },
     { type: "heading", text: "Delivery and UAT", icon: "truck", eyebrow: "Process" },
     {

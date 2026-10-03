@@ -24,7 +24,8 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
       <div
         role="group"
         aria-label="Filter projects by category"
-        className="-mx-5 flex gap-1 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:flex-wrap md:justify-center md:px-0"
+        data-testid="filter-chips"
+        className="-mx-5 flex snap-x scroll-px-5 gap-1 overflow-x-auto px-5 pb-1 [mask-image:linear-gradient(90deg,transparent,#000_20px,#000_calc(100%-36px),transparent)] [scrollbar-width:none] md:mx-0 md:flex-wrap md:justify-center md:px-0 md:[mask-image:none]"
       >
         {["All", ...categories].map((name) => {
           const count = name === "All" ? projects.length : projects.filter((p) => p.category === name).length;
@@ -37,7 +38,7 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
               data-testid="filter-chip"
               onClick={() => setFilter(name)}
               className={cn(
-                "flex h-11 shrink-0 items-center gap-1.5 rounded-full px-4 text-[0.94rem] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent",
+                "flex h-11 shrink-0 snap-start items-center gap-1.5 rounded-full px-4 text-[0.94rem] font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent",
                 selected ? "bg-bg text-ink-1 shadow-nav" : "text-ink-3 hover:text-ink-1"
               )}
             >

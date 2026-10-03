@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { tocEntries } from "@content/schema.ts";
-import { CaseStudyBlocks, MetaStrip } from "@/components/site/case-study-blocks";
-import { CaseStudyHero } from "@/components/site/case-study-hero";
-import { CaseStudySectionMenu, CaseStudyToc, ReadingProgress } from "@/components/site/case-study-toc";
+import { MetaStrip } from "@/components/site/case-study-blocks";
+import { CaseBlocks } from "@/components/site/case-study/blocks";
+import { CaseHero } from "@/components/site/case-study/case-hero";
+import { CaseProgress, CaseSectionMenu, CaseToc } from "@/components/site/case-study/toc";
 import { LiquidLink } from "@/components/site/liquid-link";
 import { WorkCard } from "@/components/site/work-card";
 import { loadProject, loadProjects } from "@/lib/load";
+import { cn } from "@/lib/utils";
 
 interface Params {
   params: Promise<{ slug: string }>;
@@ -16,10 +18,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const project = await loadProject(slug);
   if (!project) return { title: "Not found" };
-  return { title: project.title, description: project.meta.headline || project.summary };
+  return { title: project.title, description: project.meta.lede || project.summary };
 }
 
 const COVER_ID = "case-cover";
+const BODY_ID = "case-body";
 
 export default async function CaseStudyPage({ params }: Params) {
   const { slug } = await params;
@@ -38,21 +41,21 @@ export default async function CaseStudyPage({ params }: Params) {
   ].filter((item) => item.value);
 
   return (
-    <main id="top" data-testid="case-study" data-slug={project.slug}>
-      <ReadingProgress />
-      <CaseStudyHero project={project} coverId={COVER_ID} />
+    <main id="top" data-testid="case-study" data-slug={project.slug} data-layout={meta.layout}>
+      <CaseProgress />
+      <CaseHero project={project} coverId={COVER_ID} />
 
-      {/* Centred 800 px reading column; the TOC lives in the left margin (xl+). */}
+      {/* Reading column (680 px for magazine, 800 px otherwise); the TOC lives in the left margin (xl+). */}
       {toc.length > 1 ? (
         <>
-          <CaseStudyToc entries={toc} coverId={COVER_ID} />
-          <CaseStudySectionMenu entries={toc} coverId={COVER_ID} />
+          <CaseToc entries={toc} startId={BODY_ID} />
+          <CaseSectionMenu entries={toc} startId={BODY_ID} />
         </>
       ) : null}
-      <article className="mx-auto max-w-[800px] px-5 pt-16 md:pt-24">
+      <article id={BODY_ID} className={cn("mx-auto px-5 pt-16 md:pt-24", meta.layout === "magazine" ? "max-w-[720px]" : "max-w-[800px]")}>
         <MetaStrip items={metaRow} />
         <div className="pt-16 md:pt-24">
-          <CaseStudyBlocks blocks={project.blocks} title={project.title} />
+          <CaseBlocks blocks={project.blocks} title={project.title} layout={meta.layout} />
         </div>
       </article>
 

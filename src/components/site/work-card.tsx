@@ -85,6 +85,7 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
           )}
         />
         <div
+          style={{ viewTransitionName: `project-card-${project.slug}` }}
           className={cn(
             "shrink-0 transition-transform duration-300 ease-out group-hover:-translate-y-2 motion-reduce:transform-none",
             meta.visual.kind === "illustration" ? "w-[112%] translate-y-[8%]" : "w-[118%] translate-y-[12%]"
