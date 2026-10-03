@@ -11,18 +11,12 @@ export const metadata: Metadata = {
 export default async function WorkPage() {
   const [projects, site] = await Promise.all([loadProjects(), loadSite()]);
   return (
-    <main className="mx-auto max-w-6xl px-5 pt-32 pb-16 md:px-8 md:pt-40" data-testid="work-page">
-      <header className="flex max-w-3xl flex-col gap-4">
-        <p className="label-mono text-accent">Work</p>
-        <h1 className="text-[2.5rem] md:text-7xl">All projects</h1>
-        <p className="text-lg leading-relaxed text-ink-2">
-          Three platforms owned end-to-end at SkyLab Group, growth and data work at Zalo and ReOrc AI, and the products I
-          build on my own time.
-        </p>
-      </header>
-      <div className="mt-12">
+    <main className="bg-canvas px-5 pt-28 pb-16 md:px-8 md:pt-[150px] xl:px-0" data-testid="work-page">
+      {/* No page header: the grid is the page. One sr-only H1 keeps the outline. */}
+      <h1 className="sr-only">All projects</h1>
+      <div className="mx-auto xl:max-w-none">
         {projects.length === 0 ? (
-          <p className="text-ink-3" data-testid="empty-state">
+          <p className="text-center text-ink-3" data-testid="empty-state">
             No projects yet.
           </p>
         ) : (
@@ -30,7 +24,7 @@ export default async function WorkPage() {
         )}
       </div>
       {site ? (
-        <div className="-mx-2 pt-28 md:mx-0">
+        <div className="mx-auto max-w-6xl pt-28 xl:px-8">
           <ContactBand profile={site.profile} />
         </div>
       ) : null}

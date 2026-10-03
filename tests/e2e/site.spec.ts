@@ -106,23 +106,53 @@ test("every project page opens from /work in the same tab", async ({ page }) => 
   expect(errors).toEqual([]);
 });
 
-test("case-study table of contents follows the reader", async ({ page }) => {
+test("case-study table of contents appears after the cover and follows the reader", async ({ page }) => {
   await page.goto("/work/ledgr");
   const toc = page.getByTestId("toc");
+  // Hidden while the hero cover is on screen, shown once it scrolls away.
+  await expect(toc).toHaveAttribute("data-shown", "false");
+  await page.evaluate(() => {
+    const cover = document.getElementById("case-cover")!;
+    window.scrollTo(0, cover.getBoundingClientRect().bottom + window.scrollY + 100);
+  });
+  await expect(toc).toHaveAttribute("data-shown", "true");
   await expect(toc).toBeVisible();
-  const links = toc.locator("a");
-  await expect(links.first()).toHaveAttribute("data-active", "true");
-  const last = links.last();
+  const sections = toc.locator("a[data-section]");
+  await expect(sections.first()).toHaveAttribute("data-active", "true");
+  await expect(toc.getByRole("link", { name: "Get in touch" })).toHaveAttribute("href", "#contact");
+  await expect(toc.getByRole("link", { name: "Top" })).toHaveAttribute("href", "#top");
+  const last = sections.last();
   await last.click();
   await expect(last).toHaveAttribute("data-active", "true");
-  await expect(links.first()).toHaveAttribute("data-active", "false");
+  await expect(sections.first()).toHaveAttribute("data-active", "false");
+});
+
+test("case-study hero is centred with a sentence headline and a real visual", async ({ page }) => {
+  await page.goto("/work/ledgr");
+  const h1 = page.locator("h1");
+  await expect(h1).toHaveCSS("text-align", "center");
+  await expect(page.getByTestId("project-badge")).toContainText("Ledgr");
+  await expect(page.locator("#case-cover [data-device]").first()).toBeVisible();
+  await expect(page.locator("[data-placeholder]")).toHaveCount(0);
+  // Features render as the numbered story grid; body images open in a lightbox.
+  await expect(page.getByTestId("steps")).toBeVisible();
+  await page.getByTestId("zoom-image").first().click();
+  await expect(page.getByTestId("lightbox")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("lightbox")).toHaveCount(0);
+});
+
+test("projects without screenshots get an illustration, not a placeholder", async ({ page }) => {
+  await page.goto("/work");
+  await expect(page.locator("[data-illustration]")).toHaveCount(3);
+  await expect(page.locator("[data-placeholder]")).toHaveCount(0);
 });
 
 test("next-project card navigates to another case study", async ({ page }) => {
   await page.goto("/work/lumicap");
-  await page.getByTestId("next-project").locator("a").first().click();
+  await page.getByTestId("next-project").getByTestId("project-card").click();
   await expect(page).toHaveURL(/\/work\/cosap$/);
-  await expect(page.locator("h1")).toHaveText("COSAP");
+  await expect(page.getByTestId("case-study")).toHaveAttribute("data-slug", "cosap");
 });
 
 test("unknown pages return a real 404 with a way back", async ({ page }) => {

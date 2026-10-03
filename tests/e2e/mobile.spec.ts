@@ -59,5 +59,17 @@ test("pages fit 390px with no sideways scroll and no console errors", async ({ p
   // The TOC is desktop-only.
   await page.goto("/work/ledgr");
   await expect(page.getByTestId("toc")).toBeHidden();
+  // Below xl a "sections" pill replaces it once the cover scrolls away.
+  await page.evaluate(() => {
+    const cover = document.getElementById("case-cover")!;
+    window.scrollTo(0, cover.getBoundingClientRect().bottom + window.scrollY + 100);
+  });
+  const pill = page.getByTestId("section-menu-button");
+  await expect(pill).toBeVisible();
+  await pill.click();
+  const sheet = page.getByRole("dialog", { name: "Sections" });
+  await expect(sheet).toBeVisible();
+  await sheet.getByRole("link").first().click();
+  await expect(sheet).toHaveCount(0);
   expect(errors.filter((e) => !e.includes("404"))).toEqual([]);
 });
