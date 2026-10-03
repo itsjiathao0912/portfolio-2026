@@ -1,16 +1,17 @@
 "use client";
 
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Project } from "@content/schema.ts";
 import { SPRING } from "@/components/motion/springs";
-import { usePersona } from "@/components/signature/participate/store";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { emojiFor } from "./home/project-meta";
-import { PersonaControl } from "./home/persona-control";
-import { GLIDE_NUDGE, HOME_PERSONA_NOTE, flipOffset, homePersona, orderForPersona } from "./home/persona-order";
+import { GLIDE_NUDGE, flipOffset, orderFor, orderForPersona } from "./home/persona-order";
 import { StackCard, type StackSurface } from "./stack-card";
+import { ROLES } from "./visitor/roles";
+import { BEFORE_ROLE_EVENT, useVisitor } from "./visitor/store";
+import { VisitorChip } from "./visitor/visitor-chip";
 
 interface Group {
   label: string;
@@ -64,18 +65,18 @@ function TocItem({ project, active, reduce }: { project: Project; active: boolea
 }
 
 /**
- * Home project stack. Heading and the persona control sit on the same canvas
+ * Home project stack. Heading and the visitor picker sit on the same canvas
  * surface as the highlights above and the cards below, so there is no seam. A
  * sticky grouped TOC (≥1024px) has an emoji per project and a sliding active
- * pill; phones get a chip rail. Choosing a persona reorders the cards (layout
- * animation) and the TOC to match.
+ * pill; phones get a chip rail. Choosing a role reorders the cards (a calm
+ * glide) and the TOC to match; a role without its own order keeps the default.
  */
 export function ProjectStack({ projects }: { projects: Project[] }) {
   const reduce = useReducedMotion();
-  const { persona: stored, setPersona } = usePersona();
-  const persona = homePersona(stored);
+  const { role: persona, collapsed, setPickerOpen, ready } = useVisitor();
   const groups = groupProjects(projects);
-  const ordered = persona ? orderForPersona(projects, persona) : groups.flatMap((g) => g.projects);
+  const hasOrder = orderFor(persona) !== undefined;
+  const ordered = hasOrder ? orderForPersona(projects, persona) : groups.flatMap((g) => g.projects);
   const [active, setActive] = useState(ordered[0]?.slug ?? "");
   const rail = useRef<HTMLUListElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -84,15 +85,17 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
   const before = useRef<Map<string, number> | null>(null);
   const orderKey = ordered.map((p) => p.slug).join("|");
 
-  const choosePersona = useCallback(
-    (next: Parameters<typeof setPersona>[0]) => {
+  // The picker (top panel or modal) announces a role change just before it applies it:
+  // remember where each card sits so the reorder can glide from there.
+  useEffect(() => {
+    function remember() {
       const tops = new Map<string, number>();
       cardEls.current.forEach((el, slug) => tops.set(slug, el.getBoundingClientRect().top + window.scrollY));
       before.current = tops;
-      setPersona(next);
-    },
-    [setPersona]
-  );
+    }
+    window.addEventListener(BEFORE_ROLE_EVENT, remember);
+    return () => window.removeEventListener(BEFORE_ROLE_EVENT, remember);
+  }, []);
 
   useLayoutEffect(() => {
     const tops = before.current;
@@ -158,7 +161,7 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ordered.map((p) => p.slug).join("|")]);
 
-  const tocGroups: Group[] = persona ? [{ label: "In your order", projects: ordered }] : groups;
+  const tocGroups: Group[] = hasOrder ? [{ label: "In your order", projects: ordered }] : groups;
 
   return (
     <section id="work" aria-labelledby="work-title" className="bg-canvas pb-20 md:pb-[96px]" data-testid="section-work">
@@ -166,12 +169,14 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
         <div className="px-3 pt-4 md:px-4">
           <h2 id="work-title" ref={heading} className="scroll-mt-[110px] text-[32px] md:text-[46px]">Selected work</h2>
           <div className="mt-6">
-            <PersonaControl value={persona} onChange={choosePersona} />
+            <div className="min-h-11">
+              {ready && collapsed ? <VisitorChip role={persona} onOpen={() => setPickerOpen(true)} /> : null}
+            </div>
             <div aria-live="polite" className="mt-3 min-h-6">
               <AnimatePresence mode="wait">
-                {persona ? (
-                  <motion.p key={persona} data-testid="persona-note" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduce ? 0 : 0.32 }} className="text-[14px] text-ink-3">
-                    {HOME_PERSONA_NOTE[persona]}
+                {ready && persona ? (
+                  <motion.p key={persona} data-testid="role-note" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduce ? 0 : 0.32 }} className="text-[14px] text-ink-3">
+                    {ROLES[persona].note}
                   </motion.p>
                 ) : null}
               </AnimatePresence>

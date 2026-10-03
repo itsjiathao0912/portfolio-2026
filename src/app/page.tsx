@@ -9,6 +9,7 @@ import { LogoStrip, type LogoItem } from "@/components/site/logo-strip";
 import { PhotoMoments } from "@/components/site/photo-moments";
 import { Portrait } from "@/components/site/portrait";
 import { ProjectStack } from "@/components/site/project-stack";
+import { VisitorTop } from "@/components/site/visitor/visitor-panel";
 import { heroHeadline } from "@/lib/hero";
 import { loadProjects, loadSite } from "@/lib/load";
 import { linkedinPosts, photos } from "@content/site.ts";
@@ -66,6 +67,12 @@ export default async function HomePage() {
 
       <section aria-label="Companies I have worked with" data-testid="section-logos" className="-mt-px">
         <LogoStrip logos={LOGOS} />
+      </section>
+
+      <section aria-label="Who is visiting" className="bg-canvas" data-testid="section-visitor">
+        <div className="mx-auto max-w-[1320px] px-6 py-8 md:px-10 md:py-10 lg:px-[60px]">
+          <VisitorTop />
+        </div>
       </section>
 
       <section aria-label="What I do" className="mx-auto max-w-[1100px] px-6 py-20 md:px-10 md:py-[80px]" data-testid="section-statement">

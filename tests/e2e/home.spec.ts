@@ -4,7 +4,7 @@ import { expect, test } from "./fixtures";
 // people, photos, LinkedIn notes (the footer is the one contact block). Busy machine: generous timeout.
 test.describe.configure({ timeout: 120_000 });
 
-const ORDER = ["hero", "section-logos", "section-statement", "proof-ticker", "section-highlights", "section-work", "section-people"];
+const ORDER = ["hero", "section-logos", "section-visitor", "section-statement", "proof-ticker", "section-highlights", "section-work", "section-people"];
 
 test.describe("desktop", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
@@ -43,12 +43,12 @@ test.describe("desktop", () => {
     expect(top).toBeLessThan(170);
   });
 
-  test("persona control reorders the cards and the TOC", async ({ page }) => {
+  test("role picker reorders the cards and the TOC", async ({ page }) => {
     await page.goto("/");
-    const group = page.getByRole("radiogroup", { name: "Show me first:" });
+    const group = page.getByRole("radiogroup", { name: "Your role" });
     const before = await page.getByTestId("stack-card").evaluateAll((els) => els.map((e) => e.getAttribute("data-slug")));
     await group.getByRole("radio", { name: /Founder/ }).click();
-    await expect(page.getByTestId("persona-note")).toContainText("Founder view");
+    await expect(page.getByTestId("role-note")).toContainText("Founder view");
     await expect.poll(() => page.getByTestId("stack-card").first().getAttribute("data-slug")).toBe("ledgr");
     const after = await page.getByTestId("stack-card").evaluateAll((els) => els.map((e) => e.getAttribute("data-slug")));
     expect(after).not.toEqual(before);
@@ -73,11 +73,14 @@ test.describe("desktop", () => {
     await expect(list).toHaveCSS("animation-play-state", "paused");
   });
 
-  test("persona change keeps cards mounted: no blank stack, glide capped, heading clear of the nav", async ({ page }) => {
+  test("role change keeps cards mounted: no blank stack, glide capped, heading clear of the nav", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("persona-note").waitFor({ state: "detached" }).catch(() => {});
-    const control = page.getByRole("radiogroup", { name: "Show me first:" });
-    await control.scrollIntoViewIfNeeded();
+    // Choose once in the top panel, then change the role from the chip above the cards (modal), with the cards in view.
+    await page.getByRole("radiogroup", { name: "Your role" }).getByRole("radio", { name: /Recruiter/ }).click();
+    await expect(page.getByTestId("visitor-panel")).toHaveCount(0);
+    const chip = page.getByTestId("visitor-chip");
+    await chip.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(600);
     await page.evaluate(() => {
       const w = window as unknown as { __seen: { visible: number; maxShift: number; minOpacity: number } };
       w.__seen = { visible: 99, maxShift: 0, minOpacity: 1 };
@@ -97,7 +100,8 @@ test.describe("desktop", () => {
       };
       requestAnimationFrame(tick);
     });
-    await control.getByRole("radio", { name: /Founder/ }).click();
+    await chip.click();
+    await page.getByTestId("visitor-modal").getByRole("radio", { name: /Founder/ }).click();
     await page.waitForTimeout(900);
     const seen = await page.evaluate(() => (window as unknown as { __seen: { visible: number; maxShift: number; minOpacity: number } }).__seen);
     expect(seen.maxShift).toBeLessThanOrEqual(40.5);

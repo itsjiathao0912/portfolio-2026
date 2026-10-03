@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { PEOPLE_SEEDS, PASTEL_TOKENS, pastelFor, stackSplit, symbolId } from "../../src/components/people/avatar-logic.ts";
 import { PROJECT_EMOJI, STAMPS, stampFor } from "../../src/components/site/home/project-meta.ts";
-import { FLIP_MAX, HOME_PERSONAS, flipOffset, homePersona, orderForPersona } from "../../src/components/site/home/persona-order.ts";
+import { FLIP_MAX, flipOffset, orderFor, orderForPersona } from "../../src/components/site/home/persona-order.ts";
+import { ROLE_IDS, isRoleId } from "../../src/components/site/visitor/role-ids.ts";
+import { ROLES } from "../../src/components/site/visitor/roles.ts";
 import { TICKER_ITEMS } from "../../src/components/site/home/ticker-data.ts";
 
 const SLUGS = ["lumicap", "cosap", "gocrypto", "pac", "zalo-game-center", "reorc-data-platform", "ledgr", "cortex-sentinel", "guardline"];
@@ -37,16 +39,27 @@ describe("persona order", () => {
   test("everything keeps the default order", () => {
     expect(orderForPersona(items, null).map((i) => i.slug)).toEqual(SLUGS);
   });
-  test("each persona moves a card and keeps every project once", () => {
-    for (const p of HOME_PERSONAS) {
-      const out = orderForPersona(items, p).map((i) => i.slug);
+  test("each role with its own order moves a card and keeps every project once", () => {
+    const ordered = ROLE_IDS.filter((r) => orderFor(r) !== undefined);
+    expect(ordered.length).toBeGreaterThanOrEqual(3);
+    for (const r of ordered) {
+      const out = orderForPersona(items, r).map((i) => i.slug);
       expect(out).not.toEqual(SLUGS);
       expect([...out].sort()).toEqual([...SLUGS].sort());
     }
   });
-  test("unknown stored personas mean everything", () => {
-    expect(homePersona("curious")).toBeNull();
-    expect(homePersona("founder")).toBe("founder");
+  test("a role without its own order keeps the default order", () => {
+    expect(ROLES.curious.order).toBeUndefined();
+    expect(orderForPersona(items, "curious").map((i) => i.slug)).toEqual(SLUGS);
+  });
+  test("every listed slug is a real project", () => {
+    for (const r of ROLE_IDS) for (const slug of ROLES[r].order ?? []) expect(SLUGS).toContain(slug);
+  });
+  test("only the 11 role ids count as roles", () => {
+    expect(isRoleId("curious")).toBe(true);
+    expect(isRoleId("founder")).toBe(true);
+    expect(isRoleId("all")).toBe(false);
+    expect(isRoleId(null)).toBe(false);
   });
 });
 

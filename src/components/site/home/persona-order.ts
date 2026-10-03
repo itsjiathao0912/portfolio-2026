@@ -1,33 +1,26 @@
 // Which project cards come first for each kind of visitor. Pure: unit-tested.
-// Slugs that are not listed keep their default order after the listed ones,
-// so adding a project never breaks a persona.
+// The per-role orders live in roles.ts (one content table). Slugs that are not
+// listed keep their default order after the listed ones, so adding a project
+// never breaks a role.
 
-export const HOME_PERSONAS = ["recruiter", "founder", "engineer"] as const;
-export type HomePersona = (typeof HOME_PERSONAS)[number];
+import { ROLES } from "@/components/site/visitor/roles";
+import type { RoleId } from "@/components/site/visitor/role-ids";
 
-export const HOME_PERSONA_NOTE: Record<HomePersona, string> = {
-  recruiter: "Recruiter view: the award and the products with the clearest results first.",
-  founder: "Founder view: what she shipped and how, her own product first.",
-  engineer: "Engineer view: data platforms, systems and specs first.",
-};
-
-const ORDER: Record<HomePersona, readonly string[]> = {
-  recruiter: ["cortex-sentinel", "pac", "cosap", "lumicap", "reorc-data-platform", "zalo-game-center"],
-  founder: ["ledgr", "lumicap", "cosap", "gocrypto", "guardline", "cortex-sentinel"],
-  engineer: ["reorc-data-platform", "pac", "cosap", "cortex-sentinel", "guardline", "zalo-game-center"],
-};
-
-/** A stored persona that is not one of the three home personas means "Everything". */
-export function homePersona(value: string | null | undefined): HomePersona | null {
-  return (HOME_PERSONAS as readonly string[]).includes(value ?? "") ? (value as HomePersona) : null;
+/** The project order for a role, or undefined when the role (or no role) means the default order. */
+export function orderFor(role: RoleId | null | undefined) {
+  return role ? ROLES[role].order : undefined;
 }
 
-/** Reorder `items` for a persona (stable; unlisted items keep their default order after). */
-export function orderForPersona<T extends { slug: string }>(items: readonly T[], persona: HomePersona | null): T[] {
-  if (!persona) return [...items];
-  const rank = new Map(ORDER[persona].map((slug, i) => [slug, i]));
+/**
+ * Reorder `items` for a role (stable; unlisted items keep their default order after).
+ * No role, or a role without its own order, returns the default order untouched.
+ */
+export function orderForPersona<T extends { slug: string }>(items: readonly T[], persona: RoleId | null): T[] {
+  const order = orderFor(persona);
+  if (!order) return [...items];
+  const rank = new Map(order.map((slug, i) => [slug, i]));
   return items
-    .map((item, index) => ({ item, index, rank: rank.get(item.slug) ?? ORDER[persona].length }))
+    .map((item, index) => ({ item, index, rank: rank.get(item.slug) ?? order.length }))
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
     .map((x) => x.item);
 }
