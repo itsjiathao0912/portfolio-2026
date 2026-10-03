@@ -19,27 +19,27 @@ describe("poll", () => {
 
   test("a vote requires an existing visitor hash", async () => {
     const { db } = createTestDb();
-    expect(await castVote(db, { hash: "ghost", option: "game", now: T0 })).toEqual({ ok: false, reason: "unknown-visitor" });
+    expect(await castVote(db, { hash: "ghost", option: "remittance", now: T0 })).toEqual({ ok: false, reason: "unknown-visitor" });
   });
 
   test("one vote, changeable, same option is a no-op", async () => {
     const { db } = createTestDb();
     await seen(db, "a");
-    expect(await castVote(db, { hash: "a", option: "game", now: T0 })).toEqual({ ok: true, changed: true, previous: null });
-    expect(await castVote(db, { hash: "a", option: "game", now: T0 + 5000 })).toEqual({ ok: true, changed: false, previous: "game" });
-    expect(await castVote(db, { hash: "a", option: "data-viz", now: T0 + 10_000 })).toEqual({ ok: true, changed: true, previous: "game" });
+    expect(await castVote(db, { hash: "a", option: "remittance", now: T0 })).toEqual({ ok: true, changed: true, previous: null });
+    expect(await castVote(db, { hash: "a", option: "remittance", now: T0 + 5000 })).toEqual({ ok: true, changed: false, previous: "remittance" });
+    expect(await castVote(db, { hash: "a", option: "fraud-toolkit", now: T0 + 10_000 })).toEqual({ ok: true, changed: true, previous: "remittance" });
     const poll = await getPoll(db, { hash: "a", now: () => T0 + 10_000 });
     expect(poll.total).toBe(1);
-    expect(poll.counts["data-viz"]).toBe(1);
-    expect(poll.counts.game).toBe(0);
-    expect(poll.mine).toBe("data-viz");
+    expect(poll.counts["fraud-toolkit"]).toBe(1);
+    expect(poll.counts.remittance).toBe(0);
+    expect(poll.mine).toBe("fraud-toolkit");
   });
 
   test("vote changes under 2 s apart are throttled", async () => {
     const { db } = createTestDb();
     await seen(db, "a");
-    await castVote(db, { hash: "a", option: "game", now: T0 });
-    const fast = await castVote(db, { hash: "a", option: "data-viz", now: T0 + 100 });
+    await castVote(db, { hash: "a", option: "remittance", now: T0 });
+    const fast = await castVote(db, { hash: "a", option: "fraud-toolkit", now: T0 + 100 });
     expect(fast).toMatchObject({ ok: false, reason: "throttled" });
   });
 
@@ -48,7 +48,7 @@ describe("poll", () => {
     await seen(db, "a");
     const first = await getPoll(db, { hash: null, now: () => T0 });
     // A write this process did not make (another isolate) stays invisible until the window ends.
-    await db.prepare(`INSERT INTO PollVote (hash, option, updatedDay) VALUES ('other', 'game', '2026-10-04')`).run();
+    await db.prepare(`INSERT INTO PollVote (hash, option, updatedDay) VALUES ('other', 'remittance', '2026-10-04')`).run();
     const second = await getPoll(db, { hash: null, now: () => T0 + 5000 });
     const third = await getPoll(db, { hash: null, now: () => T0 + 11_000 });
     expect(first.total).toBe(0);
@@ -60,10 +60,10 @@ describe("poll", () => {
     const { db } = createTestDb();
     await seen(db, "a");
     await getPoll(db, { hash: null, now: () => T0 });
-    await castVote(db, { hash: "a", option: "game", now: T0 });
+    await castVote(db, { hash: "a", option: "remittance", now: T0 });
     expect((await getPoll(db, { hash: "a", now: () => T0 + 1000 })).total).toBe(1);
-    await castVote(db, { hash: "a", option: "data-viz", now: T0 + 5000 });
+    await castVote(db, { hash: "a", option: "fraud-toolkit", now: T0 + 5000 });
     const p = await getPoll(db, { hash: "a", now: () => T0 + 6000 });
-    expect([p.total, p.counts.game, p.counts["data-viz"]]).toEqual([1, 0, 1]);
+    expect([p.total, p.counts.remittance, p.counts["fraud-toolkit"]]).toEqual([1, 0, 1]);
   });
 });

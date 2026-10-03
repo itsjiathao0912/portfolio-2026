@@ -5,16 +5,8 @@
 import { POLL_OPTION_IDS, isPollOptionId, type PollOptionId } from "../components/site/visitor/role-ids";
 import { dayOf, memoized, patchMemo, throttleState, type Clock } from "./visits";
 
-export const MIN_POLL_VOTES = 20;
+export { MIN_POLL_VOTES, POLL_OPTIONS } from "./poll-options";
 export const POLL_MEMO_MS = 10_000;
-
-// DRAFT labels (Thao to review).
-export const POLL_OPTIONS = [
-  { id: "ai-agent", label: "An AI agent for recruiters" },
-  { id: "design-system", label: "A design system library" },
-  { id: "data-viz", label: "An interactive data story" },
-  { id: "game", label: "A small browser game" },
-] as const satisfies readonly { id: PollOptionId; label: string }[];
 
 export type PollCounts = Record<PollOptionId, number>;
 

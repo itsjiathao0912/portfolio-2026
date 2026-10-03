@@ -51,7 +51,14 @@ export const GUIDE_SECTION_IDS = ["statement", "highlights", "stack", "people", 
 export type GuideSectionId = (typeof GUIDE_SECTION_IDS)[number];
 
 /** Poll option ids only. The visitor-facing labels live in src/lib/poll.ts. */
-export const POLL_OPTION_IDS = ["ai-agent", "design-system", "data-viz", "game"] as const;
+export const POLL_OPTION_IDS = [
+  "compliance-copilot",
+  "remittance",
+  "fraud-toolkit",
+  "women-in-tech",
+  "backoffice-agent",
+  "agent-payments",
+] as const;
 
 export type PollOptionId = (typeof POLL_OPTION_IDS)[number];
 

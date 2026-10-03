@@ -47,8 +47,8 @@ describe("guide + poll + pose contract", () => {
   });
 
   test("poll option ids are 4 unique ids and guarded", () => {
-    expect(POLL_OPTION_IDS.length).toBe(4);
-    expect(new Set(POLL_OPTION_IDS).size).toBe(4);
+    expect(POLL_OPTION_IDS.length).toBe(6);
+    expect(new Set(POLL_OPTION_IDS).size).toBe(6);
     for (const id of POLL_OPTION_IDS) expect(isPollOptionId(id)).toBe(true);
     for (const bad of [null, "", "nope", 1]) expect(isPollOptionId(bad)).toBe(false);
   });

@@ -146,24 +146,24 @@ describe("handlePoll", () => {
 
   test("vote needs a visit first, then votes, changes, reads", async () => {
     const d = deps();
-    expect((await handlePoll(post("/api/poll", { visitorId: ID, option: "game" }), d)).status).toBe(403);
+    expect((await handlePoll(post("/api/poll", { visitorId: ID, option: "remittance" }), d)).status).toBe(403);
     await handleVisit(post("/api/visit", { visitorId: ID, role: null }), d);
     clock += 3000;
-    const v = await body(await handlePoll(post("/api/poll", { visitorId: ID, option: "game" }), d));
-    expect(v).toMatchObject({ mine: "game", total: 1 });
-    expect(v.counts.game).toBe(1);
+    const v = await body(await handlePoll(post("/api/poll", { visitorId: ID, option: "remittance" }), d));
+    expect(v).toMatchObject({ mine: "remittance", total: 1 });
+    expect(v.counts.remittance).toBe(1);
     const read = await body(await handlePoll(post("/api/poll", { visitorId: ID, option: null }), d));
-    expect(read.mine).toBe("game");
+    expect(read.mine).toBe("remittance");
     clock += 3000;
-    const changed = await body(await handlePoll(post("/api/poll", { visitorId: ID, option: "data-viz" }), d));
-    expect(changed.mine).toBe("data-viz");
+    const changed = await body(await handlePoll(post("/api/poll", { visitorId: ID, option: "fraud-toolkit" }), d));
+    expect(changed.mine).toBe("fraud-toolkit");
     expect(changed.total).toBe(1);
-    expect(changed.counts.game).toBe(0);
+    expect(changed.counts.remittance).toBe(0);
   });
 
   test("strict body, origin and salt guards apply", async () => {
     const d = deps();
-    expect((await handlePoll(post("/api/poll", { visitorId: ID, option: "game", extra: 1 }), d)).status).toBe(400);
+    expect((await handlePoll(post("/api/poll", { visitorId: ID, option: "remittance", extra: 1 }), d)).status).toBe(400);
     expect((await handlePoll(post("/api/poll", { visitorId: ID, option: "nope" }), d)).status).toBe(400);
     expect((await handlePoll(post("/api/poll", { visitorId: ID, option: null }, { origin: "http://evil.example" }), d)).status).toBe(403);
     expect((await handlePoll(post("/api/poll", { visitorId: ID, option: null }), deps({ env: {} }))).status).toBe(503);

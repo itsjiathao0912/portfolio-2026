@@ -78,15 +78,15 @@ test.describe("visitor api", () => {
   test("poll: needs a visit first, one vote, changeable, no id in a URL", async ({ request, baseURL }) => {
     const { headers } = api(baseURL);
     const id = rid();
-    const early = await request.post("/api/poll", { headers, data: { visitorId: id, option: "game" } });
+    const early = await request.post("/api/poll", { headers, data: { visitorId: id, option: "remittance" } });
     expect(early.status()).toBe(403);
     await request.post("/api/visit", { headers, data: { visitorId: id, role: null } });
     await new Promise((r) => setTimeout(r, 2200));
-    const vote = await request.post("/api/poll", { headers, data: { visitorId: id, option: "game" } });
+    const vote = await request.post("/api/poll", { headers, data: { visitorId: id, option: "remittance" } });
     expect(vote.status()).toBe(200);
-    expect((await vote.json()).mine).toBe("game");
+    expect((await vote.json()).mine).toBe("remittance");
     const read = await request.post("/api/poll", { headers, data: { visitorId: id, option: null } });
-    expect((await read.json()).mine).toBe("game");
+    expect((await read.json()).mine).toBe("remittance");
     const anon = await request.get(`/api/poll?visitorId=${id}`);
     expect(Object.keys(await anon.json()).sort()).toEqual(["counts", "total"]);
   });
