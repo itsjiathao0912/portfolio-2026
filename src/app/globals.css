@@ -9,59 +9,115 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ── Design tokens (light theme only) ──────────────────────────────────────
- * Raw palette lives on :root. Components never use raw hex — they use the
- * Tailwind utilities generated from @theme below (`bg-paper`, `text-ink`,
- * `border-hairline`, `text-accent` …). Change a colour here, and it changes
- * everywhere.
+ * Source: design-tokens report (foundation-research, 03-10-26). Components
+ * never use raw hex — they use the utilities generated from @theme below.
  */
 :root {
-  --paper: #ffffff;
-  --ink: #0b0c0e;
+  /* surfaces */
+  --bg: #ffffff;
+  --canvas: #f4f6fb;
+  /* ink */
+  --ink-1: #0b1f4d; /* headings (navy) */
+  --ink-2: #38466a; /* body */
+  --ink-3: #5f6b85; /* muted — not on periwinkle/lavender */
+  --hairline: #e2e7f0;
+  --border-strong: #8592ab;
+  /* accent */
   --accent: #2563eb;
-  --navy: #0b1f4d; /* proposed — confirm with the design direction */
-  --hairline: #e4e4e7;
-  --muted: #71717a;
-
-  --radius: 0.625rem;
+  --accent-hover: #1d4ed8;
+  --accent-pressed: #1e40af;
+  --accent-tint: #eaf1ff;
+  /* navy bands */
+  --navy: #0b1f4d;
+  --navy-deep: #071536;
+  --indigo: #4f46e5;
+  /* status */
+  --success: #15803d;
+  --danger: #c62828;
+  /* project card tints */
+  --tint-sky: #e3eeff;
+  --tint-periwinkle: #e7e8ff;
+  --tint-lavender: #f1e7ff;
+  --tint-rose: #ffe6ee;
+  --tint-peach: #ffeadb;
+  --tint-butter: #fff3c7;
+  --tint-mint: #daf5e8;
+  --tint-aqua: #d9f1f7;
+  /* shape + depth */
+  --radius: 16px;
+  --shadow-nav: 0 0 3px rgba(11, 31, 77, 0.14), 0 20px 13px -4px rgba(11, 31, 77, 0.06);
+  --shadow-card: 0 1px 2px rgba(11, 31, 77, 0.06);
+  --shadow-card-hover: 4px 20px 16px rgba(11, 31, 77, 0.11);
+  /* motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   color-scheme: light;
 }
 
 @theme inline {
-  /* project tokens */
-  --color-paper: var(--paper);
-  --color-ink: var(--ink);
-  --color-accent: var(--accent);
-  --color-navy: var(--navy);
+  --color-bg: var(--bg);
+  --color-canvas: var(--canvas);
+  --color-ink-1: var(--ink-1);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
   --color-hairline: var(--hairline);
-  --color-muted: var(--muted);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-pressed: var(--accent-pressed);
+  --color-accent-tint: var(--accent-tint);
+  --color-navy: var(--navy);
+  --color-navy-deep: var(--navy-deep);
+  --color-indigo: var(--indigo);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-tint-sky: var(--tint-sky);
+  --color-tint-periwinkle: var(--tint-periwinkle);
+  --color-tint-lavender: var(--tint-lavender);
+  --color-tint-rose: var(--tint-rose);
+  --color-tint-peach: var(--tint-peach);
+  --color-tint-butter: var(--tint-butter);
+  --color-tint-mint: var(--tint-mint);
+  --color-tint-aqua: var(--tint-aqua);
+
+  /* legacy names used by the starter primitives */
+  --color-paper: var(--bg);
+  --color-ink: var(--ink-1);
+  --color-muted: var(--ink-3);
 
   /* shadcn semantic aliases → project tokens, so ui/ primitives resolve */
-  --color-background: var(--paper);
-  --color-foreground: var(--ink);
-  --color-card: var(--paper);
-  --color-card-foreground: var(--ink);
-  --color-popover: var(--paper);
-  --color-popover-foreground: var(--ink);
-  --color-primary: var(--ink);
-  --color-primary-foreground: var(--paper);
-  --color-secondary: #f4f4f5;
-  --color-secondary-foreground: var(--ink);
-  --color-muted-foreground: var(--muted);
-  --color-accent-foreground: var(--paper);
-  --color-destructive: #dc2626;
+  --color-background: var(--bg);
+  --color-foreground: var(--ink-1);
+  --color-card: var(--bg);
+  --color-card-foreground: var(--ink-1);
+  --color-popover: var(--bg);
+  --color-popover-foreground: var(--ink-1);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--bg);
+  --color-secondary: var(--canvas);
+  --color-secondary-foreground: var(--ink-1);
+  --color-muted-foreground: var(--ink-3);
+  --color-accent-foreground: var(--bg);
+  --color-destructive: var(--danger);
   --color-border: var(--hairline);
-  --color-input: var(--hairline);
+  --color-input: var(--border-strong);
   --color-ring: var(--accent);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: 8px;
+  --radius-md: 12px;
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
 
-  /* fonts: self-hosted via @fontsource (imported in src/app/layout.tsx) */
-  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  --shadow-nav: var(--shadow-nav);
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+
+  /* fonts: self-hosted via @fontsource (imported in src/app/layout.tsx),
+   * every subset including Vietnamese (served by unicode-range on demand). */
+  --font-display: "Archivo Variable", "Inter Variable", system-ui, sans-serif;
+  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
 }
 
 @layer base {
@@ -70,11 +126,124 @@
   }
 
   html {
-    @apply bg-paper text-ink antialiased;
+    @apply bg-bg text-ink-2 antialiased;
     font-family: var(--font-sans);
+    scroll-padding-top: 6rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {
-    @apply min-h-dvh bg-paper text-ink;
+    @apply min-h-dvh bg-bg text-ink-2;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    font-stretch: 118%;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--ink-1);
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  /* One visible focus style everywhere (keyboard only). */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  /* Small uppercase mono label ("01 / Experience", dates, chips). */
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ── Liquid fill (pill buttons, nav chips) ───────────────────────────────
+   * The fill is a circle that grows from the point where the pointer entered
+   * (--lx/--ly, set by LiquidLink) until it covers the pill. Hover-only devices
+   * get the hover version; touch gets a one-shot press pulse (data-pressed).
+   * Reduced motion: instant colour change, no growth. */
+  .liquid {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    --lx: 50%;
+    --ly: 50%;
+  }
+  .liquid::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: var(--lx);
+    top: var(--ly);
+    width: 260%;
+    aspect-ratio: 1;
+    border-radius: 9999px;
+    background: var(--liquid-fill, var(--accent));
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 520ms var(--ease-out);
+  }
+  .liquid[data-filled="true"]::before,
+  .liquid[data-pressed="true"]::before {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .liquid[data-filled="true"],
+  .liquid[data-pressed="true"] {
+    color: var(--liquid-text, var(--bg));
+  }
+  .liquid {
+    transition: color 260ms var(--ease-out);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .liquid,
+    .liquid::before {
+      transition: none;
+    }
+  }
+}
+
+/* ── Page transition (src/app/template.tsx) ─────────────────────────────── */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes page-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.page-enter {
+  animation: page-in 380ms var(--ease-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation: page-fade 150ms linear both;
   }
 }
