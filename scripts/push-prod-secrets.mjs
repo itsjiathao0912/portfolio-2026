@@ -16,9 +16,11 @@ import { spawnSync } from "node:child_process";
 import { partitionSecrets, PROD_ENV_FILE } from "./lib/deploy-guards.mjs";
 import { loadProdEnvOrExit, WORKER_NAME } from "./lib/prod-env.mjs";
 
-// Add a name here when a feature needs a runtime secret. Empty today: the site
-// has no auth, email, or third-party APIs.
-const RUNTIME_SECRETS = [];
+// Add a name here when a feature needs a runtime secret.
+// VISITOR_SALT keys the visitor hash (HMAC) and must be at least 16 characters.
+// Generate one if missing: `openssl rand -hex 32`, then put it in the prod env
+// file. Without it /api/visit and /api/poll answer 503 in production.
+const RUNTIME_SECRETS = ["VISITOR_SALT"];
 
 const NEVER_PUSH = ["CLOUDFLARE_API_TOKEN", "CLOUDFLARE_ACCOUNT_ID"];
 const forbidden = RUNTIME_SECRETS.filter((name) => NEVER_PUSH.includes(name) || name.startsWith("NEXT_PUBLIC_"));

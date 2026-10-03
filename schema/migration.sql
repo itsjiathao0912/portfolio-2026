@@ -49,3 +49,37 @@ CREATE TABLE IF NOT EXISTS "ContentEntry" (
 );
 
 CREATE INDEX IF NOT EXISTS "ContentEntry_collection_sortOrder_idx" ON "ContentEntry" ("collection", "sortOrder");
+
+-- Visitor identity: one row per browser, keyed by a salted hash of its random id.
+-- role and country use sentinels (none and XX) instead of NULL so the tally key
+-- and ON CONFLICT work. country is written once at first insert and never
+-- updated. Days are UTC (YYYY-MM-DD) and lastWriteAt (epoch ms) is throttle-only.
+-- The visitor ordinal is the implicit rowid of this table.
+CREATE TABLE IF NOT EXISTS "VisitorSeen" (
+  "hash"         TEXT PRIMARY KEY NOT NULL,
+  "role"         TEXT NOT NULL DEFAULT 'none',
+  "country"      TEXT NOT NULL DEFAULT 'XX',
+  "changeCount"  INTEGER NOT NULL DEFAULT 0,
+  "firstSeenDay" TEXT NOT NULL,
+  "updatedDay"   TEXT NOT NULL,
+  "lastWriteAt"  INTEGER NOT NULL DEFAULT 0
+);
+
+-- Aggregate counters, derivable from VisitorSeen (see rebuildTallies).
+CREATE TABLE IF NOT EXISTS "VisitTally" (
+  "role"    TEXT NOT NULL DEFAULT 'none',
+  "country" TEXT NOT NULL DEFAULT 'XX',
+  "count"   INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY ("role", "country")
+);
+
+CREATE INDEX IF NOT EXISTS "VisitTally_country_idx" ON "VisitTally" ("country");
+
+-- One poll vote per visitor hash.
+CREATE TABLE IF NOT EXISTS "PollVote" (
+  "hash"       TEXT PRIMARY KEY NOT NULL,
+  "option"     TEXT NOT NULL,
+  "updatedDay" TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS "PollVote_option_idx" ON "PollVote" ("option");
