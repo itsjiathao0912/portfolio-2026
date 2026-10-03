@@ -35,7 +35,7 @@ function Embed({ post }: { post: LinkedinPost }) {
   const [loaded, setLoaded] = useState(false);
   const src = linkedinEmbedSrc(post.urn)!;
   return (
-    <div ref={ref} className="relative overflow-hidden rounded-[20px] bg-bg shadow-card ring-1 ring-black/5" style={{ height: post.height }}>
+    <div ref={ref} className="relative isolate z-0 overflow-hidden rounded-[20px] bg-bg shadow-card ring-1 ring-black/5" style={{ height: post.height }}>
       {!loaded ? (
         <div data-testid="linkedin-placeholder" className="absolute inset-0 flex flex-col gap-4 p-6" aria-hidden="true">
           <div className="flex items-center gap-3">
@@ -60,7 +60,10 @@ function Embed({ post }: { post: LinkedinPost }) {
           referrerPolicy="strict-origin-when-cross-origin"
           onLoad={() => setLoaded(true)}
           data-testid="linkedin-embed"
-          className="block h-full w-full border-0"
+          data-loaded={loaded ? "true" : "false"}
+          // Until LinkedIn has painted, the frame is invisible and inert so a
+          // half-loaded third-party document can never catch taps or scrolls.
+          className={loaded ? "block h-full w-full border-0" : "pointer-events-none block h-full w-full border-0 opacity-0"}
         />
       ) : null}
     </div>

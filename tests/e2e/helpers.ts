@@ -10,11 +10,28 @@ export const SLUGS = [
   "cortex-sentinel",
 ] as const;
 
-/** Collect console errors and uncaught page errors for the lifetime of the page. */
+/** Hosts whose own console noise (third-party embeds we do not control) is ignored. */
+const THIRD_PARTY = /(^|\.)(linkedin\.com|licdn\.com)$/;
+
+/** True when a console message came from a LinkedIn embed (its script, frame or resource). */
+export function isThirdPartyMessage(sourceUrl: string) {
+  try {
+    return THIRD_PARTY.test(new URL(sourceUrl).hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Collect console errors and uncaught page errors for the lifetime of the page.
+ * Errors logged by LinkedIn's embed iframes are ignored (their code, not ours);
+ * everything else — including errors from our own origin — still counts.
+ */
 export function trackErrors(page: Page) {
   const errors: string[] = [];
   page.on("console", (msg) => {
-    if (msg.type() === "error") errors.push(msg.text());
+    if (msg.type() !== "error" || isThirdPartyMessage(msg.location().url)) return;
+    errors.push(msg.text());
   });
   page.on("pageerror", (error) => errors.push(error.message));
   return errors;
