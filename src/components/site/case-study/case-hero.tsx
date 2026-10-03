@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import Image from "next/image";
 import { useRef } from "react";
 import type { Project } from "@content/schema.ts";

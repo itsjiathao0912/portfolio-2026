@@ -1,7 +1,8 @@
 "use client";
 
 import { ArrowUp, List, Mail, X } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from "motion/react";
+import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useEffect, useState } from "react";
 import type { SectionIcon } from "@content/schema.ts";
 import { emojiFor } from "@/components/site/home/project-meta";
@@ -123,6 +124,19 @@ function useReadingDown() {
   return down;
 }
 
+/** True while the site footer is on screen: the phone pill then steps aside instead of covering it. */
+function useFooterInView() {
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const footer = document.querySelector("[data-testid=site-footer]");
+    if (!footer) return;
+    const observer = new IntersectionObserver((entries) => setInView(entries.some((e) => e.isIntersecting)), { threshold: 0 });
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+  return inView;
+}
+
 const SPRING = SITE_SPRING.indicator;
 
 /** Desktop navigator in the left margin (xl+), visible from the start of the body. */
@@ -170,24 +184,24 @@ export function CaseToc({ entries, startId, slug, title }: TocProps) {
                 data-active={row.section ? (isActive ? "true" : "false") : undefined}
                 data-section={row.section ? "" : undefined}
                 className={cn(
-                  "group relative flex items-center gap-3 rounded-full px-4 py-3.5 text-base transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent",
+                  "group relative flex min-w-0 items-center gap-3 rounded-full px-4 py-3 text-base transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent",
                   isActive ? "font-semibold text-ink-1" : "text-ink-3 hover:text-ink-1",
                 )}
               >
                 {isActive ? (
                   <motion.span layoutId="case-toc-pill" aria-hidden="true" className="absolute inset-0 -z-10 rounded-full bg-bg shadow-2" transition={reduce ? { duration: 0 } : SPRING} />
                 ) : null}
-                <span className="flex items-center gap-3 transition-transform duration-200 ease-out group-hover:translate-x-[5px] motion-reduce:transform-none">
+                <span className="flex min-w-0 items-center gap-3 transition-transform duration-200 ease-out group-hover:translate-x-[5px] motion-reduce:transform-none">
                   <motion.span
                     aria-hidden="true"
                     className="flex"
                     initial={false}
                     animate={isActive && !reduce ? { scale: [1, 1.18, 1] } : { scale: 1 }}
-                    transition={SITE_SPRING.ui}
+                    transition={reduce ? { duration: 0 } : { duration: 0.35, ease: "easeOut" }}
                   >
                     <row.Icon className="size-6 shrink-0" strokeWidth={1.6} aria-hidden="true" />
                   </motion.span>
-                  <span className="truncate">{row.label}</span>
+                  <span className="line-clamp-2 min-w-0 leading-snug break-words" title={row.label}>{row.label}</span>
                 </span>
               </a>
             </motion.li>
@@ -222,10 +236,11 @@ export function CaseSectionMenu({ entries, startId, slug }: TocProps) {
   const active = useActiveSection(entries);
   const inBody = useInBody(startId);
   const down = useReadingDown();
+  const atFooter = useFooterInView();
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
   const current = entries.find((e) => e.id === active);
-  const shown = open || (inBody && !down);
+  const shown = open || (inBody && !down && !atFooter);
 
   useEffect(() => {
     if (!open) return;

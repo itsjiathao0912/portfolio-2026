@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { VIZ_SPRING, VIZ_VIEWPORT, vizDelay } from "./motion";

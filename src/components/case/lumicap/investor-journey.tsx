@@ -47,8 +47,8 @@ export function InvestorJourney({ source }: CaseBlockProps) {
           </ol>
         ) : null}
         <div className="mt-5 flex gap-3">
-          <button type="button" onClick={() => setI((v) => Math.max(0, v - 1))} disabled={i === 0} className="rounded-full border border-border-strong px-4 py-2 text-sm font-semibold text-ink-1 enabled:hover:bg-canvas disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-accent">Back</button>
-          <button type="button" onClick={() => setI((v) => Math.min(JOURNEY.length - 1, v + 1))} disabled={i === JOURNEY.length - 1} className="rounded-full bg-ink-1 px-4 py-2 text-sm font-semibold text-bg enabled:hover:bg-ink-hover disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Next step</button>
+          <button type="button" onClick={() => setI((v) => Math.max(0, v - 1))} disabled={i === 0} className="min-h-11 rounded-full border border-border-strong px-4 py-2 text-sm font-semibold text-ink-1 enabled:hover:bg-canvas disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-accent">Back</button>
+          <button type="button" onClick={() => setI((v) => Math.min(JOURNEY.length - 1, v + 1))} disabled={i === JOURNEY.length - 1} className="min-h-11 rounded-full bg-ink-1 px-4 py-2 text-sm font-semibold text-bg enabled:hover:bg-ink-hover disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Next step</button>
         </div>
       </div>
     </VizFigure>

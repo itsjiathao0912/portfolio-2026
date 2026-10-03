@@ -37,7 +37,7 @@ export function PauseSwitch({ source }: CaseBlockProps) {
                 {REASONS.map((r) => (<option key={r}>{r}</option>))}
               </select>
             </label>
-            <button type="button" onClick={() => { setS(pause(s, reason)); setLog("Pause confirmed. Transfers are blocked."); }} className="rounded-full bg-danger px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Pause everything</button>
+            <button type="button" onClick={() => { setS(pause(s, reason)); setLog("Pause confirmed. Transfers are blocked."); }} className="min-h-11 rounded-full bg-danger px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Pause everything</button>
           </div>
         ) : (
           <div className="mt-4 flex flex-col gap-3">
@@ -47,7 +47,7 @@ export function PauseSwitch({ source }: CaseBlockProps) {
         )}
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <button type="button" onClick={hit} className="rounded-full border border-border-strong px-5 py-2.5 text-sm font-semibold text-ink-1 hover:bg-canvas focus-visible:outline-2 focus-visible:outline-accent">Try a token transfer</button>
+        <button type="button" onClick={hit} className="min-h-11 rounded-full border border-border-strong px-5 py-2.5 text-sm font-semibold text-ink-1 hover:bg-canvas focus-visible:outline-2 focus-visible:outline-accent">Try a token transfer</button>
         <p className="text-sm text-ink-2" aria-live="polite">{log}</p>
       </div>
     </VizFigure>

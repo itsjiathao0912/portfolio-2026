@@ -25,7 +25,7 @@ interface WorkCardProps {
  */
 export function WorkCard({ project, className, priority, headingLevel = "h2" }: WorkCardProps) {
   const { meta } = project;
-  const deep = meta.tone === "deep";
+  // Minimal direction: every card is light (project tint); `meta.tone` no longer makes a black slab.
   const Heading = headingLevel;
 
   return (
@@ -39,15 +39,15 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
       className={cn(
         "group relative flex h-full min-h-[560px] flex-col items-center overflow-hidden rounded-2xl px-6 pt-10 text-center md:px-10 xl:min-h-[742px]",
         "focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-accent",
-        deep ? "bg-navy text-white" : TINT_BG[meta.tint]
+        TINT_BG[meta.tint]
       )}
     >
-      <p className={cn("text-base font-medium", deep ? "text-white/70" : "text-ink-2")}>
+      <p className={"text-base font-medium text-ink-2"}>
         {meta.company}
         {meta.status ? ` · ${meta.status}` : ""}
       </p>
-      <Heading className={cn("mt-3 text-[2rem] leading-[1.2]", deep && "!text-white")}>{project.title}</Heading>
-      <p className={cn("mt-3 max-w-[22rem] text-base leading-[1.6]", deep ? "text-white/80" : "text-ink-2")}>
+      <Heading className={"mt-3 text-[2rem] leading-[1.2]"}>{project.title}</Heading>
+      <p className={"mt-3 max-w-[22rem] text-base leading-[1.6] text-ink-2"}>
         {meta.subtitle}
       </p>
       {/* Visual: anchored to the bottom, wider than the card, running off the
@@ -56,19 +56,16 @@ export function WorkCard({ project, className, priority, headingLevel = "h2" }: 
         {/* Soft spotlight behind the visual so the lower half never reads empty. */}
         <span
           aria-hidden="true"
-          className={cn(
-            "pointer-events-none absolute inset-x-[-10%] bottom-[-10%] h-[85%] rounded-[50%] blur-2xl",
-            deep ? "bg-white/10" : "bg-white/55"
-          )}
+          className="pointer-events-none absolute inset-x-[-10%] bottom-[-10%] h-[85%] rounded-[50%] bg-white/55 blur-2xl"
         />
         <div
           style={{ viewTransitionName: `project-card-${project.slug}` }}
           className={cn(
-            "shrink-0 transition-transform duration-300 ease-out group-hover:-translate-y-1 motion-reduce:transform-none",
+            "shrink-0",
             meta.visual.kind === "illustration" ? "w-[112%] translate-y-[8%]" : "w-[118%] translate-y-[12%]"
           )}
         >
-          <ProjectVisual visual={meta.visual} label={project.title} logo={meta.logo} tone={meta.tone} priority={priority} />
+          <ProjectVisual visual={meta.visual} label={project.title} logo={meta.logo} tone="light" priority={priority} />
         </div>
       </div>
     </Link>

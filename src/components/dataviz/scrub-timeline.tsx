@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useId, useState } from "react";
 import { cn } from "@/lib/utils";
 import { nearestStop } from "./scale";
@@ -65,7 +66,7 @@ export function ScrubTimeline({ tracks, ...frame }: ScrubTimelineProps) {
                   type="button"
                   onClick={() => setPos(n === 1 ? 0 : i / (n - 1))}
                   aria-label={`${s.when}: ${s.label}`}
-                  className={cn("block size-4 rounded-full border-[3px] border-canvas transition-colors", i <= current ? "bg-accent" : "bg-ink-3/50")}
+                  className={cn("relative block size-4 rounded-full border-[3px] border-canvas transition-colors after:absolute after:-inset-3.5 after:content-['']", i <= current ? "bg-accent" : "bg-ink-3/50")}
                   data-testid="timeline-stop"
                 />
               </li>
@@ -83,7 +84,7 @@ export function ScrubTimeline({ tracks, ...frame }: ScrubTimelineProps) {
             onChange={(e) => setPos(Number(e.target.value) / 1000)}
             onPointerUp={() => setPos(n === 1 ? 0 : current / (n - 1))}
             aria-valuetext={`${stop.when}: ${stop.label}`}
-            className="absolute inset-x-0 top-0 h-8 w-full cursor-grab opacity-0"
+            className="absolute inset-x-0 -top-3 h-11 w-full cursor-grab opacity-0"
             data-testid="timeline-range"
           />
           <div className="mt-3 hidden justify-between text-xs text-ink-3 sm:flex" aria-hidden="true">

@@ -115,7 +115,7 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
             {block.items.map((item) => (
               <div key={item.label} className="flex min-w-0 flex-col-reverse justify-end gap-2">
                 <dt className="text-sm leading-snug text-ink-3">{item.label}</dt>
-                <dd className={cn("font-display leading-none break-words text-ink-1", long ? "text-[2rem] md:text-[2.5rem]" : "text-[2.5rem] md:text-[3rem]")}>{item.value}</dd>
+                <dd className={cn("font-display leading-none whitespace-nowrap text-ink-1", long ? "text-[1.75rem] sm:text-[2rem]" : block.items.length >= 4 ? "text-[2.25rem] md:text-[2rem]" : "text-[2.25rem] sm:text-[2.5rem] md:text-[3rem]")}>{item.value}</dd>
               </div>
             ))}
           </dl>
@@ -167,7 +167,7 @@ function Block({ block, title, first, layout }: { block: ContentBlock; title: st
         <ul className="mt-2 flex flex-wrap gap-3">
           {block.items.map((link) => (
             <li key={link.href}>
-              <a href={link.href} rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-medium text-accent underline-offset-4 hover:text-accent-hover hover:underline">
+              <a href={link.href} rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-1.5 font-medium text-accent underline-offset-4 hover:text-accent-hover hover:underline">
                 {link.label}
                 <ArrowUpRight className="size-4" aria-hidden="true" />
               </a>

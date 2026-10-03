@@ -39,7 +39,7 @@ export function CrossCheck({ source }: CaseBlockProps) {
           <p className="mt-2 text-2xl font-semibold text-ink-1">{m(taxable)} taxable</p>
           <label className="mt-2 flex flex-col gap-1 text-sm text-ink-2">
             Drag the declared income
-            <input type="range" min={120_000_000} max={168_000_000} step={500_000} value={taxable} onChange={(e) => setTaxable(Number(e.target.value))} className="accent-[#1f5bff]" aria-valuetext={m(taxable)} />
+            <input type="range" min={120_000_000} max={168_000_000} step={500_000} value={taxable} onChange={(e) => setTaxable(Number(e.target.value))} className="h-11 accent-[#1f5bff]" aria-valuetext={m(taxable)} />
           </label>
         </div>
       </div>

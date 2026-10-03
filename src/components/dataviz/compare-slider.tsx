@@ -1,6 +1,7 @@
 "use client";
 
-import { useInView, useReducedMotion } from "motion/react";
+import { useInView } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { lerp } from "./scale";
@@ -67,7 +68,7 @@ export function CompareSlider({ beforeLabel, afterLabel, rows, ...frame }: Compa
               setSweeping(false);
               setT(Number(e.target.value) / 100);
             }}
-            className="h-2 w-full cursor-grab accent-[var(--accent)] active:cursor-grabbing"
+            className="h-11 w-full cursor-grab accent-[var(--accent)] active:cursor-grabbing"
             data-testid="compare-range"
           />
         </div>

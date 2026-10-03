@@ -113,6 +113,31 @@ for (const slug of SLUGS) {
       await expect(focusable).toBeFocused();
     });
 
+    test("stat values stay on one line and TOC labels stay inside their box", async ({ page }) => {
+      await settle(page, slug);
+      const stats = await page.evaluate(() =>
+        [...document.querySelectorAll('[data-testid="metrics"] dd')].map((d) => ({
+          text: d.textContent,
+          lines: Math.round(d.getBoundingClientRect().height / parseFloat(getComputedStyle(d).fontSize) / 1.0),
+          clipped: d.scrollWidth > d.clientWidth + 1,
+        }))
+      );
+      for (const st of stats) {
+        expect(st.lines, `stat "${st.text}" wrapped`).toBeLessThanOrEqual(1);
+        expect(st.clipped, `stat "${st.text}" overflows its cell`).toBe(false);
+      }
+      await page.evaluate(() => window.scrollTo(0, 1600));
+      const toc = page.getByTestId("case-toc");
+      await expect(toc).toHaveAttribute("data-shown", "true");
+      const outside = await page.evaluate(() => {
+        const box = document.querySelector('[data-testid="case-toc"]')!.getBoundingClientRect();
+        return [...document.querySelectorAll('[data-testid="case-toc"] a')]
+          .filter((a) => [...a.querySelectorAll("span")].some((sp) => sp.getBoundingClientRect().right > box.right + 1))
+          .map((a) => a.textContent);
+      });
+      expect(outside, "TOC labels past the TOC box").toEqual([]);
+    });
+
     test("mobile 390: no horizontal scroll, no console errors", async ({ browser }) => {
       const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
       const page = await ctx.newPage();

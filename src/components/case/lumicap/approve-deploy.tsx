@@ -70,7 +70,7 @@ export function ApproveDeploy({ source }: CaseBlockProps) {
               <p className="text-xs font-semibold tracking-wide text-ink-3 uppercase">Approver {i + 1}{id === "you" ? " (you)" : ""}</p>
               <p className="mt-1 text-sm font-semibold text-ink-1">{done ? "Approved" : id === "you" ? "Waiting for you" : youIn ? "Not yet signed" : "Waits for you first"}</p>
               {id !== "you" && !done ? (
-                <button type="button" onClick={() => other(id)} disabled={!youIn} className="mt-3 w-full rounded-full border border-border-strong px-3 py-2 text-sm font-semibold text-ink-1 transition-colors enabled:hover:bg-canvas disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+                <button type="button" onClick={() => other(id)} disabled={!youIn} className="mt-3 min-h-11 w-full rounded-full border border-border-strong px-3 py-2 text-sm font-semibold text-ink-1 transition-colors enabled:hover:bg-canvas disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
                   Ask them to approve
                 </button>
               ) : null}
@@ -83,9 +83,9 @@ export function ApproveDeploy({ source }: CaseBlockProps) {
         <div className="flex flex-col gap-2 rounded-md border border-hairline bg-bg p-4 sm:flex-row sm:items-end">
           <label className="flex flex-1 flex-col gap-1 text-sm text-ink-2">
             Approval two-factor code (second factor, after your login)
-            <input inputMode="numeric" autoComplete="off" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder={DEMO_CODE} aria-describedby="lc-code-hint" className="rounded-lg border border-border-strong bg-bg px-3 py-2 font-mono text-ink-1 focus-visible:outline-2 focus-visible:outline-accent" />
+            <input inputMode="numeric" autoComplete="off" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder={DEMO_CODE} aria-describedby="lc-code-hint" className="min-h-11 rounded-lg border border-border-strong bg-bg px-3 py-2 font-mono text-ink-1 focus-visible:outline-2 focus-visible:outline-accent" />
           </label>
-          <button type="button" onClick={approve} className="rounded-full bg-ink-1 px-5 py-2.5 text-sm font-semibold text-bg transition-colors hover:bg-ink-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+          <button type="button" onClick={approve} className="min-h-11 rounded-full bg-ink-1 px-5 py-2.5 text-sm font-semibold text-bg transition-colors hover:bg-ink-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
             Approve deploy
           </button>
           <p id="lc-code-hint" className="text-xs text-ink-3 sm:basis-full" aria-live="polite">{error || `Demo code: ${DEMO_CODE}`}</p>
@@ -109,10 +109,10 @@ export function ApproveDeploy({ source }: CaseBlockProps) {
           ))}
         </ul>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button type="button" onClick={execute} disabled={!thresholdMet(approved) || busy || signed} className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors enabled:hover:bg-accent-hover disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+          <button type="button" onClick={execute} disabled={!thresholdMet(approved) || busy || signed} className="min-h-11 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors enabled:hover:bg-accent-hover disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
             Run signing
           </button>
-          <button type="button" onClick={reset} className="rounded-full px-3 py-2 text-sm font-semibold text-ink-2 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-accent">
+          <button type="button" onClick={reset} className="min-h-11 rounded-full px-3 py-2 text-sm font-semibold text-ink-2 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-accent">
             Start over
           </button>
         </div>

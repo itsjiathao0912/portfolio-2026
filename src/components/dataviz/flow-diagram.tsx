@@ -1,7 +1,8 @@
 "use client";
 
 import { ArrowDown, ArrowRight } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { VIZ_SPRING, VIZ_VIEWPORT, vizDelay } from "./motion";
 import { VizFigure, type VizFrameProps } from "./viz-figure";
 

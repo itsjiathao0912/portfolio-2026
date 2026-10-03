@@ -16,7 +16,7 @@ export const SEV_STYLE: Record<Severity, { chip: string; label: string }> = {
 const SAMPLE: ContractFacts = { region: "I", monthlyWage: 5_000_000, level: "degree_graduate", probationDays: 90, probationWagePct: 0.7, otHoursPerDay: 3, renewals: 2, bhxhClause: false };
 
 const field = "flex flex-col gap-1.5 text-sm text-ink-2";
-const input = "rounded-lg border border-hairline bg-bg px-3 py-2 text-ink-1 focus-visible:outline-2 focus-visible:outline-offset-2";
+const input = "min-h-11 rounded-lg border border-hairline bg-bg px-3 py-2 text-ink-1 focus-visible:outline-2 focus-visible:outline-offset-2";
 
 /** Reader edits a fake labour contract; the rule set re-runs on every change. */
 export function ContractCheck({ source }: CaseBlockProps) {
@@ -58,25 +58,25 @@ export function ContractCheck({ source }: CaseBlockProps) {
           </label>
           <label className={field}>
             Probation: {f.probationDays} days
-            <input type="range" min={0} max={120} value={f.probationDays} onChange={(e) => set("probationDays", Number(e.target.value))} className="accent-[#1f5bff]" />
+            <input type="range" min={0} max={120} value={f.probationDays} onChange={(e) => set("probationDays", Number(e.target.value))} className="h-11 accent-[#1f5bff]" />
           </label>
           <label className={field}>
             Probation pay: {Math.round(f.probationWagePct * 100)}%
-            <input type="range" min={50} max={100} value={Math.round(f.probationWagePct * 100)} onChange={(e) => set("probationWagePct", Number(e.target.value) / 100)} className="accent-[#1f5bff]" />
+            <input type="range" min={50} max={100} value={Math.round(f.probationWagePct * 100)} onChange={(e) => set("probationWagePct", Number(e.target.value) / 100)} className="h-11 accent-[#1f5bff]" />
           </label>
           <label className={field}>
             Overtime: {f.otHoursPerDay} h/day
-            <input type="range" min={0} max={8} value={f.otHoursPerDay} onChange={(e) => set("otHoursPerDay", Number(e.target.value))} className="accent-[#1f5bff]" />
+            <input type="range" min={0} max={8} value={f.otHoursPerDay} onChange={(e) => set("otHoursPerDay", Number(e.target.value))} className="h-11 accent-[#1f5bff]" />
           </label>
           <label className={field}>
             Renewals: {f.renewals}
-            <input type="range" min={0} max={3} value={f.renewals} onChange={(e) => set("renewals", Number(e.target.value))} className="accent-[#1f5bff]" />
+            <input type="range" min={0} max={3} value={f.renewals} onChange={(e) => set("renewals", Number(e.target.value))} className="h-11 accent-[#1f5bff]" />
           </label>
           <label className="flex items-center gap-2 self-end text-sm text-ink-1">
-            <input type="checkbox" checked={f.bhxhClause} onChange={(e) => set("bhxhClause", e.target.checked)} className="size-4 accent-[#1f5bff]" />
+            <input type="checkbox" checked={f.bhxhClause} onChange={(e) => set("bhxhClause", e.target.checked)} className="size-6 accent-[#1f5bff]" />
             Mentions social insurance
           </label>
-          <button type="button" onClick={() => setF(SAMPLE)} className="h-fit justify-self-start rounded-full border border-hairline px-4 py-1.5 text-sm text-ink-2 hover:text-ink-1">
+          <button type="button" onClick={() => setF(SAMPLE)} className="min-h-11 justify-self-start rounded-full border border-hairline px-4 py-1.5 text-sm text-ink-2 hover:text-ink-1">
             Reset sample
           </button>
         </form>

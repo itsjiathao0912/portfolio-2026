@@ -27,7 +27,7 @@ export function RuleTree({ source }: CaseBlockProps) {
           const isOpen = open === t.type;
           return (
             <li key={t.type}>
-              <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? "" : t.type)} className="grid w-full grid-cols-[10rem_1fr_2rem] items-center gap-3 text-left text-sm text-ink-1 sm:grid-cols-[12rem_1fr_2rem]">
+              <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? "" : t.type)} className="grid min-h-11 w-full grid-cols-[10rem_1fr_2rem] items-center gap-3 text-left text-sm text-ink-1 sm:grid-cols-[12rem_1fr_2rem]">
                 <span className="font-semibold">{t.type}</span>
                 <span className="h-3 rounded-full bg-hairline">
                   <span className={cn("block h-3 rounded-full", isOpen ? "bg-[#1f5bff]" : "bg-[#1f5bff]/50")} style={{ width: `${(t.rules.length / max) * 100}%` }} />

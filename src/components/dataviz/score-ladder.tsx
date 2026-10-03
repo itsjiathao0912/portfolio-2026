@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { VIZ_SPRING } from "./motion";
@@ -43,7 +44,7 @@ export function ScoreLadder({ rules, bands, preset = [], ...frame }: ScoreLadder
                   aria-pressed={on}
                   onClick={() => setFired((f) => (on ? f.filter((x) => x !== r.label) : [...f, r.label]))}
                   className={cn(
-                    "flex min-h-10 items-center gap-2 rounded-full border px-3.5 font-mono text-[0.8rem] transition-colors",
+                    "flex min-h-11 items-center gap-2 rounded-full border px-3.5 font-mono text-[0.8rem] transition-colors",
                     on ? "border-ink-1 bg-ink-1 text-white" : "border-hairline bg-bg text-ink-1 hover:border-border-strong",
                   )}
                   data-testid="ladder-rule"
@@ -95,7 +96,7 @@ export function ScoreLadder({ rules, bands, preset = [], ...frame }: ScoreLadder
           <span className={cn("rounded-full px-3 py-0.5 font-semibold", CHIP[band.tone])} data-testid="ladder-band">
             {band.label}
           </span>
-          <button type="button" onClick={() => setFired([])} className="ml-auto text-accent underline-offset-4 hover:underline">
+          <button type="button" onClick={() => setFired([])} className="ml-auto inline-flex min-h-11 items-center px-3 text-accent underline-offset-4 hover:underline">
             Reset
           </button>
         </p>

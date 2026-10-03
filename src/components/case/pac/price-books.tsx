@@ -38,7 +38,7 @@ export function PriceBooks({ source }: CaseBlockProps) {
     >
       <label className="flex flex-col gap-2 text-sm text-ink-2">
         <span>One tenant ran a single instance for <strong className="text-ink-1">{fmt(hours, 0)} hours</strong> this month</span>
-        <input type="range" min={100} max={1440} step={10} value={hours} onChange={(e) => setHours(Number(e.target.value))} className="w-full accent-[var(--accent)]" aria-label="Instance hours this month" />
+        <input type="range" min={100} max={1440} step={10} value={hours} onChange={(e) => setHours(Number(e.target.value))} className="h-11 w-full accent-[var(--accent)]" aria-label="Instance hours this month" />
       </label>
       <ul className="grid gap-3 sm:grid-cols-2">
         {BOOKS.map((b) => {

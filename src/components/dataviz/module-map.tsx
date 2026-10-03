@@ -1,7 +1,9 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
-import { VIZ_SPRING, VIZ_VIEWPORT, vizDelay } from "./motion";
+import { motion, useInView } from "motion/react";
+import { useRef } from "react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
+import { VIZ_SPRING, vizDelay } from "./motion";
 import { VizFigure, type VizFrameProps } from "./viz-figure";
 
 interface ModuleMapProps extends VizFrameProps {
@@ -15,6 +17,10 @@ interface ModuleMapProps extends VizFrameProps {
  */
 export function ModuleMap({ center, items, ...frame }: ModuleMapProps) {
   const reduce = useReducedMotion();
+  const ringRef = useRef<HTMLDivElement>(null);
+  // One observer on the ring: per-child whileInView never fired for zero-width spokes.
+  const inView = useInView(ringRef, { once: true, amount: 0.2 });
+  const shown = inView || reduce;
   // Ring positions (percent of the box), starting at 12 o'clock.
   const pos = items.map((_, i) => {
     const angle = (i / items.length) * Math.PI * 2 - Math.PI / 2;
@@ -35,7 +41,7 @@ export function ModuleMap({ center, items, ...frame }: ModuleMapProps) {
         </ul>
       </div>
       {/* tablet + desktop */}
-      <div className="relative hidden aspect-[16/10] sm:block" data-testid="module-ring">
+      <div ref={ringRef} className="relative hidden aspect-[16/10] sm:block" data-testid="module-ring">
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 size-full" aria-hidden="true">
           {pos.map((p, i) => (
             <motion.line
@@ -48,8 +54,7 @@ export function ModuleMap({ center, items, ...frame }: ModuleMapProps) {
               strokeWidth={2}
               vectorEffect="non-scaling-stroke"
               initial={{ opacity: reduce ? 1 : 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={VIZ_VIEWPORT}
+              animate={{ opacity: shown ? 1 : 0 }}
               transition={reduce ? { duration: 0 } : { duration: 0.6, delay: 0.2 + vizDelay(i) }}
             />
           ))}
@@ -57,8 +62,7 @@ export function ModuleMap({ center, items, ...frame }: ModuleMapProps) {
         <motion.span
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-navy px-7 py-3.5 text-center font-semibold whitespace-nowrap text-white shadow-2"
           initial={{ scale: reduce ? 1 : 0.6, opacity: reduce ? 1 : 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          viewport={VIZ_VIEWPORT}
+          animate={{ scale: shown ? 1 : 0.6, opacity: shown ? 1 : 0 }}
           transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 320, damping: 16 }}
         >
           {center}
@@ -70,8 +74,7 @@ export function ModuleMap({ center, items, ...frame }: ModuleMapProps) {
               className="absolute w-[32%] max-w-[15rem] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-bg px-4 py-3 text-center text-base shadow-2"
               style={{ left: `${pos[i].x}%`, top: `${pos[i].y}%` }}
               initial={{ opacity: reduce ? 1 : 0, scale: reduce ? 1 : 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={VIZ_VIEWPORT}
+              animate={{ opacity: shown ? 1 : 0, scale: shown ? 1 : 0.8 }}
               transition={reduce ? { duration: 0 } : { ...VIZ_SPRING, stiffness: 300, delay: 0.35 + vizDelay(i) }}
             >
               <span className="font-semibold text-ink-1">{item.label}</span>

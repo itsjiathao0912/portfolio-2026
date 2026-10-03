@@ -67,7 +67,7 @@ export default async function CaseStudyPage({ params }: Params) {
           </p>
           <WorkCard project={next} headingLevel="h3" className="mx-auto max-w-[520px] xl:min-h-[680px]" />
           <div className="mt-10 flex justify-center">
-            <LiquidLink href="/work" variant="outline" size="sm">
+            <LiquidLink href="/work" variant="outline" size="sm" className="min-h-11">
               Back to all work
             </LiquidLink>
           </div>
