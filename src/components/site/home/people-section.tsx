@@ -1,4 +1,4 @@
-import { AvatarSprite, AvatarStack } from "@/components/people/avatar";
+import { AvatarStack } from "@/components/people/avatar-stack";
 import { PEOPLE_SEEDS } from "@/components/people/avatar-logic";
 import { buildWallTiles } from "@/components/signature/characters/logic";
 import { LiftCard } from "@/components/ui/lift-card";
@@ -11,12 +11,11 @@ const STACKS: Record<string, { seeds: readonly string[]; label: string; total?: 
   aabw: { seeds: PEOPLE_SEEDS.judges, label: "Illustrated team and judges" },
 };
 
-/** "Building with people": four sourced stat cards with illustrated avatar stacks (role seeds, never real names). */
+/** "Building with people": four sourced stat cards with clay avatar stacks (role seeds, never real names). */
 export function PeopleSection() {
   const tiles = buildWallTiles();
   return (
     <section aria-labelledby="people-title" className="bg-bg py-14 md:py-[80px]" data-testid="section-people">
-      <AvatarSprite />
       <div className="mx-auto max-w-[1320px] px-6 md:px-10 lg:px-[60px]">
         <h2 id="people-title" className="text-[32px] md:text-[46px]">Building with people</h2>
         <p className="mt-4 max-w-xl text-[17px] leading-[1.55] text-ink-2">Communities, hackathons and demo rooms: the part of the job that happens away from the screen.</p>

@@ -1,8 +1,10 @@
-// Pure helpers for the people avatars. No React, no DiceBear: unit-tested.
+// Pure helpers for the people avatars. No React: unit-tested.
 //
-// Avatars are DiceBear "notionists" (artwork by Zoish, CC0), rendered locally.
-// Seeds are role labels, never real names, so nobody mistakes them for real
-// people. Real people only appear in real photos.
+// Avatars are the site's original clay characters (src/components/clay), the
+// same family as the role picker tiles. Seeds are role labels, never real names,
+// so nobody mistakes them for real people. Real people only appear in real photos.
+
+import type { RoleId } from "../site/visitor/role-ids";
 
 /** Soft pastel fills (design tokens, never raw hex). */
 export const PASTEL_TOKENS = [
@@ -31,11 +33,6 @@ export function pastelFor(seed: string) {
   return `var(${PASTEL_TOKENS[hashSeed(seed) % PASTEL_TOKENS.length]})`;
 }
 
-/** Id of the shared <symbol> for a seed (letters, digits and dashes only). */
-export function symbolId(seed: string) {
-  return `av-${seed.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-}
-
 /** Split a stack into the avatars shown and the "+N" overflow. */
 export function stackSplit<T>(items: readonly T[], max = 5) {
   const shown = items.slice(0, max);
@@ -51,3 +48,17 @@ export const PEOPLE_SEEDS = {
 } as const;
 
 export const ALL_SEEDS: readonly string[] = [...new Set(Object.values(PEOPLE_SEEDS).flat())];
+
+/** Clay roles each seed group draws from (props only: sponsors carry coins, builders carry laptops). */
+const GROUP_ROLES: Record<string, readonly RoleId[]> = {
+  mentee: ["student", "curious", "designer", "growth"],
+  sponsor: ["investor", "marketer", "founder"],
+  builder: ["engineer", "designer", "founder", "data", "pm"],
+  judge: ["investor", "pm", "data"],
+};
+
+/** Deterministic clay role for a seed: the group (text before the last dash) picks the pool, the hash picks the role. */
+export function roleForPerson(seed: string): RoleId {
+  const pool = GROUP_ROLES[seed.replace(/-\d+$/, "")] ?? GROUP_ROLES.builder!;
+  return pool[hashSeed(`role:${seed}`) % pool.length]!;
+}

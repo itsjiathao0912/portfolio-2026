@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { PEOPLE_SEEDS, PASTEL_TOKENS, pastelFor, stackSplit, symbolId } from "../../src/components/people/avatar-logic.ts";
+import { ALL_SEEDS, PEOPLE_SEEDS, PASTEL_TOKENS, pastelFor, roleForPerson, stackSplit } from "../../src/components/people/avatar-logic.ts";
 import { PROJECT_EMOJI, STAMPS, stampFor } from "../../src/components/site/home/project-meta.ts";
 import { FLIP_MAX, flipOffset, orderFor, orderForPersona } from "../../src/components/site/home/persona-order.ts";
 import { ROLE_IDS, isRoleId } from "../../src/components/site/visitor/role-ids.ts";
@@ -13,8 +13,10 @@ describe("avatars", () => {
     expect(pastelFor("mentee-1")).toBe(pastelFor("mentee-1"));
     expect(PASTEL_TOKENS.some((t) => pastelFor("builder-2") === `var(${t})`)).toBe(true);
   });
-  test("symbol ids are safe; stacks cap at 5 with overflow", () => {
-    expect(symbolId("Mentee 1")).toBe("av-mentee-1");
+  test("each seed maps to one stable clay role from its group; stacks cap at 5 with overflow", () => {
+    for (const seed of ALL_SEEDS) expect(roleForPerson(seed)).toBe(roleForPerson(seed));
+    expect(["investor", "marketer", "founder"]).toContain(roleForPerson("sponsor-2"));
+    expect(["engineer", "designer", "founder", "data", "pm"]).toContain(roleForPerson("unknown-9"));
     expect(stackSplit(PEOPLE_SEEDS.participants, 5)).toEqual({ shown: PEOPLE_SEEDS.participants.slice(0, 5), more: 1 });
   });
 });

@@ -122,12 +122,15 @@ test.describe("desktop", () => {
     expect(await page.locator("canvas").count()).toBeLessThanOrEqual(1);
   });
 
-  test("people cards show illustrated avatars", async ({ page }) => {
+  test("people cards show clay avatars", async ({ page }) => {
     await page.goto("/");
     const cards = page.getByTestId("people-card");
     await cards.first().scrollIntoViewIfNeeded();
     expect(await cards.count()).toBe(4);
     expect(await page.getByTestId("avatar-stack").count()).toBeGreaterThan(0);
+    const first = page.getByTestId("avatar").first();
+    await expect(first.locator("svg")).toHaveCount(1);
+    expect(await page.getByTestId("avatar-sprite").count()).toBe(0);
   });
 
 });
