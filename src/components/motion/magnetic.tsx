@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
+import { motion, useMotionValue, useSpring } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { MAGNET_MAX, PRESS_SCALE, SPRING, magnetOffset } from "./springs";
@@ -51,6 +52,9 @@ export function Magnetic({ children, className, strength = MAGNET_MAX, press = t
     <motion.span
       ref={ref}
       data-magnetic=""
+      // motion's tap gesture would add tabindex=0 to this span, giving every
+      // wrapped link a second tab stop. -1 keeps it out of the tab order.
+      tabIndex={-1}
       className={cn("inline-flex", className)}
       style={{ x, y }}
       onPointerMove={onMove}

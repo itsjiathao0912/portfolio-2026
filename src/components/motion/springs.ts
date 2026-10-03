@@ -13,9 +13,21 @@ export const SPRING = {
   magnet: { type: "spring", stiffness: 300, damping: 20, mass: 0.5 },
   /** Big layout moves and sheets. */
   sheet: { type: "spring", stiffness: 400, damping: 40 },
-  /** Soft tilt for cards. */
+  /** Soft tilt for cards and pointer parallax. */
   tilt: { type: "spring", stiffness: 180, damping: 24 },
+  /** Card hover lift (LiftCard): one small overshoot, settles in ~0.5s. */
+  lift: { type: "spring", stiffness: 190, damping: 20, mass: 1 },
+  /** Stamp landing (project stamps). */
+  stamp: { type: "spring", stiffness: 520, damping: 22, mass: 0.9 },
+  /** Pointer-follow (sheen, cursor masks): slow and smooth. */
+  glide: { type: "spring", stiffness: 120, damping: 26, mass: 1 },
 } as const;
+
+/** Non-spring durations in seconds (mirror --d-* in globals.css). */
+export const DURATION = { micro: 0.12, short: 0.2, med: 0.32, reveal: 0.52 } as const;
+
+/** Scroll reveal: the only reveal pattern (opacity 0 to 1, y 16 to 0, once). */
+export const REVEAL = { y: 16, duration: DURATION.reveal, stagger: 0.06, maxStaggered: 6 } as const;
 
 /** Instant transition used when the visitor prefers reduced motion. */
 export const INSTANT = { duration: 0 } as const;

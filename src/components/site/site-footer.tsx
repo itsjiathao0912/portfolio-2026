@@ -72,13 +72,13 @@ export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
       <div className="border-t border-hairline">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-8 text-sm text-ink-3 md:flex-row md:items-center md:justify-between">
           <p>
-            <SketchHint name={profile?.name ?? "Thao Dao"} />{" "}
+            <span className="inline-flex min-h-11 items-center"><SketchHint name={profile?.name ?? "Thao Dao"} /></span>{" "}
             <span lang="vi">· {profile?.nameLocal ?? "Gia Thảo"}</span>
             {profile ? ` · ${profile.location}` : null}
           </p>
-          <nav aria-label="Footer" className="flex gap-6">
-            <Link href="/work" className="hover:text-ink-1">Work</Link>
-            <Link href="/about" className="hover:text-ink-1">About</Link>
+          <nav aria-label="Footer" className="flex gap-2">
+            <Link href="/work" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 hover:text-ink-1">Work</Link>
+            <Link href="/about" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 hover:text-ink-1">About</Link>
           </nav>
         </div>
       </div>

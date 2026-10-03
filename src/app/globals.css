@@ -50,12 +50,28 @@
   --tint-butter: #fff3c7;
   --tint-mint: #daf5e8;
   --tint-aqua: #d9f1f7;
-  /* shape + depth */
-  --radius: 16px;
+  /* shape: ONE radius scale (sm chips, md inputs, lg cards, xl big panels, full pills) */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-full: 9999px;
+  --radius: var(--r-lg);
+  /* depth: ONE shadow scale, tinted navy. Every step has two layers so
+     box-shadow can interpolate smoothly between steps (LiftCard). */
+  --shadow-0: 0 0 0 0 rgba(11, 21, 51, 0), 0 0 0 0 rgba(11, 21, 51, 0);
+  --shadow-1: 0 1px 2px 0 rgba(11, 21, 51, 0.06), 0 0 0 0 rgba(11, 21, 51, 0);
+  --shadow-2: 0 8px 20px -6px rgba(11, 21, 51, 0.12), 0 2px 4px 0 rgba(11, 21, 51, 0.05);
+  --shadow-3: 0 24px 44px -14px rgba(11, 21, 51, 0.2), 0 6px 12px -4px rgba(11, 21, 51, 0.08);
   --shadow-nav: 0 0 3px rgba(0, 0, 0, 0.14), 0 20px 13px -4px rgba(0, 0, 0, 0.06);
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-card-hover: 4px 20px 16px rgba(0, 0, 0, 0.11);
-  /* motion */
+  /* legacy names, now aliases of the scale */
+  --shadow-card: var(--shadow-1);
+  --shadow-card-hover: var(--shadow-3);
+  /* motion: durations (springs live in components/motion/springs.ts) */
+  --d-micro: 120ms;
+  --d-short: 200ms;
+  --d-med: 320ms;
+  --d-reveal: 520ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   color-scheme: light;
@@ -111,15 +127,18 @@
   --color-input: var(--border-strong);
   --color-ring: var(--accent);
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: var(--radius);
-  --radius-xl: 20px;
-  --radius-2xl: 24px;
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+  --radius-2xl: var(--r-xl);
 
+  --shadow-1: var(--shadow-1);
+  --shadow-2: var(--shadow-2);
+  --shadow-3: var(--shadow-3);
   --shadow-nav: var(--shadow-nav);
-  --shadow-card: var(--shadow-card);
-  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-card: var(--shadow-1);
+  --shadow-card-hover: var(--shadow-3);
 
   /* fonts: self-hosted via @fontsource (imported in src/app/layout.tsx),
    * every subset including Vietnamese (served by unicode-range on demand). */
@@ -166,6 +185,11 @@
     line-height: 1.12;
     letter-spacing: 0;
     color: var(--ink-1);
+  }
+
+  /* Dark bands (story chapters, gradient bands) set their own ink; headings follow it. */
+  .ink-inherit :is(h1, h2, h3) {
+    color: inherit;
   }
 
   ::selection {
@@ -258,6 +282,13 @@
   animation: page-in 250ms var(--ease-out) both;
 }
 @media (prefers-reduced-motion: reduce) {
+  /* No endless motion: skeleton pulses and spinners stop. */
+  .animate-pulse,
+  .animate-bounce,
+  .animate-ping,
+  .animate-spin {
+    animation: none !important;
+  }
   /* Scroll reveals: content simply appears (overrides motion's inline styles). */
   [data-reveal] {
     opacity: 1 !important;

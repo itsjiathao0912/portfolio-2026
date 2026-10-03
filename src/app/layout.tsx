@@ -12,6 +12,7 @@ import "@fontsource/ibm-plex-mono/500.css";
 import "./globals.css";
 
 import { SecretWord } from "@/components/gems/secret-word";
+import { ParticipateProvider } from "@/components/signature/participate/store";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteNav } from "@/components/site/site-nav";
@@ -46,17 +47,19 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body className="flex min-h-dvh flex-col">
         <a
           href="#main"
-          className="sr-only z-[60] rounded-full bg-navy px-4 py-2 text-bg focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+          className="sr-only z-[60] rounded-full bg-ink-1 px-4 py-2 text-bg focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
         >
           Skip to content
         </a>
         <MotionProvider>
+          <ParticipateProvider>
           <SiteNav name={profile?.name ?? "Thao Dao"} email={profile?.email ?? ""} linkedin={linkedin} />
           <div id="main" className="flex-1">
             {children}
           </div>
           <SiteFooter profile={profile} />
           <SecretWord />
+          </ParticipateProvider>
         </MotionProvider>
       </body>
     </html>

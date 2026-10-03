@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, LayoutGroup, motion, useMotionValueEvent, useReducedMotion, useScroll, type PanInfo } from "motion/react";
+import { AnimatePresence, LayoutGroup, motion, useMotionValueEvent, useScroll, type PanInfo } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -163,9 +164,6 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
       data-compact={compact ? "true" : "false"}
       className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-end px-4 pt-[var(--nav-top-sm)] md:justify-center md:pt-[var(--nav-top)]"
     >
-      {/* Thao's local time, a quiet human touch (hidden at md where the pill fills the row). */}
-      <LocalTime className="absolute top-[calc(var(--nav-top-sm)+20px)] left-5 md:hidden lg:top-[calc(var(--nav-top)+24px)] lg:left-8 lg:block" />
-
       {/* Desktop: floating liquid-glass pill. */}
       <motion.div
         className="pointer-events-auto hidden md:block"
@@ -190,6 +188,10 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
               ))}
             </LayoutGroup>
           </nav>
+          {/* Thao's local time lives inside the pill (never floats over content); shown from 1024px up. */}
+          <span className="mr-5 ml-1 hidden items-center gap-3 border-l border-hairline pl-4 lg:flex">
+            <LocalTime className="whitespace-nowrap" />
+          </span>
         </LiquidGlass>
       </motion.div>
 
@@ -240,7 +242,7 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
               aria-modal="true"
               aria-label="Menu"
               data-testid="mobile-menu"
-              className="pointer-events-auto absolute inset-x-2.5 top-2.5 touch-none rounded-[28px] bg-bg px-3 pt-20 pb-3 shadow-card-hover md:hidden"
+              className="pointer-events-auto absolute inset-x-2.5 top-2.5 touch-none rounded-xl bg-bg px-3 pt-20 pb-3 shadow-card-hover md:hidden"
               initial={reduce ? { opacity: 0 } : { opacity: 0, y: -40 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduce ? { opacity: 0 } : { opacity: 0, y: -60 }}
@@ -277,6 +279,7 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
                   Get in touch
                 </a>
               </nav>
+              <LocalTime className="mt-3 text-center" />
               <span aria-hidden="true" className="mx-auto mt-2 block h-1.5 w-10 rounded-full bg-black/15" />
             </motion.div>
           </>
