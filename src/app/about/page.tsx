@@ -51,17 +51,22 @@ export default async function AboutPage() {
           <h1 className="text-[39px] md:text-[64px]">About {profile.name.split(" ")[0]}</h1>
           <p className="text-[20px] leading-[1.6] text-ink-1 md:text-[22px]">{profile.summary}</p>
           <p className="text-[18px] leading-[1.6] text-ink-2">{profile.tagline}</p>
-          <p className="text-ink-3">
-            <span lang="vi" data-testid="name-local" className="font-display text-ink-1">
-              {profile.nameLocal}
-            </span>{" "}
-            <SayMyName />{" "}
-            <EmojiBurst emojis={["🇻🇳", "🍜", "☕", "🛵"]} className="relative inline-flex cursor-default">
-              <span role="img" aria-label="Vietnam flag">🇻🇳</span>
-            </EmojiBurst>{" "}
-            · {profile.location}
-            {profile.availability ? ` · ${profile.availability}` : ""}
-          </p>
+          <div className="flex flex-col gap-2 text-ink-3">
+            {/* Name and its "Say it" chip share one row; the place line always sits on its own line below. */}
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span lang="vi" data-testid="name-local" className="font-display text-ink-1">
+                {profile.nameLocal}
+              </span>
+              <SayMyName />
+            </p>
+            <p>
+              <EmojiBurst emojis={["🇻🇳", "🍜", "☕", "🛵"]} className="relative inline-flex cursor-default">
+                <span role="img" aria-label="Vietnam flag">🇻🇳</span>
+              </EmojiBurst>{" "}
+              · {profile.location}
+              {profile.availability ? ` · ${profile.availability}` : ""}
+            </p>
+          </div>
         </div>
         <div className="relative w-full max-w-[320px] justify-self-center">
           <Tilt>

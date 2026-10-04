@@ -76,7 +76,7 @@ function BlockBody({ block, title, first, layout, gloss }: BlockProps) {
       if (block.level === 3) return <h3 className="mt-4 text-xl">{block.text}</h3>;
       const id = headingAnchor(block.text);
       return (
-        <div className={cn("flex flex-col gap-3", !first && "mt-[110px] md:mt-[150px]")}>
+        <div className={cn("flex flex-col gap-3", !first && "mt-16 md:mt-[72px] lg:mt-24")}>
           {block.eyebrow ? <p className="text-sm font-semibold text-ink-3 md:text-base">{block.eyebrow}</p> : null}
           <h2 id={id} data-toc-section="" className="scroll-mt-[150px] text-[1.75rem] leading-[1.15] md:text-[2rem] md:leading-[1.12]">
             {block.text}
@@ -109,7 +109,7 @@ function BlockBody({ block, title, first, layout, gloss }: BlockProps) {
     case "quote":
       return (
         <blockquote
-          className={cn("my-16 flex flex-col md:my-24", layout === "magazine" ? "items-start border-l-4 border-accent pl-6 text-left" : "items-center text-center")}
+          className={cn("my-12 flex flex-col md:my-16", layout === "magazine" ? "items-start border-l-4 border-accent pl-6 text-left" : "items-center text-center")}
           data-testid="quote"
         >
           {layout === "magazine" ? null : (

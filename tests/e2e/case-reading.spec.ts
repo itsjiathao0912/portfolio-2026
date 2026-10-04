@@ -105,3 +105,16 @@ test("every case ends with the same results band, at most 2 decision cards, badg
     for (const r of roles) expect(["Thao owned", "Team build", "Platform"]).toContain(r.trim());
   }
 });
+
+test("depth pill is one tab stop and arrow keys move the selection", async ({ page }) => {
+  await page.goto("/work/cortex-sentinel");
+  await expect(page.getByTestId("depth-pill")).toHaveAttribute("data-ready", "true");
+  await expect(page.locator('[data-testid="depth-pill"] [role="radio"][tabindex="0"]')).toHaveCount(1);
+  await page.getByTestId("depth-read").focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByTestId("depth-deep")).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByTestId("depth-deep")).toBeFocused();
+  await page.keyboard.press("Home");
+  await expect(page.getByTestId("depth-skim")).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByTestId("depth-skim")).toBeFocused();
+});

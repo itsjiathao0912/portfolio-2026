@@ -6,7 +6,8 @@ import { PERSONA_META, isPersona } from "@/components/signature/participate/logi
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { useReadingDepth } from "./depth-context";
-import { DEPTH_LABEL, DEPTH_ORDER } from "./logic";
+import { DEPTH_LABEL, DEPTH_ORDER, nextDepthIndex } from "./logic";
+
 
 /**
  * Skim / Read / Deep control under the hero. Inline, not sticky: a second bar
@@ -29,7 +30,7 @@ export function DepthPill() {
         data-tint="light"
       >
         <LayoutGroup id="depth-pill">
-          {DEPTH_ORDER.map((d) => {
+          {DEPTH_ORDER.map((d, i) => {
             const active = d === depth;
             return (
               <button
@@ -38,7 +39,16 @@ export function DepthPill() {
                 role="radio"
                 aria-checked={active}
                 data-testid={`depth-${d}`}
+                tabIndex={active ? 0 : -1}
                 onClick={() => setDepth(d)}
+                onKeyDown={(e) => {
+                  const next = nextDepthIndex(e.key, i, DEPTH_ORDER.length);
+                  if (next === null) return;
+                  e.preventDefault();
+                  setDepth(DEPTH_ORDER[next]);
+                  const group = e.currentTarget.parentElement;
+                  requestAnimationFrame(() => group?.querySelectorAll<HTMLButtonElement>('[role="radio"]')[next]?.focus());
+                }}
                 className={cn(
                   "relative flex h-full flex-1 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent md:flex-none md:px-5",
                   active ? "text-white" : "text-ink-2 hover:text-ink-1",

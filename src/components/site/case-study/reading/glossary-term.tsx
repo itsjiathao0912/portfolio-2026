@@ -107,7 +107,7 @@ export function GlossaryTerm({ id, children }: { id: string; children: ReactNode
             setOpen(true);
           }
         }}
-        className="cursor-help rounded-sm bg-transparent p-0 text-inherit underline decoration-ink-3 decoration-dotted decoration-2 underline-offset-4 hover:decoration-ink-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className="-my-2 inline-block cursor-help rounded-sm bg-transparent px-0 py-2 text-inherit underline decoration-ink-3 decoration-dotted decoration-2 underline-offset-4 hover:decoration-ink-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         {children}
       </button>

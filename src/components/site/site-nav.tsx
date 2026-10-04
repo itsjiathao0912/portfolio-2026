@@ -38,6 +38,29 @@ export function shouldCloseSheet(offsetY: number, velocityY: number, height: num
 const PILL_H = 64;
 const PILL_H_SM = 56;
 
+/**
+ * True when heading TEXT (glyph line boxes, not the heading block) sits under
+ * the mobile menu button's resting spot. On scroll-up the button waits until
+ * the heading has moved on instead of landing on it.
+ */
+function burgerOverHeading(el: HTMLElement | null) {
+  const parent = el?.offsetParent as HTMLElement | null;
+  if (!el || !parent || typeof document === "undefined") return false;
+  const p = parent.getBoundingClientRect();
+  const pad = 4;
+  const box = { l: p.left + el.offsetLeft - pad, t: p.top + el.offsetTop - pad, r: p.left + el.offsetLeft + el.offsetWidth + pad, b: p.top + el.offsetTop + el.offsetHeight + pad };
+  for (const h of Array.from(document.querySelectorAll<HTMLElement>("#main h1, #main h2, #main h3"))) {
+    const hr = h.getBoundingClientRect();
+    if (hr.bottom < box.t || hr.top > box.b) continue;
+    const range = document.createRange();
+    range.selectNodeContents(h);
+    for (const r of Array.from(range.getClientRects())) {
+      if (r.width && r.left < box.r && r.right > box.l && r.top < box.b && r.bottom > box.t) return true;
+    }
+  }
+  return false;
+}
+
 function NavItem({
   href,
   label,
@@ -119,9 +142,9 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
     setCompact(y > 80);
     const delta = y - lastY.current;
     lastY.current = y;
-    if (y < 80) setBurgerHidden(false);
+    if (y < 80) setBurgerHidden(y > 0 && burgerOverHeading(toggleRef.current));
     else if (delta > 4) setBurgerHidden(true);
-    else if (delta < -4) setBurgerHidden(false);
+    else if (delta < -4) setBurgerHidden(burgerOverHeading(toggleRef.current));
   });
   const hideBurger = burgerHidden && !open;
 

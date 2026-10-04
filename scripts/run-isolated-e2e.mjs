@@ -4,6 +4,11 @@
 //
 //   pnpm test:e2e:isolated                    → all specs
 //   pnpm test:e2e:isolated -- --grep "home"   → args go to `playwright test`
+//   pnpm test:e2e:isolated -- --from-head     → build a temp `git worktree` of
+//                                               HEAD instead of the working tree
+//
+// It builds whatever tree it runs in. A dirty tree prints a loud warning (the
+// results are NOT the results of HEAD); --from-head gives HEAD results.
 //
 // Per run, everything is private:
 //   build dir  .next-e2e-<id>          (NEXT_DIST_DIR — read by next.config.ts)
@@ -15,13 +20,51 @@
 //
 // Cleanup runs on success, failure, AND Ctrl-C/SIGTERM (async spawns keep the
 // event loop free so the signal handlers actually run).
-import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync, spawn, spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import net from "node:net";
 import path from "node:path";
 import { restoredTsconfigText } from "./tsconfig-restore.mjs";
 
 const root = process.cwd();
+
+function git(...args) {
+  try {
+    return execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trimEnd();
+  } catch {
+    return null;
+  }
+}
+
+// --from-head: re-run this script inside a throwaway worktree of HEAD (sharing
+// node_modules by symlink), then remove the worktree.
+if (process.argv.includes("--from-head")) {
+  const rest = process.argv.slice(2).filter((a) => a !== "--from-head");
+  const wt = mkdtempSync(path.join(os.tmpdir(), "pf-e2e-head-"));
+  rmSync(wt, { recursive: true, force: true });
+  if (git("worktree", "add", "--detach", wt, "HEAD") === null) {
+    console.error("[e2e] --from-head: git worktree add failed");
+    process.exit(1);
+  }
+  symlinkSync(path.join(root, "node_modules"), path.join(wt, "node_modules"), "dir");
+  console.log(`[e2e] --from-head: running in ${wt} @ ${git("rev-parse", "--short", "HEAD")}`);
+  const r = spawnSync(process.execPath, [path.join(wt, "scripts", "run-isolated-e2e.mjs"), ...rest], { cwd: wt, stdio: "inherit" });
+  git("worktree", "remove", "--force", wt);
+  process.exit(r.status ?? 1);
+}
+
+{
+  const head = git("rev-parse", "--short", "HEAD") ?? "unknown";
+  const dirty = git("status", "--porcelain", "--untracked-files=no");
+  if (dirty) {
+    console.warn(`[e2e] WARNING: tree is DIRTY at ${head} — results are for the working tree, not HEAD.`);
+    console.warn("[e2e]          Modified files:\n" + dirty.split("\n").map((l) => `[e2e]            ${l}`).join("\n"));
+    console.warn("[e2e]          Pass --from-head to test a clean worktree of HEAD instead.");
+  } else {
+    console.log(`[e2e] tree clean at ${head}`);
+  }
+}
 const runId = `${Date.now()}-${process.pid}`;
 const distDir = `.next-e2e-${runId}`;
 const tmpDir = path.join(root, "playwright", ".tmp");

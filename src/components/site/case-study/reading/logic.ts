@@ -136,3 +136,12 @@ export function evidenceTone(label: string): EvidenceTone {
 }
 
 export const ROLE_LABEL = { owned: "Thao owned", team: "Team build", platform: "Platform" } as const;
+
+/** WAI-ARIA radio pattern: arrows move and select, Home/End jump. */
+export function nextDepthIndex(key: string, index: number, count: number) {
+  if (key === "ArrowRight" || key === "ArrowDown") return (index + 1) % count;
+  if (key === "ArrowLeft" || key === "ArrowUp") return (index - 1 + count) % count;
+  if (key === "Home") return 0;
+  if (key === "End") return count - 1;
+  return null;
+}
