@@ -32,5 +32,7 @@
 All shapes are drawn from primitives in this repo; nothing is traced from Fluent emoji, Notion/Pitch avatars, or any third-party art.
 
 ## Known gaps
-- Jump pose: raised arms now overlap the bigger head a little.
+- Jump pose: raised arms overlap the bigger head a little.
+- Feet: solid dark shoes with a light sole strip; full-body viewBox now ends exactly at the sole line (y=135.6, h=150, was 164) so there is no padding below the feet.
+- Props scaled 1.32x at the hand and redrawn per role (rocket, megaphone, frames tablet, pie+magnifier, briefcase, books, ? balloon) plus headgear (beret, grad cap, headphones) so busts read at 40px.
 - Per-render markup cap raised 6 KB → 9 KB in `tests/unit/clay.test.ts`; the 17-bust gzip ≤ 30 KB guard still holds.

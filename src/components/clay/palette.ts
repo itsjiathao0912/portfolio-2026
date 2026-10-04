@@ -48,7 +48,9 @@ export const ROLE_COLORS = {
 } as const satisfies Record<string, OutfitColors>;
 
 export type ClayRoleKey = keyof typeof ROLE_COLORS;
-export const SHOE = "#f1ede6";
+/** Solid dark shoe so feet read against the white canvas (sole = lowest painted pixel). */
+export const SHOE = "#2b2e38";
+export const SOLE = "#f4f1ea";
 
 /** Outfit accent colours addressed by AvatarSpec.accent (prop and trim colour). */
 export const ACCENTS = ["#e9b44c", "#ef7f6b", "#f08fa8", "#78d0c0", "#8fb8e8", "#f2a65a", "#7cc4a8", "#a99be0"] as const;

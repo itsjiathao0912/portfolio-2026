@@ -39,7 +39,9 @@ export type ClayAvatarProps = {
   shadow?: boolean;
 };
 
-const FULL = { box: "0 -14 100 164", w: 100, h: 164 } as const;
+// Bottom edge = sole line at rest (feet 134 in leg space, scaled 0.84 about 144 -> 135.6): no padding below the soles.
+const FULL = { box: "0 -14.4 100 150", w: 100, h: 150 } as const;
+const SOLE_Y = 135.6;
 const BUST = { box: "8 -4 84 86", w: 84, h: 86 } as const;
 // Chibi proportions: head ~45% of figure height. The body shrinks about the feet
 // and the head grows about its neck; both are static SVG transforms, so poses
@@ -101,8 +103,8 @@ export function ClayAvatar({ role, skin, hair, hairStyle, accent, pose = "idle",
         </>
       ) : (
         <>
-          {shadow ? <Shadow uid={uid} scale={p.shadow} /> : null}
-          <g style={{ transform: `translateY(${p.bodyY}px) rotate(${p.lean}deg)`, transformOrigin: "50px 144px", transition: "transform 280ms cubic-bezier(.3,.7,.2,1)" }}>
+          {shadow ? <Shadow uid={uid} scale={p.shadow} y={SOLE_Y} /> : null}
+          <g style={{ transform: `translateY(${p.bodyY}px) rotate(${p.lean}deg)`, transformOrigin: `50px ${SOLE_Y}px`, transition: "transform 280ms cubic-bezier(.3,.7,.2,1)" }}>
             <g transform={BODY_T}>
               <BackGear look={look} role={role} />
               <Leg look={look} x={43} angle={p.lLeg} lift={p.lLift} />
@@ -114,7 +116,7 @@ export function ClayAvatar({ role, skin, hair, hairStyle, accent, pose = "idle",
             {head}
             <g transform={BODY_T}>
             <Arm look={look} x={31} angle={p.lArm}>
-              <g style={{ transform: `rotate(${-p.lArm}deg)`, transformOrigin: "0px 29.6px", transition: "transform 280ms cubic-bezier(.3,.7,.2,1)" }}>
+              <g style={{ transform: `rotate(${-p.lArm}deg) scale(1.32)`, transformOrigin: "0px 29.6px", transition: "transform 280ms cubic-bezier(.3,.7,.2,1)" }}>
                 <Prop look={look} role={role} />
               </g>
             </Arm>

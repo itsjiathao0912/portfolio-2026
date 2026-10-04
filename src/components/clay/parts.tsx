@@ -4,14 +4,15 @@
 //     traced or copied from any mascot, stock render or third-party SVG;
 //   - soft plasticine look from radial gradients, a specular highlight and a
 //     gradient contact shadow. No SVG filters, no images, no external urls.
-// Roles: recruiter (blazer + CV sheet), founder (hoodie + laptop with sticker),
-// engineer (headphones + laptop), product designer (paint-chip card),
-// marketer (speech-bubble sign), growth (rising bars), data (round glasses +
-// chart card), investor (vest + coin stack), student (backpack + book),
-// fellow PM (sticky-note board), just curious (magnifier).
+// Roles: recruiter (blazer + starred CV), founder (hoodie + rocket), engineer
+// (headphones + code laptop), product designer (beret + frames tablet + pen),
+// marketer (lapel jacket + megaphone), growth (arrow tee + rising bars), data
+// (round glasses + magnifier over pie), investor (tie + briefcase), student
+// (grad cap + backpack + books), fellow PM (lanyard + sticky board), just
+// curious (question-mark balloon).
 
 import type { CSSProperties, ReactNode } from "react";
-import { INK, PAPER, SHOE, mix, shade, type Shade } from "./palette";
+import { INK, PAPER, SHOE, SOLE, mix, shade, type Shade } from "./palette";
 import type { PoseSpec } from "./poses";
 
 export const HAIR_STYLES = ["buzz", "short", "part", "bun", "long", "curly", "pony"] as const;
@@ -83,8 +84,8 @@ const Spec = ({ cx, cy, rx, ry, o = 0.34, r = -25 }: { cx: number; cy: number; r
   <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#fff" opacity={o} transform={`rotate(${r} ${cx} ${cy})`} />
 );
 
-export function Shadow({ uid, scale }: { uid: string; scale: number }) {
-  return <ellipse cx={50} cy={144} rx={26 * scale} ry={5 * scale} fill={url(uid, "g")} style={{ transition: ease, transformBox: "fill-box", transformOrigin: "center" }} />;
+export function Shadow({ uid, scale, y = 144 }: { uid: string; scale: number; y?: number }) {
+  return <ellipse cx={50} cy={y} rx={26 * scale} ry={5 * scale} fill={url(uid, "g")} style={{ transition: ease, transformBox: "fill-box", transformOrigin: "center" }} />;
 }
 
 // ---------------------------------------------------------------- limbs
@@ -99,9 +100,10 @@ export function Leg({ look, x, angle, lift }: { look: Look; x: number; angle: nu
   return (
     <g style={lim(x, 100 + lift, angle)}>
       <rect x={-6.4} y={-3} width={12.8} height={33} rx={6.4} fill={url(uid, "b")} />
-      <ellipse cx={1.2} cy={35.6} rx={8} ry={2.4} fill={url(uid, "o")} />
-      <ellipse cx={1.2} cy={34.2} rx={8.4} ry={4.8} fill={SHOE} />
-      <Spec cx={-1.6} cy={32.2} rx={3.6} ry={1.2} o={0.7} r={-8} />
+      {/* shoe: rounded toe cap over the leg end, flat sole at y=34 (no gap, no float) */}
+      <path d="M-7 34 V30.4 C-7 25.6 -3 24.6 1.4 24.6 C7 24.6 10 27.4 10 31.4 V34 Z" fill={SHOE} />
+      <rect x={-7} y={32.4} width={17} height={1.6} rx={0.6} fill={SOLE} />
+      <Spec cx={0} cy={27.4} rx={3.2} ry={1} o={0.35} r={-6} />
     </g>
   );
 }
@@ -268,8 +270,8 @@ export function Torso({ look, role }: { look: Look; role: string }) {
       {role === "designer" && <ellipse cx={50} cy={60.4} rx={11} ry={3.8} fill="none" stroke={light} strokeWidth={2.4} opacity={0.9} />}
       {role === "growth" && (
         <g>
-          <circle cx={60} cy={73} r={4.6} fill={url(uid, "a")} />
-          <path d="M57.6 74.6 l2.4 -3 l2.4 3" fill="none" stroke="#fff" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M40 84 L46 78 L50 81 L59 71" fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" opacity={0.9} />
+          <path d="M55 71 h4 v4" fill="none" stroke="#fff" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round" />
         </g>
       )}
       {role === "data" && (
@@ -281,13 +283,19 @@ export function Torso({ look, role }: { look: Look; role: string }) {
       {role === "investor" && (
         <g>
           <path d="M44 57 L50 78 L56 57Z" fill={PAPER} />
-          <path d="M50 66 l3 10 l-3 8 l-3 -8Z" fill={url(uid, "a")} />
+          <path d="M48 60 h4 l1 4 l2.4 14 l-3.4 6 l-3.4 -6 l2.4 -14z" fill={url(uid, "a")} />
           <path d="M31 70 L43 58 L48 84 L30 96Z M69 70 L57 58 L52 84 L70 96Z" fill={dark} opacity={0.18} />
         </g>
       )}
       {role === "student" && <path d="M38 60 L36 100 M62 60 L64 100" stroke={shade(look.bottom).mid} strokeWidth={4.4} strokeLinecap="round" opacity={0.9} />}
-      {role === "pm" && <rect x={54} y={72} width={8} height={8} rx={1.4} fill={url(uid, "a")} transform="rotate(8 58 76)" />}
-      {role === "marketer" && <path d="M44 60 Q50 66 56 60" fill="none" stroke={light} strokeWidth={2} strokeLinecap="round" />}
+      {role === "pm" && (
+        <g>
+          <path d="M42 58 L50 80 L58 58" fill="none" stroke={url(uid, "a")} strokeWidth={2} />
+          <rect x={45} y={79} width={10} height={12} rx={1.6} fill={PAPER} stroke="#d9d4ca" strokeWidth={0.6} />
+          <rect x={47} y={82} width={6} height={2} rx={1} fill={url(uid, "a")} />
+        </g>
+      )}
+      {role === "marketer" && <path d="M44 57.6 L50 72 L56 57.6 M44 57.6 L40 66 L46 66 Z M56 57.6 L60 66 L54 66 Z" fill={dark} opacity={0.5} />}
       {role === "engineer" && <path d="M44 60 Q50 65.4 56 60" fill="none" stroke={light} strokeWidth={2} strokeLinecap="round" />}
       {role === "curious" && <path d="M44 60 Q50 66 56 60" fill="none" stroke={light} strokeWidth={2} strokeLinecap="round" />}
     </g>
@@ -306,8 +314,25 @@ export function BackGear({ look, role }: { look: Look; role: string }) {
 
 /** Headwear and face gear drawn over the hair. */
 export function Headgear({ look, role }: { look: Look; role: string }) {
-  if (role !== "engineer") return null;
   const a = url(look.uid, "a");
+  if (role === "designer")
+    return (
+      <g>
+        <ellipse cx={46} cy={17.6} rx={20} ry={7.6} fill={a} transform="rotate(-10 46 17.6)" />
+        <circle cx={47} cy={9.6} r={1.8} fill={shade(look.accent).dark} />
+        <Spec cx={39} cy={14.6} rx={6} ry={1.6} o={0.4} r={-12} />
+      </g>
+    );
+  if (role === "student")
+    return (
+      <g>
+        <path d="M33 19 Q50 13 67 19 V24 Q50 19 33 24Z" fill="#2b2e38" />
+        <path d="M50 4 L76 13 L50 22 L24 13Z" fill="#363a46" />
+        <path d="M50 13 L70 16 V25" fill="none" stroke={a} strokeWidth={1.4} strokeLinecap="round" />
+        <circle cx={70} cy={26} r={1.8} fill={a} />
+      </g>
+    );
+  if (role !== "engineer") return null;
   return (
     <g>
       <path d="M29 39 C27.4 8 72.6 8 71 39" fill="none" stroke="#2f343f" strokeWidth={3.4} strokeLinecap="round" />
@@ -332,17 +357,17 @@ export function Prop({ look, role }: { look: Look; role: string }) {
       return (
         <g>
           <rect x={-8.6} y={13} width={17.2} height={22} rx={2} fill={PAPER} stroke="#d9d4ca" strokeWidth={0.8} />
-          <rect x={-5.4} y={16.4} width={6.4} height={6.4} rx={3.2} fill={a} />
+          <path d="M-2.2 15.6 l1.3 2.7 l3 .4 l-2.2 2.1 l.5 3 l-2.6 -1.4 l-2.6 1.4 l.5 -3 l-2.2 -2.1 l3 -.4z" fill={a} />
           <path d="M-5.4 26 h10.8 M-5.4 29.2 h10.8 M-5.4 32 h7" stroke="#bdb6a8" strokeWidth={1.1} strokeLinecap="round" />
         </g>
       );
     case "founder":
       return (
-        <g>
-          <rect x={-11} y={16.6} width={22} height={15} rx={2.6} fill="#c9ced6" stroke="#9ba2ae" strokeWidth={0.8} />
-          <circle cx={3} cy={24} r={3.8} fill={a} />
-          <path d="M3 21.8 l.8 1.6 l1.7 .2 l-1.3 1.2 l.4 1.7 l-1.6 -.9 l-1.6 .9 l.4 -1.7 l-1.3 -1.2 l1.7 -.2z" fill="#fff" />
-          <rect x={-12.4} y={31.6} width={24.8} height={2.4} rx={1.2} fill="#9ba2ae" />
+        <g transform="rotate(-20 0 22)">
+          <path d="M0 6 C6 11 6 24 4 30 H-4 C-6 24 -6 11 0 6Z" fill="#f4f1ea" stroke="#c9c3b6" strokeWidth={0.7} />
+          <circle cx={0} cy={17} r={2.6} fill="#8fb8e8" stroke="#4a4f5c" strokeWidth={0.8} />
+          <path d="M-4 24 L-8.4 31 H-4Z M4 24 L8.4 31 H4Z" fill={a} />
+          <path d="M-3 30 Q0 37 3 30Z" fill="#f2a65a" />
         </g>
       );
     case "engineer":
@@ -356,20 +381,20 @@ export function Prop({ look, role }: { look: Look; role: string }) {
     case "designer":
       return (
         <g>
-          {card()}
-          <g>
-            <rect x={-8} y={21} width={3.6} height={7} rx={0.8} fill="#f08fa8" /><rect x={-4} y={21} width={3.6} height={7} rx={0.8} fill="#f2c25a" />
-            <rect x={0} y={21} width={3.6} height={7} rx={0.8} fill="#7cc4a8" /><rect x={4} y={21} width={3.6} height={7} rx={0.8} fill="#8fb8e8" />
-          </g>
-          <rect x={-6} y={28.8} width={12} height={2} rx={1} fill="#e4dfd4" />
+          <rect x={-11} y={15} width={22} height={17} rx={2.6} fill="#2f343f" />
+          <rect x={-8.6} y={17.4} width={7.4} height={5.4} rx={0.8} fill="none" stroke="#a99be0" strokeWidth={1.1} />
+          <rect x={1} y={17.4} width={7.4} height={5.4} rx={0.8} fill="#f08fa8" />
+          <rect x={-8.6} y={24.6} width={17} height={5} rx={0.8} fill="none" stroke="#7cc4a8" strokeWidth={1.1} />
+          <path d="M9 34 L15 22" stroke={a} strokeWidth={2} strokeLinecap="round" />
         </g>
       );
     case "marketer":
       return (
-        <g>
-          <rect x={-1} y={20} width={2.4} height={14} rx={1.2} fill="#c9a97a" />
-          <path d="M-12 -2 h22 a4 4 0 0 1 4 4 v9 a4 4 0 0 1 -4 4 h-9 l-5 5 v-5 h-4 a4 4 0 0 1 -4 -4 v-9 a4 4 0 0 1 4 -4z" fill={a} transform="translate(-1 2)" />
-          <g fill="#fff"><circle cx={-6} cy={8} r={1.5} /><circle cx={-1} cy={8} r={1.5} /><circle cx={4} cy={8} r={1.5} /></g>
+        <g transform="rotate(-18 0 24)">
+          <path d="M-4 20 L10 12 V36 L-4 28Z" fill={a} />
+          <ellipse cx={10} cy={24} rx={2.6} ry={12} fill={dark} />
+          <rect x={-9} y={19.6} width={6} height={8.8} rx={2} fill="#2f343f" />
+          <path d="M15 17 l3 -2 M16 24 h4 M15 31 l3 2" stroke={dark} strokeWidth={1.3} strokeLinecap="round" />
         </g>
       );
     case "growth":
@@ -385,27 +410,28 @@ export function Prop({ look, role }: { look: Look; role: string }) {
       return (
         <g>
           {card()}
-          <path d="M-7.6 29.6 L-3.4 25.2 L0.6 27.6 L7 21.4" fill="none" stroke={dark} strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx={7} cy={21.4} r={1.4} fill={a} />
+          <circle cx={-3} cy={26} r={5.2} fill="#8fb8e8" />
+          <path d="M-3 26 V20.8 A5.2 5.2 0 0 1 2.2 26Z" fill={a} />
+          <circle cx={4.6} cy={22.6} r={5} fill="#cfe6f6" fillOpacity={0.5} stroke="#4a4f5c" strokeWidth={1.6} />
+          <path d="M8 26 L11.4 29.6" stroke="#4a4f5c" strokeWidth={2.2} strokeLinecap="round" />
         </g>
       );
     case "investor":
       return (
         <g>
-          {[0, 1, 2].map((i) => (
-            <g key={i}>
-              <ellipse cx={0} cy={31 - i * 4.2} rx={9} ry={3.4} fill={dark} />
-              <ellipse cx={0} cy={30 - i * 4.2} rx={9} ry={3.4} fill={a} />
-            </g>
-          ))}
+          <rect x={-12} y={18} width={24} height={16} rx={2.6} fill="#5a3b28" />
+          <path d="M-4 18 V15 Q-4 13.4 -2.4 13.4 H2.4 Q4 13.4 4 15 V18" fill="none" stroke="#3a2618" strokeWidth={1.8} />
+          <rect x={-12} y={24} width={24} height={1.4} fill="#3a2618" />
+          <rect x={-2} y={22.6} width={4} height={4.2} rx={0.8} fill={a} />
         </g>
       );
     case "student":
       return (
         <g>
-          <rect x={-8.6} y={14.6} width={17.2} height={20} rx={2.2} fill={a} />
-          <rect x={-8.6} y={14.6} width={3.2} height={20} rx={1.4} fill={dark} opacity={0.5} />
-          <rect x={-2.6} y={19} width={8.6} height={2.2} rx={1.1} fill="#fff" opacity={0.85} />
+          <rect x={-9.6} y={22} width={19.2} height={5.6} rx={1.4} fill="#8fb8e8" />
+          <rect x={-8.6} y={16.6} width={17.2} height={5.6} rx={1.4} fill={a} />
+          <rect x={-10} y={27.6} width={20} height={6} rx={1.4} fill="#f08fa8" />
+          <path d="M-7 19.4 h14 M-7 30.6 h14" stroke="#fff" strokeWidth={0.8} opacity={0.7} />
         </g>
       );
     case "pm":
@@ -421,9 +447,12 @@ export function Prop({ look, role }: { look: Look; role: string }) {
     case "curious":
       return (
         <g>
-          <rect x={4.6} y={30} width={3.6} height={11} rx={1.8} fill="#7a5a3c" transform="rotate(-38 6.4 30)" />
-          <circle cx={-1} cy={22} r={9} fill="#cfe6f6" fillOpacity={0.55} stroke="#4a4f5c" strokeWidth={2.2} />
-          <ellipse cx={-4} cy={18.6} rx={3} ry={1.5} fill="#fff" opacity={0.7} transform="rotate(-35 -4 18.6)" />
+          <path d="M0 30 C-1 24 2 20 0 14" fill="none" stroke="#8a8478" strokeWidth={0.8} />
+          <circle cx={0} cy={2} r={11} fill={a} />
+          <Spec cx={-4} cy={-3} rx={3.6} ry={1.8} o={0.55} r={-35} />
+          <path d="M-3.4 -1 Q-3.4 -5 0 -5 Q3.6 -5 3.6 -1.6 Q3.6 1 0 2.4 V4.4" fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" />
+          <circle cx={0} cy={8} r={1.2} fill="#fff" />
+          <path d="M-1.6 13 h3.2 l-1.6 2.4z" fill={dark} />
         </g>
       );
     default:
