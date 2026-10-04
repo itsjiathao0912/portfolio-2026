@@ -31,6 +31,7 @@ export function ProjectEmoji({ project, size = 24, play = false, className }: { 
       onPointerEnter={() => setHover(true)}
       onPointerLeave={() => setHover(false)}
       data-testid="project-emoji"
+      data-project-emoji=""
       data-playing={playing ? "true" : "false"}
       className={className ? `inline-block select-none ${className}` : "inline-block select-none"}
       style={{ width: size, height: size }}

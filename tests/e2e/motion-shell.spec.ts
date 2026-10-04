@@ -54,7 +54,7 @@ test.describe("desktop home additions", () => {
     const portrait = await page.getByTestId("portrait").first().boundingBox();
     expect(portrait!.width).toBeGreaterThanOrEqual(740);
     const keys = await page.getByTestId("stack-card").evaluateAll((els) =>
-      els.map((el) => el.querySelector("img")?.getAttribute("src") ?? el.querySelector("[data-illustration]")?.getAttribute("data-illustration") ?? "none")
+      els.map((el) => el.querySelector("img:not([data-project-emoji])")?.getAttribute("src") ?? el.querySelector("[data-illustration]")?.getAttribute("data-illustration") ?? "none")
     );
     expect(keys).not.toContain("none");
     expect(new Set(keys).size).toBe(keys.length);
@@ -126,7 +126,7 @@ test.describe("phone cards", () => {
     for (const h of ctaHeights) expect(h).toBeLessThan(64);
     // Visuals differ card to card (mockup screenshots or distinct illustration motifs).
     const keys = await cards.evaluateAll((els) =>
-      els.map((el) => el.querySelector("img")?.getAttribute("src") ?? el.querySelector("[data-illustration]")?.getAttribute("data-illustration") ?? "none")
+      els.map((el) => el.querySelector("img:not([data-project-emoji])")?.getAttribute("src") ?? el.querySelector("[data-illustration]")?.getAttribute("data-illustration") ?? "none")
     );
     expect(new Set(keys).size).toBe(keys.length);
   });
