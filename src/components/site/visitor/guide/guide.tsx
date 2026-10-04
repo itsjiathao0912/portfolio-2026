@@ -32,7 +32,7 @@ import type { GuideSectionId, RoleId } from "../role-ids";
 import { useVisitor } from "../store";
 import { collectTracked, guideRoots, readAvoid, readInk, readNav, readSpans, refreshSurfaces, type Tracked } from "./guide-dom";
 import { GuideBubble, GuideDot, GuideHint, GuideTouchPad, type KeyHandlers, type PressKey, useGuideKeys } from "./guide-controls";
-import { type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, type Ink, inkAbove, INK_TOLERANCE, maxFeetY, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type Rect, sectionUnder, type Span, stepSurface, type Surface, surfaceStandable, type View, visibleSurfaces } from "./guide-logic";
+import { bodyHits, boxHits, type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, hintRect, type Ink, inkAbove, maxFeetY, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type Rect, sectionUnder, type Span, stepSurface, type Surface, surfaceStandable, type View, visibleSurfaces } from "./guide-logic";
 import { type Body, FLOOR_KEY, isMoving, launchTo, makeScene, NO_INPUT, type Input, type Scene, squashScale, standingBody, stepBody, surfaceY } from "./guide-physics";
 import { scriptFor } from "./guide-story";
 
@@ -112,6 +112,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
   const [placed, setPlaced] = useState(false);
   const [coarse, setCoarse] = useState(false);
   const [hint, setHint] = useState(false);
+  const [hintClear, setHintClear] = useState(true);
   const [pad, setPad] = useState(0); // 0 = closed; otherwise a stamp that restarts the auto-hide timer
   const blinking = useBlink(!reduce);
 
@@ -178,6 +179,12 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     let atKey = "";
     let modeNow = "";
     let hinted = false;
+    let hintClearNow = true;
+    let tuckedNow = false;
+    let settledY = window.scrollY;
+    let jumping = false;
+    let hopAways = 0;
+    let floorHops = 0; // floor-to-block hops since the last scroll: capped, so a block that will not hold it cannot start a loop // "hop to another clear block" moves since the last scroll: at most one, so it can never ping-pong
     const visited = new Set<GuideSectionId>();
     const timers = new Set<ReturnType<typeof setTimeout>>();
     let settleT: ReturnType<typeof setTimeout> | undefined;
@@ -212,15 +219,26 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       spans = readSpans(view.scrollY);
       scene = makeScene(surfaces, view);
       el.dataset.guideSurfaces = String(surfaces.length);
+      el.dataset.guideInView = String(visibleSurfaces(surfaces, view).length);
       lastCollect = performance.now();
     };
     // What the body must not stand in front of when its feet are at `top` on `own`: tap targets and the text just above that edge.
+    const within = (a: Element, b: Element) => b.contains(a);
     function standBlockers(top: number, own: Element | null, taps: readonly Rect[] = avoid) {
-      return taps.concat(inkAbove(ink, top, own));
+      return taps.concat(inkAbove(ink, top, own, within));
     }
     function blocked(x: number, top: number, own: Element | null) {
-      return coverage(x, top, avoid) > 0 || coverage(x, top, inkAbove(ink, top, own)) > INK_TOLERANCE;
+      return coverage(x, top, avoid) > 0 || bodyHits(x, top, inkAbove(ink, top, own, within));
     }
+    // Reading text anywhere the bubble could go (beside the body or above the head).
+    const inkNear = (y: number) => {
+      const out: Rect[] = [];
+      for (const i of ink) if (i.rect.bottom > y - CHAR.h - 80 && i.rect.top < y) out.push(i.rect);
+      return out;
+    };
+    const nearHint = (x: number) => x - CHAR.w / 2 + 170 > view.w - EDGE;
+    // The one-time hint sits above the head: it must not cover reading text or a tap target either.
+    const hintFree = (x: number, y: number) => !boxHits(hintRect(x, y, nearHint(x)), avoid) && !boxHits(hintRect(x, y, nearHint(x)), inkAbove(ink, y - CHAR.h, null));
     const elOf = (key: string | null) => (key ? (tracked.find((t) => t.surface.key === key)?.el ?? null) : null);
     const surfaceOf = (key: string | null) => (key && key !== FLOOR_KEY ? (scene.byKey.get(key) ?? null) : null);
     const currentSection = () => surfaceOf(body.surface)?.id ?? sectionUnder(spans, body.y - 8);
@@ -246,14 +264,21 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
         facingNow = body.facing;
         setFacing(facingNow);
       }
-      const rh = body.x - CHAR.w / 2 + 170 > view.w - EDGE; // the hint / pad would run off the right edge
+      const rh = nearHint(body.x); // the hint / pad would run off the right edge
       if (rh !== rightHalfNow) {
         rightHalfNow = rh;
         setRightHalf(rh);
       }
-      // The bubble goes where it covers no link or button: beside on the roomier side, else the other side, else above.
+      if (!hinted && body.mode === "ground") {
+        const hc = hintFree(body.x, body.y);
+        if (hc !== hintClearNow) {
+          hintClearNow = hc;
+          setHintClear(hc);
+        }
+      }
+      // The bubble goes where it covers no link, button or reading text: beside on the roomier side, else the other side, else above.
       if (bubbleNow) {
-        const p = placeBubble(body.x, body.y, view, avoid, isSmall());
+        const p = placeBubble(body.x, body.y, view, avoid.concat(inkNear(body.y)), isSmall());
         const w = Math.round(p.w / 4) * 4;
         const dx = Math.round(p.dx);
         const k = `${p.place}:${w}:${dx}`;
@@ -270,6 +295,13 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       standing?.removeAttribute("data-guide-standing");
       next?.setAttribute("data-guide-standing", "true");
       standing = next;
+    };
+    // Left on the viewport floor with no clear spot (no gutter on a narrow screen): step out of view instead of standing on text.
+    const tuck = (on: boolean) => {
+      if (on === tuckedNow) return;
+      tuckedNow = on;
+      el.style.display = on ? "none" : "";
+      el.dataset.guideTucked = on ? "true" : "false";
     };
     const paint = () => {
       // A fast scroll up carries the surface (and the feet) below the screen before physics reacts: never draw it past the floor line.
@@ -385,7 +417,10 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     const stepSpot = (dir: 1 | -1) => {
       collect();
       const t = stepSurface(visibleSurfaces(surfaces, view), body.surface, dir);
-      if (t && t.key !== body.surface) teleport(t);
+      if (t && t.key !== body.surface) {
+        tuck(false);
+        teleport(t);
+      }
     };
 
     // ---- following the page ------------------------------------------------------
@@ -414,28 +449,62 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       const s = body.surface === FLOOR_KEY ? ({ key: FLOOR_KEY, id: null, left: 0, right: view.w, top: body.y } as Surface) : surfaceOf(body.surface);
       if (!s || body.mode !== "ground" || input.left || input.right) return;
       const own = body.surface === FLOOR_KEY ? null : standing;
-      if (!blocked(body.x, body.y, own)) return;
+      if (!blocked(body.x, body.y, own)) return tuck(false);
       const spots = standBlockers(body.y, own);
       const cur = coverage(body.x, body.y, spots);
       const x = chooseStandX(s, view, spots, body.x);
-      if (Math.abs(x - body.x) > 8 && coverage(x, body.y, spots) < cur - 1) {
+      const floor = body.surface === FLOOR_KEY;
+      // On a block, a less-covering spot is still better. On the floor, move only to a spot that is fully clear: otherwise it would hop back and forth over the text.
+      const clear = !blocked(x, body.y, own);
+      if (Math.abs(x - body.x) > 8 && (clear || (!floor && coverage(x, body.y, spots) < cur - 1))) {
         body = launchTo(body, s, scene, x);
         schedule();
+        tuck(false);
+        return;
       }
+      // Nothing clear left on this block (it moved under text after a layout change): hop to another clear block in view.
+      if (!floor && !clear && hopAways < 1) {
+        hopAways++;
+        const t = pickSurface(surfaces.filter((q) => q.key !== body.surface), view, 0.55);
+        if (t) {
+          body = launchTo(body, t, scene, chooseStandX(t, view, standBlockers(t.top, elOf(t.key))));
+          schedule();
+          return;
+        }
+      }
+      tuck(floor);
     };
     // Left on the viewport floor (nothing under it on the way down): hop onto the nearest block in view.
     const followFloor = () => {
-      if (reduce || body.mode !== "ground" || body.surface !== FLOOR_KEY || input.left || input.right) return false;
+      if (reduce || body.mode !== "ground" || body.surface !== FLOOR_KEY || input.left || input.right || floorHops >= 2) return false;
       syncView();
-      const t = pickSurface(surfaces, view, 0.62);
+      // Not a block hugging the floor line (it would slide out of the band on landing and drop it straight back).
+      const t = pickSurface(surfaces.filter((q) => q.top < view.scrollY + maxFeetY(view) - 40), view, 0.62);
       if (!t) return false;
-      body = launchTo(body, t, scene);
+      floorHops++;
+      tuck(false);
+      body = launchTo(body, t, scene, chooseStandX(t, view, standBlockers(t.top, elOf(t.key)), body.x));
       schedule();
       return true;
     };
+    // A long jump of the page (a link, Home / End, a fling): do not chase it through the air over the text; fade out and reappear on a block in view.
+    const relocate = () => {
+      jumping = false;
+      const t = pickSurface(surfaces, view, 0.55);
+      if (!t) {
+        tuck(true);
+        el.style.opacity = "1";
+        return;
+      }
+      tuck(false);
+      teleport(t);
+    };
     const settle = () => {
       collect();
-      if (!followFloor()) {
+      const jumped = jumping;
+      settledY = view.scrollY;
+      if (jumped) relocate();
+      else if (!followFloor()) {
         reseat();
         nudgeClear();
       }
@@ -443,6 +512,12 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     };
     const onScroll = () => {
       dirty = true;
+      hopAways = 0;
+      floorHops = 0;
+      if (!jumping && !reduce && Math.abs(window.scrollY - settledY) > window.innerHeight * 0.5) {
+        jumping = true;
+        el.style.opacity = "0";
+      }
       scrollUntil = performance.now() + SCROLL_FRAMES_MS;
       if (reduce) {
         syncView();
@@ -465,6 +540,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
         body = { ...body, x: clampX(body.x, view) };
         reseat();
         paint();
+        nudgeClear();
       }, 80);
     };
     const onVisibility = () => {
@@ -483,6 +559,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
         stepSpot(-1);
         return;
       }
+      tuck(false);
       input.hop = true;
       schedule();
     };
@@ -496,7 +573,10 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
         input.up = down;
         if (down) input.hop = true;
       } else input[key] = down;
-      if (down) schedule();
+      if (down) {
+        tuck(false);
+        schedule();
+      }
     };
     ctl.current = { hop, press };
     handlers.current = {
@@ -519,18 +599,28 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
 
     // ---- start: drop in from above onto the block nearest the middle of the screen ----
     collect();
-    const first = pickSurface(surfaces, view, 0.55);
+    // First visit: prefer a spot where the key hint above the head also covers nothing.
+    const hintOk = (s: Surface) => hintFree(chooseStandX(s, view, standBlockers(s.top, elOf(s.key))), s.top);
+    const first = (!seenHint() ? pickSurface(surfaces.filter(hintOk), view, 0.55) : null) ?? pickSurface(surfaces, view, 0.55);
     const x0 = first ? chooseStandX(first, view, standBlockers(first.top, elOf(first.key), readAvoid(root, view.scrollY, view.h))) : view.w - EDGE - CHAR.w / 2;
     body = standingBody(x0, first, scene);
     if (!reduce) {
       const ceil = view.scrollY + (view.nav > 0 ? view.nav + 8 : EDGE) + CHAR.h;
       body = { ...body, mode: "air", surface: null, y: Math.max(ceil, body.y - 190), vy: 0 };
     }
-    if (reduce) el.style.transition = "opacity 160ms linear";
+    el.style.transition = "opacity 160ms linear";
     paint();
     queueMicrotask(() => alive && setPlaced(true));
     if (reduce) later(arrive, 400);
     else schedule();
+    // The picker's layout springs and the stats fade-in move blocks with transforms (no resize event): re-read once they have settled.
+    for (const ms of [700, 1600]) {
+      later(() => {
+        collect();
+        reseat();
+        nudgeClear();
+      }, ms);
+    }
     if (!seenHint()) {
       later(() => !hinted && setHint(true), 1400);
       later(() => {
@@ -607,7 +697,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
             ) : small && line && !dotOpen ? (
               <GuideDot onOpen={() => setDotOpen(true)} />
             ) : (
-              <GuideHint visible={hint && !showBubble} coarse={coarse} reduce={reduce} />
+              <GuideHint visible={hint && hintClear && !showBubble} coarse={coarse} reduce={reduce} />
             )}
           </div>
           {showBubble && !pad ? (

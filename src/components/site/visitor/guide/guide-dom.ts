@@ -3,7 +3,7 @@
 // Two phases, so the physics loop never pays for layout:
 // 1. `collectTracked` (rare: load, resize, scroll settle) finds the visible content
 //    blocks, and for text blocks measures where the first line of glyphs really is
-//    (cap height, tight width) RELATIVE to the element box.
+//    (glyph-box top, tight width) RELATIVE to the element box.
 // 2. `refreshSurfaces` (once per animation frame while scrolling or moving) reads one
 //    bounding rect per nearby element and applies the cached offsets, writing page-px
 //    surfaces in place. Elements far from the viewport keep their last position.
@@ -15,9 +15,14 @@ const TEXT_TAGS = new Set(["H1", "H2", "H3", "P"]);
 /** Headings, paragraphs, images, buttons, cards (article / figure) and anything tagged `data-guide-surface`. */
 const SURFACE_SELECTOR = "h1,h2,h3,p,img,button,article,figure,[data-guide-surface]";
 /** Never stand on these: chrome, hidden or decorative subtrees, and the marquee strips that slide sideways. */
-const SKIP_SELECTOR = "header,nav,dialog,[inert],[hidden],[aria-hidden='true'],[data-guide-skip],[data-testid='section-logos'],[data-testid='proof-ticker'],.fixed";
+const CHROME_SELECTOR = "header,nav,dialog,[inert],[hidden],[aria-hidden='true'],[data-guide-skip],[data-testid='section-logos'],[data-testid='proof-ticker'],.fixed";
+/** Standing: chrome, the role tiles (a character on a character reads as a collision) and the live stat numbers (they roll, so their glyph box moves). */
+const SKIP_SELECTOR = `${CHROME_SELECTOR},[role='radio'],[data-testid='visitor-stats-strip']`;
 const MAX_SURFACES = 320;
-const CAP_OFFSET = 0.22; // cap-height top is ~0.22em below the inline box top for this type
+/** Feet rest this far below the top of the first line's glyph box: on the letters' shoulders, never sunk into them. */
+const LINE_SINK = 1;
+/** A block inside one of these is part of a card: standing on it would put the body inside the card. */
+const CARD_SELECTOR = "li,article,figure,a,button,[data-guide-surface]";
 const NEAR = 360; // px beyond the viewport that still gets refreshed each frame
 
 export type Tracked = {
@@ -69,10 +74,13 @@ export function collectTracked(roots: readonly Element[], guideRoot: Element | n
           // A little forgiving on both ends: feet may overhang the last letter.
           relL = Math.min(...line.map((q) => q.left)) - r.left - 20;
           relR = Math.max(...line.map((q) => q.right)) - r.left + 20;
-          relT = top - r.top + Number.parseFloat(cs.fontSize) * CAP_OFFSET;
+          relT = top - r.top + LINE_SINK;
         }
       }
       if (relR - relL < MIN_SURFACE_W) continue;
+      // A title or line inside a card: the card's own top edge is the platform, not a line the body would stand inside the card on.
+      const card = el.parentElement?.closest(CARD_SELECTOR);
+      if (card && !card.closest(SKIP_SELECTOR) && r.top + relT - card.getBoundingClientRect().top < CHAR.h) continue;
 
       const sec = el.closest<HTMLElement>("[data-guide-id]")?.dataset.guideId;
       const surface: Surface = {
@@ -151,30 +159,39 @@ export function guideRoots(): Element[] {
   return roots;
 }
 
-const INK_SELECTOR = "h1,h2,h3,p,figcaption";
-const INK_LEAF = "[data-testid='visitor-stats-strip']";
+/** Text the reading eye lands on even inside skipped chrome-free blocks: role tile labels count as ink too. */
+const INK_SKIP = "header,nav,dialog,[inert],[hidden],[data-guide-skip],[data-testid='section-logos'],[data-testid='proof-ticker'],.fixed";
 
 /**
- * Where reading text really is (tight line boxes, page px): headings, paragraphs,
- * captions and the live stat numbers. The body must not stand in front of these.
+ * Where reading text really is (tight line boxes, page px): every visible text run
+ * under the roots (headings, paragraphs, card titles, list items, stat numbers,
+ * tile labels). Tagged by the text's parent element. The body must not stand in
+ * front of these; `own` exclusion is by containment (see `inkAbove`).
+ * Only text within ~1.5 screens of the viewport is read, to keep it cheap.
  */
-export function readInk(roots: readonly Element[], guideRoot: Element | null, scrollY: number): Ink<Element>[] {
+export function readInk(roots: readonly Element[], guideRoot: Element | null, scrollY: number, vh = window.innerHeight): Ink<Element>[] {
   const out: Ink<Element>[] = [];
   const range = document.createRange();
-  const push = (el: Element, r: { left: number; right: number; top: number; bottom: number }) => out.push({ el, rect: { left: r.left, right: r.right, top: r.top + scrollY, bottom: r.bottom + scrollY } });
-  for (const root of roots) {
-    for (const el of root.querySelectorAll(INK_SELECTOR)) {
-      if (guideRoot?.contains(el) || el.closest(SKIP_SELECTOR)) continue;
-      const box = el.getBoundingClientRect();
-      if (box.width < 2 || box.height < 2) continue;
-      range.selectNodeContents(el);
-      for (const q of range.getClientRects()) if (q.width > 3 && q.height > 6) push(el, q);
+  const lo = -vh * 1.5;
+  const hi = vh * 2.5;
+  const skipCache = new Map<Element, boolean>();
+  const skipped = (el: Element) => {
+    let v = skipCache.get(el);
+    if (v === undefined) {
+      v = !!guideRoot?.contains(el) || !!el.closest(INK_SKIP);
+      skipCache.set(el, v);
     }
-    for (const strip of root.querySelectorAll(INK_LEAF)) {
-      for (const leaf of strip.querySelectorAll("*")) {
-        if (leaf.children.length > 0 || !leaf.textContent?.trim()) continue;
-        range.selectNodeContents(leaf);
-        for (const q of range.getClientRects()) if (q.width > 3 && q.height > 6) push(strip, q);
+    return v;
+  };
+  for (const root of roots) {
+    const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      const el = n.parentElement;
+      if (!el || !n.textContent?.trim() || skipped(el)) continue;
+      range.selectNodeContents(n);
+      for (const q of range.getClientRects()) {
+        if (q.width <= 3 || q.height <= 6 || q.bottom < lo || q.top > hi) continue;
+        out.push({ el, rect: { left: q.left, right: q.right, top: q.top + scrollY, bottom: q.bottom + scrollY } });
       }
     }
   }

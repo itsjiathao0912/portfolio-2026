@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { POLL_OPTIONS } from "../../src/lib/poll-options";
-import { countryRows, flagOf, leaderLine, moveOwnCount, pollRows, rankLine } from "../../src/components/site/visitor/stats/stats-copy";
+import { countryRows, flagOf, leaderLine, moveOwnCount, pollRows, rankLine, withOwnCountry } from "../../src/components/site/visitor/stats/stats-copy";
 import { nextDelay, parseStats, shouldPoll, IDLE_STOP_MS } from "../../src/components/site/visitor/stats/use-live-stats";
 import { applyVote, parsePoll } from "../../src/components/site/visitor/stats/use-poll";
 
@@ -53,6 +53,18 @@ describe("leaderLine", () => {
     expect(leaderLine({ founder: 5, engineer: 5 }, null)).toBeNull();
     expect(leaderLine({ founder: 2 }, null)).toBeNull();
     expect(leaderLine({}, null)).toBeNull();
+  });
+});
+
+describe("withOwnCountry", () => {
+  test("your country uses the fresher count, so the pill and your count agree", () => {
+    expect(withOwnCountry([{ country: "VN", count: 15 }, { country: "US", count: 4 }], { country: "VN", countryCount: 16 })).toEqual([{ country: "VN", count: 16 }, { country: "US", count: 4 }]);
+    expect(withOwnCountry([{ country: "VN", count: 17 }], { country: "VN", countryCount: 16 })).toEqual([{ country: "VN", count: 17 }]);
+  });
+  test("adds your country when the cached list missed it; unknown country changes nothing", () => {
+    expect(withOwnCountry([], { country: "NO", countryCount: 1 })).toEqual([{ country: "NO", count: 1 }]);
+    const top = [{ country: "VN", count: 3 }];
+    expect(withOwnCountry(top, { country: null, countryCount: 0 })).toEqual(top);
   });
 });
 

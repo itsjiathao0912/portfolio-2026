@@ -32,7 +32,8 @@ export function applyVote(data: PollData, option: PollOptionId): PollData {
   return { counts, total: data.mine ? data.total : data.total + 1, mine: option };
 }
 
-export function usePoll({ visitorId, ready }: { visitorId: string; ready: boolean }) {
+/** The server only counts votes from visitors who picked a role: without one, a vote is never sent (the read still is). */
+export function usePoll({ visitorId, ready, hasRole = true }: { visitorId: string; ready: boolean; hasRole?: boolean }) {
   const [data, setData] = useState<PollData | null>(null);
   const [note, setNote] = useState<PollNote>(null);
   const [onScreen, setOnScreen] = useState(false);
@@ -89,6 +90,7 @@ export function usePoll({ visitorId, ready }: { visitorId: string; ready: boolea
   const vote = useCallback(
     async (option: PollOptionId) => {
       const before = dataRef.current;
+      if (!hasRole) return setNote("pick-role");
       if (!before || before.mine === option) return;
       setNote(null);
       setData(applyVote(before, option));
@@ -105,7 +107,7 @@ export function usePoll({ visitorId, ready }: { visitorId: string; ready: boolea
         setNote("failed");
       }
     },
-    [post],
+    [post, hasRole],
   );
 
   return { data, note, vote, ref };

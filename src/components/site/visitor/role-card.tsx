@@ -24,12 +24,14 @@ type Props = {
   /** The selected card hands its avatar to the chip through a shared layout id. */
   shareAvatar: boolean;
   onSelect: () => void;
+  /** Spans two grid cells (the last card), so the grid has no empty cell. */
+  wide?: boolean;
   onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
   buttonRef: (el: HTMLButtonElement | null) => void;
 };
 
 /** One radio in the picker: a clay avatar, the label and a short blurb. 44 px+ target. */
-export function RoleCard({ id, label, blurb, index, selected, tabbable, shareAvatar, onSelect, onKeyDown, buttonRef }: Props) {
+export function RoleCard({ id, label, blurb, index, selected, tabbable, shareAvatar, wide, onSelect, onKeyDown, buttonRef }: Props) {
   const reduce = useReducedMotion();
   // Clipped to a round badge: the bust's torso would otherwise hang out of the card.
   const avatar = (
@@ -38,7 +40,7 @@ export function RoleCard({ id, label, blurb, index, selected, tabbable, shareAva
     </span>
   );
   return (
-    <LiftCard variant="row" radius="rounded-2xl" className="h-full">
+    <LiftCard variant="row" radius="rounded-2xl" className={cn("h-full", wide && "col-span-2")}>
       <button
         ref={buttonRef}
         type="button"

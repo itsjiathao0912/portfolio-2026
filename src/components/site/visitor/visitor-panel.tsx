@@ -127,13 +127,15 @@ export function RolePicker({ onPick, onEscape, autoFocus, labelId }: { onPick: (
 
   return (
     <>
-      <p id={labelId} className="text-[20px] font-medium text-ink-1">
+      <p id={labelId} className="pr-10 text-[20px] font-medium text-ink-1">
         Who are you?
       </p>
-      <p className="text-[14px] text-ink-3">Pick one and I will show the work that fits you first. You can change it any time.</p>
-      <div role="radiogroup" aria-labelledby={labelId} className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <p className="pr-10 text-[14px] text-ink-3">Pick one and I will show the work that fits you first. You can change it any time.</p>
+      {/* 11 cards, the last two cells wide: 12 cells, so 2, 3 or 4 columns all end on a full row. */}
+      <div role="radiogroup" aria-labelledby={labelId} className="mt-5 grid w-full grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {ITEMS.map((id, i) => (
           <RoleCard
+            wide={i === ITEMS.length - 1}
             key={id}
             id={id}
             label={ROLES[id].label}
@@ -199,9 +201,11 @@ export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record
       move(keys[event.key]!);
     }
   }
-  // Unpicked: 11 tiles, the last one two cells wide (6 + 4 + 2 = two flush rows). Picked: the hero plus 10 tiles, exactly two flush rows.
+  // Unpicked: 11 tiles, the last one two cells wide (phone 3+3+3+2, wider 6+4+2: flush rows).
+  // Picked: the hero plus 10 tiles in two flush rows (phone: 5 small avatar-only tiles a row).
   const wideIdx = chosen ? -1 : ROW_ITEMS.length - 1;
-  const where = locationLine(geo);
+  // The title already says the country: the city line only helps before a pick, and goes once the hero takes over.
+  const where = chosen ? null : locationLine(geo);
 
   return (
     <div data-testid="visitor-control">
@@ -210,7 +214,7 @@ export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record
           {titleLine(geo)}
         </h2>
         {where ? (
-          <p data-testid="visitor-location" className="mt-3 inline-block min-h-7 rounded-full border border-hairline bg-bg px-3 py-0.5 text-[14px] text-ink-1 shadow-1">
+          <p data-testid="visitor-location" className="mt-3 hidden sm:inline-block min-h-7 rounded-full border border-hairline bg-bg px-3 py-0.5 text-[14px] text-ink-1 shadow-1">
             {where}
           </p>
         ) : null}
@@ -225,7 +229,10 @@ export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record
               exit={{ opacity: 0, height: 0, marginTop: 0, transition: reduce ? { duration: 0 } : { ...SPRING.glide, opacity: { duration: 0.22 } } }}
               className="mt-3 overflow-hidden"
             >
-              <p className="text-[16px] text-ink-2">Pick the one that is most like you and I will show the work that fits you first. You can change it any time.</p>
+              <p className="text-[16px] text-ink-2">
+                <span className="sm:hidden">Pick one to see the work that fits you.</span>
+                <span className="hidden sm:inline">Pick the one that is most like you and I will show the work that fits you first. You can change it any time.</span>
+              </p>
             </motion.div>
           ) : null}
         </AnimatePresence>
@@ -238,7 +245,7 @@ export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record
           role="radiogroup"
           aria-label="Your role"
           data-testid="visitor-strip"
-          className={cn("mt-6 grid grid-cols-2 gap-x-3 gap-y-8 pt-5 lg:gap-x-4", chosen ? "sm:grid-cols-5 lg:grid-cols-[minmax(0,1.7fr)_repeat(5,minmax(0,1fr))]" : "sm:grid-cols-6")}
+          className={cn("mt-5 grid grid-cols-3 gap-x-2.5 gap-y-4 pt-4 sm:gap-x-3 sm:gap-y-7 sm:pt-5 lg:gap-x-4", chosen ? "grid-cols-5 gap-x-2 sm:grid-cols-5 lg:grid-cols-[minmax(0,1.7fr)_repeat(5,minmax(0,1fr))]" : "sm:grid-cols-6")}
         >
           {ROW_ITEMS.map((id, i) => (
             <RoleTile
@@ -251,6 +258,7 @@ export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record
               tabbable={i === tabIdx}
               count={counts?.[id]}
               wide={i === wideIdx}
+              mini={chosen}
               buttonRef={(el) => {
                 refs.current[i] = el;
               }}
@@ -277,12 +285,15 @@ export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record
       </LayoutGroup>
 
       {stats}
-      <div className="mt-4 min-h-6 text-center text-[14px] text-ink-2" aria-live="polite" data-testid="visitor-summary">
-        {summary}
+      {/* One quiet footer line: the playful lead (when there is one), then the privacy note. */}
+      <div className="mt-3 flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 text-center">
+        <div className="text-[14px] text-ink-2 empty:hidden" aria-live="polite" data-testid="visitor-summary">
+          {summary}
+        </div>
+        <p data-testid="visitor-privacy" className="text-[12px] leading-snug text-ink-3/80">
+          {PRIVACY_NOTE}
+        </p>
       </div>
-      <p data-testid="visitor-privacy" className="mt-1 text-center text-[12px] leading-snug text-ink-3/80">
-        {PRIVACY_NOTE}
-      </p>
     </div>
   );
 }

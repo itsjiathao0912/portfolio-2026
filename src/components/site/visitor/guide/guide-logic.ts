@@ -224,12 +224,13 @@ function ownsKeys(node: KeyTarget | null | undefined) {
  * Should the character act on this key? The guide is always listening while it is
  * on screen, but a key that landed in an input, textarea, select, contenteditable,
  * or on a link / button / widget keeps its own behaviour, and a key pressed with
- * Ctrl / Meta / Alt is never ours. A key on the page itself (body) or on the guide
+ * Ctrl / Meta / Alt / Shift is never ours. A key on the page itself (body) or on the guide
  * is ours. Only the keys the caller routes here (arrows, W) are ever claimed:
  * ArrowDown, Space and PageDown are never handled, so the page still scrolls.
  */
-export function shouldHandleGuideKey(target: KeyTarget | null | undefined, guideEl: KeyTarget | null | undefined, event: { ctrlKey?: boolean; metaKey?: boolean; altKey?: boolean }, viewportH?: number) {
-  if (event.ctrlKey || event.metaKey || event.altKey) return false;
+export function shouldHandleGuideKey(target: KeyTarget | null | undefined, guideEl: KeyTarget | null | undefined, event: { ctrlKey?: boolean; metaKey?: boolean; altKey?: boolean; shiftKey?: boolean }, viewportH?: number) {
+  // Shift+arrow extends a text selection: always the browser's.
+  if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return false;
   if (!target) return true;
   if (BODY_LIKE.has((target.nodeName ?? "").toUpperCase())) return true;
   if (isInside(target, guideEl)) return true;
@@ -251,16 +252,46 @@ export function inOffscreenRadioGroup(node: KeyTarget | null | undefined, viewpo
 /** Page-px rects of reading text (`ink`) that sit in the band the body would fill above a standing edge, tagged by their element. */
 export type Ink<E = unknown> = { el: E; rect: Rect };
 
-/** The ink the body box would cover when standing at `top`, ignoring the element it stands on. Cheap prefilter by height only. */
-export function inkAbove<E>(ink: readonly Ink<E>[], top: number, own: E | null): Rect[] {
+/**
+ * The ink the body box would cover when standing at `top`, ignoring the element it
+ * stands on (and, with `inside`, anything within it). Cheap prefilter by height only.
+ */
+export function inkAbove<E>(ink: readonly Ink<E>[], top: number, own: E | null, inside?: (el: E, own: E) => boolean): Rect[] {
   const lo = top - CHAR.h;
   const out: Rect[] = [];
-  for (const i of ink) if (i.el !== own && i.rect.bottom > lo && i.rect.top < top) out.push(i.rect);
+  for (const i of ink) {
+    if (i.rect.bottom <= lo || i.rect.top >= top) continue;
+    if (own !== null && (i.el === own || inside?.(i.el, own))) continue;
+    out.push(i.rect);
+  }
   return out;
 }
 
-/** Overlap area (px2) allowed before a spot counts as covering text. */
+/** Overlap area (px2) allowed before a spot counts as covering text (legacy area rule; see `INK_MARGIN`). */
 export const INK_TOLERANCE = 120;
+/** A text line counts as covered once the box overlaps it by more than this on BOTH axes. */
+export const INK_MARGIN = 6;
+
+/** Does `box` overlap any rect by more than `margin` px on both axes? */
+export function boxHits(box: Rect, rects: readonly Rect[], margin = INK_MARGIN) {
+  for (const r of rects) {
+    if (Math.min(box.right, r.right) - Math.max(box.left, r.left) > margin && Math.min(box.bottom, r.bottom) - Math.max(box.top, r.top) > margin) return true;
+  }
+  return false;
+}
+
+/** Does the body (feet at x, y) visibly cover any of these text lines? */
+export function bodyHits(x: number, y: number, rects: readonly Rect[]) {
+  return boxHits(bodyRect(x, y), rects);
+}
+
+/** The one-time key hint above the head (page px). Left-aligned to the body, or right-aligned when near the right edge. */
+export const HINT = { w: 168, h: 24, gap: 4 } as const;
+export function hintRect(x: number, y: number, rightAligned: boolean, scale = 1): Rect {
+  const top = y - CHAR.h * scale - HINT.gap - HINT.h;
+  const left = rightAligned ? x + CHAR.w / 2 - HINT.w : x - CHAR.w / 2;
+  return { left, right: left + HINT.w, top, bottom: top + HINT.h };
+}
 
 /** The keys the character claims, mapped to its actions. Anything else (ArrowDown, Space, PageDown, Enter) is left to the page. */
 export function guideAction(key: string): "left" | "right" | "up" | null {

@@ -29,10 +29,34 @@ const box = async (page: Page) => (await guide(page).boundingBox())!;
 const mode = (page: Page) => guide(page).getAttribute("data-guide-mode");
 /** The model's feet: [x, y] in page px. */
 const feet = async (page: Page) => ((await guide(page).getAttribute("data-guide-feet")) ?? "0,0").split(",").map(Number) as [number, number];
+/**
+ * Scroll down until the guide stands on a real block with at least `min` blocks in view. Where every spot
+ * would cover reading text it steps out of view instead (data-guide-tucked), so mechanics are tested elsewhere.
+ */
+async function scrollToSpot(page: Page, from: number, min = 1) {
+  for (let y = from; y < from + 9000; y += 350) {
+    await page.evaluate((v) => scrollTo(0, v), y);
+    await page.waitForTimeout(900);
+    const ok = await guide(page).evaluate((n, m) => {
+      const d = (n as HTMLElement).dataset;
+      return d.guideTucked !== "true" && d.guideSurfaceKey !== "floor" && Number(d.guideInView ?? 0) >= m;
+    }, min).catch(() => false);
+    if (ok) return y;
+  }
+  throw new Error("no clear block found");
+}
+/** Settled: on the ground, and still there 700 ms later (squash, rebound, or a short hop to a clear spot have finished). */
 async function landed(page: Page) {
-  await expect.poll(() => mode(page), { timeout: 8000 }).toBe("ground");
-  await page.waitForTimeout(700); // squash + rebound settle
-  await expect.poll(() => mode(page)).toBe("ground");
+  await expect
+    .poll(
+      async () => {
+        if ((await mode(page)) !== "ground") return false;
+        await page.waitForTimeout(700);
+        return (await mode(page)) === "ground";
+      },
+      { timeout: 10000 },
+    )
+    .toBe(true);
 }
 
 test.describe("desktop", () => {
@@ -201,8 +225,17 @@ test.describe("desktop", () => {
     await landed(page);
     const [, y0] = await feet(page);
     const k0 = await guide(page).getAttribute("data-guide-surface-key");
-    await page.mouse.wheel(0, 520);
-    await expect.poll(() => mode(page), { timeout: 4000 }).toBe("air");
+    // Reading-speed scrolling (short steps with pauses): the block slides under the nav and the guide falls, it does not vanish.
+    // (A single long jump fades it out and back instead: see "a long jump".)
+    let fell = false;
+    for (let i = 0; i < 10 && !fell; i++) {
+      await page.mouse.wheel(0, 120);
+      for (let t = 0; t < 6 && !fell; t++) {
+        await page.waitForTimeout(60);
+        if ((await mode(page)) === "air") fell = true;
+      }
+    }
+    expect(fell).toBe(true);
     await landed(page);
     const [, y1] = await feet(page);
     expect(y1).toBeGreaterThan(y0);
@@ -213,17 +246,46 @@ test.describe("desktop", () => {
     expect(k0 === null || k0 !== (await guide(page).getAttribute("data-guide-surface-key"))).toBe(true);
   });
 
+  test("a long jump of the page: it fades out and reappears standing on a block in view, clear of reading text", async ({ page }) => {
+    await seed(page);
+    await page.goto("/");
+    await page.evaluate(() => scrollTo(0, 2000));
+    await expect(guide(page)).toBeVisible();
+    await landed(page);
+    await page.evaluate(() => scrollTo(0, 6000));
+    await expect.poll(() => guide(page).evaluate((n) => (n as HTMLElement).dataset.guideTucked === "true" || getComputedStyle(n).opacity === "1"), { timeout: 3000 }).toBe(true);
+    const tucked = await guide(page).evaluate((n) => (n as HTMLElement).dataset.guideTucked === "true");
+    if (tucked) return; // nowhere clear to stand: it stays out of view, which is also never over text
+    expect(await mode(page)).toBe("ground");
+    const hits = await page.evaluate(() => {
+      const g = document.querySelector("[data-testid=guide-character]")!.getBoundingClientRect();
+      const out: string[] = [];
+      for (const e of document.querySelectorAll("h1,h2,h3,h4,p,figcaption")) {
+        if (e.closest("[data-testid=visitor-guide-layer]")) continue;
+        const r = document.createRange();
+        r.selectNodeContents(e);
+        for (const q of r.getClientRects()) {
+          if (Math.min(g.right, q.right) - Math.max(g.left, q.left) > 6 && Math.min(g.bottom, q.bottom) - Math.max(g.top, q.top) > 6) out.push((e.textContent ?? "").slice(0, 30));
+        }
+      }
+      return out;
+    });
+    expect(hits).toEqual([]);
+  });
+
   test("walking off the edge of a block drops it", async ({ page }) => {
     await seed(page);
     await page.goto("/");
-    await page.evaluate(() => scrollTo(0, 1300));
+    await page.evaluate(() => scrollTo(0, 2400));
     await expect(guide(page)).toBeVisible();
     await landed(page);
+    // 2400: a short card line in view (the band around the picker has no clear block, only the floor).
     const at = await guide(page).getAttribute("data-guide-surface-key");
+    expect(at).not.toBe("floor");
     let dropped = false;
     for (const key of ["ArrowLeft", "ArrowRight"]) {
       await page.keyboard.down(key);
-      for (let i = 0; i < 20 && !dropped; i++) {
+      for (let i = 0; i < 40 && !dropped; i++) {
         await page.waitForTimeout(100);
         if ((await mode(page)) === "air") dropped = true;
       }
@@ -270,7 +332,8 @@ test.describe("desktop", () => {
     for (const y of [0, 700, 1500, 2600, 3600]) {
       await page.evaluate((v) => scrollTo(0, v), y);
       await page.waitForTimeout(1500);
-      const b = await box(page);
+      const b = await guide(page).boundingBox();
+      if (!b) continue; // stepped out of view (no clear block here): covers nothing
       const nav = await page.locator("header[data-compact] nav").first().boundingBox();
       if (nav) expect(b.y >= nav.y + nav.height - 1 || b.y + b.height <= nav.y || b.x + b.width <= nav.x || b.x >= nav.x + nav.width).toBe(true);
     }
@@ -302,7 +365,8 @@ test.describe("reduced motion", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await seed(page);
     await page.goto("/");
-    await page.evaluate(() => scrollTo(0, 2000));
+    await expect(guide(page)).toBeAttached();
+    await scrollToSpot(page, 2000, 2);
     await expect(guide(page)).toBeVisible();
     const tp = await guide(page).evaluate((n) => getComputedStyle(n).transitionProperty);
     expect(tp).not.toContain("transform");
@@ -324,7 +388,8 @@ test.describe("touch", () => {
   test("small character, tap hops, two taps show the tiny pad, line waits behind a dot, no overflow", async ({ page }) => {
     await seed(page);
     await page.goto("/");
-    await page.evaluate(() => scrollTo(0, (document.querySelector('[data-guide-id="highlights"]') as HTMLElement).getBoundingClientRect().top + scrollY + 250));
+    await expect(guide(page)).toBeAttached();
+    await scrollToSpot(page, await page.evaluate(() => (document.querySelector('[data-guide-id="highlights"]') as HTMLElement).getBoundingClientRect().top + scrollY + 250));
     await expect(guide(page)).toBeVisible();
     await landed(page);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

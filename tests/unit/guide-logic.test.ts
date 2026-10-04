@@ -1,9 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import {
+  bodyHits,
+  boxHits,
   CHAR,
   chooseStandX,
   EDGE,
   guideAction,
+  hintRect,
   INK_TOLERANCE,
   inkAbove,
   inOffscreenRadioGroup,
@@ -102,6 +105,7 @@ describe("keys: the character claims arrows and W only, never in a field or on a
     expect(shouldHandleGuideKey(node("BUTTON", {}, guide), guide, {})).toBe(true);
     expect(shouldHandleGuideKey(node("BODY"), guide, { metaKey: true })).toBe(false);
     expect(shouldHandleGuideKey(node("BODY"), guide, { ctrlKey: true })).toBe(false);
+    expect(shouldHandleGuideKey(node("BODY"), guide, { shiftKey: true })).toBe(false); // Shift+arrow selects text
     expect(shouldHandleGuideKey(node("BODY"), guide, { altKey: true })).toBe(false);
   });
 });
@@ -147,6 +151,34 @@ describe("ink: the body must not stand in front of text", () => {
       return Math.max(0, r - l) * Math.max(0, 350 - Math.max(360 - CHAR.h, 300));
     };
     expect(area(x)).toBeLessThanOrEqual(INK_TOLERANCE);
+  });
+});
+
+describe("strict ink rule (>6 px on both axes) and the hint", () => {
+  const ink = (el: string, left: number, right: number, top: number, bottom: number) => ({ el, rect: { left, right, top, bottom } });
+  test("boxHits ignores grazes of 6 px or less, catches real overlaps", () => {
+    const box = { left: 0, right: 68, top: 0, bottom: 112 };
+    expect(boxHits(box, [{ left: 62, right: 200, top: 50, bottom: 70 }])).toBe(false); // 6 px wide graze
+    expect(boxHits(box, [{ left: 60, right: 200, top: 50, bottom: 70 }])).toBe(true);
+    expect(boxHits(box, [{ left: 0, right: 200, top: 106, bottom: 130 }])).toBe(false); // 6 px tall graze
+  });
+  test("a small area that the old 120 px2 rule let through now counts", () => {
+    // 10 x 10 = 100 px2 < 120, but visibly over a letter.
+    expect(bodyHits(500, 500, [{ left: 500 + CHAR.w / 2 - 10, right: 600, top: 440, bottom: 450 }])).toBe(true);
+  });
+  test("inkAbove drops text inside the element stood on (a card's own title)", () => {
+    const tree: Record<string, string> = { title: "card", body: "card" };
+    const within = (a: string, b: string) => tree[a] === b;
+    const list = [ink("title", 0, 300, 420, 440), ink("other", 0, 300, 430, 450)];
+    expect(inkAbove(list, 500, "card", within).map((r) => r.top)).toEqual([430]);
+    expect(inkAbove(list, 500, "card").map((r) => r.top)).toEqual([420, 430]);
+  });
+  test("hintRect sits just above the head, left- or right-aligned to the body", () => {
+    const l = hintRect(200, 500, false);
+    expect(l.left).toBe(200 - CHAR.w / 2);
+    expect(l.bottom).toBe(500 - CHAR.h - 4);
+    const r = hintRect(200, 500, true);
+    expect(r.right).toBe(200 + CHAR.w / 2);
   });
 });
 

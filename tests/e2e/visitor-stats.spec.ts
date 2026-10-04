@@ -13,23 +13,26 @@ const pollBody = (total: number, counts: Record<string, number>, mine: string | 
 });
 
 test.describe("visitor stats", () => {
-  test("stats line appears after a choice and counts once across reloads", async ({ page }) => {
+  test("your visitor number appears after a choice and counts once across reloads", async ({ page }) => {
     await page.setExtraHTTPHeaders(SEAM("LU"));
     await page.goto("/");
     await page.getByTestId("tile-founder").click();
-    const line = page.getByTestId("visitor-rank-line");
-    await expect(line).toContainText("You're visitor #");
-    const first = (await line.textContent()) ?? "";
+    // The number rolls into place: compare against the stored ordinal, not a mid-roll frame.
+    const stored = () => page.evaluate(() => (JSON.parse(localStorage.getItem("thao:visitor:v1") ?? "{}") as { ordinal?: number | null }).ordinal ?? null);
+    await expect.poll(stored).toBeGreaterThan(0);
+    const first = (await stored())!.toLocaleString("en-US");
+    await expect(page.getByTestId("stat-ordinal")).toHaveText(first);
     await page.reload();
-    await expect(page.getByTestId("visitor-rank-line")).toContainText("You're visitor #");
-    expect(await page.getByTestId("visitor-rank-line").textContent()).toContain(first.match(/#\d+/)![0]);
+    await expect(page.getByTestId("stat-ordinal")).toHaveText(first);
+    // Said once: the big stats carry the numbers, there is no second sentence repeating them.
+    await expect(page.getByTestId("visitor-rank-line")).toHaveCount(0);
   });
 
   test("API failure leaves the picker intact and shows no error", async ({ page }) => {
     await page.route("**/api/stats**", (r) => r.abort());
     await page.goto("/");
     await expect(page.getByTestId("tile-founder")).toBeVisible();
-    await expect(page.getByTestId("visitor-rank-line")).toHaveCount(0);
+    await expect(page.getByTestId("visitor-stats-strip")).toHaveCount(0);
     await expect(page.getByTestId("section-visitor").getByText(/error|failed|unavailable/i)).toHaveCount(0);
   });
 
@@ -53,6 +56,30 @@ test.describe("visitor stats", () => {
 });
 
 test.describe("build-next poll", () => {
+  // Votes count only for a visitor who picked a role (F5): seed one, as a returning visitor would have.
+  test.beforeEach(async ({ page }, info) => {
+    if (info.title.startsWith("no role")) return;
+    await page.addInitScript(() => {
+      if (!localStorage.getItem("thao:visitor:v1")) localStorage.setItem("thao:visitor:v1", JSON.stringify({ v: 1, role: "founder", collapsed: true, visitorId: "e2epoll-" + Math.random().toString(36).slice(2, 12), ordinal: null }));
+    });
+    await page.route("**/api/visit", (r) => r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ordinal: 1, counted: false }) }));
+  });
+
+  test("no role yet: a vote is not sent, and the note asks to pick first", async ({ page }) => {
+    const votes: string[] = [];
+    await page.route("**/api/poll", async (r) => {
+      const body = r.request().postDataJSON() as { option: string | null };
+      if (body.option) votes.push(body.option);
+      await r.fulfill({ json: pollBody(4, { remittance: 4 }) });
+    });
+    await page.goto("/");
+    await page.getByTestId("visitor-poll").scrollIntoViewIfNeeded();
+    await page.getByTestId("poll-option-remittance").click();
+    await expect(page.getByTestId("poll-note")).toContainText("Pick who you are");
+    await expect(page.getByTestId("poll-option-remittance")).toHaveAttribute("aria-checked", "false");
+    expect(votes).toEqual([]);
+  });
+
   test("below 20 votes is a calm invitation: chips and a small total, no rows of numbers", async ({ page }) => {
     await page.route("**/api/poll", (r) => r.fulfill({ json: pollBody(4, { remittance: 3, "fraud-toolkit": 1 }) }));
     await page.goto("/");

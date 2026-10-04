@@ -105,6 +105,20 @@ export function countryRows(top: readonly TopCountry[] | null | undefined, limit
   return out.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)).slice(0, limit);
 }
 
+/**
+ * One source for "how many from your country": the cached top-countries aggregate
+ * can lag the fresh per-visitor count (which includes you). Use the larger of the
+ * two for your own country, and add it to the list when the aggregate missed it.
+ */
+export function withOwnCountry(top: readonly TopCountry[] | null | undefined, you: { country: string | null; countryCount: number }): TopCountry[] {
+  const list = (top ?? []).map((t) => ({ ...t }));
+  if (!you.country || !(you.countryCount > 0)) return list;
+  const mine = list.find((t) => t.country === you.country);
+  if (mine) mine.count = Math.max(mine.count, you.countryCount);
+  else list.push({ country: you.country, count: you.countryCount });
+  return list;
+}
+
 /** Tile counts: one per role, only when a number is known. */
 export function tileCounts(byRole: Partial<Record<RoleId, number>> | null): Partial<Record<RoleId, number>> | undefined {
   if (!byRole) return undefined;

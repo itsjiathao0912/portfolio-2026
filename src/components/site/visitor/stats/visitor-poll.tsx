@@ -23,8 +23,8 @@ const NOTES = {
  * appear once 20 people have voted. If the poll cannot load, nothing renders.
  */
 export function VisitorPoll({ className }: { className?: string }) {
-  const { visitorId, ready } = useVisitor();
-  const { data, note, vote, ref } = usePoll({ visitorId, ready });
+  const { visitorId, ready, role } = useVisitor();
+  const { data, note, vote, ref } = usePoll({ visitorId, ready, hasRole: role !== null });
   const reduce = useReducedMotion();
 
   // Always render the wrapper so the observer can find it; the card appears once data is in.

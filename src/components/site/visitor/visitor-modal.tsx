@@ -69,9 +69,7 @@ function Sheet({ onClose, onPick }: { onClose: () => void; onPick: (role: RoleId
         >
           <span aria-hidden="true">×</span>
         </button>
-        <div className="pr-10">
-          <RolePicker onPick={(role) => { ref.current?.close(); onPick(role); }} autoFocus={false} labelId="visitor-modal-label" />
-        </div>
+        <RolePicker onPick={(role) => { ref.current?.close(); onPick(role); }} autoFocus={false} labelId="visitor-modal-label" />
       </motion.div>
     </dialog>
   );

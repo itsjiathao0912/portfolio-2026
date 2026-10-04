@@ -25,8 +25,10 @@ type Props = {
   count?: number;
   /** True when the pick came from the keyboard (Enter / Space), false for a pointer or touch. */
   onSelect: (viaKeyboard: boolean) => void;
-  /** Fills two grid columns, so the picked-state grid has no dead cell. */
+  /** Fills two grid columns, so the grid has no dead cell. */
   wide?: boolean;
+  /** Phone, after a pick: a small avatar-only tile (the name stays as the accessible label). */
+  mini?: boolean;
   onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
   buttonRef: (el: HTMLButtonElement | null) => void;
 };
@@ -62,7 +64,7 @@ function Count({ id, count, className }: { id: RoleId | null; count?: number; cl
  * (full figure, waving, role name, one-line note). Every tile is a layout
  * element, so picking glides the grid into its new shape on a spring.
  */
-export function RoleTile({ id, label, blurb, index, selected, tabbable, count, wide, onSelect, onKeyDown, buttonRef }: Props) {
+export function RoleTile({ id, label, blurb, index, selected, tabbable, count, wide, mini, onSelect, onKeyDown, buttonRef }: Props) {
   const reduce = useReducedMotion();
   const blinking = useBlink(!reduce);
   const frame = useWaveFrame(selected && !reduce);
@@ -70,7 +72,7 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, w
   const transition = reduce ? { duration: 0 } : SPRING.sheet;
 
   return (
-    <motion.div layout transition={transition} className={cn("min-w-0", selected && "order-first col-span-2 sm:col-span-5 lg:col-span-1 lg:row-span-2", wide && !selected && "col-span-2")}>
+    <motion.div layout transition={transition} className={cn("min-w-0", selected && "order-first col-span-full sm:col-span-5 lg:col-span-1 lg:row-span-2", wide && !selected && "col-span-2")}>
       {selected ? (
         <button
           ref={buttonRef}
@@ -82,7 +84,7 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, w
           onClick={(e) => onSelect(e.detail === 0)}
           onKeyDown={onKeyDown}
           style={{ background: `linear-gradient(160deg, ${soft(tint, 70)}, ${soft(tint, 28)})` }}
-          className="relative flex h-full min-h-[148px] lg:min-h-0 w-full flex-row items-center gap-4 rounded-[28px] border border-accent/30 p-4 text-left outline-none ring-2 ring-accent/70 focus-visible:ring-offset-2 lg:flex-col lg:justify-end lg:gap-2 lg:p-5 lg:text-center"
+          className="relative flex h-full min-h-[124px] sm:min-h-[148px] lg:min-h-0 w-full flex-row items-center gap-4 rounded-[28px] border border-accent/30 p-4 text-left outline-none ring-2 ring-accent/70 focus-visible:ring-offset-2 lg:flex-col lg:justify-end lg:gap-2 lg:p-5 lg:text-center"
         >
           <motion.span
             initial={reduce ? false : { opacity: 0, scale: 0.85, y: 10 }}
@@ -94,7 +96,7 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, w
               <ClayAvatar role={id} view="full" size={132} pose="wave" frame={frame} blinking={blinking} decorative shadow={false} className={id ? undefined : "text-ink-3"} />
             </span>
             <span className="block lg:hidden">
-              <ClayAvatar role={id} view="full" size={84} pose="wave" frame={frame} blinking={blinking} decorative shadow={false} className={id ? undefined : "text-ink-3"} />
+              <ClayAvatar role={id} view="full" size={72} pose="wave" frame={frame} blinking={blinking} decorative shadow={false} className={id ? undefined : "text-ink-3"} />
             </span>
           </motion.span>
           <span className="relative flex min-w-0 flex-col gap-1 lg:items-center">
@@ -118,17 +120,22 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, w
             initial="rest"
             whileHover="hover"
             style={{ background: soft(tint, 46) }}
-            className="relative flex h-full min-h-[150px] w-full flex-col items-center justify-end gap-1 rounded-3xl border border-hairline px-1.5 pt-[76px] pb-2.5 text-center outline-none transition-colors duration-[120ms] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+            className={cn("relative flex h-full min-h-[104px] w-full flex-col items-center justify-end gap-0.5 rounded-3xl border border-hairline px-1 pt-[56px] pb-2 sm:min-h-[138px] sm:gap-1 sm:px-1.5 sm:pt-[66px] sm:pb-2.5 text-center outline-none transition-colors duration-[120ms] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2", mini && "max-sm:min-h-[72px] max-sm:rounded-2xl max-sm:pt-[60px] max-sm:pb-1")}
           >
             <motion.span
               variants={reduce ? undefined : { rest: { y: 0, scale: 1, rotate: 0 }, hover: { y: -7, scale: 1.07, rotate: -2 } }}
               transition={reduce ? { duration: 0 } : SPRING.ui}
-              className="pointer-events-none absolute -top-7 left-1/2 block -translate-x-1/2"
+              className="pointer-events-none absolute -top-4 left-1/2 block -translate-x-1/2 sm:-top-7"
             >
-              <ClayAvatar role={id} view="bust" size={84} decorative className={id ? undefined : "mt-7 text-ink-3"} />
+              <span className="block sm:hidden">
+                <ClayAvatar role={id} view="bust" size={56} decorative className={id ? undefined : "mt-5 text-ink-3"} />
+              </span>
+              <span className="hidden sm:block">
+                <ClayAvatar role={id} view="bust" size={84} decorative className={id ? undefined : "mt-7 text-ink-3"} />
+              </span>
             </motion.span>
-            <span className="relative text-[13px] leading-tight font-medium text-ink-1">{label}</span>
-            <Count id={id} count={count} />
+            <span className={cn("relative text-[12px] leading-tight font-medium text-ink-1 sm:text-[13px]", mini && "max-sm:sr-only")}>{label}</span>
+            <Count id={id} count={count} className={mini ? "max-sm:hidden" : undefined} />
           </motion.button>
         </LiftCard>
       )}
