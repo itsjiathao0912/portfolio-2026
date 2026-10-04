@@ -5,9 +5,12 @@
 // the BODY (never in a URL). Votes are optimistic and revert on any failure.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { POLL_OPTION_IDS, isPollOptionId, type PollOptionId } from "../role-ids";
+import { POLL_OPTION_IDS, isPollOptionId, isRoleId, type PollOptionId, type RoleId } from "../role-ids";
 
-export type PollData = { counts: Partial<Record<PollOptionId, number>>; total: number; mine: PollOptionId | null };
+/** `roles`: the most common voter roles per option (aggregate, no PII), most frequent first. */
+export type PollData = { counts: Partial<Record<PollOptionId, number>>; total: number; mine: PollOptionId | null; roles?: Partial<Record<PollOptionId, RoleId[]>> };
+
+const MAX_FACES = 4;
 export type PollNote = "pick-role" | "slow-down" | "failed" | null;
 
 /** Pure: validate a /api/poll body. */
@@ -20,20 +23,29 @@ export function parsePoll(body: unknown): PollData | null {
     const n = (b.counts as Record<string, unknown>)[id];
     counts[id] = typeof n === "number" && Number.isFinite(n) && n >= 0 ? n : 0;
   }
-  return { counts, total: b.total, mine: isPollOptionId(b.mine) ? b.mine : null };
+  const roles: Partial<Record<PollOptionId, RoleId[]>> = {};
+  const rawRoles = b.roles && typeof b.roles === "object" ? (b.roles as Record<string, unknown>) : {};
+  for (const id of POLL_OPTION_IDS) {
+    const list = rawRoles[id];
+    roles[id] = Array.isArray(list) ? list.filter(isRoleId).slice(0, MAX_FACES) : [];
+  }
+  return { counts, total: b.total, mine: isPollOptionId(b.mine) ? b.mine : null, roles };
 }
 
 /** Pure: apply an optimistic vote. Re-voting the same option changes nothing. */
-export function applyVote(data: PollData, option: PollOptionId): PollData {
+export function applyVote(data: PollData, option: PollOptionId, role: RoleId | null = null): PollData {
   if (data.mine === option) return data;
   const counts = { ...data.counts };
   if (data.mine) counts[data.mine] = Math.max(0, (counts[data.mine] ?? 0) - 1);
   counts[option] = (counts[option] ?? 0) + 1;
-  return { counts, total: data.mine ? data.total : data.total + 1, mine: option };
+  const roles = { ...(data.roles ?? {}) };
+  // Your own face joins the option you picked at once; the server reply settles the rest.
+  if (role) roles[option] = [role, ...(roles[option] ?? []).filter((r) => r !== role)].slice(0, MAX_FACES);
+  return { counts, total: data.mine ? data.total : data.total + 1, mine: option, roles };
 }
 
 /** The server only counts votes from visitors who picked a role: without one, a vote is never sent (the read still is). */
-export function usePoll({ visitorId, ready, hasRole = true }: { visitorId: string; ready: boolean; hasRole?: boolean }) {
+export function usePoll({ visitorId, ready, hasRole = true, role = null }: { visitorId: string; ready: boolean; hasRole?: boolean; role?: RoleId | null }) {
   const [data, setData] = useState<PollData | null>(null);
   const [note, setNote] = useState<PollNote>(null);
   const [onScreen, setOnScreen] = useState(false);
@@ -93,7 +105,7 @@ export function usePoll({ visitorId, ready, hasRole = true }: { visitorId: strin
       if (!hasRole) return setNote("pick-role");
       if (!before || before.mine === option) return;
       setNote(null);
-      setData(applyVote(before, option));
+      setData(applyVote(before, option, role));
       const ticket = ++inflight.current;
       try {
         const r = await post(option);
@@ -107,7 +119,7 @@ export function usePoll({ visitorId, ready, hasRole = true }: { visitorId: strin
         setNote("failed");
       }
     },
-    [post, hasRole],
+    [post, hasRole, role],
   );
 
   return { data, note, vote, ref };

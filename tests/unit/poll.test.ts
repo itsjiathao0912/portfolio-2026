@@ -1,14 +1,15 @@
 import { beforeEach, describe, expect, test } from "bun:test";
 import { createTestDb } from "../helpers/test-db";
-import { castVote, getPoll, MIN_POLL_VOTES, POLL_OPTIONS } from "../../src/lib/poll";
+import { castVote, getPoll, MIN_POLL_VOTES, POLL_OPTIONS, topRoles } from "../../src/lib/poll";
+import { applyVote, parsePoll } from "../../src/components/site/visitor/stats/use-poll";
 import { POLL_OPTION_IDS } from "../../src/components/site/visitor/role-ids";
 import { recordVisit, resetVisitorMemos } from "../../src/lib/visits";
 
 beforeEach(() => resetVisitorMemos());
 const T0 = 5_000_000;
 
-async function seen(db: D1Database, hash: string) {
-  await recordVisit(db, { hash, role: "none", country: "XX", now: T0 - 10_000 });
+async function seen(db: D1Database, hash: string, role: Parameters<typeof recordVisit>[1]["role"] = "none") {
+  await recordVisit(db, { hash, role, country: "XX", now: T0 - 10_000 });
 }
 
 describe("poll", () => {
@@ -65,5 +66,44 @@ describe("poll", () => {
     await castVote(db, { hash: "a", option: "fraud-toolkit", now: T0 + 5000 });
     const p = await getPoll(db, { hash: "a", now: () => T0 + 6000 });
     expect([p.total, p.counts.remittance, p.counts["fraud-toolkit"]]).toEqual([1, 0, 1]);
+  });
+
+  test("voter roles per option: aggregate only, most common first, capped at 4", async () => {
+    const { db } = createTestDb();
+    const voters: [string, Parameters<typeof recordVisit>[1]["role"]][] = [["a", "founder"], ["b", "founder"], ["c", "engineer"], ["d", "none"], ["e", "designer"], ["f", "investor"], ["g", "student"]];
+    for (const [h, r] of voters) {
+      await seen(db, h, r);
+      await castVote(db, { hash: h, option: "remittance", now: T0 });
+    }
+    const p = await getPoll(db, { hash: null, now: () => T0 + 20_000 });
+    expect(p.counts.remittance).toBe(7);
+    expect(p.roles.remittance[0]).toBe("founder");
+    expect(p.roles.remittance).toHaveLength(4);
+    expect(p.roles["fraud-toolkit"]).toEqual([]);
+    expect(JSON.stringify(p)).not.toContain('"a"');
+  });
+
+  test("a vote patches voter roles into the live memo", async () => {
+    const { db } = createTestDb();
+    await seen(db, "a", "engineer");
+    await getPoll(db, { hash: null, now: () => T0 });
+    await castVote(db, { hash: "a", option: "remittance", now: T0 });
+    expect((await getPoll(db, { hash: "a", now: () => T0 + 1000 })).roles.remittance).toEqual(["engineer"]);
+    await castVote(db, { hash: "a", option: "fraud-toolkit", now: T0 + 5000 });
+    const p = await getPoll(db, { hash: "a", now: () => T0 + 6000 });
+    expect([p.roles.remittance, p.roles["fraud-toolkit"]]).toEqual([[], ["engineer"]]);
+  });
+
+  test("topRoles drops zeros and orders by count", () => {
+    expect(topRoles({ founder: 1, engineer: 3, designer: 0 })).toEqual(["engineer", "founder"]);
+  });
+
+  test("client parse keeps only known roles; optimistic vote adds your face", () => {
+    const d = parsePoll({ total: 1, counts: { remittance: 1 }, mine: null, roles: { remittance: ["founder", "hacker", 3] } });
+    expect(d?.roles?.remittance).toEqual(["founder"]);
+    expect(parsePoll({ total: 0, counts: {} })?.roles?.remittance).toEqual([]);
+    const v = applyVote(d!, "remittance", "engineer");
+    expect(v.roles?.remittance).toEqual(["engineer", "founder"]);
+    expect(v.mine).toBe("remittance");
   });
 });

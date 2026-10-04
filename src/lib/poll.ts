@@ -2,28 +2,42 @@
 // Option labels are DRAFT copy for Thao to review. Counts are real only; the
 // aggregate is memoised 10 s (injected clock) so reads cost one query per window.
 
-import { POLL_OPTION_IDS, isPollOptionId, type PollOptionId } from "../components/site/visitor/role-ids";
+import { POLL_OPTION_IDS, isPollOptionId, isRoleId, type PollOptionId, type RoleId } from "../components/site/visitor/role-ids";
 import { dayOf, memoized, patchMemo, throttleState, type Clock } from "./visits";
 
 export { MIN_POLL_VOTES, POLL_OPTIONS } from "./poll-options";
 export const POLL_MEMO_MS = 10_000;
 
 export type PollCounts = Record<PollOptionId, number>;
+/** Per option, how many voters of each role (aggregate only: no hashes, no PII). */
+export type PollRoleCounts = Record<PollOptionId, Partial<Record<RoleId, number>>>;
+type Agg = { counts: PollCounts; total: number; roleCounts: PollRoleCounts };
+
+/** Most common voter roles for an option, most frequent first (ties by role order), at most `max`. */
+export function topRoles(byRole: Partial<Record<RoleId, number>>, max = 4): RoleId[] {
+  return (Object.entries(byRole) as [RoleId, number][])
+    .filter(([, n]) => n > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, max)
+    .map(([r]) => r);
+}
 
 async function counts(db: D1Database, now: Clock) {
-  return memoized<{ counts: PollCounts; total: number }>("poll-counts", now, POLL_MEMO_MS, async () => {
+  return memoized<Agg>("poll-counts", now, POLL_MEMO_MS, async () => {
     const { results } = await db
-      .prepare(`SELECT option, COUNT(*) AS n FROM "PollVote" GROUP BY option`)
-      .all<{ option: string; n: number }>();
+      .prepare(`SELECT p.option AS option, s.role AS role, COUNT(*) AS n FROM "PollVote" p LEFT JOIN "VisitorSeen" s ON s.hash = p.hash GROUP BY p.option, s.role`)
+      .all<{ option: string; role: string | null; n: number }>();
     const out = Object.fromEntries(POLL_OPTION_IDS.map((id) => [id, 0])) as PollCounts;
+    const roleCounts = Object.fromEntries(POLL_OPTION_IDS.map((id) => [id, {}])) as PollRoleCounts;
     let total = 0;
     for (const row of results) {
       if (isPollOptionId(row.option)) {
-        out[row.option] = row.n;
+        out[row.option] += row.n;
         total += row.n;
+        if (isRoleId(row.role)) roleCounts[row.option][row.role] = (roleCounts[row.option][row.role] ?? 0) + row.n;
       }
     }
-    return { counts: out, total };
+    return { counts: out, total, roleCounts };
   });
 }
 
@@ -35,7 +49,8 @@ export async function getPoll(db: D1Database, input: { hash: string | null; now:
     const row = await db.prepare(`SELECT option FROM "PollVote" WHERE hash = ?`).bind(input.hash).first<{ option: string }>();
     mine = row && isPollOptionId(row.option) ? row.option : null;
   }
-  return { counts: agg.counts, total: agg.total, mine };
+  const roles = Object.fromEntries(POLL_OPTION_IDS.map((id) => [id, topRoles(agg.roleCounts[id])])) as Record<PollOptionId, RoleId[]>;
+  return { counts: agg.counts, total: agg.total, mine, roles };
 }
 
 export type VoteResult =
@@ -45,9 +60,9 @@ export type VoteResult =
 
 export async function castVote(db: D1Database, input: { hash: string; option: PollOptionId; now: number }): Promise<VoteResult> {
   const seen = await db
-    .prepare(`SELECT changeCount, lastWriteAt FROM "VisitorSeen" WHERE hash = ?`)
+    .prepare(`SELECT role, changeCount, lastWriteAt FROM "VisitorSeen" WHERE hash = ?`)
     .bind(input.hash)
-    .first<{ changeCount: number; lastWriteAt: number }>();
+    .first<{ role: string; changeCount: number; lastWriteAt: number }>();
   if (!seen) return { ok: false, reason: "unknown-visitor" };
 
   const prev = await db.prepare(`SELECT option FROM "PollVote" WHERE hash = ?`).bind(input.hash).first<{ option: string }>();
@@ -67,11 +82,17 @@ export async function castVote(db: D1Database, input: { hash: string; option: Po
   if (res.meta.changes !== 1) return { ok: true, changed: false, previous };
   await db.prepare(`UPDATE "VisitorSeen" SET lastWriteAt = ? WHERE hash = ?`).bind(input.now, input.hash).run();
   // Keep the memoised aggregate honest about this write without another query.
-  patchMemo<{ counts: PollCounts; total: number }>("poll-counts", (agg) => {
+  const role = isRoleId(seen.role) ? seen.role : null;
+  patchMemo<Agg>("poll-counts", (agg) => {
     const counts = { ...agg.counts };
-    if (previous) counts[previous] = Math.max(0, counts[previous] - 1);
+    const roleCounts = { ...agg.roleCounts };
+    if (previous) {
+      counts[previous] = Math.max(0, counts[previous] - 1);
+      if (role) roleCounts[previous] = { ...roleCounts[previous], [role]: Math.max(0, (roleCounts[previous][role] ?? 0) - 1) };
+    }
     counts[input.option] += 1;
-    return { counts, total: previous ? agg.total : agg.total + 1 };
+    if (role) roleCounts[input.option] = { ...roleCounts[input.option], [role]: (roleCounts[input.option][role] ?? 0) + 1 };
+    return { counts, total: previous ? agg.total : agg.total + 1, roleCounts };
   });
   return { ok: true, changed: true, previous };
 }
