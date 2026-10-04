@@ -24,6 +24,13 @@ export function VisitorModal() {
   );
 }
 
+// The radiogroup becomes a wrapping flex row: every card one width (2 / 3 / 4 per row), the short last row centred.
+const MODAL_GRID = [
+  "[&_[role=radiogroup]]:flex [&_[role=radiogroup]]:flex-wrap [&_[role=radiogroup]]:justify-center",
+  "[&_[role=radiogroup]>*]:!col-span-1 [&_[role=radiogroup]>*]:w-[calc((100%-0.75rem)/2)]",
+  "sm:[&_[role=radiogroup]>*]:w-[calc((100%-1.5rem)/3)] lg:[&_[role=radiogroup]>*]:w-[calc((100%-2.25rem)/4)]",
+].join(" ");
+
 function Sheet({ onClose, onPick }: { onClose: () => void; onPick: (role: RoleId) => void }) {
   const ref = useRef<HTMLDialogElement>(null);
   // Dev StrictMode runs the effect twice: the cleanup's close() fires a (late) close event that must not be taken for a user close, or the sheet unmounts at once.
@@ -69,7 +76,10 @@ function Sheet({ onClose, onPick }: { onClose: () => void; onPick: (role: RoleId
         >
           <span aria-hidden="true">×</span>
         </button>
-        <RolePicker onPick={(role) => { ref.current?.close(); onPick(role); }} autoFocus={false} labelId="visitor-modal-label" />
+        {/* Same-size cards, last row centred: the shared grid would stretch the 11th card across two cells. */}
+        <div className={MODAL_GRID}>
+          <RolePicker onPick={(role) => { ref.current?.close(); onPick(role); }} autoFocus={false} labelId="visitor-modal-label" />
+        </div>
       </motion.div>
     </dialog>
   );

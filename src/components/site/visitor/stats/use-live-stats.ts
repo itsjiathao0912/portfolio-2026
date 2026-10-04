@@ -9,7 +9,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ROLE_IDS, type RoleId } from "../role-ids";
-import { moveOwnCount, type StatsView } from "./stats-copy";
+import { DEMO_COUNTRIES, moveOwnCount, type StatsView } from "./stats-copy";
+
+/** Dev only: `?demo-countries` merges a spread of countries in, for reviewing the flag cluster. */
+export function withDemo(view: StatsView): StatsView {
+  if (process.env.NODE_ENV !== "development" || typeof window === "undefined" || !new URLSearchParams(window.location.search).has("demo-countries")) return view;
+  const seen = new Set(view.topCountries.map((t) => t.country));
+  return { ...view, topCountries: [...view.topCountries, ...DEMO_COUNTRIES.filter((t) => !seen.has(t.country))] };
+}
 
 export const POLL_MS = 15_000;
 export const JITTER_MS = 2_000;
@@ -119,7 +126,7 @@ export function useLiveStats({ role, ready }: { role: RoleId | null; ready: bool
       const res = await fetch(`/api/stats?role=${roleRef.current ?? "none"}`, { signal: ctl.signal, cache: "no-store" });
       if (!res.ok) return; // 429 / 503 / 500: keep the last value, no noise
       const next = parseStats(await res.json());
-      if (next && !ctl.signal.aborted) setData(next);
+      if (next && !ctl.signal.aborted) setData(withDemo(next));
     } catch {
       /* silent */
     }

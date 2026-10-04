@@ -300,3 +300,26 @@ test.describe("reduced motion", () => {
     expect(moving).toBe(false);
   });
 });
+
+test.describe("change-role modal layout", () => {
+  for (const vp of [{ width: 1440, height: 900 }, { width: 768, height: 1024 }, { width: 390, height: 844 }]) {
+    test(`${vp.width}px: every card is the same size and the short last row is centred`, async ({ page }) => {
+      await page.setViewportSize(vp);
+      await page.goto("/");
+      await page.getByTestId("tile-founder").click();
+      await page.getByTestId("visitor-chip").click();
+      const group = page.getByRole("radiogroup", { name: "Who are you?" });
+      await expect(group.getByRole("radio")).toHaveCount(11);
+      const boxes = await group.locator(":scope > *").evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => ({ x: r.x, y: r.y, w: r.width, right: r.right })));
+      const widths = boxes.map((b) => Math.round(b.w));
+      expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+      const g = await group.boundingBox();
+      const lastY = boxes[boxes.length - 1].y;
+      const last = boxes.filter((b) => Math.abs(b.y - lastY) < 2);
+      const left = last[0].x - g!.x;
+      const right = g!.x + g!.width - last[last.length - 1].right;
+      expect(Math.abs(left - right)).toBeLessThanOrEqual(2);
+      await page.screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R8-shots/modal-${vp.width}.png` });
+    });
+  }
+});

@@ -154,3 +154,12 @@ describe("top countries", () => {
     expect(countryRows(null)).toEqual([]);
   });
 });
+
+describe("countryLabel", () => {
+  test("name and people count, singular for one", async () => {
+    const { countryLabel } = await import("../../src/components/site/visitor/stats/stats-copy");
+    expect(countryLabel("Vietnam", 64)).toBe("Vietnam: 64 people");
+    expect(countryLabel("France", 1)).toBe("France: 1 person");
+    expect(countryLabel("India", 1200)).toBe("India: 1,200 people");
+  });
+});

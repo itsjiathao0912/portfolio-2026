@@ -4,7 +4,8 @@ import { motion } from "motion/react";
 import { SPRING } from "@/components/motion/springs";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import type { RoleId } from "../role-ids";
-import { PLURALS, countryRows, type StatsView, withOwnCountry } from "./stats-copy";
+import { useState } from "react";
+import { PLURALS, countryLabel, countryRows, type StatsView, withOwnCountry } from "./stats-copy";
 import { RollingNumber } from "./rolling-number";
 
 function Big({ value, label, testId, prefix }: { value: number; label: string; testId: string; prefix?: string }) {
@@ -16,6 +17,39 @@ function Big({ value, label, testId, prefix }: { value: number; label: string; t
       </p>
       <p className="label-mono mt-1.5 text-[11px] text-ink-3">{label}</p>
     </div>
+  );
+}
+
+/**
+ * One flag in a calm circle. Hover, keyboard focus or a tap shows "Vietnam: 64 people";
+ * the same text is the button's accessible name, so a screen reader hears it too.
+ */
+function FlagDot({ code, flag, label }: { code: string; flag: string; label: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <li className="group relative">
+      <button
+        type="button"
+        data-testid={`country-${code}`}
+        aria-label={label}
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        onBlur={() => setOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setOpen(false);
+        }}
+        className="grid size-10 place-items-center rounded-full border border-hairline bg-bg text-[20px] leading-none shadow-1 outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        <span aria-hidden="true">{flag}</span>
+      </button>
+      <span
+        role="tooltip"
+        data-testid={`country-tip-${code}`}
+        className={`pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-ink-1 px-2.5 py-1 text-[12px] text-white shadow-2 transition-opacity [@media(hover:hover)]:group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 ${open ? "opacity-100" : "opacity-0"}`}
+      >
+        {label}
+      </span>
+    </li>
   );
 }
 
@@ -44,17 +78,15 @@ export function StatsStrip({ data, ordinal, role }: { data: StatsView; ordinal: 
         {role && roleCount > 0 ? <Big value={roleCount} label={`${PLURALS[role]} like you`} testId="stat-role" /> : null}
       </div>
       {countries.length > 0 ? (
-        <div className="flex flex-wrap items-center justify-center gap-3 lg:max-w-[420px] lg:flex-col lg:items-start lg:gap-2">
-        <p className="label-mono text-[11px] text-ink-3">Top countries</p>
-        <ul data-testid="visitor-countries" aria-label="Top countries" className="flex flex-wrap justify-center gap-2">
-          {countries.map((c) => (
-            <li key={c.country} className="inline-flex min-h-9 items-center gap-2 rounded-full border border-hairline bg-bg px-3.5 text-[14px] text-ink-2 shadow-1">
-              <span aria-hidden="true" className="text-[17px] leading-none">{c.flag}</span>
-              <span>{c.name}</span>
-              <RollingNumber value={c.count} className="font-medium text-ink-1 tabular-nums" />
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-col items-center gap-2 lg:max-w-[420px] lg:items-start">
+          <p className="label-mono text-[11px] text-ink-3">
+            {countries.length === 1 ? "Visitors from 1 country" : `Visitors from ${countries.length} countries`}
+          </p>
+          <ul data-testid="visitor-countries" aria-label="Visitor countries" className="flex max-w-[420px] flex-wrap justify-center gap-1.5 lg:justify-start">
+            {countries.map((c) => (
+              <FlagDot key={c.country} code={c.country} flag={c.flag} label={countryLabel(c.name, c.count)} />
+            ))}
+          </ul>
         </div>
       ) : null}
     </motion.div>

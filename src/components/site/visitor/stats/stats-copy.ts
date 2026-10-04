@@ -28,7 +28,7 @@ export type TopCountry = { country: string; count: number };
 
 export type StatsView = {
   total: number;
-  /** most-visited countries, biggest first (already limited by the API) */
+  /** every visitor country, biggest first (capped by the API) */
   topCountries: TopCountry[];
   byRole: Partial<Record<RoleId, number>>;
   you: { country: string | null; countryCount: number; countryRank: number; roleCount: number };
@@ -95,7 +95,7 @@ export function leaderLine(byRole: Partial<Record<RoleId, number>>, mine: RoleId
 }
 
 /** Country rows for the big stats: only real, known countries with a count, flag + name, biggest first. */
-export function countryRows(top: readonly TopCountry[] | null | undefined, limit = 5) {
+export function countryRows(top: readonly TopCountry[] | null | undefined, limit = 60) {
   const out: { country: string; name: string; flag: string; count: number }[] = [];
   for (const t of top ?? []) {
     const name = countryName(t.country);
@@ -167,3 +167,15 @@ export function pollRows<T extends string>(
   const note = showPercent ? `${total} votes` : total === 0 ? "Be one of the first 20 votes" : `${total} ${total === 1 ? "vote" : "votes"} so far. Be one of the first 20 votes`;
   return { rows, showPercent, note };
 }
+
+/** Tooltip / accessible name for one flag: "Vietnam: 64 people". */
+export function countryLabel(name: string, count: number): string {
+  return `${name}: ${count.toLocaleString("en-US")} ${count === 1 ? "person" : "people"}`;
+}
+
+/** Dev-only review seam: a spread of countries so the flag cluster can be eyeballed locally. */
+export const DEMO_COUNTRIES: TopCountry[] = [
+  { country: "VN", count: 64 }, { country: "SG", count: 18 }, { country: "US", count: 15 }, { country: "DE", count: 9 },
+  { country: "GB", count: 7 }, { country: "JP", count: 6 }, { country: "AU", count: 4 }, { country: "FR", count: 3 },
+  { country: "IN", count: 3 }, { country: "KR", count: 2 }, { country: "CA", count: 2 }, { country: "NL", count: 1 }, { country: "BR", count: 1 },
+];

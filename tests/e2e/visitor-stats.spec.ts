@@ -134,3 +134,40 @@ test.describe("build-next poll", () => {
     await expect(page.getByTestId("poll-option-agent-payments")).toHaveAttribute("aria-checked", "false");
   });
 });
+
+test.describe("visitor countries", () => {
+  const body = {
+    total: 120,
+    byRole: { founder: 4 },
+    topCountries: [{ country: "VN", count: 64 }, { country: "SG", count: 18 }, { country: "US", count: 15 }, { country: "DE", count: 9 }, { country: "GB", count: 7 }, { country: "JP", count: 6 }, { country: "AU", count: 4 }, { country: "FR", count: 1 }],
+    you: { country: "VN", countryCount: 64, countryRank: 1, roleCount: 4 },
+  };
+  for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    test(`${vp.width}px: a flag per country, biggest first, with a name + count tooltip on hover, focus and tap`, async ({ page }) => {
+      await page.setViewportSize(vp);
+      await page.route("**/api/stats**", (r) => r.fulfill({ json: body }));
+      await page.goto("/");
+      await page.getByTestId("section-visitor").scrollIntoViewIfNeeded(); // stats poll only while the row is on screen
+      await page.getByTestId("tile-founder").click();
+      const list = page.getByTestId("visitor-countries");
+      await list.scrollIntoViewIfNeeded();
+      await expect(list.getByRole("button")).toHaveCount(8);
+      await expect(list.getByRole("button").first()).toHaveAccessibleName("Vietnam: 64 people");
+      await expect(page.getByTestId("country-FR")).toHaveAccessibleName("France: 1 person");
+      const tip = page.getByTestId("country-tip-SG");
+      await expect(tip).toHaveCSS("opacity", "0");
+      if (vp.width > 400) await page.getByTestId("country-SG").hover();
+      else await page.getByTestId("country-SG").tap().catch(() => page.getByTestId("country-SG").click());
+      await expect(tip).toHaveCSS("opacity", "1");
+      await expect(tip).toHaveText("Singapore: 18 people");
+      await page.mouse.move(0, 0);
+      await page.getByTestId("country-SG").focus();
+      await page.keyboard.press("Tab"); // keyboard focus shows the next flag's tooltip, and only that one
+      await expect(tip).toHaveCSS("opacity", "0");
+      await expect(page.getByTestId("country-tip-US")).toHaveCSS("opacity", "1");
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow).toBeLessThanOrEqual(0);
+      await page.getByTestId("visitor-stats-strip").screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R8-shots/countries-${vp.width}.png` });
+    });
+  }
+});

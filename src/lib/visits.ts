@@ -161,10 +161,14 @@ async function aggregate(db: D1Database, now: Clock) {
     const topCountries = [...countryTotals.entries()]
       .map(([country, count]) => ({ country, count }))
       .sort((a, b) => b.count - a.count || a.country.localeCompare(b.country))
-      .slice(0, 5);
+      // Every country (codes + counts only, no PII); capped so the payload stays small.
+      .slice(0, MAX_COUNTRIES);
     return { total, byRole, topCountries, countryTotals };
   });
 }
+
+/** Upper bound on countries sent to the client (the flag cluster shows them all). */
+export const MAX_COUNTRIES = 60;
 
 export async function getStats(
   db: D1Database,
