@@ -269,6 +269,32 @@ test.describe("phone", () => {
     await expect(chip(page)).toContainText("You: Product designer");
     await expectNoHorizontalOverflow(page);
   });
+
+  test("390px: every tile and modal card is the same height; the modal scrolls to the last card", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByTestId("tile-designer")).toBeVisible();
+    const heights = (sel: string) => page.evaluate((s) => [...document.querySelectorAll<HTMLElement>(s)].map((e) => e.offsetHeight), sel);
+    const tiles = await heights('[role="radio"][data-testid^="tile-"]');
+    expect(tiles.length).toBeGreaterThan(5);
+    expect(new Set(tiles).size).toBe(1);
+    await page.getByTestId("tile-engineer").click();
+    await expect(chip(page)).toContainText("You: Engineer");
+    await chip(page).click();
+    await expect(page.getByTestId("visitor-modal")).toBeVisible();
+    const cards = await heights('[data-testid="visitor-modal"] [role="radio"]');
+    expect(cards.length).toBe(11);
+    expect(new Set(cards).size).toBe(1);
+    const fit = await page.evaluate(() => {
+      const s = document.querySelector<HTMLElement>('[data-testid="visitor-modal-scroll"]')!;
+      s.scrollTop = s.scrollHeight;
+      const last = [...s.querySelectorAll('[role="radio"]')].at(-1)!.getBoundingClientRect();
+      const box = s.getBoundingClientRect();
+      return { overflowY: getComputedStyle(s).overflowY, lastBottom: last.bottom, boxBottom: box.bottom, vh: innerHeight };
+    });
+    expect(fit.overflowY).toBe("auto");
+    expect(fit.boxBottom).toBeLessThanOrEqual(fit.vh);
+    expect(fit.lastBottom).toBeLessThanOrEqual(fit.boxBottom);
+  });
 });
 
 test.describe("reduced motion", () => {
@@ -310,16 +336,19 @@ test.describe("change-role modal layout", () => {
       await page.getByTestId("visitor-chip").click();
       const group = page.getByRole("radiogroup", { name: "Who are you?" });
       await expect(group.getByRole("radio")).toHaveCount(11);
-      const boxes = await group.locator(":scope > *").evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => ({ x: r.x, y: r.y, w: r.width, right: r.right })));
+      const boxes = await group.locator(":scope > *").evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => ({ x: r.x, y: r.y, w: r.width, h: r.height, right: r.right })));
       const widths = boxes.map((b) => Math.round(b.w));
       expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+      const hs = boxes.map((b) => b.h);
+      console.log(`[R9] modal ${vp.width}: card heights ${Math.min(...hs).toFixed(1)}..${Math.max(...hs).toFixed(1)}`);
+      expect(Math.max(...hs) - Math.min(...hs)).toBeLessThanOrEqual(1);
       const g = await group.boundingBox();
       const lastY = boxes[boxes.length - 1].y;
       const last = boxes.filter((b) => Math.abs(b.y - lastY) < 2);
       const left = last[0].x - g!.x;
       const right = g!.x + g!.width - last[last.length - 1].right;
       expect(Math.abs(left - right)).toBeLessThanOrEqual(2);
-      await page.screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R8-shots/modal-${vp.width}.png` });
+      await page.screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R9-shots/modal-${vp.width}.png` });
     });
   }
 });
@@ -331,10 +360,13 @@ test.describe("top picker layout", () => {
       await page.goto("/");
       const strip = page.getByTestId("visitor-strip");
       await strip.scrollIntoViewIfNeeded();
-      const boxes = await strip.locator(":scope > *").evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => ({ x: r.x, y: r.y, w: r.width, right: r.right })));
+      const boxes = await strip.locator(":scope > *").evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => ({ x: r.x, y: r.y, w: r.width, h: r.height, right: r.right })));
       expect(boxes).toHaveLength(11);
       const widths = boxes.map((b) => b.w);
       expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+      const hs = boxes.map((b) => b.h);
+      console.log(`[R9] tiles ${vp.width}: heights ${Math.min(...hs).toFixed(1)}..${Math.max(...hs).toFixed(1)}`);
+      expect(Math.max(...hs) - Math.min(...hs)).toBeLessThanOrEqual(1);
       const g = await strip.boundingBox();
       const lastY = boxes[10].y;
       const last = boxes.filter((b) => Math.abs(b.y - lastY) < 2);
@@ -355,13 +387,18 @@ test.describe("top picker layout", () => {
         }),
       );
       expect(clash).toEqual([]);
-      await page.getByTestId("section-visitor").screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R8-shots/picker-unpicked-${vp.width}.png` });
+      await page.getByTestId("section-visitor").screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R9-shots/picker-unpicked-${vp.width}.png` });
       await page.getByTestId("tile-founder").click();
       await expect(chip(page)).toContainText("You: Founder");
       await expect(page.getByTestId("tile-founder")).toHaveAttribute("aria-checked", "true");
       await page.waitForTimeout(900); // let the layout spring settle before the picture
       await expectNoHorizontalOverflow(page);
-      await page.getByTestId("section-visitor").screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R8-shots/picker-picked-${vp.width}.png` });
+      // Picked: the remaining small tiles (incl. the 2-line "Product designer") are still one height.
+      const rest = await strip.locator('[role="radio"][aria-checked="false"]').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
+      console.log(`[R9] picked ${vp.width}: rest heights ${Math.min(...rest).toFixed(1)}..${Math.max(...rest).toFixed(1)}`);
+      expect(rest.length).toBe(10);
+      expect(Math.max(...rest) - Math.min(...rest)).toBeLessThanOrEqual(1);
+      await page.getByTestId("section-visitor").screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R9-shots/picker-picked-${vp.width}.png` });
     });
   }
 });

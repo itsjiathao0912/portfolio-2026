@@ -17,26 +17,31 @@
 // - It is a physical object: no fades, no teleports. A surface that scrolls up under
 //   the nav pins it at the top edge until it falls; it lands on the first top edge it
 //   crosses (swept). Reduced motion: no physics and no rAF; it rests on the floor.
-// - The speech bubble is pinned to the PAGE above where the character stood when it
-//   spoke: it scrolls with the page but never follows a jump, a bob or a walk. It moves
-//   (once, smoothly) only when it would leave the screen.
+// - The speech bubble FOLLOWS the character: it rides above the head as it walks (x
+//   tracked exactly, the place eases with a short spring), but its y is anchored to the
+//   surface the character stands on, never its airborne y, so a jump, bob or landing
+//   squash never moves it. At rest it steps aside from reading text and tap targets.
+// - At rest there is NO scheduled frame, even when the block under it has a CSS
+//   transition: such blocks are re-read with short timeouts / a ResizeObserver.
+// - Lives on home, /about and every case study (mounted once in the root layout); a
+//   new page drops it in from the top, near the x it last stood at.
 //
 // Original character, original code: plain transforms plus a pure body model
 // (guide-physics.ts).
 
 import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal, flushSync } from "react-dom";
 import { ClayAvatar } from "@/components/clay/clay-avatar";
 import { useBlink } from "@/components/clay/use-blink";
 import type { ClayPoseName } from "@/components/clay/poses";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
-import type { GuideSectionId, RoleId } from "../role-ids";
+import type { RoleId } from "../role-ids";
 import { useVisitor } from "../store";
-import { collectTracked, guideRoots, readAvoid, readInk, readNav, readSpans, refreshSurfaces, type Tracked } from "./guide-dom";
+import { PAGE_ROOT, collectTracked, guideRoots, readAvoid, readInk, readNav, readSpans, refreshSurfaces, type Tracked } from "./guide-dom";
 import { GuideBubble, GuideDot, GuideHint, GuideTouchPad, type KeyHandlers, type PressKey, useGuideKeys } from "./guide-controls";
-import { bodyHits, boxHits, type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, hintRect, type Ink, inkAbove, maxFeetY, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type Rect, sectionUnder, type Span, type Surface, surfaceStandable, type View, visibleSurfaces } from "./guide-logic";
+import { bodyHits, bubbleAnchor, bubbleRectAt, boxHits, type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, hintRect, type Ink, inkAbove, maxFeetY, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type GuidePage, guidePageFor, type GuideSpotId, type Rect, sectionUnder, springStep, type Span, type Surface, surfaceStandable, type View, visibleSurfaces } from "./guide-logic";
 import { type Body, FLOOR_KEY, isMoving, launchTo, makeScene, NO_INPUT, type Input, type Scene, squashScale, standingBody, stepBody, surfaceY } from "./guide-physics";
 import { scriptFor } from "./guide-story";
 
@@ -78,22 +83,30 @@ const PASSIVE_BUBBLE_MS = 9000;
 const SETTLE_MS = 160;
 const SCROLL_FRAMES_MS = 170;
 const RECOLLECT_MS = 450;
-/** How long surfaces are re-read per frame after a hover or transition finishes on the block being stood on. */
+/** How long the block being stood on is re-read (by timeout, never rAF) after a hover or transition on it. */
 const LIVE_MS = 650;
+const LIVE_STEP_MS = 34;
+/** A pose change eases the clay parts (~280 ms): the sole is re-measured every frame this long, so the feet stay on the edge. */
+const POSE_LIVE_MS = 420;
+/** Bubble springs (rad/s): the place offset and a landing on a new surface. */
+const BUBBLE_X_OMEGA = 34;
+const BUBBLE_Y_OMEGA = 26;
+/** The x the guide last stood at (fraction of the viewport width), kept across page navigations. */
+let lastXFrac: number | null = null;
 const WALK_FRAME_S = 0.12;
 const HINT_KEY = "thao:guide-hint:v1";
 /** Below this width the character is smaller and its line waits behind a tap-to-open dot. */
 const SMALL_W = 1024;
 const SMALL_SCALE = 0.72;
 
-type BubbleState = { section: GuideSectionId; idx: number } | null;
+type BubbleState = { section: GuideSpotId; idx: number } | null;
 
 type Controller = {
   hop: () => void;
   press: (key: PressKey, down: boolean) => void;
 };
 
-/** Mount point: shows the guide only after first paint, on `/`, once a role is chosen and the picker is closed. */
+/** Mount point (root layout): shows the guide after first paint on home, /about and case studies, once a role is chosen and the picker is closed. */
 export function VisitorGuide() {
   const { ready, role, collapsed, pickerOpen } = useVisitor();
   const pathname = usePathname();
@@ -118,8 +131,10 @@ export function VisitorGuide() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  if (!painted || !wide || !ready || role === null || !collapsed || pickerOpen || pathname !== "/") return null;
-  return createPortal(<GuideLayer key={`${role}:${reduce}`} role={role} reduce={reduce} />, document.body);
+  const page = guidePageFor(pathname);
+  if (!painted || !wide || !ready || role === null || !collapsed || pickerOpen || !page) return null;
+  // Keyed by path: a new page is a new layer that drops in from the top.
+  return createPortal(<GuideLayer key={`${role}:${reduce}:${pathname}`} role={role} reduce={reduce} page={page} />, document.body);
 }
 
 const seenHint = () => {
@@ -130,10 +145,17 @@ const seenHint = () => {
   }
 };
 
-function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
+function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; page: GuidePage }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const bodyEl = useRef<HTMLDivElement>(null);
   const squashEl = useRef<HTMLDivElement>(null);
+  const bubbleEl = useRef<HTMLDivElement | null>(null);
+  const bubblePaint = useRef<(() => void) | null>(null);
+  // Stable: a new ref function each render would re-snap the bubble on every pose change.
+  const bubbleRef = useCallback((n: HTMLDivElement | null) => {
+    bubbleEl.current = n;
+    if (n) bubblePaint.current?.();
+  }, []);
   const ctl = useRef<Controller | null>(null);
   const handlers = useRef<KeyHandlers | null>(null);
   const lastTap = useRef(0);
@@ -141,7 +163,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
   const [bubble, setBubble] = useState<BubbleState>(null);
   const [pose, setPose] = useState<{ name: ClayPoseName; frame: number }>({ name: "idle", frame: 0 });
   const [facing, setFacing] = useState<1 | -1>(1);
-  const [lay, setLay] = useState<{ place: BubblePlace; w: number; left: number; bottom: number }>({ place: "right", w: 188, left: 0, bottom: 0 });
+  const [lay, setLay] = useState<{ place: BubblePlace; w: number }>({ place: "above", w: 188 });
   const [small, setSmall] = useState(false);
   const [dotOpen, setDotOpen] = useState(false);
   const [rightHalf, setRightHalf] = useState(false);
@@ -153,11 +175,6 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
   const blinking = useBlink(!reduce);
   const footRef = useRef(FOOT_PAD_DEFAULT);
   const footSync = useRef<((pad: number) => void) | null>(null);
-  const footMin = useRef(Infinity);
-  // A new figure size (small screens) or a new character: start the contact line afresh.
-  useLayoutEffect(() => {
-    footMin.current = Infinity;
-  }, [small, role]);
   useLayoutEffect(() => {
     const node = bodyEl.current;
     if (!node) return;
@@ -166,9 +183,8 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     // Only a standing pose defines the contact line (the jump pose tucks the feet up).
     if (pose.name === "jump") return;
     const measure = () => {
-      // The real sole is the LOWEST one ever seen standing: a reading taken mid-transition (feet still tucked) is higher, never lower.
-      footRef.current = Math.min(footMin.current, measureFootPad(node));
-      footMin.current = footRef.current;
+      // The sole where it is NOW (mid-transition too): the loop also re-measures every frame of a pose change.
+      footRef.current = measureFootPad(node);
       footSync.current?.(footRef.current);
     };
     measure();
@@ -237,11 +253,16 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     let body: Body = standingBody(view.w / 2, null, scene);
     const input: Input = { ...NO_INPUT };
     let raf = 0;
+    let inFrame = false;
     let last = 0;
     let walkClock = 0;
     let frames = 0;
     let scrollUntil = 0;
     let liveUntil = 0;
+    let liveT: ReturnType<typeof setTimeout> | undefined;
+    let poseLiveUntil = 0;
+    let poseName: ClayPoseName = "idle";
+    let poseT: ReturnType<typeof setTimeout> | undefined;
     let lastCollect = 0;
     let dirty = false;
     let bubbleNow: BubbleState = null;
@@ -251,16 +272,24 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     let layKey = "";
     let rightHalfNow = false;
     let seq = 0;
-    let lastSection: GuideSectionId | null = null;
+    let lastSection: GuideSpotId | null = null;
     let standing: Element | null = null;
     let atKey = "";
     let modeNow = "";
     let hinted = false;
     let hintClearNow = true;
     let hopAways = 0;
+    const standRo =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            if (!alive) return;
+            liveUntil = performance.now() + LIVE_MS;
+            if (!liveT) liveT = later(liveRead, 0);
+          })
+        : null;
     let shuffles = 0; // shuffles along the same block since the last scroll: at most one, so it never hops on and on
     let floorHops = 0; // floor-to-block hops since the last scroll: capped, so a block that will not hold it cannot start a loop // "hop to another clear block" moves since the last scroll: at most one, so it can never ping-pong
-    const visited = new Set<GuideSectionId>();
+    const visited = new Set<GuideSpotId>();
     const timers = new Set<ReturnType<typeof setTimeout>>();
     let settleT: ReturnType<typeof setTimeout> | undefined;
     let bubbleT: ReturnType<typeof setTimeout> | undefined;
@@ -286,12 +315,12 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       view.docH = document.documentElement.scrollHeight;
       view.nav = readNav();
       avoid = readAvoid(root, view.scrollY, view.h);
-      const roots = guideRoots();
+      const roots = guideRoots(page);
       ink = readInk(roots, root, view.scrollY);
       // Every visible block is a platform. Text avoidance only steers where it chooses to walk, never what holds it up.
-      tracked = collectTracked(roots, root, view.scrollY, view.w);
+      tracked = collectTracked(roots, root, view.scrollY, view.w, page);
       surfaces = tracked.map((t) => t.surface);
-      spans = readSpans(view.scrollY);
+      spans = readSpans(view.scrollY, page);
       scene = makeScene(surfaces, view);
       el.dataset.guideSurfaces = String(surfaces.length);
       el.dataset.guideInView = String(visibleSurfaces(surfaces, view).length);
@@ -315,6 +344,11 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     // The one-time hint sits above the head: it must not cover reading text or a tap target either.
     const hintFree = (x: number, y: number) => !boxHits(hintRect(x, y, nearHint(x)), avoid) && !boxHits(hintRect(x, y, nearHint(x)), inkAbove(ink, y - CHAR.h, null));
     const elOf = (key: string | null) => (key ? (tracked.find((t) => t.surface.key === key)?.el ?? null) : null);
+    // A surface worth choosing has a spot where the body covers no reading text and no tap target.
+    const clearOn = (s: Surface) => {
+      const own = elOf(s.key);
+      return !blocked(chooseStandX(s, view, standBlockers(s.top, own), body.x), s.top, own);
+    };
     const surfaceOf = (key: string | null) => (key && key !== FLOOR_KEY ? (scene.byKey.get(key) ?? null) : null);
     const currentSection = () => surfaceOf(body.surface)?.id ?? sectionUnder(spans, body.y - 8);
 
@@ -333,7 +367,19 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       const key = `${name}:${frame}`;
       if (key !== poseKey) {
         poseKey = key;
-        setPose({ name, frame });
+        poseName = name;
+        // The clay parts now ease to the new pose: pin the soles every frame until they settle.
+        const wasJump = poseName === "jump";
+        poseName = name;
+        if (!reduce && name !== "jump") {
+          poseLiveUntil = performance.now() + POSE_LIVE_MS;
+          // Moving: the frame loop re-reads the sole. At rest: timeouts only, so a resting guide schedules no frame.
+          if (isMoving(body, input) || body.mode !== "ground") schedule();
+          else if (!poseT) poseT = later(poseRead, 0);
+        }
+        // Leaving the jump pose (a landing): commit now, so the tucked feet are never drawn on the edge for a frame.
+        if (wasJump && inFrame) flushSync(() => setPose({ name, frame }));
+        else setPose({ name, frame });
       }
       if (body.facing !== facingNow) {
         facingNow = body.facing;
@@ -352,31 +398,112 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
         }
       }
     };
-    // The bubble is pinned to the SCREEN where it first appears (viewport px) and never follows the
-    // body's jump / bob / walk. It is placed where it covers no link, button or reading text.
-    let bubLeft = 0;
-    let bubBottom = 0;
-    let bubW = 0;
-    const placeBubbleNow = () => {
-      const scale = isSmall() ? SMALL_SCALE : 1;
-      // Small: the figure is scaled about its feet, so the head is lower; aim the "above" spot at the real head.
-      const y = body.mode === "ground" ? body.y : Math.min(body.y, view.scrollY + maxFeetY(view));
-      const p = placeBubble(body.x, y + CHAR.h * (1 - scale), view, avoid.concat(inkNear(y)), true);
+    // ---- the bubble follows the character ---------------------------------------------
+    // Centre x = feet x + an offset (0 = above the head); bottom y = the standing surface's
+    // y + an offset. Only the offsets and a move to a NEW surface ease (springs); the feet x
+    // is tracked exactly, the surface y exactly while it stays the same surface.
+    const scaleNow = () => (isSmall() ? SMALL_SCALE : 1);
+    const aboveDy = () => -(CHAR.h * scaleNow() + 8);
+    let anchor = { y: body.y, key: body.surface as string | null };
+    let anchorY = body.y;
+    let anchorV = 0;
+    let offX = 0;
+    let offXV = 0;
+    let offY = aboveDy();
+    let offYV = 0;
+    let rest = { dx: 0, dy: aboveDy(), place: "above" as BubblePlace, w: 188, x: Number.NaN };
+    let bubW = 188;
+    let bubbleSettled = true;
+    // Where it rests when the character stands still: above the head when that covers no text or
+    // tap target and stays on screen, else beside it (the roomier clear side), else the least bad.
+    const placeRest = () => {
+      const y = anchor.y;
+      const scale = scaleNow();
+      if (isSmall()) {
+        rest = { dx: 0, dy: aboveDy(), place: "above", w: Math.min(188, view.w - 2 * EDGE), x: body.x };
+        return;
+      }
+      const avoidHere = avoid.concat(inkNear(y));
+      let p = placeBubble(body.x, y + CHAR.h * (1 - scale), view, avoidHere, true);
+      if (p.place === "above" && p.rect.top - view.scrollY < view.nav + 4) p = placeBubble(body.x, y + CHAR.h * (1 - scale), view, avoidHere, false);
       const w = Math.round(p.w / 4) * 4;
-      bubLeft = Math.round(p.rect.left);
-      bubBottom = Math.round(p.rect.bottom); // page px: it rides the page, not the body
-      bubW = w;
-      const k = `${p.place}:${w}:${bubLeft}:${bubBottom}`;
+      const cx = p.rect.left + w / 2;
+      rest = { dx: p.place === "above" ? 0 : cx - body.x, dy: p.rect.bottom - y, place: p.place, w, x: body.x };
+    };
+    // Moving sideways (walking, a sideways hop, or off its resting x): back above the head.
+    // A jump straight up keeps the resting place, so the bubble does not move at all.
+    const targetOff = () => {
+      const still = Math.abs(body.vx) < 1 && Math.abs(body.x - rest.x) < 2;
+      if (still) return { dx: rest.dx, dy: rest.dy, place: rest.place, w: rest.w };
+      return { dx: 0, dy: aboveDy(), place: "above" as BubblePlace, w: Math.min(188, view.w - 2 * EDGE) };
+    };
+    const setLayIf = (place: BubblePlace, w: number) => {
+      const k = `${place}:${w}`;
       if (k !== layKey) {
         layKey = k;
-        setLay({ place: p.place, w, left: bubLeft, bottom: bubBottom });
+        setLay({ place, w });
       }
     };
-    // After a scroll or resize settles: move the bubble (one smooth move) only if it left the screen.
+    // One bubble step: snap = no easing (first show, reduced motion).
+    const stepBubble = (dt: number, snap: boolean) => {
+      const a = bubbleAnchor(anchor, body);
+      const sameSurface = a.snap;
+      anchor = { y: a.y, key: a.key };
+      const t = targetOff();
+      bubW = t.w;
+      if (snap || reduce) {
+        anchorY = anchor.y;
+        anchorV = 0;
+        offX = t.dx;
+        offY = t.dy;
+        offXV = offYV = 0;
+      } else {
+        if (sameSurface && Math.abs(anchorV) < 1) {
+          anchorY = anchor.y; // the same surface moved (scroll on the floor, a hover lift): follow it exactly
+          anchorV = 0;
+        } else {
+          const r = springStep(anchorY, anchorV, anchor.y, BUBBLE_Y_OMEGA, dt);
+          anchorY = r.p;
+          anchorV = r.v;
+        }
+        const rx = springStep(offX, offXV, t.dx, BUBBLE_X_OMEGA, dt);
+        offX = rx.p;
+        offXV = rx.v;
+        const ry = springStep(offY, offYV, t.dy, BUBBLE_X_OMEGA, dt);
+        offY = ry.p;
+        offYV = ry.v;
+      }
+      const near = (p: number, v: number, q: number) => Math.abs(p - q) < 0.15 && Math.abs(v) < 2;
+      if (near(anchorY, anchorV, anchor.y) && near(offX, offXV, t.dx) && near(offY, offYV, t.dy)) {
+        anchorY = anchor.y;
+        offX = t.dx;
+        offY = t.dy;
+        anchorV = offXV = offYV = 0;
+        bubbleSettled = true;
+      } else bubbleSettled = false;
+      setLayIf(t.place, t.w);
+      paintBubble();
+    };
+    const paintBubble = () => {
+      const node = bubbleEl.current;
+      if (!node) return;
+      const r = bubbleRectAt(body.x + offX, anchorY + offY, bubW, view);
+      node.style.width = `${bubW}px`;
+      node.style.transform = `translate3d(${(Math.round(r.left * 10) / 10).toFixed(1)}px, ${(Math.round(r.bottom * 10) / 10).toFixed(1)}px, 0) translateY(-100%)`;
+      node.dataset.guideBubbleY = String(Math.round(anchorY * 10) / 10);
+    };
+    bubblePaint.current = () => stepBubble(0, true);
+    const placeBubbleNow = (fresh: boolean) => {
+      placeRest();
+      stepBubble(0, fresh);
+      if (!bubbleSettled) schedule();
+    };
+    // After a scroll or resize settles: re-pick the resting place (the bubble eases there).
     const keepBubbleOnScreen = () => {
       if (!bubbleNow) return;
-      const b = bubBottom - view.scrollY;
-      if (b - 80 < view.nav + 4 || b > view.h - 4 || bubLeft < 0 || bubLeft + bubW > view.w) placeBubbleNow();
+      placeRest();
+      stepBubble(0, false);
+      if (!bubbleSettled) schedule();
     };
     const markStanding = () => {
       const t = body.surface ? tracked.find((x) => x.surface.key === body.surface) : undefined;
@@ -385,6 +512,9 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       standing?.removeAttribute("data-guide-standing");
       next?.setAttribute("data-guide-standing", "true");
       standing = next;
+      // Its own size change (a font swap, an image decode) is re-read by timeout too, never by a frame loop.
+      standRo?.disconnect();
+      if (next) standRo?.observe(next);
     };
     const paint = () => {
       // A fast scroll up carries the surface (and the feet) below the screen before physics reacts: never draw it past the floor line.
@@ -408,6 +538,11 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       el.dataset.guideFeet = `${Math.round(body.x)},${Math.round(body.y * 10) / 10}`;
       markStanding();
       syncPose();
+      // Outside a frame (a re-seat, a re-measure, a reduced-motion step): bring the bubble along now.
+      if (!inFrame) {
+        stepBubble(0, reduce);
+        if (!bubbleSettled) schedule();
+      }
     };
 
     // ---- bubble --------------------------------------------------------------
@@ -417,11 +552,12 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       setBubble(null);
       syncPose();
     };
-    const showLine = (section: GuideSectionId, idx: number, ms = PASSIVE_BUBBLE_MS) => {
+    const showLine = (section: GuideSpotId, idx: number, ms = PASSIVE_BUBBLE_MS) => {
       setDotOpen(false);
       if (bubbleT) clearTimeout(bubbleT);
+      const fresh = !bubbleNow;
       bubbleNow = { section, idx };
-      placeBubbleNow();
+      placeBubbleNow(fresh);
       setBubble(bubbleNow);
       bubbleT = later(hideBubble, ms);
       syncPose();
@@ -464,16 +600,42 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       el.dataset.guideFrames = String(frames);
       const dt = last ? Math.min(0.05, (ts - last) / 1000) : 1 / 60;
       last = ts;
+      inFrame = true;
       syncView();
       if (dirty) {
         dirty = false;
         if (ts - lastCollect > RECOLLECT_MS) collect();
         else refreshSurfaces(tracked, view.scrollY, view.w, view.h);
-      } else if (ts < liveUntil) refreshSurfaces(tracked, view.scrollY, view.w, view.h);
+      }
       body = stepBody(body, input, dt, scene);
       input.hop = false;
       if (Math.abs(body.vx) > 12 && body.mode === "ground") walkClock += dt;
+      // During a pose change the clay legs ease: read where the sole is THIS frame so the feet never leave the edge.
+      const now = performance.now();
+      if (now < poseLiveUntil && poseName !== "jump" && body.mode === "ground") {
+        const p = measureFootPad(el);
+        if (Math.abs(p - footPad) >= 0.05) {
+          footPad = p;
+          applyFootOrigin();
+        }
+      }
       paint();
+      // The landing frame commits the new pose inside paint(): read the sole again so this very frame is drawn on the edge.
+      if (now < poseLiveUntil && poseName !== "jump" && body.mode === "ground") {
+        const p = measureFootPad(el);
+        if (Math.abs(p - footPad) >= 0.05) {
+          footPad = p;
+          applyFootOrigin();
+          paint();
+        }
+      }
+      stepBubble(dt, false);
+      // Just came to rest with a line showing: ease the bubble to its clear resting place.
+      if (bubbleNow && !isMoving(body, input) && body.mode === "ground" && Math.abs(rest.x - body.x) >= 2) {
+        placeRest();
+        stepBubble(0, false);
+      }
+      inFrame = false;
       if (body.landSeq !== seq) {
         seq = body.landSeq;
         later(recheck, 500);
@@ -483,7 +645,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
         if (body.surface === FLOOR_KEY) later(() => followFloor() || nudgeClear(), 260);
         else nudgeClear();
       }
-      if ((isMoving(body, input) || performance.now() < scrollUntil || performance.now() < liveUntil) && !document.hidden) schedule();
+      if ((isMoving(body, input) || now < scrollUntil || now < poseLiveUntil || !bubbleSettled) && !document.hidden) schedule();
       else last = 0;
     }
 
@@ -533,7 +695,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       // Nothing clear left on this block (it moved under text after a layout change): hop to another clear block in view.
       if (!floor && !clear && hopAways < 1) {
         hopAways++;
-        const t = pickSurface(surfaces.filter((q) => q.key !== body.surface), view, 0.55);
+        const t = pickSurface(surfaces.filter((q) => q.key !== body.surface && clearOn(q)), view, 0.55);
         if (t) {
           body = launchTo(body, t, scene, chooseStandX(t, view, standBlockers(t.top, elOf(t.key))));
           schedule();
@@ -547,7 +709,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       if (reduce || body.mode !== "ground" || body.surface !== FLOOR_KEY || input.left || input.right || floorHops >= 2) return false;
       syncView();
       // Not a block hugging the floor line (it would slide out of the band on landing and drop it straight back).
-      const t = pickSurface(surfaces.filter((q) => q.top < view.scrollY + maxFeetY(view) - 40), view, 0.62);
+      const t = pickSurface(surfaces.filter((q) => q.top < view.scrollY + maxFeetY(view) - 40 && clearOn(q)), view, 0.62);
       if (!t) return false;
       floorHops++;
       body = launchTo(body, t, scene, chooseStandX(t, view, standBlockers(t.top, elOf(t.key)), body.x));
@@ -586,12 +748,34 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       if (settleT) clearTimeout(settleT);
       settleT = later(settle, SETTLE_MS);
     };
-    // A hover lift or a finished transition moves the block being stood on without a scroll: keep re-reading it until it settles.
+    // A hover lift or a transition moves the block being stood on without a scroll. Re-read it with short
+    // TIMEOUTS (never rAF, so a resting guide schedules no frame), until it stops moving or LIVE_MS passes.
+    // A pose change at rest: re-read the sole by timeout through the ease (never rAF).
+    function poseRead() {
+      poseT = undefined;
+      if (!alive || poseName === "jump") return;
+      const p = measureFootPad(el);
+      if (Math.abs(p - footPad) >= 0.05) {
+        footPad = p;
+        applyFootOrigin();
+        paint();
+      }
+      if (performance.now() < poseLiveUntil) poseT = later(poseRead, LIVE_STEP_MS);
+    }
+    const liveRead = () => {
+      liveT = undefined;
+      const before = surfaceY(scene, body.surface);
+      syncView();
+      refreshSurfaces(tracked, view.scrollY, view.w, view.h);
+      reseat();
+      const moved = surfaceY(scene, body.surface) !== before;
+      if (performance.now() < liveUntil || moved) liveT = later(liveRead, LIVE_STEP_MS);
+    };
     const onLive = (e: Event) => {
       const t = e.target as Node | null;
       if (!standing || !t || !(standing.contains(t) || t.contains(standing))) return;
       liveUntil = performance.now() + LIVE_MS;
-      schedule();
+      if (!liveT) liveT = later(liveRead, 0);
     };
     const onResize = () => {
       if (roT) clearTimeout(roT);
@@ -659,8 +843,11 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     collect();
     // First visit: prefer a spot where the key hint above the head also covers nothing.
     const hintOk = (s: Surface) => hintFree(chooseStandX(s, view, standBlockers(s.top, elOf(s.key))), s.top);
-    const first = (!seenHint() ? pickSurface(surfaces.filter(hintOk), view, 0.55) : null) ?? pickSurface(surfaces, view, 0.55);
-    const x0 = first ? chooseStandX(first, view, standBlockers(first.top, elOf(first.key), readAvoid(root, view.scrollY, view.h))) : view.w - EDGE - CHAR.w / 2;
+    const clearFirst = surfaces.filter(clearOn);
+    const first = (!seenHint() ? pickSurface(clearFirst.filter(hintOk), view, 0.55) : null) ?? pickSurface(clearFirst, view, 0.55) ?? pickSurface(surfaces, view, 0.55);
+    // A new page: near the x it last stood at (it drops in from the top).
+    const prefX = lastXFrac !== null ? lastXFrac * view.w : undefined;
+    const x0 = first ? chooseStandX(first, view, standBlockers(first.top, elOf(first.key), readAvoid(root, view.scrollY, view.h)), prefX) : clampX(prefX ?? view.w - EDGE - CHAR.w / 2, view);
     body = standingBody(x0, reduce ? null : first, scene);
     if (!reduce) {
       const ceil = view.scrollY + (view.nav > 0 ? view.nav + 8 : EDGE) + CHAR.h;
@@ -692,11 +879,14 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     for (const ev of ["pointerover", "pointerout", "transitionrun", "transitionend"]) document.addEventListener(ev, onLive, { passive: true });
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
     ro?.observe(document.body);
-    const home = document.querySelector('[data-testid="home"]');
+    const home = document.querySelector(PAGE_ROOT[page]);
     if (home) ro?.observe(home);
 
     return () => {
       alive = false;
+      lastXFrac = view.w > 0 ? body.x / view.w : null;
+      standRo?.disconnect();
+      bubblePaint.current = null;
       if (raf) cancelAnimationFrame(raf);
       timers.forEach(clearTimeout);
       window.removeEventListener("scroll", onScroll);
@@ -709,7 +899,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       footSync.current = null;
       handlers.current = null;
     };
-  }, [role, reduce]);
+  }, [role, reduce, page]);
 
   const script = bubble ? scriptFor(role, bubble.section) : [];
   const line = bubble ? script[bubble.idx] : undefined;
@@ -762,11 +952,12 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
         </div>
       </div>
       {showBubble && !pad ? (
-        // Pinned to the page: a sibling of the moving body, so its jump / bob / walk never moves the bubble.
+        // A sibling of the moving body, positioned by the frame loop (feet x, standing-surface y), so a jump, bob or squash never moves it.
         <div
+          ref={bubbleRef}
           data-testid="guide-bubble-anchor"
-          className={cn("pointer-events-none absolute top-0 left-0 z-40 flex items-end", place === "left" && "justify-end")}
-          style={{ width: lay.w, transform: `translate3d(${lay.left}px, ${lay.bottom}px, 0) translateY(-100%)`, transition: reduce ? undefined : "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)" }}
+          className={cn("pointer-events-none absolute top-0 left-0 z-40 flex items-end will-change-transform", place === "left" && "justify-end")}
+          style={{ width: lay.w }}
         >
           <GuideBubble text={line!} index={bubble!.idx} total={script.length} place={place} />
         </div>

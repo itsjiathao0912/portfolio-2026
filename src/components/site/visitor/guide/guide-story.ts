@@ -10,6 +10,7 @@
 
 import type { GuideSectionId, RoleId } from "../role-ids";
 import { ROLES } from "../roles";
+import type { GuideSpotId, PageSpotId } from "./guide-logic";
 
 export const STORY_LINE_MAX = 90;
 export const STORY_MIN_LINES = 2;
@@ -69,10 +70,37 @@ export const STORIES: Record<GuideSectionId, Story> = {
 };
 
 /**
- * The full script for a (role, section): line 1 from the role table, then the
- * role's own extras or the section default. Empty strings are dropped.
+ * Case-study and about pages: short contextual lines (same rules: 2-4 lines, <= 90 chars,
+ * no invented numbers). Line 1 is `first`; `byRole` may swap the extras for a role.
  */
-export function scriptFor(role: RoleId, section: GuideSectionId): string[] {
+export const PAGE_STORIES: Record<PageSpotId, Story & { first: string }> = {
+  "case-intro": { first: "One case study: the problem first, then the decisions.", more: ["Scroll on, I will walk the story with you."] },
+  "case-depth": {
+    first: "Short on time? This pill sets how deep you read.",
+    more: ["Pick another depth any time; the page keeps your place."],
+    byRole: { recruiter: ["The short depth keeps the outcomes and her role."], engineer: ["The full depth keeps the system details."] },
+  },
+  "case-body": { first: "Lost? The contents menu jumps to any section.", more: ["The bar at the top shows how far you have read."] },
+  "case-metric": { first: "Here are the numbers that moved.", more: ["They are the outcome of this project."] },
+  "case-next": { first: "Done here? The next project is right below.", more: ["Or head back to all of her work."] },
+  "about-intro": { first: "Hi again! This is the longer version of her story.", more: ["Tap the chip to hear how her name sounds."] },
+  "about-career": { first: "Her career, one card per stop.", more: ["The arrows move along the rail."] },
+  "about-experience": { first: "What she did at each company, in plain words.", more: ["The work itself lives in the case studies."] },
+  "about-skills": { first: "The tools and methods she uses every week.", more: ["A quick scan shows her whole toolkit."] },
+  "about-recognition": { first: "Education, certifications and awards.", more: ["Scroll on for the full list."] },
+};
+
+const isPageSpot = (id: GuideSpotId): id is PageSpotId => id in PAGE_STORIES;
+
+/**
+ * The full script for a (role, spot): line 1 from the role table (home) or the page story,
+ * then the role's own extras or the default. Empty strings are dropped.
+ */
+export function scriptFor(role: RoleId, section: GuideSpotId): string[] {
+  if (isPageSpot(section)) {
+    const st = PAGE_STORIES[section];
+    return [st.first, ...(st.byRole?.[role] ?? st.more)].filter((l) => l.length > 0);
+  }
   const first = ROLES[role].guideLines[section];
   const story = STORIES[section];
   const extras = story.byRole?.[role] ?? story.more;

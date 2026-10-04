@@ -12,11 +12,28 @@ import { scriptFor } from "./guide-story";
 
 export type Rect = { left: number; top: number; right: number; bottom: number };
 
-/** One standable top edge, in page px. `key` is stable across re-measures. */
-export type Surface = { key: string; id: GuideSectionId | null; left: number; right: number; top: number };
+/** The pages the guide lives on. */
+export type GuidePage = "home" | "case" | "about";
 
-/** A tagged home section's vertical span in page px (what the visitor is "reading"). */
-export type Span = { id: GuideSectionId; top: number; bottom: number };
+/** Spots on the case-study and about pages the guide can talk about (home uses GuideSectionId). */
+export const PAGE_SPOT_IDS = ["case-intro", "case-depth", "case-body", "case-metric", "case-next", "about-intro", "about-career", "about-experience", "about-skills", "about-recognition"] as const;
+export type PageSpotId = (typeof PAGE_SPOT_IDS)[number];
+/** Anything the guide can say a line about: a home section or a page spot. */
+export type GuideSpotId = GuideSectionId | PageSpotId;
+
+/** Which guide page a pathname is, or null when the guide does not live there. */
+export function guidePageFor(pathname: string | null): GuidePage | null {
+  if (pathname === "/") return "home";
+  if (pathname === "/about") return "about";
+  if (pathname && /^\/work\/[^/]+\/?$/.test(pathname)) return "case";
+  return null;
+}
+
+/** One standable top edge, in page px. `key` is stable across re-measures. */
+export type Surface = { key: string; id: GuideSpotId | null; left: number; right: number; top: number };
+
+/** A tagged section's vertical span in page px (what the visitor is "reading"). */
+export type Span = { id: GuideSpotId; top: number; bottom: number };
 
 /** The window onto the page: size, scroll offset, document height and the fixed nav band's bottom (viewport px). */
 export type View = { w: number; h: number; scrollY: number; docH: number; nav: number };
@@ -104,7 +121,7 @@ export function stepSurface(list: readonly Surface[], currentKey: string | null,
 }
 
 /** The tagged section whose span runs through page `y`. Lets a character on an untagged block still speak about what is being read. */
-export function sectionUnder(spans: readonly Span[], y: number): GuideSectionId | null {
+export function sectionUnder(spans: readonly Span[], y: number): GuideSpotId | null {
   let best: Span | null = null;
   for (const s of spans) if (s.top <= y && s.bottom > y && (!best || s.top > best.top)) best = s;
   return best?.id ?? null;
@@ -318,7 +335,36 @@ export function guideAction(key: string): "left" | "right" | "up" | null {
  * The unsolicited line for arriving at `section`: line 1 from the role table, once
  * per section, at most MAX_PASSIVE_LINES in a visit. Null otherwise.
  */
-export function nextLine(role: RoleId, section: GuideSectionId, visited: ReadonlySet<GuideSectionId>): string | null {
+export function nextLine(role: RoleId, section: GuideSpotId, visited: ReadonlySet<GuideSpotId>): string | null {
   if (visited.has(section) || visited.size >= MAX_PASSIVE_LINES) return null;
   return scriptFor(role, section)[0] ?? null;
+}
+
+// ---- the speech bubble follows the character ----------------------------------
+
+/**
+ * One step of a critically damped spring (semi-implicit Euler). `omega` is the natural
+ * frequency (rad/s): it settles in about 4 / omega seconds and never overshoots much.
+ */
+export function springStep(p: number, v: number, target: number, omega: number, dt: number) {
+  const a = omega * omega * (target - p) - 2 * omega * v;
+  const nv = v + a * dt;
+  return { p: p + nv * dt, v: nv } as const;
+}
+
+/**
+ * Where the bubble's ANCHOR rests: the y of the surface the character stands on (page px).
+ * Standing, it is the surface top (never the squash or the bob); in the air it keeps the
+ * last standing y, so a jump never moves the bubble. Same surface = follow it exactly
+ * (scroll on the floor, a hover lift); a new surface = ease there.
+ */
+export function bubbleAnchor(prev: { y: number; key: string | null }, body: { mode: "ground" | "air"; y: number; surface: string | null }) {
+  if (body.mode !== "ground") return { y: prev.y, key: prev.key, snap: true } as const;
+  return { y: body.y, key: body.surface, snap: body.surface === prev.key } as const;
+}
+
+/** Bubble rect (page px) for a centre x and a bottom y, clamped inside the viewport width. */
+export function bubbleRectAt(cx: number, bottom: number, w: number, view: Pick<View, "w">): Rect {
+  const left = Math.min(view.w - EDGE - w, Math.max(EDGE, cx - w / 2));
+  return { left, right: left + w, top: bottom - BUBBLE_H, bottom };
 }

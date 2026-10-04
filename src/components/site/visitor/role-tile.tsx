@@ -134,7 +134,8 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, m
                 <ClayAvatar role={id} view="bust" size={72} decorative className={id ? undefined : "text-ink-3"} />
               </span>
             </motion.span>
-            <span className={cn("relative mt-auto text-[12px] leading-tight font-medium text-ink-1 sm:text-[13px]", mini && "max-sm:sr-only")}>{label}</span>
+            {/* Fixed two-line label area: a wrapping name ("Product designer") never makes its tile taller than the rest. */}
+            <span data-testid="tile-label" className={cn("relative mt-auto flex h-[2.5em] items-center justify-center text-[12px] leading-tight font-medium text-ink-1 [overflow-wrap:anywhere] sm:text-[13px]", mini && "max-sm:sr-only")}><span className="line-clamp-2">{label}</span></span>
             <Count id={id} count={count} className={mini ? "max-sm:hidden" : undefined} />
           </motion.button>
         </LiftCard>

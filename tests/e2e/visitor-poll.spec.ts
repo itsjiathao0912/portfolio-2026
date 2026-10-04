@@ -3,7 +3,7 @@ import { test, expect } from "./fixtures";
 // R8: the redesigned build-next poll: pastel bars, clay faces of voter roles,
 // keyboard radiogroup, change of vote. Bodies are mocked so counts are exact.
 
-const SHOTS = "process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R8-shots";
+const SHOTS = "process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R9-shots";
 const ZERO = { "compliance-copilot": 0, remittance: 0, "fraud-toolkit": 0, "women-in-tech": 0, "backoffice-agent": 0, "agent-payments": 0 };
 const body = (counts: Record<string, number>, mine: string | null, roles: Record<string, string[]> = {}) => ({
   counts: { ...ZERO, ...counts },
@@ -61,6 +61,10 @@ for (const [w, h] of [[1440, 900], [390, 844]] as const) {
     await expect(page.getByTestId("poll-faces-remittance")).toHaveAttribute("aria-label", /Founder/);
     await expect(page.getByTestId("poll-faces-agent-payments")).toBeVisible();
     await page.waitForTimeout(1200); // bar fill settles
+    // Under 20 votes: one soft uniform tint on every row, never a share-of-votes bar.
+    const bars = await page.locator('[data-testid^="poll-bar-"]').evaluateAll((els) => els.map((e) => [e.getAttribute("data-mode"), Math.round(e.getBoundingClientRect().width)] as const));
+    expect(bars.every(([mode]) => mode === "tint")).toBe(true);
+    expect(new Set(bars.map(([, width]) => width)).size).toBe(1);
     await poll.screenshot({ path: `${SHOTS}/after-${w}.png` });
 
     await page.waitForTimeout(2100); // server throttles changes under 2 s; mocked here, kept honest anyway
@@ -70,6 +74,28 @@ for (const [w, h] of [[1440, 900], [390, 844]] as const) {
     expect(votes).toEqual(["remittance", "agent-payments"]);
   });
 }
+
+test("from 20 votes the bars fill to their share and stay colourful", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.route("**/api/poll", (r) => r.fulfill({ json: body({ remittance: 14, "agent-payments": 6 }, "remittance", ROLES) }));
+  await page.goto("/");
+  const poll = page.getByTestId("visitor-poll");
+  await poll.scrollIntoViewIfNeeded();
+  await expect(page.getByTestId("poll-option-remittance")).toBeVisible();
+  await page.waitForTimeout(1500);
+  const bar = (id: string) => page.getByTestId(`poll-bar-${id}`).evaluate((e) => ({ mode: e.getAttribute("data-mode"), w: e.getBoundingClientRect().width, row: e.parentElement!.getBoundingClientRect().width, bg: getComputedStyle(e).backgroundColor }));
+  const a = await bar("remittance");
+  const b = await bar("agent-payments");
+  console.log(`[R9] poll 20 votes: remittance ${(a.w / a.row).toFixed(2)} agent-payments ${(b.w / b.row).toFixed(2)}`);
+  expect(a.mode).toBe("share");
+  expect(a.w / a.row).toBeGreaterThan(0.6);
+  expect(a.w / a.row).toBeLessThan(0.8);
+  expect(b.w / b.row).toBeGreaterThan(0.2);
+  expect(b.w / b.row).toBeLessThan(0.4);
+  expect(a.bg).not.toBe(b.bg);
+  await expect(page.getByTestId("poll-value-remittance")).toHaveText("70%");
+  await poll.screenshot({ path: "process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R9-shots/poll-share-1440.png" });
+});
 
 test("keyboard: arrows move focus without voting, Space votes", async ({ page }) => {
   const votes = await mockPoll(page);

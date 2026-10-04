@@ -62,8 +62,9 @@ export function RoleCard({ id, label, blurb, index, selected, tabbable, shareAva
         ) : (
           <span className="shrink-0">{avatar}</span>
         )}
-        <span className="min-w-0">
-          <span className="block text-[15px] font-medium leading-tight text-ink-1">{label}</span>
+        <span className="min-w-0 max-sm:w-full">
+          {/* Phone: a fixed two-line label area, so every card is the same height whether the name wraps or not. */}
+          <span data-testid="card-label" className="flex h-[2.5em] items-center justify-center text-[15px] font-medium leading-tight text-ink-1 sm:block sm:h-auto"><span className="line-clamp-2">{label}</span></span>
           <span className="mt-0.5 hidden text-[13px] leading-snug text-ink-3 sm:block">{blurb}</span>
         </span>
       </button>

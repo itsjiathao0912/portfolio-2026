@@ -9,7 +9,6 @@ import { LogoStrip, type LogoItem } from "@/components/site/logo-strip";
 import { PhotoMoments } from "@/components/site/photo-moments";
 import { Portrait } from "@/components/site/portrait";
 import { ProjectStack } from "@/components/site/project-stack";
-import { VisitorGuide } from "@/components/site/visitor/guide/guide";
 import { GuideSection } from "@/components/site/visitor/guide/guide-section";
 import { LiveVisitorTop } from "@/components/site/visitor/stats/live-visitor-top";
 import { VisitorPoll } from "@/components/site/visitor/stats/visitor-poll";
@@ -60,7 +59,6 @@ export default async function HomePage() {
 
   return (
     <main data-testid="home">
-      <VisitorGuide />
       <JsonLd data={[websiteJsonLd(), personJsonLd()]} />
       <section aria-labelledby="hero-title" className="relative overflow-hidden bg-bg" data-testid="hero">
         <HeroIntro headline={heroHeadline(profile)} intro={profile.intro} builds={BUILDS} casual={CASUAL} />
