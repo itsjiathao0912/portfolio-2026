@@ -165,6 +165,15 @@ test.describe("visitor countries", () => {
       await page.keyboard.press("Tab"); // keyboard focus shows the next flag's tooltip, and only that one
       await expect(tip).toHaveCSS("opacity", "0");
       await expect(page.getByTestId("country-tip-US")).toHaveCSS("opacity", "1");
+      // Every tooltip, opened at the edges too, stays inside the viewport.
+      for (const code of ["VN", "FR"]) {
+        await page.getByTestId(`country-${code}`).focus();
+        await page.keyboard.press("Shift+Tab");
+        await page.keyboard.press("Tab");
+        const b = await page.getByTestId(`country-tip-${code}`).boundingBox();
+        expect(b!.x).toBeGreaterThanOrEqual(0);
+        expect(b!.x + b!.width).toBeLessThanOrEqual(vp.width);
+      }
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow).toBeLessThanOrEqual(0);
       await page.getByTestId("visitor-stats-strip").screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R8-shots/countries-${vp.width}.png` });

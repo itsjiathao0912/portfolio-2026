@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { SPRING } from "@/components/motion/springs";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import type { RoleId } from "../role-ids";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { PLURALS, countryLabel, countryRows, type StatsView, withOwnCountry } from "./stats-copy";
 import { RollingNumber } from "./rolling-number";
 
@@ -26,8 +26,20 @@ function Big({ value, label, testId, prefix }: { value: number; label: string; t
  */
 function FlagDot({ code, flag, label }: { code: string; flag: string; label: string }) {
   const [open, setOpen] = useState(false);
+  const [shift, setShift] = useState(0);
+  const tip = useRef<HTMLSpanElement>(null);
+  // Keep the tooltip inside the viewport: measure it centred on the flag, then nudge it in from an edge.
+  const place = () => {
+    const el = tip.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const left = r.left - shift;
+    const right = left + r.width;
+    const pad = 8;
+    setShift(left < pad ? pad - left : right > window.innerWidth - pad ? window.innerWidth - pad - right : 0);
+  };
   return (
-    <li className="group relative">
+    <li className="group relative" onPointerEnter={place} onFocus={place}>
       <button
         type="button"
         data-testid={`country-${code}`}
@@ -43,7 +55,9 @@ function FlagDot({ code, flag, label }: { code: string; flag: string; label: str
         <span aria-hidden="true">{flag}</span>
       </button>
       <span
+        ref={tip}
         role="tooltip"
+        style={shift ? { marginLeft: shift } : undefined}
         data-testid={`country-tip-${code}`}
         className={`pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-ink-1 px-2.5 py-1 text-[12px] text-white shadow-2 transition-opacity [@media(hover:hover)]:group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 ${open ? "opacity-100" : "opacity-0"}`}
       >

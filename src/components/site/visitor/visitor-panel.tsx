@@ -131,11 +131,10 @@ export function RolePicker({ onPick, onEscape, autoFocus, labelId }: { onPick: (
         Who are you?
       </p>
       <p className="pr-10 text-[14px] text-ink-3">Pick one and I will show the work that fits you first. You can change it any time.</p>
-      {/* 11 cards, the last two cells wide: 12 cells, so 2, 3 or 4 columns all end on a full row. */}
-      <div role="radiogroup" aria-labelledby={labelId} className="mt-5 grid w-full grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      {/* 11 same-size cards, 2 / 3 / 4 a row; the short last row is centred, nothing stretches. */}
+      <div role="radiogroup" aria-labelledby={labelId} className="mt-5 flex w-full flex-wrap justify-center gap-3 [&>*]:w-[calc((100%-0.75rem)/2)] sm:[&>*]:w-[calc((100%-1.5rem)/3)] lg:[&>*]:w-[calc((100%-2.25rem)/4)]">
         {ITEMS.map((id, i) => (
           <RoleCard
-            wide={i === ITEMS.length - 1}
             key={id}
             id={id}
             label={ROLES[id].label}
@@ -165,6 +164,10 @@ export function RolePicker({ onPick, onEscape, autoFocus, labelId }: { onPick: (
 }
 
 const ROW_ITEMS = ITEMS;
+
+// Unpicked strip: a wrapping row of equal tiles (width = row minus gaps, divided by tiles per row), last row centred.
+const UNPICKED_ROW =
+  "flex flex-wrap justify-center [&>*]:w-[calc((100%-1.25rem)/3)] sm:[&>*]:w-[calc((100%-3.75rem)/6)] lg:[&>*]:w-[calc((100%-5rem)/6)]";
 
 /**
  * The standalone "Pick your character" section, right after the logo band.
@@ -201,9 +204,8 @@ export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record
       move(keys[event.key]!);
     }
   }
-  // Unpicked: 11 tiles, the last one two cells wide (phone 3+3+3+2, wider 6+4+2: flush rows).
+  // Unpicked: 11 same-size tiles, 3 a row on a phone and 6 wider, the short last row centred (nothing stretches).
   // Picked: the hero plus 10 tiles in two flush rows (phone: 5 small avatar-only tiles a row).
-  const wideIdx = chosen ? -1 : ROW_ITEMS.length - 1;
   // The title already says the country: the city line only helps before a pick, and goes once the hero takes over.
   const where = chosen ? null : locationLine(geo);
 
@@ -245,7 +247,7 @@ export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record
           role="radiogroup"
           aria-label="Your role"
           data-testid="visitor-strip"
-          className={cn("mt-5 grid grid-cols-3 gap-x-2.5 gap-y-4 pt-4 sm:gap-x-3 sm:gap-y-7 sm:pt-5 lg:gap-x-4", chosen ? "grid-cols-5 gap-x-2 sm:grid-cols-5 lg:grid-cols-[minmax(0,1.7fr)_repeat(5,minmax(0,1fr))]" : "sm:grid-cols-6")}
+          className={cn("mt-5 grid grid-cols-3 gap-x-2.5 gap-y-4 pt-4 sm:gap-x-3 sm:gap-y-7 sm:pt-5 lg:gap-x-4", chosen ? "grid-cols-5 gap-x-2 sm:grid-cols-5 lg:grid-cols-[minmax(0,1.7fr)_repeat(5,minmax(0,1fr))]" : UNPICKED_ROW)}
         >
           {ROW_ITEMS.map((id, i) => (
             <RoleTile
@@ -257,7 +259,6 @@ export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record
               selected={id === role}
               tabbable={i === tabIdx}
               count={counts?.[id]}
-              wide={i === wideIdx}
               mini={chosen}
               buttonRef={(el) => {
                 refs.current[i] = el;

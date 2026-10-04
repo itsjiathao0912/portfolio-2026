@@ -323,3 +323,29 @@ test.describe("change-role modal layout", () => {
     });
   }
 });
+
+test.describe("top picker layout", () => {
+  for (const vp of [{ width: 1440, height: 900 }, { width: 768, height: 1024 }, { width: 390, height: 844 }]) {
+    test(`${vp.width}px: unpicked tiles are all one size with the short last row centred; the picked layout still works`, async ({ page }) => {
+      await page.setViewportSize(vp);
+      await page.goto("/");
+      const strip = page.getByTestId("visitor-strip");
+      await strip.scrollIntoViewIfNeeded();
+      const boxes = await strip.locator(":scope > *").evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => ({ x: r.x, y: r.y, w: r.width, right: r.right })));
+      expect(boxes).toHaveLength(11);
+      const widths = boxes.map((b) => b.w);
+      expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+      const g = await strip.boundingBox();
+      const lastY = boxes[10].y;
+      const last = boxes.filter((b) => Math.abs(b.y - lastY) < 2);
+      expect(Math.abs(last[0].x - g!.x - (g!.x + g!.width - last[last.length - 1].right))).toBeLessThanOrEqual(2);
+      await page.getByTestId("section-visitor").screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R8-shots/picker-unpicked-${vp.width}.png` });
+      await page.getByTestId("tile-founder").click();
+      await expect(chip(page)).toContainText("You: Founder");
+      await expect(page.getByTestId("tile-founder")).toHaveAttribute("aria-checked", "true");
+      await page.waitForTimeout(900); // let the layout spring settle before the picture
+      await expectNoHorizontalOverflow(page);
+      await page.getByTestId("section-visitor").screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R8-shots/picker-picked-${vp.width}.png` });
+    });
+  }
+});
