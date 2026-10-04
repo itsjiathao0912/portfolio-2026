@@ -127,7 +127,14 @@ async function waitForHealthy(baseUrl, timeoutMs) {
 }
 
 // Base env for every step: test markers on, no inherited per-run overrides.
-const baseEnv = { ...process.env, PORTFOLIO_E2E: "1", NEXT_TELEMETRY_DISABLED: "1" };
+// The output dir is per run so concurrent runs never delete each other's
+// screenshots, traces and logs (see playwright.config.ts).
+const baseEnv = {
+  ...process.env,
+  PORTFOLIO_E2E: "1",
+  NEXT_TELEMETRY_DISABLED: "1",
+  E2E_OUTPUT_DIR: `test-results/run-${runId}`,
+};
 delete baseEnv.LOCAL_DB_PATH;
 delete baseEnv.NEXT_DIST_DIR;
 

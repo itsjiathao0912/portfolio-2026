@@ -15,7 +15,12 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"]],
-  outputDir: "test-results",
+  // Per-run output dir: a shared `test-results/` is wiped by every run, which
+  // deleted other concurrent lanes' evidence. scripts/run-isolated-e2e.mjs sets
+  // the output dir once per run to test-results/run-<timestamp>-<pid> (it must be
+  // set by the runner, not computed here: workers re-load this file). Finished
+  // runs are left for their owners to clean up.
+  outputDir: process.env.E2E_OUTPUT_DIR ?? "test-results/adhoc",
   use: {
     baseURL,
     trace: "retain-on-failure",

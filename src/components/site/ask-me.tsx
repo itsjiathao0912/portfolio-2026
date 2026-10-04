@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getVisitorRole, isRoleStorageKey, type RoleId } from "@/lib/visitor-role-adapter";
+import { useEffect, useRef, useState } from "react";
+import { getVisitorRole, subscribeVisitorRole, type RoleId } from "@/lib/visitor-role-adapter";
 import { startersFor, starterHref } from "./ask-me-data";
 
 /**
@@ -12,18 +12,29 @@ import { startersFor, starterHref } from "./ask-me-data";
  */
 export function AskMe({ email }: { email: string }) {
   const [role, setRole] = useState<RoleId | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const read = () => setRole(getVisitorRole());
     read();
-    const onStorage = (e: StorageEvent) => {
-      if (isRoleStorageKey(e.key)) read();
+    const unsubscribe = subscribeVisitorRole(read);
+    // Fallback until the store dispatches a same-tab event: re-read whenever
+    // the chips scroll into view, the only moment they are seen.
+    const el = ref.current;
+    const io =
+      el && typeof IntersectionObserver !== "undefined"
+        ? new IntersectionObserver((entries) => {
+            if (entries.some((e) => e.isIntersecting)) read();
+          })
+        : null;
+    if (el && io) io.observe(el);
+    return () => {
+      unsubscribe();
+      io?.disconnect();
     };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
   }, []);
   const starters = startersFor(role);
   return (
-    <div className="flex flex-col items-center gap-3" data-testid="ask-me" data-role={role ?? "none"}>
+    <div ref={ref} className="flex flex-col items-center gap-3" data-testid="ask-me" data-role={role ?? "none"}>
       <p id="ask-me-title" className="label-mono text-[12px] text-ink-3">
         Not sure what to say? Start here.
       </p>

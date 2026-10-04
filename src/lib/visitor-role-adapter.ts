@@ -41,6 +41,34 @@ export function getVisitorRole(): RoleId | null {
   }
 }
 
+/** Same-tab change signal. The `storage` event only fires in OTHER tabs, so the visitor store should dispatch this. */
+export const VISITOR_CHANGE_EVENT = "thao:visitor-change";
+
+/**
+ * Calls `onChange` whenever the visitor's role may have changed: another tab
+ * (storage), the same tab (VISITOR_CHANGE_EVENT), or the tab regaining
+ * focus/visibility (fallback until the store dispatches). Returns unsubscribe.
+ */
+export function subscribeVisitorRole(onChange: () => void) {
+  if (typeof window === "undefined") return () => undefined;
+  const onStorage = (e: StorageEvent) => {
+    if (isRoleStorageKey(e.key)) onChange();
+  };
+  const onVisible = () => {
+    if (document.visibilityState === "visible") onChange();
+  };
+  window.addEventListener("storage", onStorage);
+  window.addEventListener(VISITOR_CHANGE_EVENT, onChange);
+  window.addEventListener("focus", onChange);
+  document.addEventListener("visibilitychange", onVisible);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener(VISITOR_CHANGE_EVENT, onChange);
+    window.removeEventListener("focus", onChange);
+    document.removeEventListener("visibilitychange", onVisible);
+  };
+}
+
 /** True when a storage event touches either key the adapter reads. */
 export function isRoleStorageKey(key: string | null) {
   return key === null || key === VISITOR_STORE_KEY || key === LEGACY_PERSONA_KEY;

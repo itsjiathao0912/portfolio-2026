@@ -5,16 +5,25 @@ import { useRouter } from "next/navigation";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useRef } from "react";
 
-type ViewTransitionDoc = Document & { startViewTransition?: (cb: () => Promise<void>) => { finished: Promise<void> } };
+type ViewTransition = { finished: Promise<void>; ready: Promise<void>; updateCallbackDone: Promise<void> };
+type ViewTransitionDoc = Document & { startViewTransition?: (cb: () => Promise<void>) => ViewTransition };
 
-/** Resolve once the new route's hero is in the DOM (or after a timeout). */
-function waitForRoute(path: string, timeout = 2000) {
+/** The most the transition may hold the page waiting for the new route. */
+export const ROUTE_WAIT_CAP_MS = 300;
+
+/**
+ * Resolve once the new route's hero is in the DOM, or after the cap.
+ * Uses setTimeout, never requestAnimationFrame: the browser suppresses
+ * rendering (and so rAF) until the transition's update callback settles, so an
+ * rAF poll here deadlocks until the browser's own 4 s timeout aborts it.
+ */
+export function waitForRoute(path: string, cap = ROUTE_WAIT_CAP_MS) {
   return new Promise<void>((resolve) => {
     const start = performance.now();
     const tick = () => {
       const arrived = window.location.pathname === path && document.querySelector('[data-testid="case-hero"]');
-      if (arrived || performance.now() - start > timeout) resolve();
-      else requestAnimationFrame(tick);
+      if (arrived || performance.now() - start >= cap) resolve();
+      else setTimeout(tick, 16);
     };
     tick();
   });
@@ -58,6 +67,9 @@ export function TransitionLink({
       router.push(href);
       await waitForRoute(href);
     });
+    // A skipped or aborted transition rejects all three promises; none of it is an error for the visitor.
+    vt.ready.catch(() => undefined);
+    vt.updateCallbackDone.catch(() => undefined);
     vt.finished.catch(() => undefined);
   }
 
