@@ -5,7 +5,7 @@ import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useEffect, useMemo, useState } from "react";
 import type { Depth, SectionIcon } from "@content/schema.ts";
-import { emojiFor } from "@/components/site/home/project-meta";
+import { ProjectEmoji } from "@/components/site/home/project-emoji";
 import { SPRING as SITE_SPRING } from "@/components/motion/springs";
 import { cn } from "@/lib/utils";
 import { sectionIcon } from "../case-study-toc";
@@ -169,7 +169,7 @@ export function CaseToc({ entries: allEntries, startId, slug, title }: TocProps)
     >
       {slug ? (
         <p className="mb-2 flex items-center gap-3 px-4 text-sm font-semibold text-ink-1" data-testid="case-toc-title">
-          <span aria-hidden="true" className="text-xl leading-none">{emojiFor(slug)}</span>
+          <ProjectEmoji project={slug} size={24} play />
           <span className="truncate">{title}</span>
         </p>
       ) : null}
@@ -352,7 +352,7 @@ export function CaseSectionMenu({ entries: allEntries, startId, slug }: TocProps
           className="pointer-events-auto flex h-11 max-w-[min(100%,18rem)] items-center gap-2 rounded-full bg-navy/95 px-4 text-sm font-medium text-white shadow-2 backdrop-blur active:scale-95"
         >
           {open ? <X className="size-4 shrink-0" aria-hidden="true" /> : <List className="size-4 shrink-0" aria-hidden="true" />}
-          {!open && slug ? <span aria-hidden="true">{emojiFor(slug)}</span> : null}
+          {!open && slug ? <ProjectEmoji project={slug} size={20} /> : null}
           <span className="truncate">{open ? "Close" : (current?.label ?? "Sections")}</span>
         </button>
       </motion.div>

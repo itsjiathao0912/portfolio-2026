@@ -29,7 +29,7 @@ export function CardStamp({ slug }: { slug: string }) {
       data-landed={landed || reduce ? "true" : "false"}
       role="img"
       aria-label={`Stamp: ${word}${sub ? `, ${sub}` : ""}`}
-      className="pointer-events-none absolute -top-5 right-5 z-10 h-[54px] w-[88px] select-none md:-top-7 md:right-12 md:h-[72px] md:w-[120px]"
+      className="pointer-events-none absolute -top-9 right-4 z-10 h-[90px] w-[150px] select-none md:-top-12 md:right-10 md:h-[144px] md:w-[240px]"
     >
       <motion.div
         className="relative size-full"

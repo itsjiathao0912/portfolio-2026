@@ -10,6 +10,8 @@ import { TransitionLink } from "@/components/motion/transition-link";
 import { LiftCard } from "@/components/ui/lift-card";
 import { cn } from "@/lib/utils";
 import { CardStamp } from "./home/card-stamp";
+import { ProjectEmoji } from "./home/project-emoji";
+import { emojiFor } from "./home/project-meta";
 import { ProjectVisual } from "./project-visual";
 
 export type StackSurface = "white" | "gradient" | "dark";
@@ -65,13 +67,9 @@ export function StackCard({ project, surface = "white" }: { project: Project; su
         >
       <div className="relative z-[1]">
         <p className={cn("flex items-center justify-center gap-2 text-[15px] font-semibold", dark ? "text-white/70" : "text-ink-1")}>
-          {meta.emoji ? (
-            <EmojiBurst emojis={[meta.emoji, meta.emoji, "✨"]} className="relative inline-flex">
-              <span aria-hidden="true" className="text-[18px] leading-none" data-testid="project-emoji">
-                {meta.emoji}
-              </span>
-            </EmojiBurst>
-          ) : null}
+          <EmojiBurst emojis={[emojiFor(project.slug), emojiFor(project.slug), "✨"]} className="relative inline-flex">
+            <ProjectEmoji project={project.slug} size={24} />
+          </EmojiBurst>
           <span>
             {project.title}
             <span className={cn("font-normal", dark ? "text-white/50" : "text-ink-3")}> · {meta.company}</span>

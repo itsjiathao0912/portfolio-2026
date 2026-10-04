@@ -6,7 +6,7 @@ import type { Project } from "@content/schema.ts";
 import { SPRING } from "@/components/motion/springs";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
-import { emojiFor } from "./home/project-meta";
+import { ProjectEmoji } from "./home/project-emoji";
 import { GLIDE_NUDGE, flipOffset, orderFor, orderForPersona } from "./home/persona-order";
 import { StackCard, type StackSurface } from "./stack-card";
 import { ROLES } from "./visitor/roles";
@@ -35,9 +35,14 @@ export function surfaceFor(index: number): StackSurface {
 
 /** A TOC row: emoji, label, and the shared sliding glass pill behind the active one. */
 function TocItem({ project, active, reduce }: { project: Project; active: boolean; reduce: boolean }) {
+  const [hover, setHover] = useState(false);
   return (
     <li>
       <a
+        onPointerEnter={() => setHover(true)}
+        onPointerLeave={() => setHover(false)}
+        onFocus={() => setHover(true)}
+        onBlur={() => setHover(false)}
         href={`#project-${project.slug}`}
         data-testid="toc-item"
         data-active={active ? "true" : "false"}
@@ -56,7 +61,7 @@ function TocItem({ project, active, reduce }: { project: Project; active: boolea
           animate={active && !reduce ? { scale: [1, 1.18, 1] } : { scale: 1 }}
           transition={active && !reduce ? { duration: 0.32, ease: "easeOut" } : { duration: 0 }}
         >
-          {emojiFor(project.slug)}
+          <ProjectEmoji project={project.slug} play={active || hover} />
         </motion.span>
         <span className="relative">{project.title}</span>
       </a>
@@ -166,8 +171,8 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
   return (
     <section id="work" aria-labelledby="work-title" className="bg-canvas pb-20 md:pb-[96px]" data-testid="section-work">
       <div className="mx-auto max-w-[1440px] px-2.5 md:px-[45px]">
-        <div className="flex flex-col gap-4 px-3 pt-4 md:flex-row md:items-end md:justify-between md:gap-8 md:px-4">
-          <h2 id="work-title" ref={heading} className="scroll-mt-[110px] text-[32px] md:text-[46px]">Selected work</h2>
+        <div className="flex flex-col gap-4 px-3 pt-4 md:flex-row md:items-start md:justify-between md:gap-8 md:px-4">
+          <h2 id="work-title" ref={heading} className="scroll-mt-[110px] text-[32px] md:text-[46px] md:leading-[44px]">Selected work</h2>
           <div className="flex flex-col md:items-end md:text-right">
             <div className="min-h-11">
               {ready && collapsed ? <VisitorChip role={persona} onOpen={() => setPickerOpen(true)} /> : null}
@@ -185,7 +190,7 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
         </div>
 
         <LayoutGroup id="stack">
-          <div className="mt-8 lg:grid lg:grid-cols-[300px_1fr] lg:gap-0">
+          <div className="mt-12 md:mt-16 lg:grid lg:grid-cols-[300px_1fr] lg:gap-0">
             <nav aria-label="Projects" className="hidden lg:block" data-testid="home-toc">
               <div className="sticky top-[120px] flex flex-col gap-8 pr-6 pl-2">
                 {tocGroups.map((group) => (
@@ -212,7 +217,7 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
                       className={cn("relative flex h-11 items-center gap-1.5 rounded-full px-4 text-[14px] font-medium transition-colors", p.slug === active ? "text-ink-1" : "text-ink-3")}
                     >
                       {p.slug === active ? <motion.span layoutId="toc-chip-pill" transition={reduce ? { duration: 0 } : SPRING.indicator} className="absolute inset-0 rounded-full bg-white shadow-2" /> : null}
-                      <span aria-hidden="true" className="relative">{emojiFor(p.slug)}</span>
+                      <span aria-hidden="true" className="relative"><ProjectEmoji project={p.slug} play={p.slug === active} size={22} /></span>
                       <span className="relative">{p.title}</span>
                     </a>
                   </li>

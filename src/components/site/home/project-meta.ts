@@ -14,6 +14,27 @@ export const PROJECT_EMOJI: Readonly<Record<string, string>> = {
   ledgr: "📒",
 };
 
+/**
+ * Self-hosted animated emoji file per project (Telegram animated set via
+ * spaceui.one, downscaled to 64px). `{file}.webp` animates, `{file}-still.webp`
+ * is the reduced-motion / idle frame. Credits: /public/emoji/CREDITS.txt.
+ */
+export const PROJECT_EMOJI_FILE: Readonly<Record<string, string>> = {
+  lumicap: "1f4b0",
+  cosap: "1f9f0",
+  gocrypto: "1fa99",
+  pac: "2601-fe0f",
+  "zalo-game-center": "1f3ae",
+  "reorc-data-platform": "1f4ca",
+  "cortex-sentinel": "1f510",
+  guardline: "1f693",
+  ledgr: "1f4dd",
+};
+
+export function emojiFileFor(slug: string): string | undefined {
+  return PROJECT_EMOJI_FILE[slug];
+}
+
 export function emojiFor(slug: string) {
   return PROJECT_EMOJI[slug] ?? "✨";
 }
