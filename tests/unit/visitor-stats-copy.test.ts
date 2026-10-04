@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { POLL_OPTIONS } from "../../src/lib/poll-options";
-import { flagOf, leaderLine, moveOwnCount, pollRows, rankLine } from "../../src/components/site/visitor/stats/stats-copy";
+import { countryRows, flagOf, leaderLine, moveOwnCount, pollRows, rankLine } from "../../src/components/site/visitor/stats/stats-copy";
 import { nextDelay, parseStats, shouldPoll, IDLE_STOP_MS } from "../../src/components/site/visitor/stats/use-live-stats";
 import { applyVote, parsePoll } from "../../src/components/site/visitor/stats/use-poll";
 
@@ -127,5 +127,18 @@ describe("poll state helpers", () => {
     const p = parsePoll({ total: 3, counts: { remittance: 3 }, mine: "remittance" });
     expect(p?.mine).toBe("remittance");
     expect(parsePoll({ total: 3, counts: {}, mine: "nope" })?.mine).toBeNull();
+  });
+});
+
+describe("top countries", () => {
+  test("parseStats keeps only real countries with a count", () => {
+    const ok = parseStats({ total: 5, byRole: {}, topCountries: [{ country: "VN", count: 3 }, { country: "xx", count: 2 }, { country: "SG", count: 0 }, { country: "US", count: "9" }, null], you: {} });
+    expect(ok?.topCountries).toEqual([{ country: "VN", count: 3 }]);
+    expect(parseStats({ total: 1, byRole: {}, you: {} })?.topCountries).toEqual([]);
+  });
+  test("countryRows: flag + name, unknown codes dropped, biggest first, limited", () => {
+    const rows = countryRows([{ country: "SG", count: 12 }, { country: "VN", count: 48 }, { country: "XX", count: 99 }, { country: "US", count: 12 }], 3);
+    expect(rows.map((r) => [r.name, r.count, r.flag])).toEqual([["Vietnam", 48, "🇻🇳"], ["Singapore", 12, "🇸🇬"], ["United States", 12, "🇺🇸"]]);
+    expect(countryRows(null)).toEqual([]);
   });
 });

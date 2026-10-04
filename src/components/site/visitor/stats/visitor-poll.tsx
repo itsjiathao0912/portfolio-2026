@@ -37,13 +37,13 @@ export function VisitorPoll({ className }: { className?: string }) {
           initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={reduce ? { duration: 0 } : SPRING.glide}
-          className="rounded-2xl border border-hairline bg-bg p-4 sm:p-5"
+          className="border-t border-hairline pt-10"
         >
-          <p className="label-mono text-ink-3">Quick poll</p>
-          <h3 id="visitor-poll-title" className="mt-1 text-[17px] font-medium text-ink-1">
+          <p className="label-mono text-[12px] text-accent">Quick poll</p>
+          <h3 id="visitor-poll-title" className="font-display mt-2 text-[26px] leading-[1.1] text-ink-1 md:text-[32px]">
             What should Thao build next?
           </h3>
-          <div role="radiogroup" aria-labelledby="visitor-poll-title" className="mt-3 grid gap-2">
+          <div role="radiogroup" aria-labelledby="visitor-poll-title" className="mt-5 flex flex-wrap gap-2">
             {view.rows.map((row) => {
               const mine = data.mine === row.id;
               return (
@@ -55,7 +55,7 @@ export function VisitorPoll({ className }: { className?: string }) {
                   data-testid={`poll-option-${row.id}`}
                   onClick={() => vote(row.id as PollOptionId)}
                   className={cn(
-                    "relative min-h-11 w-full overflow-hidden rounded-xl border px-3.5 py-2 text-left outline-none transition-colors duration-[120ms]",
+                    "relative min-h-11 max-w-full overflow-hidden rounded-full border px-4 py-2 text-left outline-none transition-colors duration-[120ms]",
                     "focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
                     mine ? "border-accent" : "border-hairline hover:border-border-strong",
                   )}
@@ -83,7 +83,7 @@ export function VisitorPoll({ className }: { className?: string }) {
               );
             })}
           </div>
-          <p data-testid="poll-note" className="mt-3 text-[13px] text-ink-3" aria-live="polite">
+          <p data-testid="poll-note" className="mt-4 text-[12px] text-ink-3" aria-live="polite">
             {note ? NOTES[note] : view.note}
           </p>
         </motion.div>

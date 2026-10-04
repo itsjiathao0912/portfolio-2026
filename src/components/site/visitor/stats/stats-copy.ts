@@ -24,8 +24,12 @@ export const PLURALS: Record<RoleId, string> = {
 /** A leader needs at least this many visitors before we call it a lead. */
 export const LEAD_MIN = 3;
 
+export type TopCountry = { country: string; count: number };
+
 export type StatsView = {
   total: number;
+  /** most-visited countries, biggest first (already limited by the API) */
+  topCountries: TopCountry[];
   byRole: Partial<Record<RoleId, number>>;
   you: { country: string | null; countryCount: number; countryRank: number; roleCount: number };
 };
@@ -88,6 +92,17 @@ export function leaderLine(byRole: Partial<Record<RoleId, number>>, mine: RoleId
   const label = PLURALS[top[0]];
   const head = label.charAt(0).toUpperCase() + label.slice(1);
   return top[0] === mine ? `${head} are leading so far. That's you.` : `${head} are leading so far.`;
+}
+
+/** Country rows for the big stats: only real, known countries with a count, flag + name, biggest first. */
+export function countryRows(top: readonly TopCountry[] | null | undefined, limit = 5) {
+  const out: { country: string; name: string; flag: string; count: number }[] = [];
+  for (const t of top ?? []) {
+    const name = countryName(t.country);
+    if (!name || !(t.count > 0)) continue;
+    out.push({ country: t.country, name, flag: flagOf(t.country), count: t.count });
+  }
+  return out.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)).slice(0, limit);
 }
 
 /** Tile counts: one per role, only when a number is known. */

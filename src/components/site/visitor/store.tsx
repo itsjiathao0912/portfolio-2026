@@ -1,7 +1,7 @@
 "use client";
 
 // The visitor store: the ONE source for who the visitor says they are.
-// localStorage `thao:visitor:v1` = { v, role, collapsed, guideHidden, visitorId, ordinal }.
+// localStorage `thao:visitor:v1` = { v, role, collapsed, guideHidden, visitorId, ordinal, visitConfirmed }.
 //
 // - First render is `ready: false` (matches the server); state hydrates in a
 //   microtask, so nothing flashes for a returning visitor.
@@ -12,6 +12,11 @@
 // - POST /api/visit fires ONLY on the first choice or an actual role change,
 //   trailing-edge debounced. 429 retries once after Retry-After; every other
 //   failure is silent. The visitor id is never put in a URL or logged.
+// - `visitConfirmed` records that the server has the current role. A returning
+//   visitor with a role (or Skip) whose visit was never confirmed (a failed first
+//   POST, a migrated legacy persona) retries once on load, silently.
+// - Every role change also fires a same-tab `thao:visitor-change` CustomEvent
+//   ({ detail: { role } }) so other widgets in this tab update at once.
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { LEGACY_PERSONA_KEY, VISITOR_STORE_KEY } from "@/lib/visitor-role-adapter";
@@ -24,6 +29,8 @@ export type VisitorState = {
   guideHidden: boolean;
   visitorId: string;
   ordinal: number | null;
+  /** the server has this visitor's current role */
+  visitConfirmed: boolean;
 };
 
 type Ctx = {
@@ -83,6 +90,7 @@ export function initialVisitor(storeRaw: string | null, legacyRaw: string | null
       guideHidden: s.guideHidden === true,
       visitorId: typeof s.visitorId === "string" && ID_PATTERN.test(s.visitorId) ? s.visitorId : genId(),
       ordinal: typeof s.ordinal === "number" && Number.isInteger(s.ordinal) && s.ordinal > 0 ? s.ordinal : null,
+      visitConfirmed: s.visitConfirmed === true,
     };
     return { state, chosen: collapsed || role !== null, migrated: false } as const;
   }
@@ -95,6 +103,7 @@ export function initialVisitor(storeRaw: string | null, legacyRaw: string | null
     guideHidden: false,
     visitorId: genId(),
     ordinal: null,
+    visitConfirmed: false,
   };
   return { state, chosen: migratedRole !== null, migrated: migratedRole !== null } as const;
 }
@@ -120,7 +129,7 @@ function writeStore(state: VisitorState) {
   }
 }
 
-const DEFAULT_STATE: VisitorState = { v: 1, role: null, collapsed: false, guideHidden: false, visitorId: "", ordinal: null };
+const DEFAULT_STATE: VisitorState = { v: 1, role: null, collapsed: false, guideHidden: false, visitorId: "", ordinal: null, visitConfirmed: false };
 const NOOP: Ctx = {
   role: null,
   setRole: () => {},
@@ -175,6 +184,7 @@ export function VisitorProvider({ children }: { children: ReactNode }) {
       if (!res.ok) return null; // 403 / 413 / 503 and the rest: silent, UI unchanged
       const body = (await res.json()) as { ordinal?: unknown };
       lastSent.current = role;
+      if (stateRef.current.role === role && !stateRef.current.visitConfirmed) commit({ ...stateRef.current, visitConfirmed: true });
       if (typeof body.ordinal === "number" && Number.isInteger(body.ordinal) && body.ordinal > 0 && body.ordinal !== stateRef.current.ordinal) {
         commit({ ...stateRef.current, ordinal: body.ordinal });
       }
@@ -207,21 +217,26 @@ export function VisitorProvider({ children }: { children: ReactNode }) {
       const init = initialVisitor(storeRaw, legacyRaw);
       stateRef.current = init.state;
       setState(init.state);
-      lastSent.current = init.chosen ? init.state.role : undefined;
+      // Chosen but never confirmed with the server (failed first POST, migrated persona): send once more.
+      const unconfirmed = init.chosen && !init.state.visitConfirmed;
+      lastSent.current = init.chosen && !unconfirmed ? init.state.role : undefined;
       if (init.migrated) writeStore(init.state);
       setReady(true);
+      if (unconfirmed) void send();
     });
     return () => {
       alive.current = false;
       if (timer.current) clearTimeout(timer.current);
       if (retry.current) clearTimeout(retry.current);
     };
-  }, []);
+  }, [send]);
 
   const setRole = useCallback(
     (role: RoleId | null) => {
       window.dispatchEvent(new Event(BEFORE_ROLE_EVENT));
-      commit({ ...stateRef.current, role, collapsed: true });
+      const changed = stateRef.current.role !== role;
+      commit({ ...stateRef.current, role, collapsed: true, visitConfirmed: changed ? false : stateRef.current.visitConfirmed });
+      if (changed) window.dispatchEvent(new CustomEvent("thao:visitor-change", { detail: { role } }));
       if (!shouldSendVisit(lastSent.current, role)) return;
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => void send(), DEBOUNCE_MS);

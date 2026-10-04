@@ -41,8 +41,16 @@ export function parseStats(body: unknown): StatsView | null {
   }
   const y = b.you as Record<string, unknown>;
   const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : 0);
+  const topCountries: StatsView["topCountries"] = [];
+  if (Array.isArray(b.topCountries)) {
+    for (const t of b.topCountries as unknown[]) {
+      const c = t as Record<string, unknown> | null;
+      if (c && typeof c.country === "string" && /^[A-Z]{2}$/.test(c.country) && typeof c.count === "number" && Number.isFinite(c.count) && c.count > 0) topCountries.push({ country: c.country, count: c.count });
+    }
+  }
   return {
     total: b.total,
+    topCountries,
     byRole,
     you: {
       country: typeof y.country === "string" ? y.country : null,

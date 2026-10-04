@@ -35,6 +35,8 @@ export type ClayAvatarProps = {
   /** optional CSS colour for a soft circle behind a bust, e.g. "var(--tint-sky)" */
   tint?: string;
   className?: string;
+  /** ground contact shadow under a full-body figure (default on; the walking guide turns it off) */
+  shadow?: boolean;
 };
 
 const FULL = { box: "0 -14 100 164", w: 100, h: 164 } as const;
@@ -42,7 +44,7 @@ const BUST = { box: "12 2 76 80", w: 76, h: 80 } as const;
 
 const wrap = (n: number | undefined, len: number, fallback: number) => (((n ?? fallback) % len) + len) % len;
 
-export function ClayAvatar({ role, skin, hair, hairStyle, accent, pose = "idle", frame = 0, view = "full", blinking = false, size, title, decorative, tint, className }: ClayAvatarProps) {
+export function ClayAvatar({ role, skin, hair, hairStyle, accent, pose = "idle", frame = 0, view = "full", blinking = false, size, title, decorative, tint, className, shadow = true }: ClayAvatarProps) {
   const raw = useId();
   const uid = `c${raw.replace(/[^a-zA-Z0-9]/g, "")}`;
   const geo = view === "bust" ? BUST : FULL;
@@ -91,7 +93,7 @@ export function ClayAvatar({ role, skin, hair, hairStyle, accent, pose = "idle",
         </>
       ) : (
         <>
-          <Shadow uid={uid} scale={p.shadow} />
+          {shadow ? <Shadow uid={uid} scale={p.shadow} /> : null}
           <g style={{ transform: `translateY(${p.bodyY}px) rotate(${p.lean}deg)`, transformOrigin: "50px 144px", transition: "transform 280ms cubic-bezier(.3,.7,.2,1)" }}>
             <BackGear look={look} role={role} />
             <Leg look={look} x={43} angle={p.lLeg} lift={p.lLift} />

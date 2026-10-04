@@ -1,25 +1,23 @@
 "use client";
 
-// The walking guide: the visitor's own clay character, standing on the top edge of
-// the home sections and saying a short line about each one.
+// The walking guide: the visitor's own clay character, a small platformer hero that
+// stands on the real top edges of the home page's content (headings, paragraphs,
+// cards, images, buttons) and says a short line about each section it reaches.
 //
 // How it stays calm and cheap:
-// - Fixed `pointer-events-none` layer in a portal; the character moves with
-//   `transform: translate3d` only. Position is written straight to the node, not
-//   through React state; React only re-renders for pose / bubble changes.
-// - Section rects are measured on events (scroll, resize, ResizeObserver), cached,
-//   and the physics loop reads no layout at all.
-// - The rAF loop runs only while the body is moving (or a key is held). At rest, when
-//   the tab is hidden, when the picker is open or the guide is hidden, there is no
-//   scheduled frame. Every frame goes through `frame()` which bumps
-//   `data-guide-frames` (a test seam, E16).
-// - Passive mode (default): after scrolling settles the character hops or drops to
-//   the nearest standable section edge and says line 1 once per section (at most 6
-//   in a visit). Player mode (engaged by click / "Walk with me") adds walking,
-//   jumping and the longer story. Reduced motion: no physics, a fade-teleport.
+// - One absolutely positioned layer in the DOCUMENT (not fixed), so a character
+//   standing on a block scrolls with it natively: no JS, no lag. The character moves
+//   with `transform: translate3d` only; position is written straight to the node,
+//   React re-renders only for pose / bubble / hint changes.
+// - Surfaces are collected rarely (load, resize, scroll settle, and every ~0.5 s of
+//   a long scroll) and refreshed once per animation frame while scrolling.
+// - The rAF loop runs only while it is moving, falling, squashing or the page is
+//   scrolling. At rest, with the tab hidden or the guide hidden there is no scheduled
+//   frame. Every frame bumps `data-guide-frames` (a test seam).
+// - Reduced motion: no physics and no rAF; a fade-teleport between visible blocks.
 //
-// Original character and original code: the technique is plain transform + a pure
-// body model (guide-physics.ts).
+// Original character, original code: plain transforms plus a pure body model
+// (guide-physics.ts).
 
 import { motion } from "motion/react";
 import { usePathname } from "next/navigation";
@@ -28,47 +26,32 @@ import { createPortal } from "react-dom";
 import { ClayAvatar } from "@/components/clay/clay-avatar";
 import { useBlink } from "@/components/clay/use-blink";
 import type { ClayPoseName } from "@/components/clay/poses";
-import { SPRING } from "@/components/motion/springs";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import type { GuideSectionId, RoleId } from "../role-ids";
 import { useVisitor } from "../store";
-import { GuideBubble, GuideControls, type EngagedHandlers, type PressKey, useEngagedListeners } from "./guide-controls";
-import {
-  type Anchor,
-  anchorInView,
-  bubbleSide,
-  CHAR,
-  chooseStandX,
-  clampFeetY,
-  collectSurfaces,
-  maxFeetY,
-  MIN_GUIDE_WIDTH,
-  nearestAnchorInView,
-  nextLine,
-  pickSurface,
-  sectionUnder,
-  type Rect,
-  stepAnchor,
-  type Viewport,
-} from "./guide-logic";
-import { anchorById, type Body, isMoving, NO_INPUT, rideAnchor, standingBody, startFlight, stepBody, type Input } from "./guide-physics";
+import { collectTracked, guideRoots, readAvoid, readNav, readSpans, refreshSurfaces, type Tracked } from "./guide-dom";
+import { GuideBubble, GuideClose, GuideDot, GuideHint, GuideTouchPad, type KeyHandlers, type PressKey, useGuideKeys } from "./guide-controls";
+import { type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type Rect, sectionUnder, type Span, stepSurface, type Surface, surfaceStandable, type View, visibleSurfaces } from "./guide-logic";
+import { type Body, FLOOR_KEY, isMoving, launchTo, makeScene, NO_INPUT, type Input, type Scene, squashScale, standingBody, stepBody, surfaceY } from "./guide-physics";
 import { scriptFor } from "./guide-story";
 
-/** The clay figure's feet sit a few px above its box bottom; this puts them on the edge. */
+/** The clay figure's feet sit a few px above its box bottom; this puts them exactly on the edge. */
 const FOOT_PAD = 4;
 const PASSIVE_BUBBLE_MS = 9000;
-const SETTLE_MS = 150;
+const SETTLE_MS = 160;
+const SCROLL_FRAMES_MS = 170;
+const RECOLLECT_MS = 450;
 const WALK_FRAME_S = 0.12;
-
-const toRect = (r: DOMRect): Rect => ({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
+const HINT_KEY = "thao:guide-hint:v1";
+/** Below this width the character is smaller and its line waits behind a tap-to-open dot. */
+const SMALL_W = 1024;
+const SMALL_SCALE = 0.72;
 
 type BubbleState = { section: GuideSectionId; idx: number } | null;
 
 type Controller = {
-  toggle: () => void;
-  engage: () => void;
-  advance: () => void;
+  hop: () => void;
   press: (key: PressKey, down: boolean) => void;
 };
 
@@ -101,22 +84,37 @@ export function VisitorGuide() {
   return createPortal(<GuideLayer key={`${role}:${reduce}`} role={role} reduce={reduce} />, document.body);
 }
 
+const seenHint = () => {
+  try {
+    return localStorage.getItem(HINT_KEY) === "1";
+  } catch {
+    return true;
+  }
+};
+
 function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
   const { setGuideHidden } = useVisitor();
   const rootRef = useRef<HTMLDivElement>(null);
   const bodyEl = useRef<HTMLDivElement>(null);
+  const squashEl = useRef<HTMLDivElement>(null);
   const ctl = useRef<Controller | null>(null);
-  const handlers = useRef<EngagedHandlers | null>(null);
-  const [engaged, setEngaged] = useState(false);
+  const handlers = useRef<KeyHandlers | null>(null);
+  const lastTap = useRef(0);
+  const hopTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [bubble, setBubble] = useState<BubbleState>(null);
   const [pose, setPose] = useState<{ name: ClayPoseName; frame: number }>({ name: "idle", frame: 0 });
   const [facing, setFacing] = useState<1 | -1>(1);
-  const [side, setSide] = useState<"left" | "right">("left");
+  const [lay, setLay] = useState<{ place: BubblePlace; w: number; dx: number }>({ place: "right", w: 188, dx: 0 });
+  const [small, setSmall] = useState(false);
+  const [dotOpen, setDotOpen] = useState(false);
+  const [rightHalf, setRightHalf] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [coarse, setCoarse] = useState(false);
+  const [hint, setHint] = useState(false);
+  const [pad, setPad] = useState(0); // 0 = closed; otherwise a stamp that restarts the auto-hide timer
   const blinking = useBlink(!reduce);
 
-  useEngagedListeners(engaged, rootRef, handlers);
+  useGuideKeys(rootRef, handlers);
 
   useEffect(() => {
     const mq = window.matchMedia("(pointer: coarse)");
@@ -127,27 +125,56 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
   }, []);
 
   useEffect(() => {
+    const update = () => setSmall(window.innerWidth < SMALL_W);
+    queueMicrotask(update);
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  useEffect(() => {
+    if (!pad) return;
+    const t = setTimeout(() => setPad(0), 10000);
+    return () => clearTimeout(t);
+  }, [pad]);
+
+  useEffect(() => {
     const rootNode = rootRef.current;
     const bodyNode = bodyEl.current;
-    if (!rootNode || !bodyNode) return;
+    const squashNode = squashEl.current;
+    if (!rootNode || !bodyNode || !squashNode) return;
     const root: HTMLDivElement = rootNode;
     const el: HTMLDivElement = bodyNode;
+    const sq: HTMLDivElement = squashNode;
 
     let alive = true;
-    let anchors: Anchor[] = [];
-    let vp: Viewport = { w: window.innerWidth, h: window.innerHeight, keepOut: null };
-    let body: Body = standingBody(0, null, vp);
+    let tracked: Tracked[] = [];
+    let surfaces: Surface[] = [];
+    let spans: Span[] = [];
+    let avoid: Rect[] = [];
+    const isSmall = () => window.innerWidth < SMALL_W;
+    const view: View = { w: window.innerWidth, h: window.innerHeight, scrollY: window.scrollY, docH: document.documentElement.scrollHeight, nav: 0 };
+    let scene: Scene = makeScene([], view);
+    let body: Body = standingBody(view.w / 2, null, scene);
     const input: Input = { ...NO_INPUT };
     let raf = 0;
     let last = 0;
     let walkClock = 0;
     let frames = 0;
-    let engagedNow = false;
+    let scrollUntil = 0;
+    let lastCollect = 0;
+    let dirty = false;
     let bubbleNow: BubbleState = null;
     let waveUntil = 0;
     let poseKey = "";
     let facingNow: 1 | -1 = 1;
-    let sideNow: "left" | "right" = "left";
+    let layKey = "";
+    let rightHalfNow = false;
+    let seq = 0;
+    let lastSection: GuideSectionId | null = null;
+    let standing: Element | null = null;
+    let atKey = "";
+    let modeNow = "";
+    let hinted = false;
     const visited = new Set<GuideSectionId>();
     const timers = new Set<ReturnType<typeof setTimeout>>();
     let settleT: ReturnType<typeof setTimeout> | undefined;
@@ -163,43 +190,34 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       return t;
     };
 
-    // ---- measuring (events only, never inside the frame loop) -------------
-    const measure = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const header = document.querySelector("header[data-compact]");
-      const hr = header?.getBoundingClientRect();
-      const entries: { id: string; rect: Rect }[] = [];
-      document.querySelectorAll<HTMLElement>("[data-guide-walkable]").forEach((n) => {
-        const id = n.dataset.guideId;
-        if (id) entries.push({ id, rect: toRect(n.getBoundingClientRect()) });
-      });
-      // The footer contact block is rendered by the layout; use it until it carries the tag.
-      if (!entries.some((e) => e.id === "contact")) {
-        const f = document.getElementById("get-in-touch");
-        if (f) entries.push({ id: "contact", rect: toRect(f.getBoundingClientRect()) });
-      }
-      anchors = collectSurfaces(entries);
-      vp = { w, h, keepOut: hr ? { left: 0, top: 0, right: w, bottom: hr.bottom } : null };
+    // ---- measuring (events and slow ticks only, never the physics sub-steps) -----
+    const syncView = () => {
+      view.scrollY = window.scrollY;
     };
-
-    const avoidRects = () => {
-      const out: Rect[] = [];
-      document.querySelectorAll<HTMLElement>("a[href], button, [role='button'], input, textarea, select, summary").forEach((n) => {
-        if (root.contains(n)) return;
-        const r = n.getBoundingClientRect();
-        if (r.width < 2 || r.height < 2 || r.bottom < 0 || r.top > vp.h) return;
-        out.push(toRect(r));
-      });
-      return out;
+    const collect = () => {
+      view.w = window.innerWidth;
+      view.h = window.innerHeight;
+      syncView();
+      view.docH = document.documentElement.scrollHeight;
+      view.nav = readNav();
+      avoid = readAvoid(root, view.scrollY, view.h);
+      // Only blocks with a spot where the body covers no link or button are worth standing on.
+      tracked = collectTracked(guideRoots(), root, view.scrollY, view.w).filter((t) => coverage(chooseStandX(t.surface, view, avoid), t.surface.top, avoid) === 0);
+      surfaces = tracked.map((t) => t.surface);
+      spans = readSpans(view.scrollY);
+      scene = makeScene(surfaces, view);
+      el.dataset.guideSurfaces = String(surfaces.length);
+      lastCollect = performance.now();
     };
+    const surfaceOf = (key: string | null) => (key && key !== FLOOR_KEY ? (scene.byKey.get(key) ?? null) : null);
+    const currentSection = () => surfaceOf(body.surface)?.id ?? sectionUnder(spans, body.y - 8);
 
     // ---- painting -----------------------------------------------------------
     const syncPose = () => {
       let name: ClayPoseName = "idle";
       let frame = 0;
       if (!reduce) {
-        if (body.mode !== "ground") name = "jump";
+        if (body.mode === "air") name = "jump";
         else if (Math.abs(body.vx) > 12) {
           name = "walk";
           frame = Math.floor(walkClock / WALK_FRAME_S) % 4;
@@ -215,17 +233,50 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
         facingNow = body.facing;
         setFacing(facingNow);
       }
-      const s = bubbleSide(body.x, vp);
-      if (s !== sideNow) {
-        sideNow = s;
-        setSide(s);
+      const rh = body.x - CHAR.w / 2 + 170 > view.w - EDGE; // the hint / pad would run off the right edge
+      if (rh !== rightHalfNow) {
+        rightHalfNow = rh;
+        setRightHalf(rh);
+      }
+      // The bubble goes where it covers no link or button: beside on the roomier side, else the other side, else above.
+      if (bubbleNow) {
+        const p = placeBubble(body.x, body.y, view, avoid, isSmall());
+        const w = Math.round(p.w / 4) * 4;
+        const dx = Math.round(p.dx);
+        const k = `${p.place}:${w}:${dx}`;
+        if (k !== layKey) {
+          layKey = k;
+          setLay({ place: p.place, w, dx });
+        }
       }
     };
-
+    const markStanding = () => {
+      const t = body.surface ? tracked.find((x) => x.surface.key === body.surface) : undefined;
+      const next = t?.el ?? null;
+      if (next === standing) return;
+      standing?.removeAttribute("data-guide-standing");
+      next?.setAttribute("data-guide-standing", "true");
+      standing = next;
+    };
     const paint = () => {
       el.style.transform = `translate3d(${Math.round((body.x - CHAR.w / 2) * 10) / 10}px, ${Math.round((body.y - CHAR.h + FOOT_PAD) * 10) / 10}px, 0)`;
-      const at = body.anchorId ?? "";
-      if (el.dataset.guideAt !== at) el.dataset.guideAt = at;
+      if (!reduce) {
+        const { sx, sy } = squashScale(body);
+        sq.style.transform = `scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
+      }
+      const at = surfaceOf(body.surface)?.id ?? "";
+      if (at !== atKey) {
+        atKey = at;
+        el.dataset.guideAt = at;
+      }
+      if (body.mode !== modeNow) {
+        modeNow = body.mode;
+        el.dataset.guideMode = body.mode;
+      }
+      const sk = body.surface ?? "";
+      if (el.dataset.guideSurfaceKey !== sk) el.dataset.guideSurfaceKey = sk;
+      el.dataset.guideFeet = `${Math.round(body.x)},${Math.round(body.y * 10) / 10}`;
+      markStanding();
       syncPose();
     };
 
@@ -236,42 +287,43 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       setBubble(null);
       syncPose();
     };
-    const showLine = (section: GuideSectionId, idx: number) => {
+    const showLine = (section: GuideSectionId, idx: number, ms = PASSIVE_BUBBLE_MS) => {
+      setDotOpen(false);
       if (bubbleT) clearTimeout(bubbleT);
       bubbleNow = { section, idx };
       setBubble(bubbleNow);
-      if (!engagedNow) bubbleT = later(hideBubble, PASSIVE_BUBBLE_MS);
+      bubbleT = later(hideBubble, ms);
       syncPose();
     };
-    // What the character talks about: the section it stands on, else the one the visitor is reading.
-    const currentSection = () => body.anchorId ?? sectionUnder(anchors, vp.h * 0.5);
-    let lastArrived: GuideSectionId | null = null;
+    // Arriving somewhere new: say line 1 of that section once (at most 6 in a visit).
     const arrive = () => {
       const id = currentSection();
-      lastArrived = id;
+      if (id === lastSection) return;
+      lastSection = id;
+      waveUntil = performance.now() + 1100;
+      later(syncPose, 1150);
       if (!id) {
         hideBubble();
-        return;
-      }
-      if (engagedNow) {
-        showLine(id, 0);
         return;
       }
       if (nextLine(role, id, visited) !== null) {
         visited.add(id);
         showLine(id, 0);
-      } else hideBubble();
+      } else if (bubbleNow && bubbleNow.section !== id) hideBubble();
     };
-    const advance = () => {
-      const id = currentSection();
-      if (!id) return;
-      const script = scriptFor(role, id);
-      if (script.length === 0) return;
-      if (!bubbleNow || bubbleNow.section !== id) showLine(id, 0);
-      else if (bubbleNow.idx + 1 < script.length) showLine(id, bubbleNow.idx + 1);
+    // ---- hint: one time, gone after first use ----------------------------------
+    const dismissHint = () => {
+      if (hinted) return;
+      hinted = true;
+      setHint(false);
+      try {
+        localStorage.setItem(HINT_KEY, "1");
+      } catch {
+        /* private mode: the hint just may show again */
+      }
     };
 
-    // ---- the frame loop (no layout reads) ------------------------------------
+    // ---- the frame loop (no layout reads except the scroll refresh) ----------
     const schedule = () => {
       if (reduce || raf || document.hidden || !alive) return;
       raf = requestAnimationFrame(frame);
@@ -283,95 +335,111 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       el.dataset.guideFrames = String(frames);
       const dt = last ? Math.min(0.05, (ts - last) / 1000) : 1 / 60;
       last = ts;
-      const prev = body;
-      body = stepBody(body, input, dt, anchors, vp);
+      syncView();
+      if (dirty) {
+        dirty = false;
+        if (ts - lastCollect > RECOLLECT_MS) collect();
+        else refreshSurfaces(tracked, view.scrollY, view.w, view.h);
+      }
+      body = stepBody(body, input, dt, scene);
       input.hop = false;
-      input.down = false;
       if (Math.abs(body.vx) > 12 && body.mode === "ground") walkClock += dt;
       paint();
-      if (prev.mode !== "ground" && body.mode === "ground") arrive();
-      if (isMoving(body, input) && !document.hidden) schedule();
+      if (body.landSeq !== seq) {
+        seq = body.landSeq;
+        arrive();
+        if (body.surface === FLOOR_KEY) later(() => followFloor() || nudgeClear(), 260);
+        else nudgeClear();
+      }
+      if ((isMoving(body, input) || performance.now() < scrollUntil) && !document.hidden) schedule();
       else last = 0;
     }
 
-    // ---- reduced motion: fade-teleport -----------------------------------------
-    const teleport = (anchor: Anchor | null, x: number) => {
+    // ---- reduced motion: fade-teleport between visible blocks ------------------
+    const teleport = (s: Surface | null) => {
       el.style.opacity = "0";
       later(() => {
-        body = standingBody(x, anchor, vp);
+        syncView();
+        const x = s ? chooseStandX(s, view, readAvoid(root, view.scrollY, view.h), body.x) : body.x;
+        body = standingBody(x, s, scene);
         paint();
         el.style.opacity = "1";
         arrive();
       }, 180);
     };
-    const stepSection = (dir: 1 | -1) => {
-      measure();
-      const list = anchors.filter((a) => anchorInView(a, vp));
-      const t = stepAnchor(list, body.anchorId, dir);
-      if (t && t.id !== body.anchorId) teleport(t, chooseStandX(vp, clampFeetY(t.top, vp), avoidRects(), body.x));
+    const stepSpot = (dir: 1 | -1) => {
+      collect();
+      const t = stepSurface(visibleSurfaces(surfaces, view), body.surface, dir);
+      if (t && t.key !== body.surface) teleport(t);
     };
 
-    // ---- following the page (passive) -------------------------------------------
-    const goTo = (target: Anchor | null) => {
-      if (target) {
-        const x = chooseStandX(vp, clampFeetY(target.top, vp), avoidRects(), body.x);
-        if (reduce) teleport(target, x);
-        else {
-          body = startFlight(body, target, vp, x);
-          schedule();
+    // ---- following the page ------------------------------------------------------
+    // After a re-measure: re-seat a standing body on its (possibly moved) surface, and wake the loop if physics must act.
+    const reseat = () => {
+      if (body.mode !== "ground") return;
+      const sy = surfaceY(scene, body.surface);
+      if (reduce) {
+        const s = surfaceOf(body.surface);
+        if (!s || !surfaceStandable(s, view)) teleport(pickSurface(surfaces, view, 0.55));
+        else if (sy !== undefined && sy !== body.y) {
+          body = { ...body, y: sy };
+          paint();
         }
-      } else if (reduce) teleport(null, body.x);
-      else {
-        body = startFlight(body, null, vp, body.x, true);
+        return;
+      }
+      const s = surfaceOf(body.surface);
+      if (sy === undefined || (body.surface !== FLOOR_KEY && s && !surfaceStandable(s, view))) schedule();
+      else if (sy !== body.y) {
+        body = { ...body, y: sy };
+        paint();
+      }
+    };
+    // Landed on a tap target (link, button): shuffle along the block to a clear spot so it never covers one.
+    const nudgeClear = () => {
+      const s = body.surface === FLOOR_KEY ? ({ key: FLOOR_KEY, id: null, left: 0, right: view.w, top: body.y } as Surface) : surfaceOf(body.surface);
+      if (!s || body.mode !== "ground" || input.left || input.right) return;
+      const cur = coverage(body.x, body.y, avoid);
+      if (cur === 0) return;
+      const x = chooseStandX(s, view, avoid, body.x);
+      if (Math.abs(x - body.x) > 8 && coverage(x, body.y, avoid) < cur - 1) {
+        body = launchTo(body, s, scene, x);
         schedule();
       }
     };
-    const follow = () => {
-      if (body.mode !== "ground") return;
-      const here = anchorById(anchors, body.anchorId);
-      if (here && anchorInView(here, vp)) return;
-      const target = nearestAnchorInView(anchors, vp, body.y);
-      if (target) goTo(target);
-      else if (body.anchorId !== null) goTo(null);
-    };
-    const release = () => {
-      if (!engagedNow) return;
-      engagedNow = false;
-      input.left = input.right = input.hop = input.down = false;
-      setEngaged(false);
-      if (bubbleNow) {
-        if (bubbleT) clearTimeout(bubbleT);
-        bubbleT = later(hideBubble, PASSIVE_BUBBLE_MS);
-      }
-      measure();
-      follow();
-      syncPose();
+    // Left on the viewport floor (nothing under it on the way down): hop onto the nearest block in view.
+    const followFloor = () => {
+      if (reduce || body.mode !== "ground" || body.surface !== FLOOR_KEY || input.left || input.right) return false;
+      syncView();
+      const t = pickSurface(surfaces, view, 0.62);
+      if (!t) return false;
+      body = launchTo(body, t, scene);
+      schedule();
+      return true;
     };
     const settle = () => {
-      measure();
-      body = rideAnchor(body, anchors, vp);
-      paint();
-      if (engagedNow) {
-        // Engaged anchor scrolled out of view entirely: give control back and follow the page again.
-        const here = anchorById(anchors, body.anchorId);
-        if (here && !anchorInView(here, vp)) release();
-        return;
+      collect();
+      if (!followFloor()) {
+        reseat();
+        nudgeClear();
       }
-      follow();
-      if (body.mode === "ground" && currentSection() !== lastArrived) arrive();
+      if (body.mode === "ground") arrive();
     };
     const onScroll = () => {
-      measure();
-      body = rideAnchor(body, anchors, vp);
-      paint();
+      dirty = true;
+      scrollUntil = performance.now() + SCROLL_FRAMES_MS;
+      if (reduce) {
+        syncView();
+        refreshSurfaces(tracked, view.scrollY, view.w, view.h);
+      } else schedule();
       if (settleT) clearTimeout(settleT);
       settleT = later(settle, SETTLE_MS);
     };
     const onResize = () => {
       if (roT) clearTimeout(roT);
       roT = later(() => {
-        measure();
-        body = rideAnchor(body, anchors, vp);
+        collect();
+        body = { ...body, x: clampX(body.x, view) };
+        reseat();
         paint();
       }, 80);
     };
@@ -380,93 +448,79 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
         if (raf) cancelAnimationFrame(raf);
         raf = 0;
         last = 0;
-        input.left = input.right = false;
+        input.left = input.right = input.up = false;
       } else if (isMoving(body, input)) schedule();
     };
 
-    // ---- engage / release ----------------------------------------------------------
-    const engage = () => {
-      if (engagedNow) return;
-      engagedNow = true;
-      setEngaged(true);
-      if (bubbleT) clearTimeout(bubbleT);
-      const cur = currentSection();
-      if (!bubbleNow && cur) showLine(cur, 0);
-    };
-    const toggle = () => (engagedNow ? release() : engage());
-    const press = (key: PressKey, down: boolean) => {
-      if (!engagedNow) return;
+    // ---- input ------------------------------------------------------------------
+    const hop = () => {
+      dismissHint();
       if (reduce) {
-        if (down) stepSection(key === "right" ? 1 : key === "left" ? -1 : -1);
+        stepSpot(-1);
+        return;
+      }
+      input.hop = true;
+      schedule();
+    };
+    const press = (key: PressKey, down: boolean) => {
+      dismissHint();
+      if (reduce) {
+        if (down) stepSpot(key === "right" ? 1 : -1);
         return;
       }
       if (key === "hop") {
+        input.up = down;
         if (down) input.hop = true;
       } else input[key] = down;
       if (down) schedule();
     };
-    ctl.current = { toggle, engage, advance, press };
-
+    ctl.current = { hop, press };
     handlers.current = {
-      release,
-      key: (e, down) => {
-        const k = e.key;
-        const own = e.target instanceof Node && root.contains(e.target);
-        if (k === "ArrowLeft" || k === "ArrowRight") {
-          if (down) {
-            e.preventDefault();
-            if (!e.repeat || !reduce) press(k === "ArrowRight" ? "right" : "left", true);
-          } else press(k === "ArrowRight" ? "right" : "left", false);
+      key: (action, down, repeat) => {
+        if (down) dismissHint();
+        if (reduce) {
+          if (down && !repeat) stepSpot(action === "right" ? 1 : -1);
           return;
         }
-        if (k === "ArrowUp" || k === " " || k === "Spacebar") {
-          // Space also fires click on keyup for a focused guide button, so a handled Space is prevented on both phases.
-          if (down || own) e.preventDefault();
-          if (down && !e.repeat) {
-            if (reduce) stepSection(-1);
-            else press("hop", true);
-          }
-          return;
-        }
-        if (k === "ArrowDown") {
-          if (!down) return;
-          e.preventDefault();
-          if (e.repeat) return;
-          if (reduce) stepSection(1);
-          else {
-            input.down = true;
-            schedule();
-          }
-          return;
-        }
-        if (k === "Enter" && down) {
-          e.preventDefault();
-          if (!e.repeat) advance();
-        }
+        if (action === "up") {
+          input.up = down;
+          if (down && !repeat) input.hop = true;
+        } else input[action] = down;
+        if (down) schedule();
+      },
+      clear: () => {
+        input.left = input.right = input.up = false;
       },
     };
 
-    // ---- start ----------------------------------------------------------------------
-    measure();
-    const first = pickSurface(anchors, vp) ?? nearestAnchorInView(anchors, vp, vp.h * 0.45);
-    const feet = first ? clampFeetY(first.top, vp) : maxFeetY(vp);
-    body = standingBody(chooseStandX(vp, feet, avoidRects()), first, vp);
+    // ---- start: drop in from above onto the block nearest the middle of the screen ----
+    collect();
+    const first = pickSurface(surfaces, view, 0.55);
+    const x0 = first ? chooseStandX(first, view, readAvoid(root, view.scrollY, view.h)) : view.w - EDGE - CHAR.w / 2;
+    body = standingBody(x0, first, scene);
+    if (!reduce) {
+      const ceil = view.scrollY + (view.nav > 0 ? view.nav + 8 : EDGE) + CHAR.h;
+      body = { ...body, mode: "air", surface: null, y: Math.max(ceil, body.y - 190), vy: 0 };
+    }
     if (reduce) el.style.transition = "opacity 160ms linear";
     paint();
-    waveUntil = performance.now() + 1300;
-    syncPose();
     queueMicrotask(() => alive && setPlaced(true));
-    later(syncPose, 1350);
-    later(() => {
-      if (!engagedNow && !bubbleNow) arrive();
-    }, 750);
+    if (reduce) later(arrive, 400);
+    else schedule();
+    if (!seenHint()) {
+      later(() => !hinted && setHint(true), 1400);
+      later(() => {
+        if (!hinted) dismissHint();
+      }, 16000);
+    }
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", onVisibility);
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
-    document.querySelectorAll("[data-guide-walkable]").forEach((n) => ro?.observe(n));
     ro?.observe(document.body);
+    const home = document.querySelector('[data-testid="home"]');
+    if (home) ro?.observe(home);
 
     return () => {
       alive = false;
@@ -476,6 +530,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
       ro?.disconnect();
+      standing?.removeAttribute("data-guide-standing");
       ctl.current = null;
       handlers.current = null;
     };
@@ -483,44 +538,61 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
 
   const script = bubble ? scriptFor(role, bubble.section) : [];
   const line = bubble ? script[bubble.idx] : undefined;
+  const showBubble = !!line && !!bubble && (!small || dotOpen);
+  const place = small ? "above" : lay.place;
 
   return (
-    <div ref={rootRef} data-testid="visitor-guide-layer" className="pointer-events-none fixed inset-0 z-40">
-      <div
-        ref={bodyEl}
-        data-testid="visitor-guide"
-        data-guide-engaged={engaged ? "true" : "false"}
-        className="absolute top-0 left-0 will-change-transform"
-        style={{ width: CHAR.w, height: CHAR.h }}
-      >
-        <motion.div
-          className="relative size-full"
-          initial={reduce ? { opacity: 0 } : { opacity: 0, y: -40, scale: 0.9 }}
-          animate={placed ? { opacity: 1, y: 0, scale: 1 } : undefined}
-          transition={reduce ? { duration: 0.16 } : SPRING.ui}
-        >
-          <button
-            type="button"
-            data-testid="guide-character"
-            aria-label="Guide character: press to walk it around"
-            onClick={() => (engaged ? ctl.current?.advance() : ctl.current?.engage())}
-            className="pointer-events-auto absolute inset-0 grid cursor-pointer place-items-center rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-            style={{ transform: facing === -1 ? "scaleX(-1)" : undefined }}
-          >
-            <ClayAvatar role={role} view="full" size={CHAR.w} pose={pose.name} frame={pose.frame} blinking={blinking} decorative />
-          </button>
-          <div className={cn("absolute bottom-0 flex flex-col gap-2", side === "left" ? "right-full mr-3 items-end" : "left-full ml-3 items-start")}>
-            {line && bubble ? <GuideBubble text={line} index={bubble.idx} total={script.length} side={side} onNext={() => ctl.current?.advance()} /> : null}
-            <GuideControls
-              engaged={engaged}
-              coarse={coarse}
-              reduce={reduce}
-              side={side}
-              onToggle={() => ctl.current?.toggle()}
-              onHide={() => setGuideHidden(true)}
-              onPress={(k, d) => ctl.current?.press(k, d)}
-            />
+    <div ref={rootRef} data-testid="visitor-guide-layer" className="pointer-events-none absolute top-0 left-0 z-40 h-0 w-full overflow-x-clip">
+      <div ref={bodyEl} data-testid="visitor-guide" className="group absolute top-0 left-0 will-change-transform" style={{ width: CHAR.w, height: CHAR.h }}>
+        <motion.div className="relative size-full" initial={{ opacity: 0 }} animate={placed ? { opacity: 1 } : undefined} transition={{ duration: reduce ? 0.16 : 0.2 }}>
+          <div ref={squashEl} className="size-full origin-[50%_calc(100%-4px)] will-change-transform" style={small ? { scale: SMALL_SCALE } : undefined}>
+            <button
+              type="button"
+              data-testid="guide-character"
+              aria-label="Guide character: arrow keys walk it, up jumps; tap to hop"
+              onClick={(e) => {
+                const now = performance.now();
+                const twice = now - lastTap.current < 450;
+                lastTap.current = twice ? 0 : now;
+                if (hopTimer.current) clearTimeout(hopTimer.current);
+                if (twice) {
+                  // Two quick taps: the tiny pad, and no hop (the first tap's hop is cancelled).
+                  setPad((p) => (p ? 0 : now));
+                  return;
+                }
+                // A finger waits a beat to see whether a second tap follows; a mouse or key hops at once.
+                if ((e.nativeEvent as PointerEvent).pointerType === "touch") hopTimer.current = setTimeout(() => ctl.current?.hop(), 230);
+                else ctl.current?.hop();
+              }}
+              className="pointer-events-auto absolute inset-0 grid cursor-pointer place-items-center rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+              style={{ transform: facing === -1 ? "scaleX(-1)" : undefined }}
+            >
+              <ClayAvatar role={role} view="full" size={CHAR.w} pose={pose.name} frame={pose.frame} blinking={blinking} decorative shadow={false} />
+            </button>
           </div>
+          <GuideClose onHide={() => setGuideHidden(true)} />
+          <div className={cn("pointer-events-none absolute bottom-full mb-1 flex flex-col gap-1", rightHalf ? "items-end right-0" : "items-start left-0")}>
+            {pad ? (
+              <GuideTouchPad
+                onPress={(k, d) => {
+                  setPad(performance.now());
+                  ctl.current?.press(k, d);
+                }}
+              />
+            ) : small && line && !dotOpen ? (
+              <GuideDot onOpen={() => setDotOpen(true)} />
+            ) : (
+              <GuideHint visible={hint && !showBubble} coarse={coarse} reduce={reduce} />
+            )}
+          </div>
+          {showBubble && !pad ? (
+            <div
+              className={cn("pointer-events-none absolute flex", place === "right" ? "bottom-1 left-full ml-2" : place === "left" ? "bottom-1 right-full mr-2 justify-end" : "bottom-full mb-3")}
+              style={{ width: lay.w, left: place === "above" ? lay.dx : undefined }}
+            >
+              <GuideBubble text={line!} index={bubble!.idx} total={script.length} place={place} />
+            </div>
+          ) : null}
         </motion.div>
       </div>
     </div>

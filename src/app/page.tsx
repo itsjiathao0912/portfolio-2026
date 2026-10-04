@@ -73,8 +73,8 @@ export default async function HomePage() {
         <LogoStrip logos={LOGOS} />
       </section>
 
-      <section aria-label="Who is visiting" className="bg-canvas" data-testid="section-visitor">
-        <div className="mx-auto max-w-[1320px] px-6 py-8 md:px-10 md:py-10 lg:px-[60px]">
+      <section aria-label="Who is visiting" data-testid="section-visitor">
+        <div className="mx-auto max-w-[1320px] px-6 py-14 md:px-10 md:py-20 lg:px-[60px]">
           <LiveVisitorTop />
         </div>
       </section>

@@ -27,6 +27,8 @@ export function VisitorModal() {
 
 function Sheet({ onClose, onPick, guide }: { onClose: () => void; onPick: (role: RoleId | null) => void; guide: { hidden: boolean; toggle: () => void } | null }) {
   const ref = useRef<HTMLDialogElement>(null);
+  // Dev StrictMode runs the effect twice: the cleanup's close() fires a (late) close event that must not be taken for a user close, or the sheet unmounts at once.
+  const ignoreClose = useRef(0);
   const reduce = useReducedMotion();
   useEffect(() => {
     const el = ref.current;
@@ -34,7 +36,10 @@ function Sheet({ onClose, onPick, guide }: { onClose: () => void; onPick: (role:
     // After showModal (which would otherwise focus the Close button): the current role, else the first.
     el?.querySelector<HTMLElement>('[role="radio"][tabindex="0"]')?.focus({ preventScroll: true });
     return () => {
-      if (el?.open) el.close();
+      if (el?.open) {
+        ignoreClose.current += 1;
+        el.close();
+      }
     };
   }, []);
   return (
@@ -42,7 +47,10 @@ function Sheet({ onClose, onPick, guide }: { onClose: () => void; onPick: (role:
       ref={ref}
       data-testid="visitor-modal"
       aria-labelledby="visitor-modal-label"
-      onClose={onClose}
+      onClose={() => {
+        if (ignoreClose.current > 0) ignoreClose.current -= 1;
+        else onClose();
+      }}
       onClick={(e) => {
         if (e.target === ref.current) ref.current?.close(); // click on the backdrop
       }}

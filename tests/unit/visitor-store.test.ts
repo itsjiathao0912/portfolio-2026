@@ -9,7 +9,7 @@ const store = (o: Record<string, unknown>) => JSON.stringify({ v: 1, role: null,
 describe("initial visitor state", () => {
   test("no store, no legacy: a fresh unchosen visitor sees the panel", () => {
     const r = initialVisitor(null, null, gen);
-    expect(r.state).toEqual({ v: 1, role: null, collapsed: false, guideHidden: false, visitorId: "generated-id-0001", ordinal: null });
+    expect(r.state).toEqual({ v: 1, role: null, collapsed: false, guideHidden: false, visitorId: "generated-id-0001", ordinal: null, visitConfirmed: false });
     expect(r.chosen).toBe(false);
     expect(r.migrated).toBe(false);
   });
@@ -76,5 +76,17 @@ describe("role adapter agrees with the store", () => {
     expect(parseVisitorRole(store({ role: "founder", collapsed: true }), null)).toBe("founder");
     expect(parseVisitorRole(null, JSON.stringify("engineer"))).toBe("engineer");
     expect(getVisitorRole()).toBeNull();
+  });
+});
+
+describe("visit confirmation", () => {
+  test("a stored role without the flag is unconfirmed; the flag round-trips", () => {
+    expect(initialVisitor(store({ role: "founder", collapsed: true }), null).state.visitConfirmed).toBe(false);
+    expect(initialVisitor(store({ role: "founder", collapsed: true, visitConfirmed: true }), null).state.visitConfirmed).toBe(true);
+    expect(initialVisitor(store({ visitConfirmed: "yes" }), null).state.visitConfirmed).toBe(false);
+  });
+  test("a migrated legacy persona is unconfirmed (it was never counted)", () => {
+    const r = initialVisitor(null, JSON.stringify("founder"));
+    expect([r.chosen, r.state.visitConfirmed]).toEqual([true, false]);
   });
 });

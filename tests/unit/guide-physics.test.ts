@@ -1,192 +1,242 @@
 import { describe, expect, test } from "bun:test";
-import { type Anchor, CHAR, maxFeetY, minFeetY, type Viewport } from "../../src/components/site/visitor/guide/guide-logic";
+import { CHAR, floorY, minFeetY, type Surface, type View } from "../../src/components/site/visitor/guide/guide-logic";
 import {
-  anchorAbove,
-  anchorBelow,
   type Body,
+  FLOOR_KEY,
   isMoving,
-  landingAnchor,
+  JUMP_V,
+  launchTo,
+  makeScene,
   MAX_DT,
   NO_INPUT,
-  nextAnchorInDirection,
-  rideAnchor,
+  rescueTarget,
+  type Scene,
+  squashScale,
   standingBody,
-  startFall,
-  startHop,
   stepBody,
+  surfaceY,
+  WALK_SPEED,
 } from "../../src/components/site/visitor/guide/guide-physics";
 
-const vp: Viewport = { w: 1000, h: 800, keepOut: { left: 0, top: 0, right: 1000, bottom: 72 } };
-// feet band: 192 .. 788
-const A: Anchor = { id: "statement", left: 0, right: 1000, top: 300 };
-const B: Anchor = { id: "highlights", left: 0, right: 1000, top: 520 };
-const C: Anchor = { id: "stack", left: 0, right: 1000, top: 700 };
-const OFF: Anchor = { id: "people", left: 0, right: 1000, top: 100 }; // under the nav band: not standable
-const FAR: Anchor = { id: "linkedin", left: 0, right: 1000, top: 1600 }; // below the viewport
-const all = [OFF, A, B, C, FAR];
+const view = (scrollY = 1000): View => ({ w: 1000, h: 800, scrollY, docH: 6000, nav: 72 });
+const S = (key: string, top: number, left = 0, right = 1000): Surface => ({ key, id: null, left, right, top });
+// viewport feet band (scrollY 1000): 192 .. 788 -> page 1192 .. 1788
+const A = S("A", 1300);
+const B = S("B", 1500);
+const C = S("C", 1700);
 
-function run(body: Body, input = NO_INPUT, anchors: readonly Anchor[] = all, viewport = vp, seconds = 3, dt = 1 / 60) {
-  let b = body;
+function run(b: Body, scene: Scene, seconds: number, input = NO_INPUT, dt = 1 / 60) {
+  let body = b;
   let first = true;
   for (let t = 0; t < seconds; t += dt) {
-    b = stepBody(b, first ? input : { ...input, hop: false, down: false }, dt, anchors, viewport);
+    body = stepBody(body, first ? input : { ...input, hop: false }, dt, scene);
     first = false;
   }
-  return b;
+  return body;
 }
 
-describe("anchor lookups", () => {
-  const on = (anchor: Anchor) => standingBody(500, anchor, vp);
-  test("anchorAbove: nearest in-viewport edge above the feet", () => {
-    expect(anchorAbove(on(C), all, vp)?.id).toBe("highlights");
-    expect(anchorAbove(on(B), all, vp)?.id).toBe("statement");
+describe("standing: feet sit exactly on the surface and follow it", () => {
+  test("standingBody puts the feet on the top edge, page px", () => {
+    const sc = makeScene([A, B], view());
+    const b = standingBody(500, A, sc);
+    expect([b.y, b.surface, b.mode]).toEqual([1300, "A", "ground"]);
   });
-  test("anchorAbove ignores edges under the nav band", () => expect(anchorAbove(on(A), all, vp)).toBeNull());
-  test("anchorBelow: nearest in-viewport edge below the feet", () => {
-    expect(anchorBelow(on(A), all, vp)?.id).toBe("highlights");
-    expect(anchorBelow(on(B), all, vp)?.id).toBe("stack");
+  test("when the surface re-measures (page moved under it) the feet follow with no lag", () => {
+    const moving = { ...A };
+    const sc = makeScene([moving, B], view());
+    let b = standingBody(500, moving, sc);
+    moving.top = 1337.4; // e.g. a card that grew above, or a sticky block
+    b = stepBody(b, NO_INPUT, 1 / 60, sc);
+    expect(b.y).toBe(1337.4);
+    expect(b.mode).toBe("ground");
   });
-  test("anchorBelow ignores edges below the viewport and returns null at the bottom", () => expect(anchorBelow(on(C), all, vp)).toBeNull());
+  test("scrolling alone never moves it in page space (the layer scrolls natively)", () => {
+    const b0 = standingBody(500, B, makeScene([A, B], view(1000)));
+    const b = run(b0, makeScene([A, B], view(1100)), 0.5);
+    expect([b.y, b.x, b.mode]).toEqual([1500, 500, "ground"]);
+  });
+  test("on the floor it rides the viewport bottom", () => {
+    const sc = makeScene([], view(1000));
+    const b0 = standingBody(500, null, sc);
+    expect(b0.surface).toBe(FLOOR_KEY);
+    const b = stepBody(b0, NO_INPUT, 1 / 60, makeScene([], view(1200)));
+    expect(b.y).toBe(floorY(view(1200)));
+  });
 });
 
-describe("hop and fall (vertical traversal)", () => {
-  test("hop from C lands on the nearest anchor above (B)", () => {
-    const b = run(startHop(standingBody(500, C, vp), all, vp), NO_INPUT);
-    expect(b.mode).toBe("ground");
-    expect(b.anchorId).toBe("highlights");
-    expect(b.y).toBe(520);
-  });
-  test("hop with nothing reachable above is an in-place hop: same anchor, same height", () => {
-    const start = startHop(standingBody(500, A, vp), all, vp);
-    expect(start.mode).toBe("flight");
-    const b = run(start, NO_INPUT);
-    expect(b.anchorId).toBe("statement");
-    expect(b.y).toBe(300);
-    expect(b.mode).toBe("ground");
-  });
-  test("a hop actually leaves the ground (the arc rises above the take-off line)", () => {
-    let b = startHop(standingBody(500, A, vp), all, vp);
-    let minY = b.y;
-    for (let i = 0; i < 40; i++) {
-      b = stepBody(b, NO_INPUT, 1 / 60, all, vp);
-      minY = Math.min(minY, b.y);
+describe("falling", () => {
+  test("the surface scrolls up into the nav band: it falls onto the next surface below and bounces", () => {
+    const surfaces = [A, B, C];
+    let b = standingBody(500, A, makeScene(surfaces, view(1000))); // feet at viewport 300
+    const sc = makeScene(surfaces, view(1130)); // A is now at viewport 170 < 192
+    b = stepBody(b, NO_INPUT, 1 / 60, sc);
+    expect(b.mode).toBe("air");
+    const seen = new Set<string>();
+    let rebounded = false;
+    for (let i = 0; i < 240; i++) {
+      b = stepBody(b, NO_INPUT, 1 / 60, sc);
+      if (b.rebounds > 0) rebounded = true;
+      if (b.mode === "ground") break;
+      seen.add(String(b.surface));
     }
-    expect(minY).toBeLessThan(300 - 20);
+    expect(b.mode).toBe("ground");
+    expect(b.surface).toBe("B");
+    expect(b.y).toBe(1500);
+    expect(rebounded).toBe(true);
+    expect(b.landSeq).toBe(1);
   });
-  test("ArrowDown falls to the nearest anchor below, with gravity", () => {
-    const start = startFall(standingBody(500, A, vp), all, vp);
-    expect(start.mode).toBe("air");
-    const b = run(start, NO_INPUT);
-    expect(b.anchorId).toBe("highlights");
-    expect(b.y).toBe(520);
+  test("walking off the edge of a block drops it onto the one below", () => {
+    const narrow = S("N", 1300, 400, 600);
+    const wide = S("W", 1500);
+    const sc = makeScene([narrow, wide], view());
+    const b = run(standingBody(560, narrow, sc), sc, 2, { ...NO_INPUT, right: true });
+    expect(b.surface).toBe("W");
+    expect(b.y).toBe(1500);
+    expect(b.x).toBeGreaterThan(600);
   });
-  test("ArrowDown with nothing below stays put", () => {
-    const s = standingBody(500, C, vp);
-    expect(startFall(s, all, vp)).toBe(s);
-    expect(run(startFall(s, all, vp), NO_INPUT).anchorId).toBe("stack");
+  test("with nothing below it lands on the viewport floor", () => {
+    const narrow = S("N", 1300, 400, 600);
+    const sc = makeScene([narrow], view());
+    const b = run(standingBody(560, narrow, sc), sc, 2.5, { ...NO_INPUT, right: true });
+    expect([b.surface, b.y]).toEqual([FLOOR_KEY, floorY(view())]);
   });
-  test("input pulses via stepBody: hop and down", () => {
-    const hopped = run(standingBody(500, C, vp), { ...NO_INPUT, hop: true });
-    expect(hopped.anchorId).toBe("highlights");
-    const fell = run(standingBody(500, A, vp), { ...NO_INPUT, down: true });
-    expect(fell.anchorId).toBe("highlights");
+  test("a removed surface drops the body", () => {
+    const b0 = standingBody(500, A, makeScene([A, B], view()));
+    const b = run(b0, makeScene([B], view()), 2);
+    expect(b.surface).toBe("B");
   });
-});
-
-describe("swept landing (no tunnelling)", () => {
-  test("landingAnchor returns the FIRST top crossed, however far the body moved", () => {
-    expect(landingAnchor(250, 900, 500, all, vp)?.id).toBe("statement");
-    expect(landingAnchor(310, 900, 500, all, vp)?.id).toBe("highlights");
-    expect(landingAnchor(250, 290, 500, all, vp)).toBeNull();
+  test("never tunnels, however large the step", () => {
+    const sc = makeScene([A, B, C], view());
+    let b: Body = { ...standingBody(500, A, sc), mode: "air", surface: null, y: 1250, vy: 2300 };
+    b = stepBody(b, NO_INPUT, 10, sc); // clamped to MAX_DT, sub-stepped
+    expect(MAX_DT).toBeLessThan(0.1);
+    expect(b.y).toBeLessThanOrEqual(1500 + 1);
   });
-  test("an anchor the body stands on is not re-landed on", () => expect(landingAnchor(300, 310, 500, [A], vp)).toBeNull());
-  test("a falling body at a huge speed and a huge dt still lands on the first edge", () => {
-    const b: Body = { x: 500, y: 250, vx: 0, vy: 6000, facing: 1, anchorId: null, mode: "air", flight: null };
-    let cur = b;
-    for (let i = 0; i < 40 && cur.mode === "air"; i++) cur = stepBody(cur, NO_INPUT, 10, all, vp);
-    expect(cur.mode).toBe("ground");
-    expect(cur.anchorId).toBe("statement");
+  test("a hard landing squashes then settles; the rebound is small and happens once", () => {
+    const sc = makeScene([B], view());
+    let b: Body = { ...standingBody(500, B, sc), mode: "air", surface: null, y: 1300, vy: 0 };
+    let maxSquash = 0;
+    let rebounds = 0;
+    for (let i = 0; i < 300; i++) {
+      b = stepBody(b, NO_INPUT, 1 / 60, sc);
+      maxSquash = Math.max(maxSquash, b.squash);
+      rebounds = Math.max(rebounds, b.rebounds);
+    }
+    expect(maxSquash).toBeGreaterThan(0.08);
+    expect(squashScale({ squash: 0.2, mode: "ground", vy: 0 }).sy).toBeLessThan(1);
+    expect(squashScale({ squash: 0.2, mode: "ground", vy: 0 }).sx).toBeGreaterThan(1);
+    expect(rebounds).toBe(1);
+    expect(Math.abs(b.squash)).toBeLessThan(0.004);
+    expect(isMoving(b)).toBe(false);
+    expect(b.y).toBe(1500);
   });
-  test("with no anchor beneath, a fall ends on the viewport floor", () => {
-    let cur: Body = { x: 500, y: 650, vx: 0, vy: 0, facing: 1, anchorId: null, mode: "air", flight: null };
-    for (let i = 0; i < 400 && cur.mode === "air"; i++) cur = stepBody(cur, NO_INPUT, 1 / 60, [], vp);
-    expect(cur.mode).toBe("ground");
-    expect(cur.y).toBe(maxFeetY(vp));
-    expect(cur.anchorId).toBeNull();
+  test("a soft step-down does not rebound", () => {
+    const sc = makeScene([A, S("near", 1312)], view());
+    let b = standingBody(500, A, sc);
+    b = { ...b, mode: "air", surface: null, vy: 0 };
+    b = run(b, sc, 1);
+    expect(b.rebounds).toBe(0);
+    expect(b.surface).toBe("near");
   });
 });
 
 describe("walking", () => {
-  test("holding right moves right and stops at the viewport edge", () => {
-    let b = standingBody(500, A, vp);
-    b = run(b, { ...NO_INPUT, right: true }, all, vp, 10);
-    expect(b.x).toBe(vp.w - 12 - CHAR.w / 2);
-    expect(b.facing).toBe(1);
-    b = run(b, { ...NO_INPUT, left: true }, all, vp, 10);
-    expect(b.x).toBe(12 + CHAR.w / 2);
+  test("reaches walking speed and stays within the viewport sides", () => {
+    const sc = makeScene([A], view());
+    const b = run(standingBody(500, A, sc), sc, 0.6, { ...NO_INPUT, left: true });
+    expect(b.x).toBeLessThan(500);
     expect(b.facing).toBe(-1);
+    expect(Math.abs(b.vx)).toBeLessThanOrEqual(WALK_SPEED + 1);
+    const w = run(standingBody(500, A, sc), sc, 8, { ...NO_INPUT, right: true });
+    expect(w.x).toBeLessThanOrEqual(1000 - 12 - CHAR.w / 2);
+    expect(w.surface).toBe("A");
   });
-  test("walking off the end of a narrower anchor reaches the next anchor in that direction", () => {
-    const left: Anchor = { id: "statement", left: 100, right: 300, top: 300 };
-    const right: Anchor = { id: "highlights", left: 400, right: 700, top: 520 };
-    const list = [left, right];
-    let b = standingBody(280, left, vp);
-    b = run(b, { ...NO_INPUT, right: true }, list, vp, 4);
-    expect(b.anchorId).toBe("highlights");
-    expect(b.mode).toBe("ground");
-    expect(b.y).toBe(520);
-    // and back: left goes to the previous one
-    b = run({ ...b, x: 410 }, { ...NO_INPUT, left: true }, list, vp, 4);
-    expect(b.anchorId).toBe("statement");
-  });
-  test("nextAnchorInDirection: right = next below, left = previous above, null at the ends", () => {
-    expect(nextAnchorInDirection(all, B, 1, vp)?.id).toBe("stack");
-    expect(nextAnchorInDirection(all, B, -1, vp)?.id).toBe("statement");
-    expect(nextAnchorInDirection(all, C, 1, vp)).toBeNull();
-    expect(nextAnchorInDirection(all, A, -1, vp)).toBeNull();
-  });
-  test("the keep-out holds: the feet never go above the nav-clear limit, whatever happens", () => {
-    let b = standingBody(500, B, vp);
-    for (let i = 0; i < 600; i++) {
-      b = stepBody(b, { left: i % 120 < 60, right: i % 120 >= 60, hop: i % 50 === 0, down: i % 70 === 0 }, 1 / 60, all, vp);
-      expect(b.y).toBeGreaterThanOrEqual(minFeetY(vp) - 1e-6);
-      expect(b.y).toBeLessThanOrEqual(maxFeetY(vp) + 1e-6);
-      expect(b.x).toBeGreaterThanOrEqual(12 + CHAR.w / 2 - 1e-6);
-      expect(b.x).toBeLessThanOrEqual(vp.w - 12 - CHAR.w / 2 + 1e-6);
+});
+
+describe("jumping", () => {
+  test("a jump is an arc: up to about v^2/2g, then back to the same surface", () => {
+    const sc = makeScene([A], view());
+    let b = stepBody(standingBody(500, A, sc), { ...NO_INPUT, hop: true }, 1 / 60, sc);
+    expect(b.mode).toBe("air");
+    expect(b.vy).toBeLessThan(0);
+    let top = b.y;
+    for (let i = 0; i < 120 && b.mode === "air"; i++) {
+      b = stepBody(b, NO_INPUT, 1 / 60, sc);
+      top = Math.min(top, b.y);
     }
+    expect(1300 - top).toBeGreaterThan(90);
+    expect(1300 - top).toBeLessThan((JUMP_V * JUMP_V) / (2 * 2600) + 6);
+    expect(b.surface).toBe("A");
   });
-  test("an oversized dt is clamped", () => {
-    const b = stepBody({ ...standingBody(500, A, vp), vx: 0 }, { ...NO_INPUT, right: true }, 5, all, vp);
-    expect(b.x - 500).toBeLessThan(210 * MAX_DT + 1);
+  test("a jump up lands on the platform above (one-way: it passes through going up)", () => {
+    const above = S("above", 1300 - 80, 300, 700);
+    const sc = makeScene([A, above], view());
+    const b = run(stepBody(standingBody(500, A, sc), { ...NO_INPUT, hop: true }, 1 / 60, sc), sc, 1.5);
+    expect(b.surface).toBe("above");
+    expect(b.y).toBe(1220);
+  });
+  test("a jump that is too short for the platform comes back down", () => {
+    const high = S("high", 1300 - 300, 300, 700);
+    const sc = makeScene([A, high], view());
+    const b = run(stepBody(standingBody(500, A, sc), { ...NO_INPUT, hop: true }, 1 / 60, sc), sc, 2);
+    expect(b.surface).toBe("A");
+  });
+  test("air control steers the arc", () => {
+    const sc = makeScene([A], view());
+    const b = run(stepBody(standingBody(500, A, sc), { ...NO_INPUT, hop: true, right: true }, 1 / 60, sc), sc, 0.4, { ...NO_INPUT, right: true });
+    expect(b.x).toBeGreaterThan(540);
+  });
+  test("holding up keeps hopping", () => {
+    const sc = makeScene([A], view());
+    let b = standingBody(500, A, sc);
+    let takeoffs = 0;
+    let prev = b.mode;
+    for (let i = 0; i < 240; i++) {
+      b = stepBody(b, { ...NO_INPUT, up: true }, 1 / 60, sc);
+      if (prev === "ground" && b.mode === "air") takeoffs++;
+      prev = b.mode;
+    }
+    expect(takeoffs).toBeGreaterThan(2);
+  });
+  test("launchTo lands exactly on the target", () => {
+    const sc = makeScene([A, B, C], view());
+    const b = run(launchTo(standingBody(300, C, sc), A, sc), sc, 3);
+    expect(b.surface).toBe("A");
+    expect(b.y).toBe(1300);
   });
 });
 
-describe("riding a scrolled anchor", () => {
-  test("the feet follow the surface and are clamped under the nav band", () => {
-    const b = standingBody(500, B, vp);
-    expect(rideAnchor(b, [{ ...B, top: 450 }], vp).y).toBe(450);
-    expect(rideAnchor(b, [{ ...B, top: -900 }], vp).y).toBe(minFeetY(vp));
-    expect(rideAnchor(b, [{ ...B, top: 9000 }], vp).y).toBe(maxFeetY(vp));
+describe("the camera", () => {
+  test("a surface below the screen: hop up to the lowest reachable one", () => {
+    const surfaces = [A, B, C];
+    const b0 = standingBody(500, C, makeScene(surfaces, view(1000)));
+    const sc = makeScene(surfaces, view(850)); // C at viewport 850 > floor 788
+    expect(rescueTarget(b0, sc)).not.toBeNull();
+    const b = run(b0, sc, 3);
+    expect(["A", "B", "C"]).toContain(b.surface!);
+    expect(b.y - sc.view.scrollY).toBeLessThanOrEqual(788 + 0.01);
+  });
+  test("no surface to hop to: it rides the floor", () => {
+    const sc0 = makeScene([C], view(1000));
+    const b = stepBody(standingBody(500, C, sc0), NO_INPUT, 1 / 60, makeScene([C], view(900)));
+    expect(b.surface).toBe(FLOOR_KEY);
+  });
+  test("the head is shoved by the nav, never above the band", () => {
+    const sc = makeScene([], view(1000));
+    let b: Body = { ...standingBody(500, null, sc), mode: "air", surface: null, y: 1100, vy: -900 };
+    b = stepBody(b, NO_INPUT, 1 / 60, sc);
+    expect(b.y - 1000).toBeGreaterThanOrEqual(minFeetY(view()) - 0.01);
   });
 });
 
-describe("isMoving (rAF sleeps at rest)", () => {
-  test("false at rest and after a walk ends", () => {
-    const b = standingBody(500, A, vp);
+describe("rest", () => {
+  test("isMoving is false only when nothing needs a frame", () => {
+    const sc = makeScene([A], view());
+    const b = standingBody(500, A, sc);
     expect(isMoving(b)).toBe(false);
-    let w = run(b, { ...NO_INPUT, right: true }, all, vp, 0.5);
-    expect(isMoving(w, { ...NO_INPUT, right: true })).toBe(true);
-    w = run(w, NO_INPUT, all, vp, 1);
-    expect(isMoving(w)).toBe(false);
+    expect(isMoving(b, { ...NO_INPUT, left: true })).toBe(true);
+    expect(isMoving({ ...b, mode: "air" })).toBe(true);
+    expect(isMoving({ ...b, squash: 0.1 })).toBe(true);
   });
-  test("true while still sliding to a stop on the ground", () => {
-    expect(isMoving({ ...standingBody(500, A, vp), vx: 5 })).toBe(true);
-  });
-  test("true in flight and in the air", () => {
-    expect(isMoving(startHop(standingBody(500, C, vp), all, vp))).toBe(true);
-    expect(isMoving(startFall(standingBody(500, A, vp), all, vp))).toBe(true);
-  });
-  test("true while a pulse is pending", () => {
-    expect(isMoving(standingBody(500, A, vp), { ...NO_INPUT, hop: true })).toBe(true);
-  });
+  test("surfaceY of an unknown key is undefined", () => expect(surfaceY(makeScene([A], view()), "nope")).toBeUndefined());
 });
