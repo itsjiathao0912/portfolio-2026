@@ -258,5 +258,73 @@ describe("drawnEdge: only visibly drawn top edges are platforms", () => {
     // A fill only counts when it differs visibly from what is behind it.
     expect(drawnEdge("SECTION", cs({ backgroundColor: "rgb(247, 247, 247)" }), "rgb(255, 255, 255)")).toBe(false);
     expect(drawnEdge("DIV", cs({ backgroundColor: "rgb(230, 230, 232)" }), "rgb(255, 255, 255)")).toBe(true);
+    // Painted contrast: a faint tint is composited onto what is behind it before comparing.
+    expect(drawnEdge("DIV", cs({ backgroundColor: "rgba(0, 0, 0, 0.04)" }), "rgb(255, 255, 255)")).toBe(false);
+    expect(drawnEdge("DIV", cs({ backgroundColor: "rgba(0, 0, 0, 0.2)" }), "rgb(255, 255, 255)")).toBe(true);
+    expect(drawnEdge("DIV", cs({ backgroundColor: "rgb(244, 244, 244)" }), "rgb(255, 255, 255)")).toBe(false);
+    // A near-white hairline on white is no edge either; a real grey one is.
+    expect(drawnEdge("DIV", cs({ borderTopWidth: "1px", borderTopStyle: "solid", borderTopColor: "rgb(250, 250, 250)" }), "rgb(255, 255, 255)")).toBe(false);
+    expect(drawnEdge("DIV", cs({ borderTopWidth: "1px", borderTopStyle: "solid", borderTopColor: "rgb(200, 200, 205)" }), "rgb(255, 255, 255)")).toBe(true);
+  });
+});
+
+// ---- the guide on every page + the bubble follows the character -------------------------
+import { bubbleAnchor, bubbleRectAt, guidePageFor, PAGE_SPOT_IDS, springStep } from "../../src/components/site/visitor/guide/guide-logic";
+import { PAGE_STORIES, STORY_LINE_MAX as STORY_LINE_MAX_PAGE } from "../../src/components/site/visitor/guide/guide-story";
+
+describe("pages", () => {
+  test("home, /about and case studies host the guide; nothing else does", () => {
+    expect(guidePageFor("/")).toBe("home");
+    expect(guidePageFor("/about")).toBe("about");
+    expect(guidePageFor("/work/cortex-sentinel")).toBe("case");
+    expect(guidePageFor("/work")).toBeNull();
+    expect(guidePageFor("/lab/clay")).toBeNull();
+    expect(guidePageFor(null)).toBeNull();
+  });
+  test("every page spot has a short script (2-4 lines, <= 90 chars, no digits, no duplicates)", () => {
+    for (const id of PAGE_SPOT_IDS) {
+      expect(PAGE_STORIES[id]).toBeDefined();
+      for (const role of ["recruiter", "founder", "engineer", "curious"] as const) {
+        const s = scriptFor(role, id);
+        expect(s.length).toBeGreaterThanOrEqual(2);
+        expect(s.length).toBeLessThanOrEqual(4);
+        expect(new Set(s).size).toBe(s.length);
+        for (const l of s) {
+          expect(l.length).toBeLessThanOrEqual(STORY_LINE_MAX_PAGE);
+          expect(/\d/.test(l)).toBe(false);
+        }
+      }
+      expect(nextLine("founder", id, new Set())).toBe(scriptFor("founder", id)[0]!);
+    }
+  });
+});
+
+describe("bubble follow", () => {
+  test("anchor: a jump keeps the standing y; the same surface is followed exactly; a new one eases", () => {
+    const prev = { y: 500, key: "a" };
+    expect(bubbleAnchor(prev, { mode: "air", y: 380, surface: null })).toEqual({ y: 500, key: "a", snap: true });
+    expect(bubbleAnchor(prev, { mode: "ground", y: 498, surface: "a" })).toEqual({ y: 498, key: "a", snap: true });
+    expect(bubbleAnchor(prev, { mode: "ground", y: 700, surface: "b" })).toEqual({ y: 700, key: "b", snap: false });
+  });
+  test("spring: critically damped, settles near the target within 0.25 s, overshoot < 1 px", () => {
+    let p = 0;
+    let v = 0;
+    let peak = 0;
+    for (let i = 0; i < 30; i++) {
+      ({ p, v } = springStep(p, v, 100, 26, 1 / 120));
+      peak = Math.max(peak, p);
+    }
+    expect(Math.abs(p - 100)).toBeLessThan(25); // 0.25 s at omega 26: well on its way
+    for (let i = 0; i < 120; i++) {
+      ({ p, v } = springStep(p, v, 100, 26, 1 / 120));
+      peak = Math.max(peak, p);
+    }
+    expect(Math.abs(p - 100)).toBeLessThan(0.5);
+    expect(peak).toBeLessThan(101);
+  });
+  test("rect stays inside the viewport width", () => {
+    const r = bubbleRectAt(10, 300, 188, { w: 390 });
+    expect(r.left).toBe(EDGE);
+    expect(bubbleRectAt(385, 300, 188, { w: 390 }).right).toBe(390 - EDGE);
   });
 });

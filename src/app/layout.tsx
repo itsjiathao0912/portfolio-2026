@@ -18,6 +18,7 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { SiteNav } from "@/components/site/site-nav";
 import { VisitorProvider } from "@/components/site/visitor/store";
 import { VisitorModal } from "@/components/site/visitor/visitor-modal";
+import { VisitorGuide } from "@/components/site/visitor/guide/guide";
 import { loadSite } from "@/lib/load";
 import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_TITLE } from "@/lib/seo/site-meta";
 import { SITE_URL } from "@/lib/seo/site-url";
@@ -84,6 +85,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <SiteFooter profile={profile} />
           <SecretWord />
           <VisitorModal />
+          <VisitorGuide />
           </VisitorProvider>
           </ParticipateProvider>
         </MotionProvider>

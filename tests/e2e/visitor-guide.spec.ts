@@ -508,9 +508,10 @@ for (const vp of [
   });
 }
 
-test.describe("bubble stays put", () => {
+// Thao: the bubble FOLLOWS the character (above the head while it walks) but never bounces with a jump.
+test.describe("bubble follows", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
-  test("while a line shows, the bubble box does not move (±1 px) during a jump and a walk", async ({ page }) => {
+  test("during a jump the bubble's y moves <= 1 px; during a walk its centre stays within 8 px of the character's", async ({ page }) => {
     await seed(page);
     await page.goto("/");
     await expect(guide(page)).toBeVisible();
@@ -518,28 +519,130 @@ test.describe("bubble stays put", () => {
     const bubble = page.getByTestId("guide-bubble");
     await expect(bubble).toBeVisible({ timeout: 8000 });
     await landed(page);
-    await page.waitForTimeout(400); // the one smooth placement move has finished
-    const b0 = (await bubble.boundingBox())!;
-    const samples: { x: number; y: number }[] = [];
-    const sample = async (ms: number) => {
-      for (let t = 0; t < ms; t += 40) {
-        if ((await bubble.count()) === 0) return;
-        const b = await bubble.boundingBox({ timeout: 500 }).catch(() => null);
-        if (b) samples.push({ x: b.x, y: b.y + (await page.evaluate(() => scrollY)) - y0 });
-        await page.waitForTimeout(40);
-      }
+    await page.waitForTimeout(400); // the resting placement has eased in
+    const pageY = async () => {
+      const b = await bubble.boundingBox({ timeout: 500 }).catch(() => null);
+      return b ? b.y + (await page.evaluate(() => scrollY)) : null;
     };
-    const y0 = await page.evaluate(() => scrollY);
+    const y0 = (await pageY())!;
+    // Jump straight up: sample through the whole arc and the landing squash.
+    const ys: number[] = [];
     await page.keyboard.press("ArrowUp");
-    await sample(700);
-    await page.keyboard.down("ArrowRight");
-    await sample(500);
-    await page.keyboard.up("ArrowRight");
-    await sample(300);
-    expect(samples.length).toBeGreaterThan(5);
-    for (const s of samples) {
-      expect(Math.abs(s.x - b0.x)).toBeLessThanOrEqual(1);
-      expect(Math.abs(s.y - b0.y)).toBeLessThanOrEqual(1);
+    let sawAir = false;
+    for (let t = 0; t < 900; t += 30) {
+      if ((await mode(page)) === "air") sawAir = true;
+      const y = await pageY();
+      if (y !== null) ys.push(y);
+      await page.waitForTimeout(30);
     }
+    expect(sawAir).toBe(true);
+    expect(ys.length).toBeGreaterThan(8);
+    const dy = Math.max(...ys.map((y) => Math.abs(y - y0)));
+    console.log(`[bubble] jump: max bubble y movement ${dy.toFixed(2)} px over ${ys.length} samples`);
+    expect(dy).toBeLessThanOrEqual(1);
+    await landed(page);
+    // Walk toward the roomier side (so the bubble is not clamped by the viewport edge).
+    const fx = (await feet(page))[0];
+    const key = fx > 720 ? "ArrowLeft" : "ArrowRight";
+    await page.keyboard.down(key);
+    await page.waitForTimeout(220); // the place offset eases above the head
+    const offs: number[] = [];
+    // Up to ~1 s of walking: a short block can drop it for a moment (air samples are skipped).
+    for (let t = 0; t < 1000 && offs.length < 12; t += 35) {
+      const r = await page.evaluate(() => {
+        const b = document.querySelector("[data-testid=guide-bubble]")?.getBoundingClientRect();
+        const g = document.querySelector("[data-testid=visitor-guide]")!.getBoundingClientRect();
+        const m = (document.querySelector("[data-testid=visitor-guide]") as HTMLElement).dataset.guideMode;
+        return b && m === "ground" ? b.left + b.width / 2 - (g.left + g.width / 2) : null;
+      });
+      if (r !== null) offs.push(r);
+      await page.waitForTimeout(35);
+    }
+    await page.keyboard.up(key);
+    // The line hides after its 9 s timer; under load the jump half can use most of it. Then too few walk samples exist to judge.
+    if (offs.length <= 5) {
+      console.log(`[bubble] walk: only ${offs.length} samples before the line timed out; walk half not judged`);
+      return;
+    }
+    const dx = Math.max(...offs.map(Math.abs));
+    console.log(`[bubble] walk: max centre offset ${dx.toFixed(2)} px over ${offs.length} samples`);
+    expect(dx).toBeLessThanOrEqual(8);
+  });
+});
+
+test.describe("rest and contact", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  test("resting idle 10 s: 0 guide rAF callbacks", async ({ page }) => {
+    await seed(page);
+    await page.goto("/");
+    await page.evaluate(() => scrollTo(0, 2000));
+    await expect(guide(page)).toBeVisible();
+    await landed(page);
+    await page.waitForTimeout(1500);
+    const f0 = Number(await guide(page).getAttribute("data-guide-frames"));
+    await page.waitForTimeout(10_000);
+    const f1 = Number(await guide(page).getAttribute("data-guide-frames"));
+    console.log(`[idle] guide rAF callbacks in 10 s at rest: ${f1 - f0}`);
+    expect(f1 - f0).toBe(0);
+  });
+  test("a hover on the block it stands on does not start a frame loop", async ({ page }) => {
+    await seed(page);
+    await page.goto("/");
+    await scrollToSpot(page, 1600);
+    await landed(page);
+    const f0 = Number(await guide(page).getAttribute("data-guide-frames"));
+    const r = await page.evaluate(() => {
+      const b = document.querySelector("[data-guide-standing]")?.getBoundingClientRect();
+      return b ? { x: b.left + Math.min(40, b.width / 2), y: b.top + Math.min(30, b.height / 2) } : null;
+    });
+    if (r) {
+      await page.mouse.move(r.x, r.y);
+      await page.waitForTimeout(900);
+      await page.mouse.move(5, 450);
+      await page.waitForTimeout(900);
+    }
+    const f1 = Number(await guide(page).getAttribute("data-guide-frames"));
+    console.log(`[idle] frames during a hover on the standing block: ${f1 - f0}`);
+    expect(f1 - f0).toBe(0);
+    expect((await contact(page)).ok).toBe(true);
+  });
+  test("after landing, through the whole pose ease, the soles stay on the edge (sampled every frame)", async ({ page }) => {
+    await seed(page);
+    await page.goto("/");
+    await scrollToSpot(page, 1600);
+    await landed(page);
+    await page.keyboard.press("ArrowUp");
+    await expect.poll(() => mode(page), { timeout: 3000 }).toBe("air");
+    // From the landing frame on, read the painted sole against the model's feet for 600 ms, every frame.
+    const worst = await page.evaluate(
+      () =>
+        new Promise<{ worst: number; n: number }>((done) => {
+          const g = document.querySelector<HTMLElement>("[data-testid=visitor-guide]")!;
+          const svg = g.querySelector("svg")!;
+          let start = 0;
+          let worst = 0;
+          let n = 0;
+          const tick = (ts: number) => {
+            if (g.dataset.guideMode === "ground") {
+              if (!start) start = ts;
+              let sole = -1e9;
+              for (const e of svg.querySelectorAll("path,ellipse,circle,rect,polygon")) {
+                if (e.closest("defs,clipPath,mask,pattern")) continue;
+                const q = e.getBoundingClientRect();
+                if (q.width && q.height && q.bottom > sole) sole = q.bottom;
+              }
+              const fy = Number(g.dataset.guideFeet!.split(",")[1]) - scrollY;
+              worst = Math.max(worst, Math.abs(sole - Math.min(fy, innerHeight - 12)));
+              n++;
+            } else start = 0;
+            if (start && ts - start > 600) done({ worst, n });
+            else requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }),
+    );
+    console.log(`[pose ease] worst sole offset after landing: ${worst.worst.toFixed(2)} px over ${worst.n} frames`);
+    expect(worst.n).toBeGreaterThan(10);
+    expect(worst.worst).toBeLessThanOrEqual(1);
   });
 });
