@@ -21,7 +21,7 @@
 // Cleanup runs on success, failure, AND Ctrl-C/SIGTERM (async spawns keep the
 // event loop free so the signal handlers actually run).
 import { execFileSync, spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import net from "node:net";
 import path from "node:path";
@@ -38,7 +38,8 @@ function git(...args) {
 }
 
 // --from-head: re-run this script inside a throwaway worktree of HEAD (sharing
-// node_modules by symlink), then remove the worktree.
+// a real offline-preferred pnpm install; a symlinked node_modules breaks the
+// Next/Turbopack build), then remove the worktree.
 if (process.argv.includes("--from-head")) {
   const rest = process.argv.slice(2).filter((a) => a !== "--from-head");
   const wt = mkdtempSync(path.join(os.tmpdir(), "pf-e2e-head-"));
@@ -47,7 +48,12 @@ if (process.argv.includes("--from-head")) {
     console.error("[e2e] --from-head: git worktree add failed");
     process.exit(1);
   }
-  symlinkSync(path.join(root, "node_modules"), path.join(wt, "node_modules"), "dir");
+  const inst = spawnSync("pnpm", ["install", "--frozen-lockfile", "--prefer-offline"], { cwd: wt, stdio: "inherit" });
+  if (inst.status !== 0) {
+    console.error("[e2e] --from-head: pnpm install failed");
+    git("worktree", "remove", "--force", wt);
+    process.exit(1);
+  }
   console.log(`[e2e] --from-head: running in ${wt} @ ${git("rev-parse", "--short", "HEAD")}`);
   const r = spawnSync(process.execPath, [path.join(wt, "scripts", "run-isolated-e2e.mjs"), ...rest], { cwd: wt, stdio: "inherit" });
   git("worktree", "remove", "--force", wt);
