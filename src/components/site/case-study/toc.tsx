@@ -10,7 +10,7 @@ import { SPRING as SITE_SPRING } from "@/components/motion/springs";
 import { cn } from "@/lib/utils";
 import { sectionIcon } from "../case-study-toc";
 import { useReadingDepth } from "./reading/depth-context";
-import { visibleToc } from "./reading/logic";
+import { DEPTH_LABEL, DEPTH_ORDER, visibleToc } from "./reading/logic";
 
 interface Entry {
   id: string;
@@ -145,7 +145,7 @@ const SPRING = SITE_SPRING.indicator;
 
 /** Desktop navigator in the left margin (xl+), visible from the start of the body. */
 export function CaseToc({ entries: allEntries, startId, slug, title }: TocProps) {
-  const { depth } = useReadingDepth();
+  const { depth, setDepth } = useReadingDepth();
   const entries = useMemo(() => visibleToc(allEntries, depth), [allEntries, depth]);
   const active = useActiveSection(entries);
   const inBody = useInBody(startId);
@@ -173,6 +173,24 @@ export function CaseToc({ entries: allEntries, startId, slug, title }: TocProps)
           <span className="truncate">{title}</span>
         </p>
       ) : null}
+      <div role="group" aria-label="Reading depth" data-testid="toc-depth" className="mx-4 mb-2 flex rounded-full bg-bg p-0.5">
+        {DEPTH_ORDER.map((d) => (
+          <button
+            key={d}
+            type="button"
+            aria-pressed={d === depth}
+            tabIndex={shown ? undefined : -1}
+            onClick={() => setDepth(d)}
+            data-testid={`toc-depth-${d}`}
+            className={cn(
+              "min-h-11 flex-1 rounded-full text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-accent",
+              d === depth ? "bg-navy text-white" : "text-ink-3 hover:text-ink-1",
+            )}
+          >
+            {DEPTH_LABEL[d].name.split(" ")[0]}
+          </button>
+        ))}
+      </div>
       <ol className="flex flex-col">
         {rows.map((row, i) => {
           const isActive = row.section && row.id === active;

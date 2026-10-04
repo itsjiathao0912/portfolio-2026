@@ -19,9 +19,9 @@ const FILLS = ["bg-navy", "bg-accent", "bg-indigo", "bg-[#7c9cff]", "bg-[#a5b4fc
 
 /**
  * One bar split into segments (shares of a whole). Segments grow in on scroll.
- * Hover a segment (mouse) or use its 44px legend toggle (touch/keyboard, the
- * accessible control; thin segments are too small to tap, so they are
- * pointer-only and skipped by Tab); the optional
+ * Hover a segment (mouse, a read-only preview) or use its 44px legend toggle:
+ * the toggles are the only controls (segments are plain, not focusable or
+ * tappable; thin ones are too small to tap). The optional
  * `highlight` switch lights a named subset and sums it.
  */
 export function StackedBar({ unit = "%", segments, highlight, ...frame }: StackedBarProps) {
@@ -38,13 +38,11 @@ export function StackedBar({ unit = "%", segments, highlight, ...frame }: Stacke
       <div className="flex flex-col gap-4">
         <div className="flex h-14 w-full overflow-hidden rounded-md bg-bg" role="list">
           {segments.map((s, i) => (
-            <motion.button
+            <motion.div
               key={s.label}
-              type="button"
-              tabIndex={-1}
               role="listitem"
               className={cn(
-                "relative h-full origin-left border-r-2 border-canvas text-left text-xs font-semibold text-white transition-opacity duration-200 last:border-r-0 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none",
+                "relative h-full origin-left border-r-2 border-canvas text-left text-xs font-semibold text-white transition-opacity duration-200 last:border-r-0",
                 FILLS[i % FILLS.length],
                 !isOn(s.label) && "opacity-25",
               )}
@@ -55,14 +53,11 @@ export function StackedBar({ unit = "%", segments, highlight, ...frame }: Stacke
               transition={reduce ? { duration: 0 } : { ...VIZ_SPRING, delay: vizDelay(i, 0.1) }}
               onMouseEnter={() => setFocus(s.label)}
               onMouseLeave={() => setFocus(null)}
-              onFocus={() => setFocus(s.label)}
-              onBlur={() => setFocus(null)}
-              onClick={() => setFocus(focus === s.label ? null : s.label)}
               aria-label={`${s.label}: ${formatValue(s.value, unit)}`}
               data-testid="segment"
             >
               {s.value / total >= 0.09 ? <span className="absolute inset-x-2 top-1/2 -translate-y-1/2 truncate tabular-nums">{formatValue(s.value, unit)}</span> : null}
-            </motion.button>
+            </motion.div>
           ))}
         </div>
 

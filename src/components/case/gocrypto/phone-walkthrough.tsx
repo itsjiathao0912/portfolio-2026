@@ -43,6 +43,23 @@ function Pinned({ reduce }: { reduce: boolean }) {
       return next;
     });
   });
+  /** Jump the page to the middle of step i's slice of the pinned scroll, so scroll and buttons stay one control. */
+  function goTo(i: number) {
+    const el = outer.current;
+    if (!el) return;
+    const range = el.offsetHeight - window.innerHeight;
+    const top = el.getBoundingClientRect().top + window.scrollY;
+    setDir(i > active ? 1 : -1);
+    setActive(i);
+    window.scrollTo({ top: top + ((i + 0.5) / WALKTHROUGH_STEPS.length) * range, behavior: "auto" });
+  }
+  function onStepKey(e: React.KeyboardEvent<HTMLButtonElement>, i: number) {
+    const next = e.key === "ArrowDown" || e.key === "ArrowRight" ? i + 1 : e.key === "ArrowUp" || e.key === "ArrowLeft" ? i - 1 : null;
+    if (next === null || next < 0 || next >= WALKTHROUGH_STEPS.length) return;
+    e.preventDefault();
+    goTo(next);
+    (e.currentTarget.closest("ol")?.querySelectorAll("button")[next] as HTMLButtonElement | undefined)?.focus({ preventScroll: true });
+  }
   const rx = useMotionValue(0);
   const ry = useMotionValue(0);
   const tx = useSpring(rx, SPRING.tilt);
@@ -65,11 +82,24 @@ function Pinned({ reduce }: { reduce: boolean }) {
       <div className="sticky top-24 flex h-[calc(100vh-7rem)] items-center gap-10 lg:gap-16" onPointerMove={onMove} onPointerLeave={onLeave}>
         <ol className="flex flex-1 flex-col gap-2" aria-label="Walkthrough steps">
           {WALKTHROUGH_STEPS.map((s, i) => (
-            <li key={s.title} aria-current={i === active ? "step" : undefined} className={cn("rounded-2xl px-5 py-3 transition-[opacity,background-color] duration-[320ms]", i === active ? "bg-canvas opacity-100" : "opacity-40")}>
-              <p className="text-xs font-semibold tracking-wide text-accent uppercase">
-                {i + 1} / {WALKTHROUGH_STEPS.length} · {s.title}
-              </p>
-              <p className={cn("mt-1 text-[0.95rem] leading-relaxed text-ink-2", i !== active && "line-clamp-1")}>{s.caption}</p>
+            <li key={s.title}>
+              <button
+                type="button"
+                onClick={() => goTo(i)}
+                onKeyDown={(e) => onStepKey(e, i)}
+                aria-current={i === active ? "step" : undefined}
+                aria-label={`Show screen ${i + 1} of ${WALKTHROUGH_STEPS.length}: ${s.title}`}
+                data-testid="walkthrough-step"
+                className={cn(
+                  "block min-h-11 w-full rounded-2xl px-5 py-3 text-left transition-[opacity,background-color] duration-[320ms] hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-accent",
+                  i === active ? "bg-canvas opacity-100" : "opacity-40",
+                )}
+              >
+                <span className="block text-xs font-semibold tracking-wide text-accent uppercase">
+                  {i + 1} / {WALKTHROUGH_STEPS.length} · {s.title}
+                </span>
+                <span className={cn("mt-1 block text-[0.95rem] leading-relaxed text-ink-2", i !== active && "line-clamp-1")}>{s.caption}</span>
+              </button>
             </li>
           ))}
         </ol>

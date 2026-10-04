@@ -205,8 +205,10 @@ test.describe("iteration 4: stops, morph, walkthrough", () => {
     const n = await stops.count();
     expect(n).toBeGreaterThan(2);
     const box = (await stops.nth(n - 2).boundingBox())!;
-    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.getAttribute("data-testid"), [box.x + box.width / 2, box.y + box.height / 2]);
+    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest("[data-testid]")?.getAttribute("data-testid"), [box.x + box.width / 2, box.y + box.height / 2]);
     expect(hit).toBe("timeline-stop");
+    expect(box.width, "stop hit area width").toBeGreaterThanOrEqual(44);
+    expect(box.height, "stop hit area height").toBeGreaterThanOrEqual(44);
     await stops.nth(n - 2).click();
     await expect(page.getByTestId("timeline-card").first()).toContainText(`${n - 1} / ${n}`);
   });
@@ -227,5 +229,59 @@ test.describe("iteration 4: stops, morph, walkthrough", () => {
     test.skip((await wt.count()) === 0, "PhoneWalkthrough not yet placed in gocrypto content");
     await expect(wt.locator("canvas")).toHaveCount(0);
     await expect(wt.getByTestId("phone-walkthrough-pinned").locator("li")).toHaveCount(5);
+  });
+
+  test("GoCrypto desktop walkthrough has visible step buttons that drive the phone, by click and keyboard", async ({ page }) => {
+    await settle(page, "gocrypto");
+    const pinned = page.getByTestId("phone-walkthrough-pinned");
+    await pinned.scrollIntoViewIfNeeded();
+    const steps = pinned.getByTestId("walkthrough-step");
+    await expect(steps).toHaveCount(5);
+    for (const step of await steps.all()) {
+      await expect(step).toBeVisible();
+      expect((await step.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    }
+    const phone = pinned.locator("img").first();
+    await steps.nth(3).click();
+    await expect(steps.nth(3)).toHaveAttribute("aria-current", "step");
+    await expect(phone).toHaveAttribute("src", /screen-4/);
+    await steps.nth(3).focus();
+    await page.keyboard.press("ArrowDown");
+    await expect(steps.nth(4)).toHaveAttribute("aria-current", "step");
+    await expect(steps.nth(4)).toBeFocused();
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await expect(steps.nth(0)).toHaveAttribute("aria-current", "step");
+    await expect(phone).toHaveAttribute("src", /screen-1/);
+  });
+
+  test("the depth pill scrolls away with the hero instead of stacking under the nav", async ({ page }) => {
+    await settle(page, "cortex-sentinel");
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const pill = page.getByTestId("depth-bar");
+    await expect(pill).toBeVisible();
+    const pos = await pill.evaluate((el) => getComputedStyle(el).position);
+    expect(pos).not.toBe("sticky");
+    expect(pos).not.toBe("fixed");
+    for (const d of ["skim", "read", "deep"]) expect((await page.getByTestId(`depth-${d}`).boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    // Mid-page the margin TOC carries a compact depth control.
+    await page.getByTestId("case-study").locator("h2").nth(1).scrollIntoViewIfNeeded();
+    const mini = page.getByTestId("toc-depth");
+    await expect(mini).toBeVisible();
+    await page.getByTestId("toc-depth-skim").click();
+    await expect(page.getByTestId("depth-skim")).toHaveAttribute("aria-checked", "true");
+  });
+
+  test("stacked-bar segments are not controls: only the 44px legend toggles are", async ({ page }) => {
+    await settle(page, "cortex-sentinel");
+    const bars = page.locator('[data-testid="dataviz"][data-viz="stacked"]');
+    test.skip((await bars.count()) === 0, "no stacked bar on this case");
+    const bar = bars.first();
+    await bar.scrollIntoViewIfNeeded();
+    expect(await bar.locator('[data-testid="segment"]').first().evaluate((el) => el.tagName)).toBe("DIV");
+    expect(await bar.locator("[data-testid=segment] button, button[data-testid=segment]").count()).toBe(0);
+    for (const t of await bar.getByTestId("legend-toggle").all()) expect((await t.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   });
 });

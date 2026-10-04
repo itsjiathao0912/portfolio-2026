@@ -8,20 +8,24 @@ import { cn } from "@/lib/utils";
 import { useReadingDepth } from "./depth-context";
 import { DEPTH_LABEL, DEPTH_ORDER } from "./logic";
 
-/** Sticky Skim / Read / Deep control under the hero. Same segmented-thumb language as the persona picker. */
+/**
+ * Skim / Read / Deep control under the hero. Inline, not sticky: a second bar
+ * pinned under the nav covered content (Cortex "Next step", Results). On
+ * desktop the margin TOC carries a compact copy once this scrolls away.
+ */
 export function DepthPill() {
   const { depth, setDepth, persona, ready } = useReadingDepth();
   const reduce = useReducedMotion();
   const meta = persona && isPersona(persona) ? PERSONA_META[persona] : null;
   return (
-    <div className="sticky top-[68px] z-30 -mt-4 mb-10 flex flex-col items-stretch gap-2 md:top-[96px] md:items-center" data-testid="depth-bar">
+    <div className="-mt-4 mb-10 flex flex-col items-stretch gap-2 md:items-center" data-testid="depth-bar">
       <div
         role="radiogroup"
         aria-label="Reading depth"
         data-testid="depth-pill"
         data-depth={depth}
         data-ready={ready ? "true" : "false"}
-        className="glass relative flex h-11 w-full items-center rounded-full p-1 md:h-10 md:w-auto"
+        className="glass relative flex h-11 w-full items-center rounded-full px-1 py-0 md:w-auto"
         data-tint="light"
       >
         <LayoutGroup id="depth-pill">

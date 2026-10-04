@@ -192,6 +192,10 @@ test("case-study hero is centred with a sentence headline and a real visual", as
   // Showcase layout: a fan of real screens; bento images open in a lightbox.
   await page.goto("/work/cosap");
   await expect(page.getByTestId("fan")).toBeVisible();
+  // The bento (screens of the public site) is evidence, so it sits in the Deep depth run; open it first.
+  await page.getByTestId("depth-deep").click();
+  await expect(page.getByTestId("depth-deep")).toHaveAttribute("aria-checked", "true");
+  await page.getByTestId("bento").scrollIntoViewIfNeeded();
   await page.getByTestId("bento").getByTestId("zoom-image").first().click();
   await expect(page.getByTestId("lightbox")).toBeVisible();
   await page.keyboard.press("Escape");

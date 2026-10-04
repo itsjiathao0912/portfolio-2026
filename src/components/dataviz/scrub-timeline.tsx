@@ -63,14 +63,16 @@ export function ScrubTimeline({ tracks, ...frame }: ScrubTimelineProps) {
           </div>
           <ol className="relative z-10 -mt-[11px] h-4">
             {track.stops.map((s, i) => (
-              <li key={`${track.name}-${s.label}`} className="absolute -translate-x-1/2" style={{ left: `${at(i)}%` }}>
+              <li key={`${track.name}-${s.label}`} className="absolute -translate-x-1/2 -translate-y-3.5" style={{ left: `${at(i)}%` }}>
                 <button
                   type="button"
                   onClick={() => setPos(n === 1 ? 0 : i / (n - 1))}
                   aria-label={`${s.when}: ${s.label}`}
-                  className={cn("relative block size-4 rounded-full border-[3px] border-canvas transition-colors after:absolute after:-inset-3.5 after:content-['']", i <= current ? "bg-accent" : "bg-ink-3/50")}
+                  className="flex size-11 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-accent"
                   data-testid="timeline-stop"
-                />
+                >
+                  <span aria-hidden="true" className={cn("block size-4 rounded-full border-[3px] border-canvas transition-colors", i <= current ? "bg-accent" : "bg-ink-3/50")} />
+                </button>
               </li>
             ))}
           </ol>
