@@ -194,6 +194,7 @@ export type KeyTarget = {
   parentElement?: KeyTarget | null;
   getAttribute?: (name: string) => string | null;
   isContentEditable?: boolean;
+  getBoundingClientRect?: () => { top: number; bottom: number };
 };
 
 const BODY_LIKE = new Set(["BODY", "HTML", "#DOCUMENT"]);
@@ -227,13 +228,39 @@ function ownsKeys(node: KeyTarget | null | undefined) {
  * is ours. Only the keys the caller routes here (arrows, W) are ever claimed:
  * ArrowDown, Space and PageDown are never handled, so the page still scrolls.
  */
-export function shouldHandleGuideKey(target: KeyTarget | null | undefined, guideEl: KeyTarget | null | undefined, event: { ctrlKey?: boolean; metaKey?: boolean; altKey?: boolean }) {
+export function shouldHandleGuideKey(target: KeyTarget | null | undefined, guideEl: KeyTarget | null | undefined, event: { ctrlKey?: boolean; metaKey?: boolean; altKey?: boolean }, viewportH?: number) {
   if (event.ctrlKey || event.metaKey || event.altKey) return false;
   if (!target) return true;
   if (BODY_LIKE.has((target.nodeName ?? "").toUpperCase())) return true;
   if (isInside(target, guideEl)) return true;
+  // Focus left behind on a radio whose group has scrolled off screen: the visitor is playing, not choosing.
+  if (viewportH !== undefined && inOffscreenRadioGroup(target, viewportH)) return true;
   return !ownsKeys(target);
 }
+
+/** Is `node` inside a `role=radiogroup` that is entirely above or below the viewport? */
+export function inOffscreenRadioGroup(node: KeyTarget | null | undefined, viewportH: number) {
+  for (let n = node ?? null; n; n = n.parentElement ?? null) {
+    if (n.getAttribute?.("role") !== "radiogroup") continue;
+    const r = n.getBoundingClientRect?.();
+    return !!r && (r.bottom <= 0 || r.top >= viewportH);
+  }
+  return false;
+}
+
+/** Page-px rects of reading text (`ink`) that sit in the band the body would fill above a standing edge, tagged by their element. */
+export type Ink<E = unknown> = { el: E; rect: Rect };
+
+/** The ink the body box would cover when standing at `top`, ignoring the element it stands on. Cheap prefilter by height only. */
+export function inkAbove<E>(ink: readonly Ink<E>[], top: number, own: E | null): Rect[] {
+  const lo = top - CHAR.h;
+  const out: Rect[] = [];
+  for (const i of ink) if (i.el !== own && i.rect.bottom > lo && i.rect.top < top) out.push(i.rect);
+  return out;
+}
+
+/** Overlap area (px2) allowed before a spot counts as covering text. */
+export const INK_TOLERANCE = 120;
 
 /** The keys the character claims, mapped to its actions. Anything else (ArrowDown, Space, PageDown, Enter) is left to the page. */
 export function guideAction(key: string): "left" | "right" | "up" | null {

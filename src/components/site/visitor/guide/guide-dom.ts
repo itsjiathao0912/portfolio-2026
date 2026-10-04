@@ -9,7 +9,7 @@
 //    surfaces in place. Elements far from the viewport keep their last position.
 
 import { GUIDE_SECTION_IDS, type GuideSectionId } from "../role-ids";
-import { CHAR, MIN_SURFACE_W, type Rect, type Span, type Surface } from "./guide-logic";
+import { CHAR, type Ink, MIN_SURFACE_W, type Rect, type Span, type Surface } from "./guide-logic";
 
 const TEXT_TAGS = new Set(["H1", "H2", "H3", "P"]);
 /** Headings, paragraphs, images, buttons, cards (article / figure) and anything tagged `data-guide-surface`. */
@@ -149,4 +149,35 @@ export function guideRoots(): Element[] {
   const contact = document.getElementById("get-in-touch");
   if (contact && !home?.contains(contact)) roots.push(contact);
   return roots;
+}
+
+const INK_SELECTOR = "h1,h2,h3,p,figcaption";
+const INK_LEAF = "[data-testid='visitor-stats-strip']";
+
+/**
+ * Where reading text really is (tight line boxes, page px): headings, paragraphs,
+ * captions and the live stat numbers. The body must not stand in front of these.
+ */
+export function readInk(roots: readonly Element[], guideRoot: Element | null, scrollY: number): Ink<Element>[] {
+  const out: Ink<Element>[] = [];
+  const range = document.createRange();
+  const push = (el: Element, r: { left: number; right: number; top: number; bottom: number }) => out.push({ el, rect: { left: r.left, right: r.right, top: r.top + scrollY, bottom: r.bottom + scrollY } });
+  for (const root of roots) {
+    for (const el of root.querySelectorAll(INK_SELECTOR)) {
+      if (guideRoot?.contains(el) || el.closest(SKIP_SELECTOR)) continue;
+      const box = el.getBoundingClientRect();
+      if (box.width < 2 || box.height < 2) continue;
+      range.selectNodeContents(el);
+      for (const q of range.getClientRects()) if (q.width > 3 && q.height > 6) push(el, q);
+    }
+    for (const strip of root.querySelectorAll(INK_LEAF)) {
+      for (const leaf of strip.querySelectorAll("*")) {
+        if (leaf.children.length > 0 || !leaf.textContent?.trim()) continue;
+        range.selectNodeContents(leaf);
+        for (const q of range.getClientRects()) if (q.width > 3 && q.height > 6) push(strip, q);
+      }
+    }
+  }
+  range.detach();
+  return out;
 }

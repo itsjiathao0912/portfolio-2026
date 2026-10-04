@@ -15,7 +15,7 @@ async function seed(page: Page, extra: Record<string, unknown> = {}, hintSeen = 
   await page.addInitScript(
     ([key, extraJson, seen]) => {
       if (!localStorage.getItem(key)) {
-        localStorage.setItem(key, JSON.stringify({ v: 1, role: "founder", collapsed: true, guideHidden: false, visitorId: "e2eguide-" + Math.random().toString(36).slice(2, 12), ordinal: null, ...JSON.parse(extraJson as string) }));
+        localStorage.setItem(key, JSON.stringify({ v: 1, role: "founder", collapsed: true, visitorId: "e2eguide-" + Math.random().toString(36).slice(2, 12), ordinal: null, ...JSON.parse(extraJson as string) }));
       }
       if (seen) localStorage.setItem("thao:guide-hint:v1", "1");
     },
@@ -38,20 +38,34 @@ async function landed(page: Page) {
 test.describe("desktop", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("absent before a choice; appears after one; the tiny x hides it and that persists", async ({ page }) => {
+  test("absent before a choice; appears after one and always stays (no hide control, a stored guideHidden is ignored)", async ({ page }) => {
     await page.route("**/api/visit", (r) => r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ordinal: 1, counted: true }) }));
     await page.goto("/");
     await page.waitForTimeout(1500);
     await expect(guide(page)).toHaveCount(0);
-    await page.evaluate((k) => localStorage.setItem(k, JSON.stringify({ v: 1, role: "founder", collapsed: true, guideHidden: false, visitorId: "e2eguide-abcdefgh", ordinal: null })), KEY);
+    await page.evaluate((k) => localStorage.setItem(k, JSON.stringify({ v: 1, role: "founder", collapsed: true, guideHidden: true, visitorId: "e2eguide-abcdefgh", ordinal: null })), KEY);
     await page.reload();
     await expect(guide(page)).toBeVisible();
     await page.getByTestId("guide-character").hover();
-    await page.getByTestId("guide-hide").click();
-    await expect(guide(page)).toHaveCount(0);
-    await page.reload();
-    await page.waitForTimeout(1500);
-    await expect(guide(page)).toHaveCount(0);
+    await expect(page.getByTestId("guide-hide")).toHaveCount(0);
+  });
+
+  test("click-pick, scroll down, arrow right: the guide walks and the page does not scroll", async ({ page }) => {
+    await page.route("**/api/visit", (r) => r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ordinal: 1, counted: true }) }));
+    await page.goto("/");
+    await page.getByTestId("tile-engineer").click();
+    await expect(guide(page)).toBeVisible();
+    await page.mouse.wheel(0, 1800);
+    await page.waitForTimeout(900);
+    await landed(page);
+    const y0 = await page.evaluate(() => window.scrollY);
+    const x0 = (await feet(page))[0];
+    await page.keyboard.down("ArrowRight");
+    await page.waitForTimeout(500);
+    await page.keyboard.up("ArrowRight");
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => window.scrollY)).toBe(y0);
+    expect((await feet(page))[0]).toBeGreaterThan(x0);
   });
 
   test("no big buttons: no Walk with me, no Hide character pills", async ({ page }) => {

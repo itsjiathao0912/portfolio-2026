@@ -30,9 +30,9 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import type { GuideSectionId, RoleId } from "../role-ids";
 import { useVisitor } from "../store";
-import { collectTracked, guideRoots, readAvoid, readNav, readSpans, refreshSurfaces, type Tracked } from "./guide-dom";
-import { GuideBubble, GuideClose, GuideDot, GuideHint, GuideTouchPad, type KeyHandlers, type PressKey, useGuideKeys } from "./guide-controls";
-import { type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type Rect, sectionUnder, type Span, stepSurface, type Surface, surfaceStandable, type View, visibleSurfaces } from "./guide-logic";
+import { collectTracked, guideRoots, readAvoid, readInk, readNav, readSpans, refreshSurfaces, type Tracked } from "./guide-dom";
+import { GuideBubble, GuideDot, GuideHint, GuideTouchPad, type KeyHandlers, type PressKey, useGuideKeys } from "./guide-controls";
+import { type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, type Ink, inkAbove, INK_TOLERANCE, maxFeetY, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type Rect, sectionUnder, type Span, stepSurface, type Surface, surfaceStandable, type View, visibleSurfaces } from "./guide-logic";
 import { type Body, FLOOR_KEY, isMoving, launchTo, makeScene, NO_INPUT, type Input, type Scene, squashScale, standingBody, stepBody, surfaceY } from "./guide-physics";
 import { scriptFor } from "./guide-story";
 
@@ -42,6 +42,8 @@ const PASSIVE_BUBBLE_MS = 9000;
 const SETTLE_MS = 160;
 const SCROLL_FRAMES_MS = 170;
 const RECOLLECT_MS = 450;
+/** How long surfaces are re-read per frame after a hover or transition finishes on the block being stood on. */
+const LIVE_MS = 650;
 const WALK_FRAME_S = 0.12;
 const HINT_KEY = "thao:guide-hint:v1";
 /** Below this width the character is smaller and its line waits behind a tap-to-open dot. */
@@ -57,7 +59,7 @@ type Controller = {
 
 /** Mount point: shows the guide only after first paint, on `/`, once a role is chosen and the picker is closed. */
 export function VisitorGuide() {
-  const { ready, role, collapsed, pickerOpen, guideHidden } = useVisitor();
+  const { ready, role, collapsed, pickerOpen } = useVisitor();
   const pathname = usePathname();
   const reduce = useReducedMotion();
   const [painted, setPainted] = useState(false);
@@ -80,7 +82,7 @@ export function VisitorGuide() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  if (!painted || !wide || !ready || role === null || !collapsed || pickerOpen || guideHidden || pathname !== "/") return null;
+  if (!painted || !wide || !ready || role === null || !collapsed || pickerOpen || pathname !== "/") return null;
   return createPortal(<GuideLayer key={`${role}:${reduce}`} role={role} reduce={reduce} />, document.body);
 }
 
@@ -93,7 +95,6 @@ const seenHint = () => {
 };
 
 function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
-  const { setGuideHidden } = useVisitor();
   const rootRef = useRef<HTMLDivElement>(null);
   const bodyEl = useRef<HTMLDivElement>(null);
   const squashEl = useRef<HTMLDivElement>(null);
@@ -151,6 +152,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     let surfaces: Surface[] = [];
     let spans: Span[] = [];
     let avoid: Rect[] = [];
+    let ink: Ink<Element>[] = [];
     const isSmall = () => window.innerWidth < SMALL_W;
     const view: View = { w: window.innerWidth, h: window.innerHeight, scrollY: window.scrollY, docH: document.documentElement.scrollHeight, nav: 0 };
     let scene: Scene = makeScene([], view);
@@ -161,6 +163,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     let walkClock = 0;
     let frames = 0;
     let scrollUntil = 0;
+    let liveUntil = 0;
     let lastCollect = 0;
     let dirty = false;
     let bubbleNow: BubbleState = null;
@@ -201,14 +204,24 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       view.docH = document.documentElement.scrollHeight;
       view.nav = readNav();
       avoid = readAvoid(root, view.scrollY, view.h);
-      // Only blocks with a spot where the body covers no link or button are worth standing on.
-      tracked = collectTracked(guideRoots(), root, view.scrollY, view.w).filter((t) => coverage(chooseStandX(t.surface, view, avoid), t.surface.top, avoid) === 0);
+      const roots = guideRoots();
+      ink = readInk(roots, root, view.scrollY);
+      // Only blocks with a spot where the body covers no link, button or reading text are worth standing on.
+      tracked = collectTracked(roots, root, view.scrollY, view.w).filter((t) => !blocked(chooseStandX(t.surface, view, standBlockers(t.surface.top, t.el)), t.surface.top, t.el));
       surfaces = tracked.map((t) => t.surface);
       spans = readSpans(view.scrollY);
       scene = makeScene(surfaces, view);
       el.dataset.guideSurfaces = String(surfaces.length);
       lastCollect = performance.now();
     };
+    // What the body must not stand in front of when its feet are at `top` on `own`: tap targets and the text just above that edge.
+    function standBlockers(top: number, own: Element | null, taps: readonly Rect[] = avoid) {
+      return taps.concat(inkAbove(ink, top, own));
+    }
+    function blocked(x: number, top: number, own: Element | null) {
+      return coverage(x, top, avoid) > 0 || coverage(x, top, inkAbove(ink, top, own)) > INK_TOLERANCE;
+    }
+    const elOf = (key: string | null) => (key ? (tracked.find((t) => t.surface.key === key)?.el ?? null) : null);
     const surfaceOf = (key: string | null) => (key && key !== FLOOR_KEY ? (scene.byKey.get(key) ?? null) : null);
     const currentSection = () => surfaceOf(body.surface)?.id ?? sectionUnder(spans, body.y - 8);
 
@@ -259,7 +272,9 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       standing = next;
     };
     const paint = () => {
-      el.style.transform = `translate3d(${Math.round((body.x - CHAR.w / 2) * 10) / 10}px, ${Math.round((body.y - CHAR.h + FOOT_PAD) * 10) / 10}px, 0)`;
+      // A fast scroll up carries the surface (and the feet) below the screen before physics reacts: never draw it past the floor line.
+      const drawY = Math.min(body.y, view.scrollY + maxFeetY(view));
+      el.style.transform = `translate3d(${Math.round((body.x - CHAR.w / 2) * 10) / 10}px, ${Math.round((drawY - CHAR.h + FOOT_PAD) * 10) / 10}px, 0)`;
       if (!reduce) {
         const { sx, sy } = squashScale(body);
         sq.style.transform = `scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
@@ -340,7 +355,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
         dirty = false;
         if (ts - lastCollect > RECOLLECT_MS) collect();
         else refreshSurfaces(tracked, view.scrollY, view.w, view.h);
-      }
+      } else if (ts < liveUntil) refreshSurfaces(tracked, view.scrollY, view.w, view.h);
       body = stepBody(body, input, dt, scene);
       input.hop = false;
       if (Math.abs(body.vx) > 12 && body.mode === "ground") walkClock += dt;
@@ -351,7 +366,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
         if (body.surface === FLOOR_KEY) later(() => followFloor() || nudgeClear(), 260);
         else nudgeClear();
       }
-      if ((isMoving(body, input) || performance.now() < scrollUntil) && !document.hidden) schedule();
+      if ((isMoving(body, input) || performance.now() < scrollUntil || performance.now() < liveUntil) && !document.hidden) schedule();
       else last = 0;
     }
 
@@ -360,7 +375,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       el.style.opacity = "0";
       later(() => {
         syncView();
-        const x = s ? chooseStandX(s, view, readAvoid(root, view.scrollY, view.h), body.x) : body.x;
+        const x = s ? chooseStandX(s, view, standBlockers(s.top, elOf(s.key), readAvoid(root, view.scrollY, view.h)), body.x) : body.x;
         body = standingBody(x, s, scene);
         paint();
         el.style.opacity = "1";
@@ -398,10 +413,12 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     const nudgeClear = () => {
       const s = body.surface === FLOOR_KEY ? ({ key: FLOOR_KEY, id: null, left: 0, right: view.w, top: body.y } as Surface) : surfaceOf(body.surface);
       if (!s || body.mode !== "ground" || input.left || input.right) return;
-      const cur = coverage(body.x, body.y, avoid);
-      if (cur === 0) return;
-      const x = chooseStandX(s, view, avoid, body.x);
-      if (Math.abs(x - body.x) > 8 && coverage(x, body.y, avoid) < cur - 1) {
+      const own = body.surface === FLOOR_KEY ? null : standing;
+      if (!blocked(body.x, body.y, own)) return;
+      const spots = standBlockers(body.y, own);
+      const cur = coverage(body.x, body.y, spots);
+      const x = chooseStandX(s, view, spots, body.x);
+      if (Math.abs(x - body.x) > 8 && coverage(x, body.y, spots) < cur - 1) {
         body = launchTo(body, s, scene, x);
         schedule();
       }
@@ -433,6 +450,13 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       } else schedule();
       if (settleT) clearTimeout(settleT);
       settleT = later(settle, SETTLE_MS);
+    };
+    // A hover lift or a finished transition moves the block being stood on without a scroll: keep re-reading it until it settles.
+    const onLive = (e: Event) => {
+      const t = e.target as Node | null;
+      if (!standing || !t || !(standing.contains(t) || t.contains(standing))) return;
+      liveUntil = performance.now() + LIVE_MS;
+      schedule();
     };
     const onResize = () => {
       if (roT) clearTimeout(roT);
@@ -496,7 +520,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     // ---- start: drop in from above onto the block nearest the middle of the screen ----
     collect();
     const first = pickSurface(surfaces, view, 0.55);
-    const x0 = first ? chooseStandX(first, view, readAvoid(root, view.scrollY, view.h)) : view.w - EDGE - CHAR.w / 2;
+    const x0 = first ? chooseStandX(first, view, standBlockers(first.top, elOf(first.key), readAvoid(root, view.scrollY, view.h))) : view.w - EDGE - CHAR.w / 2;
     body = standingBody(x0, first, scene);
     if (!reduce) {
       const ceil = view.scrollY + (view.nav > 0 ? view.nav + 8 : EDGE) + CHAR.h;
@@ -517,6 +541,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", onVisibility);
+    for (const ev of ["pointerover", "pointerout", "transitionrun", "transitionend"]) document.addEventListener(ev, onLive, { passive: true });
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
     ro?.observe(document.body);
     const home = document.querySelector('[data-testid="home"]');
@@ -529,6 +554,7 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
+      for (const ev of ["pointerover", "pointerout", "transitionrun", "transitionend"]) document.removeEventListener(ev, onLive);
       ro?.disconnect();
       standing?.removeAttribute("data-guide-standing");
       ctl.current = null;
@@ -570,7 +596,6 @@ function GuideLayer({ role, reduce }: { role: RoleId; reduce: boolean }) {
               <ClayAvatar role={role} view="full" size={CHAR.w} pose={pose.name} frame={pose.frame} blinking={blinking} decorative shadow={false} />
             </button>
           </div>
-          <GuideClose onHide={() => setGuideHidden(true)} />
           <div className={cn("pointer-events-none absolute bottom-full mb-1 flex flex-col gap-1", rightHalf ? "items-end right-0" : "items-start left-0")}>
             {pad ? (
               <GuideTouchPad

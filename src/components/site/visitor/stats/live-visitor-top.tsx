@@ -28,13 +28,13 @@ export function LiveVisitorTop() {
   const counts = data ? tileCounts(role ? { ...data.byRole, [role]: Math.max(data.byRole[role] ?? 0, data.you.roleCount) } : data.byRole) : undefined;
 
   const summary = line ? (
-    <motion.div initial={reduce ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={reduce ? { duration: 0 } : SPRING.ui} className="flex items-center gap-3">
+    <motion.div initial={reduce ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={reduce ? { duration: 0 } : SPRING.ui} className="flex items-center justify-center gap-3">
       {role ? (
         <span aria-hidden="true" className="block size-9 shrink-0 overflow-hidden rounded-full bg-accent-tint">
           <ClayAvatar role={role} view="bust" size={36} decorative />
         </span>
       ) : null}
-      <span>
+      <span className="text-center">
         <p data-testid="visitor-rank-line" className="text-[15px] text-ink-1">
           {line}
         </p>

@@ -1,7 +1,7 @@
 "use client";
 
 // The visitor store: the ONE source for who the visitor says they are.
-// localStorage `thao:visitor:v1` = { v, role, collapsed, guideHidden, visitorId, ordinal, visitConfirmed }.
+// localStorage `thao:visitor:v1` = { v, role, collapsed, visitorId, ordinal, visitConfirmed }.
 //
 // - First render is `ready: false` (matches the server); state hydrates in a
 //   microtask, so nothing flashes for a returning visitor.
@@ -13,7 +13,7 @@
 //   trailing-edge debounced. 429 retries once after Retry-After; every other
 //   failure is silent. The visitor id is never put in a URL or logged.
 // - `visitConfirmed` records that the server has the current role. A returning
-//   visitor with a role (or Skip) whose visit was never confirmed (a failed first
+//   visitor with a role whose visit was never confirmed (a failed first
 //   POST, a migrated legacy persona) retries once on load, silently.
 // - Every role change also fires a same-tab `thao:visitor-change` CustomEvent
 //   ({ detail: { role } }) so other widgets in this tab update at once.
@@ -26,7 +26,6 @@ export type VisitorState = {
   v: 1;
   role: RoleId | null;
   collapsed: boolean;
-  guideHidden: boolean;
   visitorId: string;
   ordinal: number | null;
   /** the server has this visitor's current role */
@@ -38,8 +37,6 @@ type Ctx = {
   setRole: (role: RoleId | null) => void;
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
-  guideHidden: boolean;
-  setGuideHidden: (hidden: boolean) => void;
   ready: boolean;
   ordinal: number | null;
   /** The change-role modal (not persisted). */
@@ -74,7 +71,7 @@ export function newVisitorId() {
 
 /**
  * Pure: turn the two raw stored strings into the initial state.
- * `chosen` is true when the visitor already made a choice (a role or Skip), so
+ * `chosen` is true when the visitor already made a choice (a role), so
  * a returning visitor never triggers a write.
  */
 export function initialVisitor(storeRaw: string | null, legacyRaw: string | null, genId: () => string = newVisitorId) {
@@ -82,17 +79,17 @@ export function initialVisitor(storeRaw: string | null, legacyRaw: string | null
   if (stored && typeof stored === "object" && (stored as { v?: unknown }).v === 1) {
     const s = stored as Record<string, unknown>;
     const role = isRoleId(s.role) ? s.role : null;
-    const collapsed = s.collapsed === true;
+    // A role is the only way to be "chosen": an old Skip (collapsed, no role) just shows the picker again. Any stored guideHidden is ignored.
+    const collapsed = s.collapsed === true && role !== null;
     const state: VisitorState = {
       v: 1,
       role,
       collapsed,
-      guideHidden: s.guideHidden === true,
       visitorId: typeof s.visitorId === "string" && ID_PATTERN.test(s.visitorId) ? s.visitorId : genId(),
       ordinal: typeof s.ordinal === "number" && Number.isInteger(s.ordinal) && s.ordinal > 0 ? s.ordinal : null,
       visitConfirmed: s.visitConfirmed === true,
     };
-    return { state, chosen: collapsed || role !== null, migrated: false } as const;
+    return { state, chosen: role !== null, migrated: false } as const;
   }
   const legacy = parseJSON(legacyRaw);
   const migratedRole = isRoleId(legacy) && LEGACY_ROLES.includes(legacy) ? legacy : null;
@@ -100,7 +97,6 @@ export function initialVisitor(storeRaw: string | null, legacyRaw: string | null
     v: 1,
     role: migratedRole,
     collapsed: migratedRole !== null,
-    guideHidden: false,
     visitorId: genId(),
     ordinal: null,
     visitConfirmed: false,
@@ -129,14 +125,12 @@ function writeStore(state: VisitorState) {
   }
 }
 
-const DEFAULT_STATE: VisitorState = { v: 1, role: null, collapsed: false, guideHidden: false, visitorId: "", ordinal: null, visitConfirmed: false };
+const DEFAULT_STATE: VisitorState = { v: 1, role: null, collapsed: false, visitorId: "", ordinal: null, visitConfirmed: false };
 const NOOP: Ctx = {
   role: null,
   setRole: () => {},
   collapsed: false,
   setCollapsed: () => {},
-  guideHidden: false,
-  setGuideHidden: () => {},
   ready: false,
   ordinal: null,
   pickerOpen: false,
@@ -244,7 +238,6 @@ export function VisitorProvider({ children }: { children: ReactNode }) {
     [commit, send],
   );
   const setCollapsed = useCallback((collapsed: boolean) => commit({ ...stateRef.current, collapsed }), [commit]);
-  const setGuideHidden = useCallback((guideHidden: boolean) => commit({ ...stateRef.current, guideHidden }), [commit]);
 
   const value = useMemo<Ctx>(
     () => ({
@@ -252,15 +245,13 @@ export function VisitorProvider({ children }: { children: ReactNode }) {
       setRole,
       collapsed: state.collapsed,
       setCollapsed,
-      guideHidden: state.guideHidden,
-      setGuideHidden,
       ready,
       ordinal: state.ordinal,
       pickerOpen,
       setPickerOpen,
       visitorId: state.visitorId,
     }),
-    [state, ready, pickerOpen, setRole, setCollapsed, setGuideHidden],
+    [state, ready, pickerOpen, setRole, setCollapsed],
   );
   return <VisitorContext.Provider value={value}>{children}</VisitorContext.Provider>;
 }

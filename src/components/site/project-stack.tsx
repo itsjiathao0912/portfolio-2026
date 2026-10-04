@@ -166,13 +166,13 @@ export function ProjectStack({ projects }: { projects: Project[] }) {
   return (
     <section id="work" aria-labelledby="work-title" className="bg-canvas pb-20 md:pb-[96px]" data-testid="section-work">
       <div className="mx-auto max-w-[1440px] px-2.5 md:px-[45px]">
-        <div className="px-3 pt-4 md:px-4">
+        <div className="flex flex-col gap-4 px-3 pt-4 md:flex-row md:items-end md:justify-between md:gap-8 md:px-4">
           <h2 id="work-title" ref={heading} className="scroll-mt-[110px] text-[32px] md:text-[46px]">Selected work</h2>
-          <div className="mt-6">
+          <div className="flex flex-col md:items-end md:text-right">
             <div className="min-h-11">
               {ready && collapsed ? <VisitorChip role={persona} onOpen={() => setPickerOpen(true)} /> : null}
             </div>
-            <div aria-live="polite" className="mt-3 min-h-6">
+            <div aria-live="polite" className="mt-2 min-h-6 md:max-w-[460px]">
               <AnimatePresence mode="wait">
                 {ready && persona ? (
                   <motion.p key={persona} data-testid="role-note" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduce ? 0 : 0.32 }} className="text-[14px] text-ink-3">

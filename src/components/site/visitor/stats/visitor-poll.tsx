@@ -29,6 +29,9 @@ export function VisitorPoll({ className }: { className?: string }) {
 
   // Always render the wrapper so the observer can find it; the card appears once data is in.
   const view = data ? pollRows(POLL_OPTIONS, data.counts, data.total) : null;
+  // Real numbers appear once they mean something: a settled vote, or enough votes to read. Before that, calm chips and a small total.
+  const revealed = !!data && !!view && (view.showPercent || data.mine !== null);
+  const calmNote = !data ? "" : view?.showPercent ? `${data.total} votes` : data.mine ? `Vote saved. ${data.total} ${data.total === 1 ? "vote" : "votes"} so far` : data.total === 0 ? "Cast the first votes" : `Cast the first votes. ${data.total} so far`;
 
   return (
     <section ref={ref} aria-labelledby="visitor-poll-title" data-testid="visitor-poll" className={cn(view ? "" : "min-h-px", className)}>
@@ -64,8 +67,8 @@ export function VisitorPoll({ className }: { className?: string }) {
                     aria-hidden="true"
                     className="absolute inset-y-0 left-0 bg-accent-tint"
                     initial={false}
-                    animate={{ width: `${Math.round(row.fraction * 100)}%` }}
-                    transition={reduce ? { duration: 0 } : SPRING.sheet}
+                    animate={{ width: revealed ? `${Math.round(row.fraction * 100)}%` : "0%" }}
+                    transition={reduce ? { duration: 0 } : SPRING.glide}
                   />
                   <span className="relative flex items-center gap-2.5 text-[14px] leading-snug">
                     <span
@@ -75,16 +78,18 @@ export function VisitorPoll({ className }: { className?: string }) {
                       <Check className="size-3" strokeWidth={3} />
                     </span>
                     <span className="min-w-0 flex-1 text-ink-1">{row.label}</span>
-                    <span data-testid={`poll-value-${row.id}`} className="shrink-0 tabular-nums text-ink-3">
-                      {row.percent ?? row.count}
-                    </span>
+                    {revealed && (row.percent !== null || row.count > 0) ? (
+                      <span data-testid={`poll-value-${row.id}`} className="shrink-0 tabular-nums text-ink-3">
+                        {row.percent ?? row.count}
+                      </span>
+                    ) : null}
                   </span>
                 </button>
               );
             })}
           </div>
           <p data-testid="poll-note" className="mt-4 text-[12px] text-ink-3" aria-live="polite">
-            {note ? NOTES[note] : view.note}
+            {note ? NOTES[note] : calmNote}
           </p>
         </motion.div>
       ) : null}

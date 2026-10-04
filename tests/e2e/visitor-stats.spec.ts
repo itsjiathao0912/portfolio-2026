@@ -53,12 +53,31 @@ test.describe("visitor stats", () => {
 });
 
 test.describe("build-next poll", () => {
-  test("below 20 votes shows counts and the invitation, no percentages", async ({ page }) => {
+  test("below 20 votes is a calm invitation: chips and a small total, no rows of numbers", async ({ page }) => {
     await page.route("**/api/poll", (r) => r.fulfill({ json: pollBody(4, { remittance: 3, "fraud-toolkit": 1 }) }));
     await page.goto("/");
     await page.getByTestId("visitor-poll").scrollIntoViewIfNeeded();
+    await expect(page.getByTestId("poll-option-remittance")).toBeVisible();
+    await expect(page.getByTestId("poll-note")).toContainText("Cast the first votes");
+    await expect(page.getByTestId("poll-note")).toContainText("4 so far");
+    await expect(page.locator('[data-testid^="poll-value-"]')).toHaveCount(0);
+  });
+
+  test("after voting, below 20 votes, the real counts settle in (zeros stay quiet)", async ({ page }) => {
+    let mine: string | null = null;
+    await page.route("**/api/poll", async (r) => {
+      const body = r.request().postDataJSON() as { option: string | null };
+      if (body.option) mine = body.option;
+      await r.fulfill({ json: pollBody(4, { remittance: 3, "fraud-toolkit": 1 }, mine) });
+    });
+    await page.goto("/");
+    await page.getByTestId("visitor-poll").scrollIntoViewIfNeeded();
+    await page.getByTestId("poll-option-remittance").click();
+    await expect(page.getByTestId("poll-option-remittance")).toHaveAttribute("aria-checked", "true");
     await expect(page.getByTestId("poll-value-remittance")).toHaveText("3");
-    await expect(page.getByTestId("poll-note")).toContainText("first 20 votes");
+    await expect(page.getByTestId("poll-value-fraud-toolkit")).toHaveText("1");
+    await expect(page.getByTestId("poll-value-agent-payments")).toHaveCount(0);
+    await expect(page.getByTestId("poll-note")).toContainText("Vote saved");
   });
 
   test("from 20 votes shows percentages, and a vote moves mine", async ({ page }) => {

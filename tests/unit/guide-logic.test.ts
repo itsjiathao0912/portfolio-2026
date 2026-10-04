@@ -4,6 +4,9 @@ import {
   chooseStandX,
   EDGE,
   guideAction,
+  INK_TOLERANCE,
+  inkAbove,
+  inOffscreenRadioGroup,
   MAX_PASSIVE_LINES,
   maxFeetY,
   minFeetY,
@@ -100,6 +103,50 @@ describe("keys: the character claims arrows and W only, never in a field or on a
     expect(shouldHandleGuideKey(node("BODY"), guide, { metaKey: true })).toBe(false);
     expect(shouldHandleGuideKey(node("BODY"), guide, { ctrlKey: true })).toBe(false);
     expect(shouldHandleGuideKey(node("BODY"), guide, { altKey: true })).toBe(false);
+  });
+});
+
+describe("keys: a radio left focused in a group that scrolled away does not hold the arrows", () => {
+  const node = (nodeName: string, extra: Partial<KeyTarget> = {}, parent: KeyTarget | null = null): KeyTarget => ({ nodeName, parentElement: parent, getAttribute: () => null, ...extra });
+  const guide = node("DIV");
+  const group = (top: number, bottom: number) => node("DIV", { getAttribute: (a) => (a === "role" ? "radiogroup" : null), getBoundingClientRect: () => ({ top, bottom }) });
+  const radio = (g: KeyTarget) => node("BUTTON", { getAttribute: (a) => (a === "role" ? "radio" : null) }, g);
+  test("off screen above or below: the guide takes the key", () => {
+    expect(shouldHandleGuideKey(radio(group(-900, -300)), guide, {}, 800)).toBe(true);
+    expect(shouldHandleGuideKey(radio(group(900, 1400)), guide, {}, 800)).toBe(true);
+  });
+  test("on screen (even partly): the radio group keeps its keys", () => {
+    expect(shouldHandleGuideKey(radio(group(100, 500)), guide, {}, 800)).toBe(false);
+    expect(shouldHandleGuideKey(radio(group(-200, 40)), guide, {}, 800)).toBe(false);
+  });
+  test("no viewport height given: unchanged behaviour", () => {
+    expect(shouldHandleGuideKey(radio(group(-900, -300)), guide, {})).toBe(false);
+  });
+  test("a plain button outside any radio group is unaffected", () => {
+    expect(shouldHandleGuideKey(node("BUTTON"), guide, {}, 800)).toBe(false);
+    expect(inOffscreenRadioGroup(node("BUTTON"), 800)).toBe(false);
+  });
+});
+
+describe("ink: the body must not stand in front of text", () => {
+  const ink = (el: string, left: number, right: number, top: number, bottom: number) => ({ el, rect: { left, right, top, bottom } });
+  test("only text inside the body band above the edge counts, and never the element stood on", () => {
+    const list = [ink("h", 0, 300, 100, 150), ink("p", 0, 300, 400, 420), ink("own", 0, 300, 480, 500)];
+    // feet at 500: band is 388..500
+    expect(inkAbove(list, 500, "own").map((r) => r.top)).toEqual([400]);
+    expect(inkAbove(list, 500, null).map((r) => r.top)).toEqual([400, 480]);
+    expect(inkAbove(list, 140, "x").map((r) => r.top)).toEqual([100]);
+  });
+  test("a heading just above a paragraph is not standable there, but is on the open side", () => {
+    const list = [ink("h", 100, 260, 300, 350)];
+    const surface = { left: 100, right: 700, top: 360 };
+    const blockers = inkAbove(list, surface.top, "p");
+    const x = chooseStandX(surface, { w: 1000 }, blockers);
+    const area = (px: number) => {
+      const l = Math.max(px - CHAR.w / 2, 100), r = Math.min(px + CHAR.w / 2, 260);
+      return Math.max(0, r - l) * Math.max(0, 350 - Math.max(360 - CHAR.h, 300));
+    };
+    expect(area(x)).toBeLessThanOrEqual(INK_TOLERANCE);
   });
 });
 

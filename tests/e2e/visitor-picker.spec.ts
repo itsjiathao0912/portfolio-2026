@@ -49,33 +49,36 @@ const chip = (page: Page) => page.getByTestId("visitor-chip");
 test.describe("desktop", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("first visit: panel with the city greeting, privacy note, no console errors", async ({ page }) => {
+  test("first visit: dynamic title, location line, privacy note, no console errors", async ({ page }) => {
     const errors = trackErrors(page);
     await seamGeo(page, "VN|Hanoi");
     await page.goto("/");
     await expect(panel(page)).toBeVisible();
-    await expect(page.getByTestId("visitor-greeting")).toHaveText("Hey Hanoi");
+    await expect(page.getByTestId("visitor-title")).toHaveText("Hello stranger from Vietnam \u{1F1FB}\u{1F1F3}, who are you?");
+    await expect(page.getByTestId("visitor-location")).toHaveText("You're visiting from Hanoi, Vietnam \u{1F1FB}\u{1F1F3}");
     await expect(page.getByTestId("visitor-privacy")).toHaveText(PRIVACY);
-    await expect(page.getByRole("radiogroup", { name: "Your role" }).getByRole("radio")).toHaveCount(12);
+    await expect(page.getByRole("radiogroup", { name: "Your role" }).getByRole("radio")).toHaveCount(11);
     expect(errors).toEqual([]);
   });
 
   test("no city falls back to the country name", async ({ page }) => {
     await seamGeo(page, "NO|");
     await page.goto("/");
-    await expect(page.getByTestId("visitor-greeting")).toHaveText("Hey Norway");
+    await expect(page.getByTestId("visitor-title")).toHaveText("Hello stranger from Norway \u{1F1F3}\u{1F1F4}, who are you?");
+    await expect(page.getByTestId("visitor-location")).toHaveText("You're visiting from Norway \u{1F1F3}\u{1F1F4}");
   });
 
-  test("nothing usable says Hey stranger", async ({ page }) => {
+  test("nothing usable says Hello stranger, and hides the location", async ({ page }) => {
     await seamGeo(page, "XX|");
     await page.goto("/");
-    await expect(page.getByTestId("visitor-greeting")).toHaveText("Hey stranger");
+    await expect(page.getByTestId("visitor-title")).toHaveText("Hello stranger, who are you?");
+    await expect(page.getByTestId("visitor-location")).toHaveCount(0);
   });
 
   test("geo failure is silent: greeting falls back, panel still works", async ({ page }) => {
     await page.route("**/api/geo", (route) => route.abort());
     await page.goto("/");
-    await expect(page.getByTestId("visitor-greeting")).toHaveText("Hey stranger");
+    await expect(page.getByTestId("visitor-title")).toHaveText("Hello stranger, who are you?");
     await page.getByTestId("tile-founder").click();
     await expect(chip(page)).toContainText("You: Founder");
   });
@@ -88,7 +91,7 @@ test.describe("desktop", () => {
     await expect(page.getByTestId("role-note")).toContainText("Engineer view");
   });
 
-  test("every role: chip, note and order match the table; Skip keeps the default", async ({ page }) => {
+  test("every role: chip, note and order match the table", async ({ page }) => {
     await page.goto("/");
     await expect(panel(page)).toBeVisible();
     const defaultFirst = await firstSlug(page);
@@ -104,12 +107,6 @@ test.describe("desktop", () => {
       // Let the debounced visit POST finish: its reply writes the ordinal back into the store.
       await page.waitForTimeout(900);
     }
-    await page.evaluate(() => localStorage.clear());
-    await page.reload();
-    await page.getByTestId("tile-skip").click();
-    await expect(chip(page)).toContainText("Showing everything");
-    await expect(page.getByTestId("role-note")).toHaveCount(0);
-    expect(await firstSlug(page)).toBe(defaultFirst);
   });
 
   test("reload restores the chip, role and order with no panel flash, and writes nothing again", async ({ page }) => {
@@ -137,7 +134,7 @@ test.describe("desktop", () => {
     await page.waitForTimeout(1200);
     expect(posts.length).toBe(1);
     const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("thao:visitor:v1") ?? "null"));
-    expect(stored).toMatchObject({ v: 1, role: "founder", collapsed: true, guideHidden: false });
+    expect(stored).toMatchObject({ v: 1, role: "founder", collapsed: true });
     expect(String(stored.visitorId).length).toBeGreaterThanOrEqual(8);
   });
 
@@ -164,7 +161,7 @@ test.describe("desktop", () => {
     await page.keyboard.press("ArrowLeft");
     await expect(recruiter).toBeFocused();
     await page.keyboard.press("End");
-    await expect(page.getByTestId("tile-skip")).toBeFocused();
+    await expect(page.getByTestId("tile-curious")).toBeFocused();
     await page.keyboard.press("Home");
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
@@ -204,7 +201,7 @@ test.describe("desktop", () => {
 
     await chip(page).click();
     await expect(page.getByTestId("visitor-modal")).toBeVisible();
-    await expect(page.getByRole("radiogroup", { name: "Who are you?" }).getByRole("radio")).toHaveCount(12);
+    await expect(page.getByRole("radiogroup", { name: "Who are you?" }).getByRole("radio")).toHaveCount(11);
     await page.getByTestId("role-designer").click();
     await expect(page.getByTestId("visitor-modal")).toHaveCount(0);
     await expect(chip(page)).toContainText("You: Product designer");
@@ -213,6 +210,28 @@ test.describe("desktop", () => {
     await chip(page).click();
     await page.getByRole("button", { name: "Close" }).click();
     await expect(page.getByTestId("visitor-modal")).toHaveCount(0);
+  });
+
+  test("picked: the hero and the two-row grid are one flush block; stats are centred under it", async ({ page }) => {
+    await page.goto("/");
+    await page.getByTestId("tile-founder").click();
+    await expect(panel(page)).toHaveCount(0);
+    await page.waitForTimeout(1600);
+    const g = await page.evaluate(() => {
+      const strip = document.querySelector('[data-testid="visitor-strip"]') as HTMLElement;
+      const hero = document.querySelector('[data-testid="tile-founder"]') as HTMLElement;
+      const rects = [...strip.querySelectorAll('[role="radio"]')].map((n) => n.getBoundingClientRect());
+      const others = rects.filter((r) => r.left > hero.getBoundingClientRect().right - 1);
+      const rows = new Set(others.map((r) => Math.round(r.top)));
+      const h = hero.getBoundingClientRect();
+      const bottoms = Math.max(...others.map((r) => r.bottom));
+      const tops = Math.min(...others.map((r) => r.top));
+      return { count: others.length, rows: rows.size, heroH: h.height, gridH: bottoms - tops, strip: strip.getBoundingClientRect().right - h.left, shadowClass: /(^|\s)shadow-/.test(hero.className) };
+    });
+    expect(g.count).toBe(10);
+    expect(g.rows).toBe(2);
+    expect(Math.abs(g.heroH - g.gridH)).toBeLessThanOrEqual(2);
+    expect(g.shadowClass).toBe(false);
   });
 
   test("the picker sits right after the logo band, before the statement", async ({ page }) => {

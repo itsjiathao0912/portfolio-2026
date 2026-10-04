@@ -4,12 +4,12 @@ import { getVisitorRole, parseVisitorRole } from "../../src/lib/visitor-role-ada
 
 const ID = "abcdef12-3456";
 const gen = () => "generated-id-0001";
-const store = (o: Record<string, unknown>) => JSON.stringify({ v: 1, role: null, collapsed: false, guideHidden: false, visitorId: ID, ordinal: null, ...o });
+const store = (o: Record<string, unknown>) => JSON.stringify({ v: 1, role: null, collapsed: false, visitorId: ID, ordinal: null, ...o });
 
 describe("initial visitor state", () => {
   test("no store, no legacy: a fresh unchosen visitor sees the panel", () => {
     const r = initialVisitor(null, null, gen);
-    expect(r.state).toEqual({ v: 1, role: null, collapsed: false, guideHidden: false, visitorId: "generated-id-0001", ordinal: null, visitConfirmed: false });
+    expect(r.state).toEqual({ v: 1, role: null, collapsed: false, visitorId: "generated-id-0001", ordinal: null, visitConfirmed: false });
     expect(r.chosen).toBe(false);
     expect(r.migrated).toBe(false);
   });
@@ -37,10 +37,15 @@ describe("initial visitor state", () => {
     expect(r.migrated).toBe(false);
     expect(r.chosen).toBe(true);
   });
-  test("Skip (collapsed, no role) counts as chosen so a returning visitor never writes", () => {
+  test("an old Skip (collapsed, no role) is not a choice: the picker shows again", () => {
     const r = initialVisitor(store({ collapsed: true }), null, gen);
-    expect(r.chosen).toBe(true);
+    expect(r.chosen).toBe(false);
     expect(r.state.role).toBeNull();
+    expect(r.state.collapsed).toBe(false);
+  });
+  test("a stored guideHidden is ignored", () => {
+    const r = initialVisitor(store({ role: "founder", collapsed: true, guideHidden: true }), null, gen);
+    expect("guideHidden" in r.state).toBe(false);
   });
   test("bad pieces fall back safely: unknown role, wrong id, bad ordinal, wrong version, corrupt json", () => {
     const r = initialVisitor(store({ role: "wizard", visitorId: "bad id!", ordinal: -3 }), null, gen);

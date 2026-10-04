@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { ROLE_AVATAR } from "../../src/components/clay/avatar-spec";
 import { GUIDE_SECTION_IDS, ROLE_IDS, ROLE_LABELS } from "../../src/components/site/visitor/role-ids";
 import { GUIDE_LINE_MAX, PRIVACY_NOTE, ROLES, guideLineFor } from "../../src/components/site/visitor/roles";
-import { greetingLine } from "../../src/components/site/visitor/visitor-panel";
+import { locationLine, titleLine } from "../../src/components/site/visitor/visitor-panel";
 
 describe("roles table", () => {
   test("every role has a label from ROLE_LABELS, an avatar, a note and a blurb", () => {
@@ -49,17 +49,24 @@ describe("roles table", () => {
   });
 });
 
-describe("greeting line", () => {
-  test("city wins, then country name, then stranger", () => {
-    expect(greetingLine({ country: "VN", city: "Hanoi" })).toBe("Hey Hanoi");
-    expect(greetingLine({ country: "VN", city: null })).toBe("Hey Vietnam");
-    expect(greetingLine({ country: null, city: null })).toBe("Hey stranger");
-    expect(greetingLine(null)).toBe("Hey stranger");
+describe("title and location", () => {
+  test("title: country name and flag, else plain stranger", () => {
+    expect(titleLine({ country: "VN" })).toBe("Hello stranger from Vietnam \u{1F1FB}\u{1F1F3}, who are you?");
+    expect(titleLine({ country: null })).toBe("Hello stranger, who are you?");
+    expect(titleLine(null)).toBe("Hello stranger, who are you?");
   });
-  test("garbage never reaches the greeting as a raw code", () => {
-    expect(greetingLine({ country: "xx", city: "" })).toBe("Hey stranger");
-    expect(greetingLine({ country: "ZZZ", city: 5 })).toBe("Hey stranger");
-    expect(greetingLine({ country: "ZZ", city: " " })).toBe("Hey stranger");
-    expect(greetingLine({ country: "VN", city: "x".repeat(65) })).toBe("Hey Vietnam");
+  test("location: city, country and flag; falls back; hidden when unknown", () => {
+    expect(locationLine({ country: "VN", city: "Ho Chi Minh City" })).toBe("You're visiting from Ho Chi Minh City, Vietnam \u{1F1FB}\u{1F1F3}");
+    expect(locationLine({ country: "VN", city: null })).toBe("You're visiting from Vietnam \u{1F1FB}\u{1F1F3}");
+    expect(locationLine({ country: null, city: "Hanoi" })).toBe("You're visiting from Hanoi");
+    expect(locationLine({ country: null, city: null })).toBeNull();
+    expect(locationLine(null)).toBeNull();
+  });
+  test("garbage never reaches the copy as a raw code", () => {
+    for (const country of ["xx", "ZZZ", "ZZ", 5]) {
+      expect(titleLine({ country })).toBe("Hello stranger, who are you?");
+      expect(locationLine({ country, city: " " })).toBeNull();
+    }
+    expect(locationLine({ country: "VN", city: "x".repeat(65) })).toBe("You're visiting from Vietnam \u{1F1FB}\u{1F1F3}");
   });
 });

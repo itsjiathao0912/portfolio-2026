@@ -67,6 +67,8 @@ export function readGeo(
     }
   }
   const cf = readCf();
+  // Local `next dev` has no Cloudflare geo: show a believable place so the greeting can be reviewed. Never in production builds.
+  if (!cf && env.NODE_ENV === "development") return { country: "VN", city: "Ho Chi Minh City" };
   return { country: sanitizeCountry(cf?.country), city: sanitizeCity(cf?.city) };
 }
 

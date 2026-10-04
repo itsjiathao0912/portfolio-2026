@@ -74,7 +74,7 @@ export default async function HomePage() {
       </section>
 
       <section aria-label="Who is visiting" data-testid="section-visitor">
-        <div className="mx-auto max-w-[1320px] px-6 py-14 md:px-10 md:py-20 lg:px-[60px]">
+        <div className="mx-auto max-w-[1320px] px-6 py-12 md:px-10 md:py-9 lg:px-[60px]">
           <LiveVisitorTop />
         </div>
       </section>

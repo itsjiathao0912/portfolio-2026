@@ -23,7 +23,10 @@ type Props = {
   tabbable: boolean;
   /** Live count for this tile. Absent = nothing is drawn. */
   count?: number;
-  onSelect: () => void;
+  /** True when the pick came from the keyboard (Enter / Space), false for a pointer or touch. */
+  onSelect: (viaKeyboard: boolean) => void;
+  /** Fills two grid columns, so the picked-state grid has no dead cell. */
+  wide?: boolean;
   onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
   buttonRef: (el: HTMLButtonElement | null) => void;
 };
@@ -59,7 +62,7 @@ function Count({ id, count, className }: { id: RoleId | null; count?: number; cl
  * (full figure, waving, role name, one-line note). Every tile is a layout
  * element, so picking glides the grid into its new shape on a spring.
  */
-export function RoleTile({ id, label, blurb, index, selected, tabbable, count, onSelect, onKeyDown, buttonRef }: Props) {
+export function RoleTile({ id, label, blurb, index, selected, tabbable, count, wide, onSelect, onKeyDown, buttonRef }: Props) {
   const reduce = useReducedMotion();
   const blinking = useBlink(!reduce);
   const frame = useWaveFrame(selected && !reduce);
@@ -67,7 +70,7 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, o
   const transition = reduce ? { duration: 0 } : SPRING.sheet;
 
   return (
-    <motion.div layout transition={transition} className={cn("min-w-0", selected && "order-first col-span-3 sm:col-span-4 lg:col-span-3 lg:row-span-3")}>
+    <motion.div layout transition={transition} className={cn("min-w-0", selected && "order-first col-span-2 sm:col-span-5 lg:col-span-1 lg:row-span-2", wide && !selected && "col-span-2")}>
       {selected ? (
         <button
           ref={buttonRef}
@@ -76,10 +79,10 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, o
           aria-checked
           tabIndex={tabbable ? 0 : -1}
           data-testid={`tile-${id ?? "skip"}`}
-          onClick={onSelect}
+          onClick={(e) => onSelect(e.detail === 0)}
           onKeyDown={onKeyDown}
           style={{ background: `linear-gradient(160deg, ${soft(tint, 70)}, ${soft(tint, 28)})` }}
-          className="relative flex h-full min-h-[148px] w-full flex-row items-center gap-4 rounded-[28px] border border-accent/30 p-4 text-left shadow-2 outline-none ring-2 ring-accent/70 focus-visible:ring-offset-2 lg:flex-col lg:justify-end lg:gap-2 lg:p-6 lg:text-center"
+          className="relative flex h-full min-h-[148px] lg:min-h-0 w-full flex-row items-center gap-4 rounded-[28px] border border-accent/30 p-4 text-left outline-none ring-2 ring-accent/70 focus-visible:ring-offset-2 lg:flex-col lg:justify-end lg:gap-2 lg:p-5 lg:text-center"
         >
           <motion.span
             initial={reduce ? false : { opacity: 0, scale: 0.85, y: 10 }}
@@ -88,7 +91,7 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, o
             className="relative block shrink-0 lg:flex-1 lg:self-stretch"
           >
             <span className="hidden h-full items-end justify-center lg:flex">
-              <ClayAvatar role={id} view="full" size={176} pose="wave" frame={frame} blinking={blinking} decorative shadow={false} className={id ? undefined : "text-ink-3"} />
+              <ClayAvatar role={id} view="full" size={132} pose="wave" frame={frame} blinking={blinking} decorative shadow={false} className={id ? undefined : "text-ink-3"} />
             </span>
             <span className="block lg:hidden">
               <ClayAvatar role={id} view="full" size={84} pose="wave" frame={frame} blinking={blinking} decorative shadow={false} className={id ? undefined : "text-ink-3"} />
@@ -96,7 +99,7 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, o
           </motion.span>
           <span className="relative flex min-w-0 flex-col gap-1 lg:items-center">
             <span className="label-mono text-[11px] text-ink-3">{id ? "That's you" : "Showing everything"}</span>
-            <span className="font-display text-[28px] leading-[1.05] text-ink-1 lg:text-[34px]">{label}</span>
+            <span className="font-display text-[28px] leading-[1.05] text-ink-1 lg:text-[28px]">{label}</span>
             <span className="text-[14px] leading-snug text-ink-2">{blurb}</span>
             <Count id={id} count={count} className="mt-1 self-start lg:self-center" />
           </span>
@@ -110,7 +113,7 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, o
             aria-checked={false}
             tabIndex={tabbable ? 0 : -1}
             data-testid={`tile-${id ?? "skip"}`}
-            onClick={onSelect}
+            onClick={(e) => onSelect(e.detail === 0)}
             onKeyDown={onKeyDown}
             initial="rest"
             whileHover="hover"

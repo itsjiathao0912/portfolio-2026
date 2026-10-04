@@ -6,7 +6,7 @@
 // walk, ArrowUp or W jump, whenever it is on screen and focus is not in a field or on
 // a link / button (`shouldHandleGuideKey`). ArrowDown, Space and PageDown are never
 // claimed, so the page still scrolls. On touch, a tap hops; two quick taps reveal a
-// small pad (left, right, jump). A tiny x (hover / focus only) hides the character.
+// small pad (left, right, jump).
 
 import { type RefObject, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -39,7 +39,7 @@ export function useGuideKeys(rootRef: RefObject<HTMLElement | null>, handlers: R
         h.key(action, false, false);
         return;
       }
-      if (e.defaultPrevented || !shouldHandleGuideKey(e.target as KeyTarget | null, rootRef.current, e)) return;
+      if (e.defaultPrevented || !shouldHandleGuideKey(e.target as KeyTarget | null, rootRef.current, e, window.innerHeight)) return;
       e.preventDefault();
       h.key(action, true, e.repeat);
     };
@@ -58,7 +58,7 @@ export function useGuideKeys(rootRef: RefObject<HTMLElement | null>, handlers: R
 }
 
 const MINI =
-  "pointer-events-auto grid size-10 place-items-center rounded-full border border-hairline bg-bg/92 text-[15px] leading-none text-ink-1 shadow-1 backdrop-blur-md outline-none select-none touch-none focus-visible:ring-2 focus-visible:ring-accent active:bg-accent-tint";
+  "pointer-events-auto grid size-11 place-items-center rounded-full border border-hairline bg-bg/92 text-[15px] leading-none text-ink-1 shadow-1 backdrop-blur-md outline-none select-none touch-none focus-visible:ring-2 focus-visible:ring-accent active:bg-accent-tint";
 
 /** The small touch pad: left, right, jump. Hold to walk. Shown only after two quick taps on the character. */
 export function GuideTouchPad({ onPress }: { onPress: (key: PressKey, down: boolean) => void }) {
@@ -114,21 +114,6 @@ export function GuideHint({ visible, coarse, reduce }: { visible: boolean; coars
   );
 }
 
-/** The tiny hide control: only visible while the character is hovered or focused. */
-export function GuideClose({ onHide }: { onHide: () => void }) {
-  return (
-    <button
-      type="button"
-      data-testid="guide-hide"
-      aria-label="Hide the guide character"
-      onClick={onHide}
-      className="pointer-events-auto absolute -top-1 -right-3 grid size-6 place-items-center rounded-full border border-hairline bg-bg/95 text-[13px] leading-none text-ink-3 opacity-0 shadow-1 outline-none transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 hover:text-ink-1 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent"
-    >
-      <span aria-hidden="true">×</span>
-    </button>
-  );
-}
-
 type BubbleProps = {
   text: string;
   index: number;
@@ -165,9 +150,11 @@ export function GuideDot({ onOpen }: { onOpen: () => void }) {
       data-testid="guide-dot"
       aria-label="Read what the guide says"
       onClick={onOpen}
-      className="pointer-events-auto grid size-7 place-items-center rounded-full border border-hairline bg-bg/95 text-[12px] leading-none text-ink-2 shadow-1 outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      className="group pointer-events-auto grid size-11 place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-accent"
     >
-      <span aria-hidden="true">…</span>
+      <span aria-hidden="true" className="grid size-7 place-items-center rounded-full border border-hairline bg-bg/95 text-[12px] leading-none text-ink-2 shadow-1">
+        …
+      </span>
     </button>
   );
 }
