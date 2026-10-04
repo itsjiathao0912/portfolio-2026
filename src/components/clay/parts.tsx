@@ -35,6 +35,8 @@ function Grad({ id, c, cx = 0.36, cy = 0.28 }: { id: string; c: Shade; cx?: numb
   return (
     <radialGradient id={id} cx={cx} cy={cy} r={0.95}>
       <stop offset="0" stopColor={c.light} />
+      <stop offset="0.45" stopColor={c.mid} />
+      <stop offset="0.82" stopColor={mix(c.dark, "#c0503c", 0.12)} />
       <stop offset="1" stopColor={c.dark} />
     </radialGradient>
   );
@@ -53,6 +55,21 @@ export function Defs({ look }: { look: Look }) {
         <stop offset="0" stopColor="#1b1410" stopOpacity="0.24" />
         <stop offset="1" stopColor="#1b1410" stopOpacity="0" />
       </radialGradient>
+      {/* rim light: transparent core, bright fresnel edge biased to the lower right */}
+      <radialGradient id={`${uid}r`} cx="0.4" cy="0.36" r="0.7">
+        <stop offset="0.8" stopColor="#fff" stopOpacity="0" />
+        <stop offset="1" stopColor="#fff" stopOpacity="0.42" />
+      </radialGradient>
+      {/* ambient occlusion: soft warm dark for contact creases */}
+      <radialGradient id={`${uid}o`} cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stopColor="#4a2418" stopOpacity="0.32" />
+        <stop offset="1" stopColor="#4a2418" stopOpacity="0" />
+      </radialGradient>
+      {/* iris: deep top, hair-tinted glow at the bottom (anime eye) */}
+      <linearGradient id={`${uid}i`} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0.1" stopColor="#1d1714" />
+        <stop offset="1" stopColor={mix(look.hair, "#8fb8e8", 0.35)} />
+      </linearGradient>
       <radialGradient id={`${uid}c`} cx="0.5" cy="0.5" r="0.5">
         <stop offset="0" stopColor="#e07a7a" stopOpacity="0.42" />
         <stop offset="1" stopColor="#e07a7a" stopOpacity="0" />
@@ -82,7 +99,9 @@ export function Leg({ look, x, angle, lift }: { look: Look; x: number; angle: nu
   return (
     <g style={lim(x, 100 + lift, angle)}>
       <rect x={-6.4} y={-3} width={12.8} height={33} rx={6.4} fill={url(uid, "b")} />
+      <ellipse cx={1.2} cy={35.6} rx={8} ry={2.4} fill={url(uid, "o")} />
       <ellipse cx={1.2} cy={34.2} rx={8.4} ry={4.8} fill={SHOE} />
+      <Spec cx={-1.6} cy={32.2} rx={3.6} ry={1.2} o={0.7} r={-8} />
     </g>
   );
 }
@@ -101,11 +120,14 @@ export function Arm({ look, x, angle, children }: { look: Look; x: number; angle
 
 // ---------------------------------------------------------------- head
 
-function Eyes({ blinking, glasses }: { blinking: boolean; glasses: boolean }) {
+function Eyes({ uid, blinking, glasses }: { uid: string; blinking: boolean; glasses: boolean }) {
   const eye = (cx: number) => (
-    <g style={{ transformBox: "fill-box", transformOrigin: "center", transform: blinking ? "scaleY(0.12)" : "scaleY(1)", transition: "transform 90ms ease-out" }}>
-      <ellipse cx={cx} cy={39.4} rx={2.3} ry={2.7} fill={INK} />
-      <circle cx={cx - 0.7} cy={38.4} r={0.75} fill="#fff" opacity={0.9} />
+    <g style={{ transformBox: "fill-box", transformOrigin: "center", transform: blinking ? "scaleY(0.1)" : "scaleY(1)", transition: "transform 90ms ease-out" }}>
+      <ellipse cx={cx} cy={41} rx={3.9} ry={4.9} fill={url(uid, "i")} />
+      <ellipse cx={cx} cy={41.6} rx={1.6} ry={2.1} fill="#0f0b0a" />
+      <path d={`M${cx - 4.4} 37.4 Q${cx} 34.6 ${cx + 4.4} 37.2`} fill="none" stroke={INK} strokeWidth={1.5} strokeLinecap="round" />
+      <circle cx={cx - 1.3} cy={39.3} r={1.25} fill="#fff" />
+      <circle cx={cx + 1.4} cy={43.4} r={0.6} fill="#fff" opacity={0.85} />
     </g>
   );
   return (
@@ -114,8 +136,8 @@ function Eyes({ blinking, glasses }: { blinking: boolean; glasses: boolean }) {
       {eye(58)}
       {glasses && (
         <g fill="none" stroke={INK} strokeWidth={1.3} opacity={0.88}>
-          <circle cx={42} cy={39.4} r={6.4} />
-          <circle cx={58} cy={39.4} r={6.4} />
+          <circle cx={42} cy={40.6} r={6.6} />
+          <circle cx={58} cy={40.6} r={6.6} />
           <path d="M48.4 39 Q50 37.6 51.6 39" />
         </g>
       )}
@@ -127,12 +149,12 @@ function Mouth({ kind }: { kind: PoseSpec["mouth"] }) {
   if (kind === "open")
     return (
       <>
-        <ellipse cx={50} cy={47.8} rx={3.4} ry={2.8} fill="#6f2b2b" />
-        <ellipse cx={50} cy={49.2} rx={2}  ry={1.1} fill="#d9777a" />
+        <ellipse cx={50} cy={48.6} rx={3.4} ry={2.8} fill="#6f2b2b" />
+        <ellipse cx={50} cy={50} rx={2}  ry={1.1} fill="#d9777a" />
       </>
     );
-  if (kind === "grin") return <path d="M43.6 45.6 Q50 52.4 56.4 45.6 Q50 48 43.6 45.6Z" fill="#6f2b2b" stroke={INK} strokeWidth={1} strokeLinejoin="round" />;
-  return <path d="M44.6 46.4 Q50 50.6 55.4 46.4" fill="none" stroke={INK} strokeWidth={1.7} strokeLinecap="round" />;
+  if (kind === "grin") return <path d="M45 47.2 Q50 53 55 47.2 Q50 49.2 45 47.2Z" fill="#6f2b2b" stroke={INK} strokeWidth={1} strokeLinejoin="round" />;
+  return <path d="M46.4 48 Q50 50.8 53.6 48" fill="none" stroke={INK} strokeWidth={1.7} strokeLinecap="round" />;
 }
 
 /** Back hair (drawn before the head) and front hair (after) per style. */
@@ -192,20 +214,19 @@ export function Head({ look, pose, blinking, glasses, children }: { look: Look; 
       <circle cx={29.4} cy={40.6} r={4.2} fill={url(uid, "s")} />
       <circle cx={70.6} cy={40.6} r={4.2} fill={url(uid, "s")} />
       <ellipse cx={50} cy={38} rx={21.4} ry={20.4} fill={url(uid, "s")} />
-      <Spec cx={41} cy={25.6} rx={7.4} ry={3.4} o={0.38} />
-      <ellipse cx={37.6} cy={45.4} rx={5} ry={3.4} fill={url(uid, "c")} />
-      <ellipse cx={62.4} cy={45.4} rx={5} ry={3.4} fill={url(uid, "c")} />
-      <g stroke={look.hair} strokeWidth={1.7} strokeLinecap="round" fill="none" opacity={0.78}>
-        <path d="M37.6 33 Q42 31.2 46.2 33" />
-        <path d="M53.8 33 Q58 31.2 62.4 33" />
+      <ellipse cx={50} cy={38} rx={21.4} ry={20.4} fill={url(uid, "r")} />
+      <Spec cx={39} cy={24.6} rx={6.4} ry={2.6} o={0.5} />
+      <ellipse cx={36.4} cy={47} rx={4.6} ry={2.8} fill={url(uid, "c")} />
+      <ellipse cx={63.6} cy={47} rx={4.6} ry={2.8} fill={url(uid, "c")} />
+      <g stroke={mix(look.hair, INK, 0.3)} strokeWidth={1.2} strokeLinecap="round" fill="none" opacity={0.7}>
+        <path d="M38.6 32.6 Q42 31 45.2 32.2" />
+        <path d="M54.8 32.2 Q58 31 61.4 32.6" />
       </g>
-      <Eyes blinking={blinking} glasses={!!glasses} />
+      <Eyes uid={uid} blinking={blinking} glasses={!!glasses} />
+      <ellipse cx={50} cy={45.6} rx={0.9} ry={0.6} fill={mix(look.skin, "#9a4a38", 0.45)} />
       <Mouth kind={pose.mouth} />
-      {/* faint clay speckle: a hand-worked texture without any filter */}
-      <g fill={mix(look.skin, "#5a2c20", 0.5)} opacity={0.1}>
-        <circle cx={34} cy={34} r={0.55} /><circle cx={63} cy={29} r={0.5} /><circle cx={55} cy={51} r={0.5} />
-      </g>
       <HairFront look={look} />
+      <Spec cx={44} cy={17.6} rx={7} ry={1.8} o={0.28} r={-12} />
       {children}
     </g>
   );
@@ -228,7 +249,9 @@ export function Torso({ look, role }: { look: Look; role: string }) {
     <g>
       {role === "founder" && <ellipse cx={50} cy={60} rx={15.6} ry={8} fill={dark} />}
       <path d={TORSO} fill={t} />
-      <Spec cx={39} cy={72} rx={7} ry={3} o={0.3} r={-30} />
+      <path d={TORSO} fill={url(uid, "r")} />
+      <ellipse cx={50} cy={60} rx={14} ry={5} fill={url(uid, "o")} />
+      <Spec cx={38} cy={71} rx={6} ry={2.4} o={0.32} r={-30} />
       {role === "recruiter" && (
         <g>
           <path d="M43.4 56.8 L50 76 L56.6 56.8Z" fill={PAPER} />

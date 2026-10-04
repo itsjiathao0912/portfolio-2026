@@ -14,12 +14,12 @@ const FORBIDDEN = /<image|href=|foreignObject|<filter|filter=|https?:\/\//i;
 const strip = (s: string) => s.replace(/c_?[A-Za-z0-9_]*?[sthbakpgc](?=["')])/g, "ID");
 
 describe("clay avatars", () => {
-  test("every role renders in all poses without forbidden tags and <= 6 KB", () => {
+  test("every role renders in all poses without forbidden tags and <= 9 KB (gradient lighting stack)", () => {
     for (const role of ROLE_IDS)
       for (const pose of POSE_NAMES) {
         const s = render({ role, pose });
         expect(s).not.toMatch(FORBIDDEN);
-        expect(s.length).toBeLessThanOrEqual(6144);
+        expect(s.length).toBeLessThanOrEqual(9216);
       }
   });
   test("each role has a distinct signature", () => {

@@ -40,7 +40,13 @@ export type ClayAvatarProps = {
 };
 
 const FULL = { box: "0 -14 100 164", w: 100, h: 164 } as const;
-const BUST = { box: "12 2 76 80", w: 76, h: 80 } as const;
+const BUST = { box: "8 -4 84 86", w: 84, h: 86 } as const;
+// Chibi proportions: head ~45% of figure height. The body shrinks about the feet
+// and the head grows about its neck; both are static SVG transforms, so poses
+// and CSS transitions inside each part are untouched.
+const BODY_T = "translate(50 144) scale(0.84) translate(-50 -144)";
+const HEAD_FULL = "translate(50 70.7) scale(1.34) translate(-50 -58)";
+const HEAD_BUST = "translate(50 58) scale(1.2) translate(-50 -58)";
 
 const wrap = (n: number | undefined, len: number, fallback: number) => (((n ?? fallback) % len) + len) % len;
 
@@ -76,9 +82,11 @@ export function ClayAvatar({ role, skin, hair, hairStyle, accent, pose = "idle",
   const glasses = role === "data";
 
   const head = (
-    <Head look={look} pose={p} blinking={blinking} glasses={glasses}>
-      <Headgear look={look} role={role} />
-    </Head>
+    <g transform={view === "bust" ? HEAD_BUST : HEAD_FULL}>
+      <Head look={look} pose={p} blinking={blinking} glasses={glasses}>
+        <Headgear look={look} role={role} />
+      </Head>
+    </g>
   );
 
   return (
@@ -86,7 +94,7 @@ export function ClayAvatar({ role, skin, hair, hairStyle, accent, pose = "idle",
       <Defs look={look} />
       {view === "bust" ? (
         <>
-          {tint && <circle cx={50} cy={42} r={37} fill={tint} />}
+          {tint && <circle cx={50} cy={39} r={42} fill={tint} />}
           <Torso look={look} role={role} />
           <Neck look={look} />
           {head}
@@ -95,18 +103,22 @@ export function ClayAvatar({ role, skin, hair, hairStyle, accent, pose = "idle",
         <>
           {shadow ? <Shadow uid={uid} scale={p.shadow} /> : null}
           <g style={{ transform: `translateY(${p.bodyY}px) rotate(${p.lean}deg)`, transformOrigin: "50px 144px", transition: "transform 280ms cubic-bezier(.3,.7,.2,1)" }}>
-            <BackGear look={look} role={role} />
-            <Leg look={look} x={43} angle={p.lLeg} lift={p.lLift} />
-            <Leg look={look} x={57} angle={p.rLeg} lift={p.rLift} />
-            <Torso look={look} role={role} />
-            <Neck look={look} />
-            <Arm look={look} x={69} angle={rArm} />
+            <g transform={BODY_T}>
+              <BackGear look={look} role={role} />
+              <Leg look={look} x={43} angle={p.lLeg} lift={p.lLift} />
+              <Leg look={look} x={57} angle={p.rLeg} lift={p.rLift} />
+              <Torso look={look} role={role} />
+              <Neck look={look} />
+              <Arm look={look} x={69} angle={rArm} />
+            </g>
             {head}
+            <g transform={BODY_T}>
             <Arm look={look} x={31} angle={p.lArm}>
               <g style={{ transform: `rotate(${-p.lArm}deg)`, transformOrigin: "0px 29.6px", transition: "transform 280ms cubic-bezier(.3,.7,.2,1)" }}>
                 <Prop look={look} role={role} />
               </g>
             </Arm>
+            </g>
           </g>
         </>
       )}
