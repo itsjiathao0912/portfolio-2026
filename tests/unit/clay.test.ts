@@ -53,4 +53,11 @@ describe("clay avatars", () => {
     const html = renderToStaticMarkup(createElement("div", null, ...Array.from({ length: 17 }, (_, i) => createElement(ClayAvatar, { key: i, role: ROLE_IDS[i % 11]!, view: "bust", size: 40, ...variantFor(`s${i}`) }))));
     expect(gzipSync(html).length).toBeLessThanOrEqual(30 * 1024);
   });
+  test("jump raises arms out to the sides, not over the head", () => {
+    const j = poseFor("jump");
+    for (const a of [j.lArm, -j.rArm]) {
+      expect(a).toBeGreaterThanOrEqual(100);
+      expect(a).toBeLessThanOrEqual(130);
+    }
+  });
 });

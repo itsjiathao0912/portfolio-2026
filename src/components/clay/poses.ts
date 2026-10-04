@@ -37,7 +37,8 @@ export const WALK_FRAMES: readonly PoseSpec[] = [
 
 const POSES: Record<Exclude<ClayPoseName, "walk">, PoseSpec> = {
   idle: base,
-  jump: { ...base, lLeg: 16, rLeg: -16, lArm: 150, rArm: -150, bodyY: -12, lLift: -6, rLift: -6, mouth: "grin", shadow: 0.62 },
+  // arms raised out to the sides (not overhead) so hands + prop stay clear of the big head
+  jump: { ...base, lLeg: 16, rLeg: -16, lArm: 124, rArm: -124, bodyY: -12, lLift: -6, rLift: -6, mouth: "grin", shadow: 0.62 },
   wave: { ...base, rArm: -156, tilt: -3, mouth: "grin" },
   point: { ...base, rArm: -92, lean: -1, tilt: -2 },
   talk: { ...base, rArm: -112, lArm: 22, tilt: 3, mouth: "open" },

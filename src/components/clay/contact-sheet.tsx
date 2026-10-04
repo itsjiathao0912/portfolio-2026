@@ -23,6 +23,15 @@ export function ContactSheet({ size = 92 }: { size?: number }) {
           <Row key={r} role={r} size={size} />
         ))}
       </div>
+      <h2 style={{ fontSize: 14, fontWeight: 600, margin: "26px 0 12px" }}>Tile / guide size: full body 72 px, idle and jump (props must read)</h2>
+      <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap", maxWidth: 820 }} data-testid="clay-72">
+        {ROLE_IDS.map((r) => (
+          <div key={r} style={{ display: "flex", gap: 2 }}>
+            <ClayAvatar role={r} size={72} />
+            <ClayAvatar role={r} pose="jump" size={72} />
+          </div>
+        ))}
+      </div>
       <h2 style={{ fontSize: 14, fontWeight: 600, margin: "26px 0 12px" }}>Scale check: headshot 40 / 96 / 240, full body 240</h2>
       <div style={{ display: "flex", gap: 22, alignItems: "flex-end" }} data-testid="clay-scale">
         <ClayAvatar role="designer" view="bust" size={40} />

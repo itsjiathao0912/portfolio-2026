@@ -7,7 +7,7 @@
 // Roles: recruiter (blazer + starred CV), founder (hoodie + rocket), engineer
 // (headphones + code laptop), product designer (beret + frames tablet + pen),
 // marketer (lapel jacket + megaphone), growth (arrow tee + rising bars), data
-// (round glasses + magnifier over pie), investor (tie + briefcase), student
+// (round glasses + big magnifier over a pie), investor (tie + briefcase), student
 // (grad cap + backpack + books), fellow PM (lanyard + sticky board), just
 // curious (question-mark balloon).
 
@@ -345,7 +345,8 @@ export function Headgear({ look, role }: { look: Look; role: string }) {
 
 // ---------------------------------------------------------------- props (held in the viewer-left hand)
 
-const card = () => <rect x={-10} y={19} width={20} height={14} rx={2.6} fill={PAPER} stroke="#d9d4ca" strokeWidth={0.8} />;
+const OUT = "#3b3530"; // shared prop outline: dark, so props read at ~72px
+const card = () => <rect x={-11} y={17} width={22} height={17} rx={2.6} fill={PAPER} stroke={OUT} strokeWidth={1.3} />;
 
 /** Prop art in the hand's local frame (hand at 0,29.6; box about 24 x 22). */
 export function Prop({ look, role }: { look: Look; role: string }) {
@@ -356,7 +357,7 @@ export function Prop({ look, role }: { look: Look; role: string }) {
     case "recruiter":
       return (
         <g>
-          <rect x={-8.6} y={13} width={17.2} height={22} rx={2} fill={PAPER} stroke="#d9d4ca" strokeWidth={0.8} />
+          <rect x={-8.6} y={13} width={17.2} height={22} rx={2} fill={PAPER} stroke={OUT} strokeWidth={1.3} />
           <path d="M-2.2 15.6 l1.3 2.7 l3 .4 l-2.2 2.1 l.5 3 l-2.6 -1.4 l-2.6 1.4 l.5 -3 l-2.2 -2.1 l3 -.4z" fill={a} />
           <path d="M-5.4 26 h10.8 M-5.4 29.2 h10.8 M-5.4 32 h7" stroke="#bdb6a8" strokeWidth={1.1} strokeLinecap="round" />
         </g>
@@ -364,7 +365,7 @@ export function Prop({ look, role }: { look: Look; role: string }) {
     case "founder":
       return (
         <g transform="rotate(-20 0 22)">
-          <path d="M0 6 C6 11 6 24 4 30 H-4 C-6 24 -6 11 0 6Z" fill="#f4f1ea" stroke="#c9c3b6" strokeWidth={0.7} />
+          <path d="M0 6 C6 11 6 24 4 30 H-4 C-6 24 -6 11 0 6Z" fill="#f4f1ea" stroke={OUT} strokeWidth={1.2} />
           <circle cx={0} cy={17} r={2.6} fill="#8fb8e8" stroke="#4a4f5c" strokeWidth={0.8} />
           <path d="M-4 24 L-8.4 31 H-4Z M4 24 L8.4 31 H4Z" fill={a} />
           <path d="M-3 30 Q0 37 3 30Z" fill="#f2a65a" />
@@ -401,28 +402,30 @@ export function Prop({ look, role }: { look: Look; role: string }) {
       return (
         <g>
           {card()}
-          <rect x={-7} y={27} width={3.4} height={4.6} rx={0.8} fill={a} opacity={0.5} />
-          <rect x={-2.4} y={24} width={3.4} height={7.6} rx={0.8} fill={a} opacity={0.75} />
-          <rect x={2.2} y={20.6} width={3.4} height={11} rx={0.8} fill={a} />
+          <rect x={-8} y={26} width={4.4} height={6} rx={0.8} fill={a} opacity={0.55} stroke={OUT} strokeWidth={0.8} />
+          <rect x={-2.2} y={23} width={4.4} height={9} rx={0.8} fill={a} opacity={0.8} stroke={OUT} strokeWidth={0.8} />
+          <rect x={3.6} y={19.6} width={4.4} height={12.4} rx={0.8} fill={a} stroke={OUT} strokeWidth={0.8} />
         </g>
       );
     case "data":
       return (
         <g>
-          {card()}
-          <circle cx={-3} cy={26} r={5.2} fill="#8fb8e8" />
-          <path d="M-3 26 V20.8 A5.2 5.2 0 0 1 2.2 26Z" fill={a} />
-          <circle cx={4.6} cy={22.6} r={5} fill="#cfe6f6" fillOpacity={0.5} stroke="#4a4f5c" strokeWidth={1.6} />
-          <path d="M8 26 L11.4 29.6" stroke="#4a4f5c" strokeWidth={2.2} strokeLinecap="round" />
+          {/* big magnifier over a pie: one bold silhouette */}
+          <path d="M5.6 25 L13 33.4" stroke={OUT} strokeWidth={4.4} strokeLinecap="round" />
+          <circle cx={-1} cy={18} r={10} fill="#e4f1fb" stroke={OUT} strokeWidth={2.6} />
+          <circle cx={-1} cy={18} r={6} fill="#8fb8e8" />
+          <path d="M-1 18 V12 A6 6 0 0 1 5 18Z" fill={a} />
+          <Spec cx={-5} cy={12.6} rx={3} ry={1.3} o={0.7} r={-35} />
         </g>
       );
     case "investor":
       return (
         <g>
-          <rect x={-12} y={18} width={24} height={16} rx={2.6} fill="#5a3b28" />
-          <path d="M-4 18 V15 Q-4 13.4 -2.4 13.4 H2.4 Q4 13.4 4 15 V18" fill="none" stroke="#3a2618" strokeWidth={1.8} />
-          <rect x={-12} y={24} width={24} height={1.4} fill="#3a2618" />
-          <rect x={-2} y={22.6} width={4} height={4.2} rx={0.8} fill={a} />
+          <path d="M-5 17 V12.6 Q-5 10.4 -2.8 10.4 H2.8 Q5 10.4 5 12.6 V17" fill="none" stroke={OUT} strokeWidth={2.6} />
+          <rect x={-13} y={16} width={26} height={18} rx={3} fill="#a0693f" stroke={OUT} strokeWidth={1.6} />
+          <rect x={-13} y={23} width={26} height={2} fill={OUT} />
+          <rect x={-3} y={21.2} width={6} height={5.6} rx={1} fill="#f2c25a" stroke={OUT} strokeWidth={1} />
+          <Spec cx={-7} cy={19} rx={3.4} ry={1} o={0.45} r={-6} />
         </g>
       );
     case "student":
@@ -437,7 +440,7 @@ export function Prop({ look, role }: { look: Look; role: string }) {
     case "pm":
       return (
         <g>
-          <rect x={-12} y={14.6} width={24} height={20} rx={2.4} fill={PAPER} stroke="#d9d4ca" strokeWidth={0.8} />
+          <rect x={-12} y={14.6} width={24} height={20} rx={2.4} fill={PAPER} stroke={OUT} strokeWidth={1.3} />
           <rect x={-9.4} y={17.4} width={8} height={7} rx={1} fill="#f2c25a" transform="rotate(-4 -5 21)" />
           <rect x={0.6} y={17.4} width={8} height={7} rx={1} fill="#f08fa8" transform="rotate(3 4 21)" />
           <rect x={-9.4} y={26} width={8} height={7} rx={1} fill="#7cc4a8" transform="rotate(3 -5 29)" />
@@ -447,12 +450,12 @@ export function Prop({ look, role }: { look: Look; role: string }) {
     case "curious":
       return (
         <g>
-          <path d="M0 30 C-1 24 2 20 0 14" fill="none" stroke="#8a8478" strokeWidth={0.8} />
-          <circle cx={0} cy={2} r={11} fill={a} />
-          <Spec cx={-4} cy={-3} rx={3.6} ry={1.8} o={0.55} r={-35} />
-          <path d="M-3.4 -1 Q-3.4 -5 0 -5 Q3.6 -5 3.6 -1.6 Q3.6 1 0 2.4 V4.4" fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" />
-          <circle cx={0} cy={8} r={1.2} fill="#fff" />
-          <path d="M-1.6 13 h3.2 l-1.6 2.4z" fill={dark} />
+          <path d="M0 30 C-1.4 24 2 20 0 14" fill="none" stroke={OUT} strokeWidth={1.4} />
+          <circle cx={0} cy={1} r={13} fill={a} stroke={dark} strokeWidth={1.6} />
+          <Spec cx={-5} cy={-5} rx={4} ry={2} o={0.55} r={-35} />
+          <path d="M-4.4 -2.6 Q-4.4 -7.6 0 -7.6 Q4.6 -7.6 4.6 -3.2 Q4.6 0 0 2 V4.4" fill="none" stroke="#fff" strokeWidth={3.4} strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx={0} cy={9} r={2} fill="#fff" />
+          <path d="M-2 13.8 h4 l-2 2.8z" fill={dark} />
         </g>
       );
     default:
