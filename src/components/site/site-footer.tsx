@@ -89,7 +89,11 @@ export function SiteFooter({ profile }: { profile: Site["profile"] | null }) {
             <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline-offset-2 hover:text-ink-1 hover:underline">
               Twemoji
             </a>
-            , CC-BY 4.0
+            , CC-BY 4.0; animated project emoji: Telegram set via{" "}
+            <a href="https://www.spaceui.one/tools/emoji" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline-offset-2 hover:text-ink-1 hover:underline">
+              SpaceUI Emoji
+            </a>
+            , MIT
           </p>
           <nav aria-label="Footer" className="flex flex-wrap gap-2">
             <Link href="/work" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 hover:text-ink-1">Work</Link>

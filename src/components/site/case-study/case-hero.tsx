@@ -7,6 +7,7 @@ import { useRef } from "react";
 import type { Project } from "@content/schema.ts";
 import { TINT_BG, TINT_GRADIENT } from "@/lib/tints";
 import { cn } from "@/lib/utils";
+import { ProjectEmoji } from "@/components/site/home/project-emoji";
 import { ScreenFrame } from "./screen-frame";
 import { Tilt } from "./tilt";
 
@@ -70,9 +71,7 @@ export function CaseHero({ project, coverId }: { project: Project; coverId: stri
             {meta.logo ? (
               <Image src={meta.logo} alt="" width={36} height={36} unoptimized className="size-8 object-contain" />
             ) : (
-              <span className="font-display text-xl text-navy" aria-hidden="true">
-                {project.title.slice(0, 1)}
-              </span>
+              <ProjectEmoji project={project.slug} size={32} play />
             )}
           </span>
           <span className="flex flex-col items-start text-left">
