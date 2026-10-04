@@ -1,0 +1,16 @@
+import { createRequire } from "module";
+const require = createRequire("/Users/knamnguyen/Documents/0-Programming/duma/package.json");
+const { chromium } = require("playwright");
+const browser = await chromium.launch();
+const ctx = await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
+const page = await ctx.newPage();
+await page.goto("http://localhost:3003/",{waitUntil:"load"}); await page.waitForTimeout(2500);
+await page.evaluate(()=>{const e=document.querySelector("[data-testid=persona-control]"); window.scrollTo(0, scrollY+e.getBoundingClientRect().top-140)}); await page.waitForTimeout(900);
+const st = ()=>page.evaluate(()=>({order:[...document.querySelectorAll("[data-testid=stack-card]")].slice(0,3).map(c=>c.dataset.slug), checked:document.querySelector("[role=radio][aria-checked=true]")?.textContent, scrollY:Math.round(scrollY), note:document.querySelector("[data-testid=persona-note]")?.textContent, ls:JSON.stringify(Object.fromEntries(Object.entries(localStorage)))}));
+console.log("before",JSON.stringify(await st()));
+await page.locator("[data-testid=persona-founder]").tap(); await page.waitForTimeout(1500);
+console.log("after tap founder",JSON.stringify(await st()));
+await page.locator("[data-testid=persona-recruiter]").tap(); await page.waitForTimeout(1500);
+console.log("after tap recruiter",JSON.stringify(await st()));
+await page.screenshot({path:new URL("../motion/m-persona.jpg",import.meta.url).pathname,type:"jpeg",quality:65});
+await browser.close();

@@ -1,0 +1,114 @@
+{
+ "case-lumicap-d": {
+  "H": 11515,
+  "steps": 15,
+  "maxCanvas": 1
+ },
+ "case-cosap-d": {
+  "H": 11606,
+  "steps": 15,
+  "maxCanvas": 1
+ },
+ "case-gocrypto-d": {
+  "H": 14426,
+  "steps": 18,
+  "maxCanvas": 1
+ },
+ "case-pac-d": {
+  "H": 8108,
+  "steps": 11,
+  "maxCanvas": 1
+ },
+ "case-zalo-game-center-d": {
+  "H": 7145,
+  "steps": 9,
+  "maxCanvas": 1
+ },
+ "case-reorc-data-platform-d": {
+  "H": 9494,
+  "steps": 12,
+  "maxCanvas": 1
+ },
+ "case-cortex-sentinel-d": {
+  "H": 16320,
+  "steps": 21,
+  "maxCanvas": 1
+ },
+ "case-guardline-d": {
+  "H": 11743,
+  "steps": 15,
+  "maxCanvas": 1
+ },
+ "case-ledgr-d": {
+  "H": 10647,
+  "steps": 14,
+  "maxCanvas": 1
+ },
+ "errors-d": [
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/"
+ ],
+ "case-lumicap-m": {
+  "H": 12493,
+  "steps": 17,
+  "maxCanvas": 1
+ },
+ "case-cosap-m": {
+  "H": 12913,
+  "steps": 17,
+  "maxCanvas": 1
+ },
+ "case-gocrypto-m": {
+  "H": 17125,
+  "steps": 23,
+  "maxCanvas": 1
+ },
+ "case-pac-m": {
+  "H": 9794,
+  "steps": 13,
+  "maxCanvas": 1
+ },
+ "case-zalo-game-center-m": {
+  "H": 7902,
+  "steps": 11,
+  "maxCanvas": 1
+ },
+ "case-reorc-data-platform-m": {
+  "H": 10364,
+  "steps": 14,
+  "maxCanvas": 1
+ },
+ "case-cortex-sentinel-m": {
+  "H": 17179,
+  "steps": 23,
+  "maxCanvas": 1
+ },
+ "case-guardline-m": {
+  "H": 13568,
+  "steps": 18,
+  "maxCanvas": 1
+ },
+ "case-ledgr-m": {
+  "H": 11700,
+  "steps": 16,
+  "maxCanvas": 1
+ },
+ "errors-m": [
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/",
+  "PAGEERR Only two keyframes currently supported with spring and inertia animations. Trying to animate 1,1.18,1. For more information and steps for solving, visit https:/"
+ ]
+}

@@ -1,0 +1,294 @@
+{
+ "home-d": {
+  "radii": {
+   "32px": 1,
+   "3.35544e+07px": 28,
+   "24px": 43,
+   "16px": 62,
+   "12px": 9,
+   "18px": 3,
+   "6px": 3,
+   "20px": 13,
+   "35.2px": 1,
+   "28.8px": 1
+  },
+  "shadows": {
+   "rgba(255, 255, 255, 0.75) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.25) 0px -1px 0px 0p": 1,
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 22,
+   "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) 0px 0px 0px 0px": 23,
+   "rgba(11, 21, 51, 0) 0px 0px 0px 0px": 9
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 33,
+  "h1": [
+   "Thao Dao is Technical Product Manager at SkyLab Gr"
+  ],
+  "canvas": 1,
+  "H": 15921
+ },
+ "about-d": {
+  "radii": {
+   "32px": 1,
+   "3.35544e+07px": 9,
+   "20px": 7,
+   "16px": 11
+  },
+  "shadows": {
+   "rgba(255, 255, 255, 0.75) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.25) 0px -1px 0px 0p": 1,
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 11
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 1,
+  "h1": [
+   "About Thao"
+  ],
+  "canvas": 1,
+  "H": 6103
+ },
+ "work-d": {
+  "radii": {
+   "32px": 1,
+   "3.35544e+07px": 14,
+   "24px": 36,
+   "50%": 9,
+   "18px": 3,
+   "6px": 3,
+   "20px": 7,
+   "35.2px": 1,
+   "28.8px": 1
+  },
+  "shadows": {
+   "rgba(255, 255, 255, 0.75) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.25) 0px -1px 0px 0p": 1,
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 13,
+   "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) 0px 0px 0px 0px": 9
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 1,
+  "h1": [
+   "All projects"
+  ],
+  "canvas": 1,
+  "H": 3530
+ },
+ "ledgr-d": {
+  "radii": {
+   "32px": 4,
+   "3.35544e+07px": 17,
+   "18px": 2,
+   "6px": 2,
+   "24px": 13,
+   "12px": 10,
+   "38.4px": 3,
+   "20px": 3,
+   "50%": 1
+  },
+  "shadows": {
+   "rgba(255, 255, 255, 0.75) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.25) 0px -1px 0px 0p": 1,
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 14,
+   "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) 0px 0px 0px 0px": 1
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 1,
+  "h1": [
+   "The AI reads the contract. The rules make the call"
+  ],
+  "canvas": 1,
+  "H": 10647
+ },
+ "gocrypto-d": {
+  "radii": {
+   "32px": 3,
+   "3.35544e+07px": 37,
+   "38.4px": 2,
+   "16px": 6,
+   "24px": 15,
+   "12px": 8,
+   "50%": 1,
+   "20px": 1
+  },
+  "shadows": {
+   "rgba(255, 255, 255, 0.75) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.25) 0px -1px 0px 0p": 1,
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 5,
+   "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) 0px 0px 0px 0px": 1
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 1,
+  "h1": [
+   "GoTyme wins accounts. A transfer rail wins balance"
+  ],
+  "canvas": 1,
+  "H": 14426
+ },
+ "lumicap-d": {
+  "radii": {
+   "32px": 1,
+   "3.35544e+07px": 27,
+   "20px": 7,
+   "18px": 1,
+   "6px": 1,
+   "16px": 14,
+   "24px": 11,
+   "12px": 18,
+   "50%": 1
+  },
+  "shadows": {
+   "rgba(255, 255, 255, 0.75) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.25) 0px -1px 0px 0p": 1,
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 13,
+   "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) 0px 0px 0px 0px": 1
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 1,
+  "h1": [
+   "Real-world compute capacity, turned into on-chain "
+  ],
+  "canvas": 1,
+  "H": 11515
+ },
+ "home-m": {
+  "radii": {
+   "24px": 33,
+   "3.35544e+07px": 25,
+   "16px": 49,
+   "12px": 9,
+   "18px": 3,
+   "6px": 3,
+   "20px": 13,
+   "35.2px": 1,
+   "28.8px": 1
+  },
+  "shadows": {
+   "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) 0px 0px 0px 0px": 23,
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 22,
+   "rgba(11, 21, 51, 0) 0px 0px 0px 0px": 9
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 33,
+  "h1": [
+   "Thao Dao is Technical Product Manager at SkyLab Gr"
+  ],
+  "canvas": 1,
+  "H": 16244
+ },
+ "about-m": {
+  "radii": {
+   "20px": 7,
+   "16px": 11,
+   "3.35544e+07px": 4
+  },
+  "shadows": {
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 10
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 1,
+  "h1": [
+   "About Thao"
+  ],
+  "canvas": 1,
+  "H": 10165
+ },
+ "work-m": {
+  "radii": {
+   "3.35544e+07px": 7,
+   "24px": 27,
+   "50%": 9,
+   "18px": 3,
+   "6px": 3,
+   "20px": 7,
+   "35.2px": 1,
+   "28.8px": 1
+  },
+  "shadows": {
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 12,
+   "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) 0px 0px 0px 0px": 9
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 1,
+  "h1": [
+   "All projects"
+  ],
+  "canvas": 1,
+  "H": 6393
+ },
+ "ledgr-m": {
+  "radii": {
+   "18px": 2,
+   "6px": 2,
+   "3.35544e+07px": 3,
+   "24px": 12,
+   "12px": 10,
+   "38.4px": 3,
+   "32px": 3,
+   "20px": 3,
+   "50%": 1
+  },
+  "shadows": {
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 13,
+   "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) 0px 0px 0px 0px": 1
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 1,
+  "h1": [
+   "The AI reads the contract. The rules make the call"
+  ],
+  "canvas": 1,
+  "H": 11700
+ },
+ "gocrypto-m": {
+  "radii": {
+   "38.4px": 6,
+   "32px": 6,
+   "3.35544e+07px": 23,
+   "16px": 6,
+   "24px": 14,
+   "12px": 8,
+   "50%": 1,
+   "20px": 1
+  },
+  "shadows": {
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 8,
+   "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) 0px 0px 0px 0px": 1
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 1,
+  "h1": [
+   "GoTyme wins accounts. A transfer rail wins balance"
+  ],
+  "canvas": 1,
+  "H": 17125
+ },
+ "lumicap-m": {
+  "radii": {
+   "20px": 7,
+   "18px": 1,
+   "6px": 1,
+   "3.35544e+07px": 11,
+   "16px": 9,
+   "24px": 10,
+   "12px": 11,
+   "50%": 1
+  },
+  "shadows": {
+   "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0": 11,
+   "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) 0px 0px 0px 0px": 1
+  },
+  "dark": [],
+  "hscroll": false,
+  "smallText": 1,
+  "h1": [
+   "Real-world compute capacity, turned into on-chain "
+  ],
+  "canvas": 1,
+  "H": 12493
+ }
+}

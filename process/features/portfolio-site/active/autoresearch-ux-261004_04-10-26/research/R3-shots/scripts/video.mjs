@@ -1,0 +1,11 @@
+import { createRequire } from "module";
+const require = createRequire("/Users/knamnguyen/Documents/0-Programming/duma/package.json");
+const { chromium } = require("playwright");
+const browser = await chromium.launch();
+const page = await (await browser.newContext({viewport:{width:1440,height:900}})).newPage();
+await page.goto("http://localhost:3003/work/ledgr",{waitUntil:"load"}); await page.waitForTimeout(2000);
+console.log(await page.evaluate(()=>document.createElement("video").canPlayType('video/mp4; codecs="avc1.42E01E"')));
+const v = page.locator("video").first(); await v.scrollIntoViewIfNeeded(); await page.waitForTimeout(3000);
+console.log(await v.evaluate(e=>({err:e.error&&e.error.code, ready:e.readyState, net:e.networkState, poster:e.poster, paused:e.paused, w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height})));
+await v.screenshot({path:new URL("../motion/video-ledgr.jpg",import.meta.url).pathname,type:"jpeg",quality:60});
+await browser.close();

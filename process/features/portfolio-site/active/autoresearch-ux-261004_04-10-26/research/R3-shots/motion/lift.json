@@ -1,0 +1,106 @@
+{
+ "home-stack-1": {
+  "restH": 908,
+  "restTop": 139.6,
+  "finalRise": 11.5,
+  "peakRise": 11.57,
+  "overshootPx": 0.07,
+  "overshootPct": 0.6,
+  "settleMs": 283,
+  "t90ms": 283,
+  "finalTransform": "matrix(1.014, 0, 0, 1.014, 0, -5.14)",
+  "press": {
+   "mode": "press",
+   "tr": "matrix(0.985, 0, 0, 0.985, 0, -4)"
+  },
+  "returnDelta": 0
+ },
+ "home-stack-4": {
+  "restH": 812,
+  "restTop": 140.1,
+  "finalRise": 11.5,
+  "peakRise": 11.5,
+  "overshootPx": 0,
+  "overshootPct": 0,
+  "settleMs": 265,
+  "t90ms": 265,
+  "finalTransform": "matrix(1.014, 0, 0, 1.014, 0, -5.82)",
+  "press": {
+   "mode": "press",
+   "tr": "matrix(0.985, 0, 0, 0.985, 0, -4)"
+  },
+  "returnDelta": 0
+ },
+ "home-highlight": {
+  "restH": 296,
+  "restTop": 116.4,
+  "finalRise": 11.5,
+  "peakRise": 12.12,
+  "overshootPx": 0.62,
+  "overshootPct": 5.4,
+  "settleMs": 472,
+  "t90ms": 271,
+  "finalTransform": "matrix(1.014, 0, 0, 1.014, 0, -9.43)",
+  "press": {
+   "mode": "press",
+   "tr": "matrix(0.985, 0, 0, 0.985, 0, -4)"
+  },
+  "returnDelta": 0
+ },
+ "home-globe-row": {
+  "error": "Error: page.evaluate: TypeError: Cannot read properties of undefined (reading 'getBoundingClientRect')\n    at eval (eval at evaluate (:302:30), <anonymous>:1:52"
+ },
+ "people-card": {
+  "restH": 393,
+  "restTop": 115.6,
+  "finalRise": 11.5,
+  "peakRise": 12.04,
+  "overshootPx": 0.54,
+  "overshootPct": 4.7,
+  "settleMs": 448,
+  "t90ms": 284,
+  "finalTransform": "matrix(1.014, 0, 0, 1.014, 0, -8.75)",
+  "press": {
+   "mode": "press",
+   "tr": "matrix(0.985, 0, 0, 0.985, 0, -4)"
+  },
+  "returnDelta": 0
+ },
+ "work-card-0": {
+  "restH": 742,
+  "restTop": 140,
+  "finalRise": 11.5,
+  "peakRise": 11.97,
+  "overshootPx": 0.47,
+  "overshootPct": 4.1,
+  "settleMs": 243,
+  "t90ms": 243,
+  "finalTransform": "matrix(1.014, 0, 0, 1.014, 0, -6.31)",
+  "press": {
+   "mode": "press",
+   "tr": "matrix(0.985, 0, 0, 0.985, 0, -3.99857)"
+  },
+  "returnDelta": 9540.25
+ },
+ "work-card-1": {
+  "error": "Error: page.evaluate: TypeError: Cannot read properties of undefined (reading 'getBoundingClientRect')\n    at eval (eval at evaluate (:302:30), <anonymous>:1:52"
+ },
+ "case-next": {
+  "restH": 742,
+  "restTop": 140.3,
+  "finalRise": 11.5,
+  "peakRise": 11.9,
+  "overshootPx": 0.4,
+  "overshootPct": 3.5,
+  "settleMs": 296,
+  "t90ms": 272,
+  "finalTransform": "matrix(1.014, 0, 0, 1.014, 0, -6.31)",
+  "press": {
+   "mode": "press",
+   "tr": "matrix(0.985, 0, 0, 0.985, 0, -3.99853)"
+  },
+  "returnDelta": 0
+ },
+ "homeLiftCount": 23,
+ "pageErrors": []
+}

@@ -1,0 +1,23 @@
+{
+ "globe-row": {
+  "restH": 48,
+  "rise": 2,
+  "peak": 2.13,
+  "frames": 81,
+  "fps": 58
+ },
+ "work-card-1": {
+  "restH": 742,
+  "rise": 11.5,
+  "peak": 12,
+  "frames": 85,
+  "fps": 61
+ },
+ "work-card-5": {
+  "restH": 742,
+  "rise": 11.5,
+  "peak": 12.07,
+  "frames": 77,
+  "fps": 55
+ }
+}

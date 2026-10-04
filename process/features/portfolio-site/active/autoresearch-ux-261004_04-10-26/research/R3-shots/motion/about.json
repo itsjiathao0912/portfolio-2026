@@ -1,0 +1,116 @@
+{
+ "initial": {
+  "scrollLeft": 0,
+  "max": 1060,
+  "nearest": 1,
+  "offCenter": -70,
+  "n": 7,
+  "marker": 424
+ },
+ "nudge40": {
+  "dx": -40,
+  "before": 0,
+  "whileHeld": 40,
+  "heldDelta": 40,
+  "expectedHeldDelta": 40,
+  "after": 0,
+  "nearest": 1,
+  "offCenterAfter": -70,
+  "markerAfter": 424,
+  "durationMs": 2038,
+  "settleMsApprox": 310
+ },
+ "drag230": {
+  "dx": -230,
+  "before": 0,
+  "whileHeld": 230,
+  "heldDelta": 230,
+  "expectedHeldDelta": 230,
+  "after": 530,
+  "nearest": 3,
+  "offCenterAfter": 0,
+  "markerAfter": 715,
+  "durationMs": 2028,
+  "settleMsApprox": 794
+ },
+ "drag230back": {
+  "dx": 230,
+  "before": 530,
+  "whileHeld": 300,
+  "heldDelta": -230,
+  "expectedHeldDelta": -230,
+  "after": 230,
+  "nearest": 2,
+  "offCenterAfter": 0,
+  "markerAfter": 569,
+  "durationMs": 2016,
+  "settleMsApprox": 458
+ },
+ "flick": {
+  "dx": -260,
+  "before": 230,
+  "whileHeld": 490,
+  "heldDelta": 260,
+  "expectedHeldDelta": 260,
+  "after": 530,
+  "nearest": 3,
+  "offCenterAfter": 0,
+  "markerAfter": 715,
+  "durationMs": 2021,
+  "settleMsApprox": 136
+ },
+ "flick2": {
+  "dx": -420,
+  "before": 530,
+  "whileHeld": 950,
+  "heldDelta": 420,
+  "expectedHeldDelta": 420,
+  "after": 1060,
+  "nearest": 5,
+  "offCenterAfter": 70,
+  "markerAfter": 1006,
+  "durationMs": 2022,
+  "settleMsApprox": 127
+ },
+ "arrows": {
+  "before": 0,
+  "next": 230,
+  "prev": 0,
+  "nextNearest": 2,
+  "prevNearest": 1
+ },
+ "cards": [
+  {
+   "h": 245,
+   "w": 280,
+   "text": "12/2020 — 07/2021Creatio Marketing ClubExternal Relations Leader, Marketing Arena 2021Stud"
+  },
+  {
+   "h": 245,
+   "w": 280,
+   "text": "01/2022 — 05/2022MoMoGrowth Product InternE-wallet"
+  },
+  {
+   "h": 245,
+   "w": 280,
+   "text": "11/2022 — 03/2023Chợ TốtBusiness Analyst InternClassifieds marketplace"
+  },
+  {
+   "h": 245,
+   "w": 280,
+   "text": "02/2023 — 04/2024ZaloProduct OwnerConsumer · Messaging & Games"
+  },
+  {
+   "h": 245,
+   "w": 280,
+   "text": "04/2024 — 03/2025ReOrc AIIT Business AnalystEnterprise Data Platform"
+  },
+  {
+   "h": 245,
+   "w": 280,
+   "text": "03/2025 — PresentSkyLab GroupTechnical Product ManagerCloud · Blockchain · Enterprise AI"
+  }
+ ],
+ "tabFocus": "rail-card",
+ "errors": []
+}

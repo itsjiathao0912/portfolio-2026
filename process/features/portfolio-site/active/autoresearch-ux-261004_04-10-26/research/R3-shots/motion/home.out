@@ -1,0 +1,679 @@
+{
+ "stamps": [
+  {
+   "slug": "lumicap",
+   "hasStamp": true,
+   "landed": "true",
+   "dTop": 8,
+   "label": "Stamp: SHIPPED, 2025 · SKYLAB",
+   "transform": "matrix(0.990268, -0.139173, 0.139173, 0.990268, 0, 0)",
+   "opacity": 1,
+   "blend": "multiply",
+   "color": "rgb(11, 21, 51)"
+  },
+  {
+   "slug": "cosap",
+   "hasStamp": true,
+   "landed": "true",
+   "dTop": 8,
+   "label": "Stamp: SHIPPED, 2025 · SKYLAB",
+   "transform": "matrix(0.98985, -0.139114, 0.139114, 0.98985, 0, 0)",
+   "opacity": 1,
+   "blend": "multiply",
+   "color": "rgb(11, 21, 51)"
+  },
+  {
+   "slug": "gocrypto",
+   "hasStamp": true,
+   "landed": "true",
+   "dTop": 8,
+   "label": "Stamp: STRATEGY, INDEPENDENT",
+   "transform": "matrix(0.990268, -0.139173, 0.139173, 0.990268, 0, 0)",
+   "opacity": 1,
+   "blend": "multiply",
+   "color": "rgb(11, 21, 51)"
+  },
+  {
+   "slug": "pac",
+   "hasStamp": true,
+   "landed": "true",
+   "dTop": 8,
+   "label": "Stamp: SHIPPED, 2025 · SKYLAB",
+   "transform": "matrix(0.990268, -0.139173, 0.139173, 0.990268, 0, 0)",
+   "opacity": 1,
+   "blend": "multiply",
+   "color": "rgb(11, 21, 51)"
+  },
+  {
+   "slug": "zalo-game-center",
+   "hasStamp": true,
+   "landed": "true",
+   "dTop": 8,
+   "label": "Stamp: SHIPPED, 2023 · ZALO",
+   "transform": "matrix(0.990268, -0.139173, 0.139173, 0.990268, 0, 0)",
+   "opacity": 1,
+   "blend": "multiply",
+   "color": "rgb(11, 21, 51)"
+  },
+  {
+   "slug": "reorc-data-platform",
+   "hasStamp": true,
+   "landed": "true",
+   "dTop": 8,
+   "label": "Stamp: SHIPPED, 2024 · REORC",
+   "transform": "matrix(0.990268, -0.139173, 0.139173, 0.990268, 0, 0)",
+   "opacity": 1,
+   "blend": "multiply",
+   "color": "rgb(11, 21, 51)"
+  },
+  {
+   "slug": "cortex-sentinel",
+   "hasStamp": true,
+   "landed": "true",
+   "dTop": 8,
+   "label": "Stamp: 2ND PLACE, AABW 2026",
+   "transform": "matrix(0.990268, -0.139173, 0.139173, 0.990268, 0, 0)",
+   "opacity": 1,
+   "blend": "multiply",
+   "color": "rgb(11, 21, 51)"
+  },
+  {
+   "slug": "guardline",
+   "hasStamp": true,
+   "landed": "true",
+   "dTop": 8,
+   "label": "Stamp: HACKATHON, VIETNAM 2026",
+   "transform": "matrix(0.990268, -0.139173, 0.139173, 0.990268, 0, 0)",
+   "opacity": 1,
+   "blend": "multiply",
+   "color": "rgb(11, 21, 51)"
+  },
+  {
+   "slug": "ledgr",
+   "hasStamp": true,
+   "landed": "true",
+   "dTop": 8,
+   "label": "Stamp: LIVE DEMO, VIETNAM",
+   "transform": "matrix(0.990268, -0.139173, 0.139173, 0.990268, 0, 0)",
+   "opacity": 1,
+   "blend": "multiply",
+   "color": "rgb(11, 21, 51)"
+  }
+ ],
+ "stampTimeline": {
+  "landedAtMs": 378,
+  "minScale": 0.938,
+  "maxScale": 1.389,
+  "finalScale": 1,
+  "finalRot": -8,
+  "settleMs": 292,
+  "cardTopRange": [
+   495,
+   622
+  ],
+  "sample": [
+   [
+    378,
+    1.389,
+    -13.8,
+    0.01,
+    "true",
+    622
+   ],
+   [
+    475,
+    0.979,
+    -7.7,
+    1,
+    "true",
+    526
+   ],
+   [
+    570,
+    0.967,
+    -7.5,
+    1,
+    "true",
+    497
+   ],
+   [
+    670,
+    1.01,
+    -8,
+    0.98,
+    "true",
+    495
+   ],
+   [
+    770,
+    1,
+    -8,
+    1,
+    "true",
+    495
+   ],
+   [
+    868,
+    1,
+    -8,
+    1,
+    "true",
+    495
+   ],
+   [
+    968,
+    1,
+    -8,
+    1,
+    "true",
+    495
+   ],
+   [
+    1068,
+    1,
+    -8,
+    1,
+    "true",
+    495
+   ],
+   [
+    1169,
+    1,
+    -8,
+    1,
+    "true",
+    495
+   ],
+   [
+    1270,
+    1,
+    -8,
+    1,
+    "true",
+    495
+   ]
+  ]
+ },
+ "toc": {
+  "pos": {
+   "tocX": 195,
+   "tocTop": 3519.4375,
+   "workTitleTop": 3329.921875
+  },
+  "distinctPillTops": 9,
+  "pillTops": [
+   153,
+   161,
+   171,
+   177,
+   184,
+   187,
+   191,
+   192,
+   193
+  ],
+  "maxEmojiScale": null,
+  "activeNames": [
+   "🏦Lumicap",
+   "🏭COSAP"
+  ]
+ },
+ "persona": {
+  "founder": {
+   "moved": true,
+   "first3": [
+    "ledgr",
+    "lumicap",
+    "cosap"
+   ],
+   "scrollDelta": -680,
+   "maxTopTravelPx": 4827,
+   "note": "Founder view: what she shipped and how, her own product first.",
+   "tocFirst": "📒Ledgr",
+   "samples": [
+    [
+     0,
+     3240,
+     "279/1220/2184"
+    ],
+    [
+     162,
+     3265,
+     "254/1195/2159"
+    ],
+    [
+     548,
+     2555,
+     "1264/1868/2808"
+    ],
+    [
+     712,
+     2546,
+     "991/1912/2852"
+    ],
+    [
+     879,
+     2546,
+     "975/1914/2854"
+    ],
+    [
+     1043,
+     2546,
+     "974/1914/2854"
+    ],
+    [
+     1212,
+     2546,
+     "974/1914/2854"
+    ],
+    [
+     1378,
+     2546,
+     "974/1914/2854"
+    ]
+   ]
+  },
+  "recruiter": {
+   "moved": true,
+   "first3": [
+    "cortex-sentinel",
+    "pac",
+    "cosap"
+   ],
+   "scrollDelta": 0,
+   "maxTopTravelPx": 4995,
+   "note": "Recruiter view: the award and the products with the clearest results first.",
+   "tocFirst": "🛡️Cortex Sentinel",
+   "samples": [
+    [
+     0,
+     2546,
+     "974/1914/2854"
+    ],
+    [
+     380,
+     2546,
+     "1645/2643/2886"
+    ],
+    [
+     547,
+     2546,
+     "1014/2012/2891"
+    ],
+    [
+     710,
+     2546,
+     "976/1974/2891"
+    ],
+    [
+     875,
+     2546,
+     "974/1972/2891"
+    ],
+    [
+     1041,
+     2546,
+     "974/1972/2891"
+    ],
+    [
+     1209,
+     2546,
+     "974/1972/2891"
+    ],
+    [
+     1376,
+     2546,
+     "974/1972/2891"
+    ]
+   ]
+  },
+  "engineer": {
+   "moved": true,
+   "first3": [
+    "reorc-data-platform",
+    "pac",
+    "cosap"
+   ],
+   "scrollDelta": 0,
+   "maxTopTravelPx": 3822,
+   "note": "Engineer view: data platforms, systems and specs first.",
+   "tocFirst": "📊ReOrc Data Platform",
+   "samples": [
+    [
+     0,
+     2546,
+     "974/1972/2891"
+    ],
+    [
+     307,
+     2546,
+     "1870/1872/2792"
+    ],
+    [
+     474,
+     2546,
+     "1034/1844/2763"
+    ],
+    [
+     639,
+     2546,
+     "977/1842/2761"
+    ],
+    [
+     803,
+     2546,
+     "974/1842/2761"
+    ],
+    [
+     970,
+     2546,
+     "974/1842/2761"
+    ],
+    [
+     1137,
+     2546,
+     "974/1842/2761"
+    ],
+    [
+     1303,
+     2546,
+     "974/1842/2761"
+    ]
+   ]
+  },
+  "all": {
+   "moved": true,
+   "first3": [
+    "lumicap",
+    "cosap",
+    "gocrypto"
+   ],
+   "scrollDelta": 0,
+   "maxTopTravelPx": 5514,
+   "note": null,
+   "tocFirst": "🏦Lumicap",
+   "samples": [
+    [
+     0,
+     2546,
+     "974/1842/2761"
+    ],
+    [
+     245,
+     2546,
+     "2699/2179/4302"
+    ],
+    [
+     412,
+     2546,
+     "1098/1933/2980"
+    ],
+    [
+     578,
+     2546,
+     "980/1915/2883"
+    ],
+    [
+     745,
+     2546,
+     "973/1914/2878"
+    ],
+    [
+     913,
+     2546,
+     "973/1914/2878"
+    ],
+    [
+     1079,
+     2546,
+     "973/1914/2878"
+    ],
+    [
+     1246,
+     2546,
+     "973/1914/2878"
+    ],
+    [
+     1412,
+     2546,
+     "973/1914/2878"
+    ]
+   ]
+  },
+  "arrowRight": "Recruiter"
+ },
+ "ticker": {
+  "idlePxPerS": -42.4,
+  "hoverPxPerS": 0,
+  "afterLeavePxPerS": -41.7,
+  "clickable": "BUTTON:",
+  "clickScrolled": 0,
+  "n": 14,
+  "texts": [
+   "+30%ad revenue in six months· ZaloPending✓ Settledsettled",
+   "−40%rework· ReOrc AIPending✓ Settledsettled",
+   "+20%faster feature delivery· ReOrc AIPending✓ Settledsettled",
+   "95%first-pass UAT· ReOrc AIPending✓ Settledsettled",
+   "8AI ERP modules designed· SkyLab GroupPending✓ Settledsettle",
+   "4cloud providers, one pricing logic· SkyLab GroupPending✓ Se"
+  ],
+  "tag": "BUTTON",
+  "fontPx": "13px",
+  "chipFont": "13px",
+  "tabindex": "0",
+  "h": 46.5
+ },
+ "globe": {
+  "canvasAtGlobe": 1,
+  "canvasAway": 0,
+  "fps": 61,
+  "rows": 3,
+  "rowTexts": [
+   "The Gulf → Manila· GoCrypto",
+   "Ho Chi Minh City → Singapore· COSAP",
+   "Ho Chi Minh City → Seoul· COSAP"
+  ],
+  "stage": {
+   "x": 160,
+   "y": 219.921875,
+   "width": 420,
+   "height": 420
+  }
+ },
+ "coin": {
+  "track": {
+   "coin": {
+    "x": 424,
+    "y": 1126.21875,
+    "width": 56,
+    "height": 56
+   },
+   "wallet": {
+    "x": 920,
+    "y": 1009.21875,
+    "width": 96,
+    "height": 64
+   }
+  },
+  "nudgeXWhileHeld": 0,
+  "nudgeAfterRelease": 0,
+  "stageAfterNudge": "idle",
+  "drag": {
+   "stage": "idle",
+   "finalCoinLeft": 424,
+   "walletLeft": 920,
+   "coinOvershoot": 0
+  },
+  "buttons": {
+   "email": false,
+   "li": false
+  },
+  "overrun": {
+   "cardRight": 1080,
+   "trackRight": 1040,
+   "svgRight": 1144,
+   "svgLeft": 504,
+   "trackLeft": 400
+  },
+  "keyboardStage": "settled"
+ },
+ "errors": [
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied."
+ ],
+ "mobileRail": [
+  {
+   "slug": "lumicap",
+   "active": "🏦Lumicap",
+   "scrollLeft": 0,
+   "activeVisible": true,
+   "centered": -128,
+   "pill": true,
+   "railTop": 100
+  },
+  {
+   "slug": "cosap",
+   "active": "🏭COSAP",
+   "scrollLeft": 0,
+   "activeVisible": true,
+   "centered": -11,
+   "pill": true,
+   "railTop": 76
+  },
+  {
+   "slug": "gocrypto",
+   "active": "🪙GoCrypto",
+   "scrollLeft": 110,
+   "activeVisible": true,
+   "centered": -1,
+   "pill": true,
+   "railTop": 76
+  },
+  {
+   "slug": "pac",
+   "active": "☁️PAC",
+   "scrollLeft": 220,
+   "activeVisible": true,
+   "centered": -1,
+   "pill": true,
+   "railTop": 76
+  },
+  {
+   "slug": "zalo-game-center",
+   "active": "🎮Zalo Game Center",
+   "scrollLeft": 358,
+   "activeVisible": true,
+   "centered": 0,
+   "pill": true,
+   "railTop": 76
+  },
+  {
+   "slug": "reorc-data-platform",
+   "active": "📊ReOrc Data Platform",
+   "scrollLeft": 550,
+   "activeVisible": true,
+   "centered": 0,
+   "pill": true,
+   "railTop": 76
+  },
+  {
+   "slug": "cortex-sentinel",
+   "active": "🛡️Cortex Sentinel",
+   "scrollLeft": 733,
+   "activeVisible": true,
+   "centered": 0,
+   "pill": true,
+   "railTop": 76
+  },
+  {
+   "slug": "guardline",
+   "active": "🚨Guardline",
+   "scrollLeft": 858,
+   "activeVisible": true,
+   "centered": 22,
+   "pill": true,
+   "railTop": 76
+  },
+  {
+   "slug": "ledgr",
+   "active": "📒Ledgr",
+   "scrollLeft": 858,
+   "activeVisible": true,
+   "centered": 138,
+   "pill": true,
+   "railTop": 76
+  }
+ ],
+ "mobileStamp": [
+  {
+   "d": 7,
+   "w": 88,
+   "rightGap": 20,
+   "landed": "true"
+  },
+  {
+   "d": 7,
+   "w": 88,
+   "rightGap": 20,
+   "landed": "true"
+  },
+  {
+   "d": 7,
+   "w": 88,
+   "rightGap": 20,
+   "landed": "true"
+  },
+  {
+   "d": 7,
+   "w": 88,
+   "rightGap": 20,
+   "landed": "true"
+  },
+  {
+   "d": 7,
+   "w": 88,
+   "rightGap": 20,
+   "landed": "true"
+  },
+  {
+   "d": 7,
+   "w": 88,
+   "rightGap": 20,
+   "landed": "true"
+  },
+  {
+   "d": 7,
+   "w": 88,
+   "rightGap": 20,
+   "landed": "true"
+  },
+  {
+   "d": 7,
+   "w": 88,
+   "rightGap": 20,
+   "landed": "true"
+  },
+  {
+   "d": 7,
+   "w": 88,
+   "rightGap": 20,
+   "landed": "true"
+  }
+ ],
+ "touchLift": {
+  "stuckNonRest": 0,
+  "idx": 11
+ },
+ "errors2": [
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied."
+ ]
+}

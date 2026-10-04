@@ -1,0 +1,30 @@
+import { createRequire } from "module";
+const require = createRequire("/Users/knamnguyen/Documents/0-Programming/duma/package.json");
+const { chromium } = require("playwright");
+const b=await chromium.launch(); const out={};
+const hs=(p,sel)=>p.evaluate(s=>[...document.querySelectorAll(s)].map(e=>Math.round(e.getBoundingClientRect().height)),sel);
+for(const W of [1440,768,390]){
+ const c=await b.newContext({viewport:{width:W,height:W<500?844:900},hasTouch:W<500,isMobile:W<500}); const p=await c.newPage(); const o=out[W]={};
+ await p.goto("http://localhost:3003/",{waitUntil:"load",timeout:90000}); await p.waitForTimeout(3500);
+ o.pickerUnpicked=[...new Set(await hs(p,'[data-testid^=tile-]:not([data-testid^=tile-count]):not([data-testid=tile-label])'))];
+ await p.getByTestId('tile-engineer').scrollIntoViewIfNeeded(); await p.screenshot({path:`picker-${W}.png`});
+ await p.getByTestId('tile-designer').click().catch(()=>p.locator('[role=radio]').nth(1).click()); await p.waitForTimeout(1500);
+ await p.mouse.move(2,2); await p.waitForTimeout(800); o.pickerPicked=await p.evaluate(()=>[...document.querySelectorAll('[role=radio][aria-checked=false][data-testid^=tile-]')].map(e=>e.offsetHeight));
+ await p.screenshot({path:`picker-picked-${W}.png`});
+ await p.evaluate(()=>scrollTo(0,0)); await p.waitForTimeout(500);
+ await p.getByRole('button',{name:/change/i}).first().click(); await p.waitForTimeout(1200);
+ o.modalCards=[...new Set(await hs(p,'[data-testid=visitor-modal] [role=radio]'))];
+ await p.screenshot({path:`modal-${W}.png`});
+ o.modalScroll=await p.evaluate(()=>{const s=document.querySelector('[data-testid=visitor-modal-scroll]');s.scrollTop=1e5;const r=s.getBoundingClientRect();const cs=[...s.querySelectorAll('[role=radio]')];const l=cs.at(-1).getBoundingClientRect();return {scrollable:s.scrollHeight>s.clientHeight,sheetBottom:Math.round(r.bottom),lastCardBottom:Math.round(l.bottom),clipped:cs.filter(e=>{const q=e.getBoundingClientRect();return q.bottom>r.bottom+0.5||q.top<r.top-0.5}).length}});
+ await p.waitForTimeout(400); await p.screenshot({path:`modal-scrolled-${W}.png`});
+ await p.keyboard.press('Escape');
+ await p.getByTestId('visitor-poll').scrollIntoViewIfNeeded(); await p.waitForTimeout(2500);
+ o.poll=await p.evaluate(()=>[...document.querySelectorAll('[data-testid^=poll-bar-]')].map(e=>[e.dataset.mode,getComputedStyle(e).transform,getComputedStyle(e).opacity]));
+ o.pollNote=await p.getByTestId('poll-note').textContent().catch(()=>null);
+ await p.getByTestId('visitor-poll').screenshot({path:`poll-${W}.png`}).catch(()=>{});
+ await p.goto("http://localhost:3003/work/gocrypto",{waitUntil:"load",timeout:90000}).catch(()=>{}); await p.waitForTimeout(2500);
+ o.hero=await p.evaluate(()=>{const t=document.querySelector('[data-testid=hero-emoji-tile]');if(!t)return location.pathname;const i=t.querySelector('img');const a=t.getBoundingClientRect();const r=i?.getBoundingClientRect();return {tile:Math.round(a.width),emoji:r&&Math.round(r.width),ratio:r&&+(r.width/a.width).toFixed(2),playing:i?.dataset.playing,src:i?.getAttribute('src')}});
+ await p.getByTestId('case-hero').screenshot({path:`hero-${W}.png`,clip:undefined}).catch(()=>{});
+ await c.close();
+}
+console.log(JSON.stringify(out,null,1)); await b.close();

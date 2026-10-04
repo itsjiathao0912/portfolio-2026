@@ -1,0 +1,822 @@
+{
+ "DH": 17371,
+ "rows": [
+  {
+   "i": 0,
+   "y": 0,
+   "sy": 0,
+   "mode": "ground",
+   "feet": [
+    332,
+    667
+   ],
+   "feetVp": 667,
+   "stand": {
+    "tag": "FIGURE#portrait",
+    "topVp": 667,
+    "l": 16,
+    "r": 374,
+    "txt": ""
+   },
+   "expTop": 667.03125,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "4+ years in product.:52x68"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": 0
+  },
+  {
+   "i": 1,
+   "y": 579,
+   "sy": 579,
+   "mode": "ground",
+   "feet": [
+    332,
+    1397.2
+   ],
+   "feetVp": 818,
+   "stand": {
+    "tag": "BUTTON#tile-engineer",
+    "topVp": 818,
+    "l": 24,
+    "r": 366,
+    "txt": "That's youEngineer"
+   },
+   "expTop": 818.171875,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Pick your character:68x56"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": -0.2
+  },
+  {
+   "i": 2,
+   "y": 1158,
+   "sy": 1158,
+   "mode": "ground",
+   "feet": [
+    332,
+    1397.2
+   ],
+   "feetVp": 239,
+   "stand": {
+    "tag": "BUTTON#tile-engineer",
+    "topVp": 239,
+    "l": 24,
+    "r": 366,
+    "txt": "That's youEngineer"
+   },
+   "expTop": 239.171875,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Pick your character:68x56"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": -0.2
+  },
+  {
+   "i": 3,
+   "y": 1737,
+   "sy": 1737,
+   "mode": "ground",
+   "feet": [
+    332,
+    2405.6
+   ],
+   "feetVp": 669,
+   "stand": {
+    "tag": "P",
+    "topVp": 664,
+    "l": 183,
+    "r": 333,
+    "txt": "your visitor numbe"
+   },
+   "expTop": 668.591875,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "#40:35x40"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": 0.4
+  },
+  {
+   "i": 4,
+   "y": 2316,
+   "sy": 2316,
+   "mode": "ground",
+   "at": "statement",
+   "feet": [
+    332,
+    2764.8
+   ],
+   "feetVp": 449,
+   "stand": {
+    "tag": "P#scroll-words",
+    "topVp": 442,
+    "l": 24,
+    "r": 366,
+    "txt": "I turn ambiguous b"
+   },
+   "expTop": 448.831875,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": true,
+   "err": 0.2
+  },
+  {
+   "i": 5,
+   "y": 2895,
+   "sy": 2895,
+   "mode": "ground",
+   "at": "highlights",
+   "feet": [
+    332,
+    3411.6
+   ],
+   "feetVp": 517,
+   "stand": {
+    "tag": "P",
+    "topVp": 506,
+    "l": 44,
+    "r": 346,
+    "txt": "Agentic AI Build W"
+   },
+   "expTop": 512.286875,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "2nd place:48x45",
+    "Agentic AI Build Wee:48x15"
+   ],
+   "bubble": false,
+   "dot": true,
+   "err": 4.7
+  },
+  {
+   "i": 6,
+   "y": 3474,
+   "sy": 3474,
+   "mode": "ground",
+   "at": "highlights",
+   "feet": [
+    332,
+    3898.9
+   ],
+   "feetVp": 425,
+   "stand": {
+    "tag": "H3",
+    "topVp": 393,
+    "l": 220,
+    "r": 355,
+    "txt": "Business Hackathon"
+   },
+   "expTop": 397.6083776855469,
+   "onX": true,
+   "blocked": [
+    "Credential 16x6"
+   ],
+   "txt": [
+    "Business Hackathon:57x36"
+   ],
+   "bubble": false,
+   "dot": true,
+   "err": 27.4
+  },
+  {
+   "i": 7,
+   "y": 4053,
+   "sy": 4053,
+   "mode": "ground",
+   "at": "highlights",
+   "feet": [
+    332,
+    4642.9
+   ],
+   "feetVp": 590,
+   "stand": {
+    "tag": "H3",
+    "topVp": 585,
+    "l": 40,
+    "r": 350,
+    "txt": "Money corridors I "
+   },
+   "expTop": 589.894375,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Where I've shipped:52x21"
+   ],
+   "bubble": false,
+   "dot": true,
+   "err": 0.1
+  },
+  {
+   "i": 8,
+   "y": 4632,
+   "sy": 4632,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    5121.7
+   ],
+   "feetVp": 490,
+   "stand": {
+    "tag": "P#role-note",
+    "topVp": 484,
+    "l": 22,
+    "r": 368,
+    "txt": "Engineer view: dat"
+   },
+   "expTop": 489.73625,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Selected work:68x22"
+   ],
+   "bubble": false,
+   "dot": true,
+   "err": 0.3
+  },
+  {
+   "i": 9,
+   "y": 5211,
+   "sy": 5211,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    5508.5
+   ],
+   "feetVp": 298,
+   "stand": {
+    "tag": "P",
+    "topVp": 288,
+    "l": 20,
+    "r": 370,
+    "txt": "Governance, lineag"
+   },
+   "expTop": 293.697001953125,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Data people can trus:68x82",
+    "Governance, lineage,:68x13"
+   ],
+   "bubble": false,
+   "dot": true,
+   "err": 4.3
+  },
+  {
+   "i": 10,
+   "y": 5790,
+   "sy": 5790,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    6127.4
+   ],
+   "feetVp": 337,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 333,
+    "l": 7,
+    "r": 383,
+    "txt": "☁️PAC · SkyLab Gro"
+   },
+   "expTop": 332.7135314941406,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": true,
+   "err": 4.3
+  },
+  {
+   "i": 11,
+   "y": 6369,
+   "sy": 6369,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    6990.7
+   ],
+   "feetVp": 622,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 622,
+    "l": 10,
+    "r": 380,
+    "txt": "🧾COSAP · SkyLab G"
+   },
+   "expTop": 621.671875,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 0.3
+  },
+  {
+   "i": 12,
+   "y": 6948,
+   "sy": 6948,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    7198.7
+   ],
+   "feetVp": 251,
+   "stand": {
+    "tag": "P",
+    "topVp": 245,
+    "l": 20,
+    "r": 370,
+    "txt": "An AI-powered ERP "
+   },
+   "expTop": 250.70963623046876,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "An affordable SAP al:68x86"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": 0.3
+  },
+  {
+   "i": 13,
+   "y": 7527,
+   "sy": 7527,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    7855.6
+   ],
+   "feetVp": 329,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 319,
+    "l": 7,
+    "r": 383,
+    "txt": "🛡️Cortex Sentinel"
+   },
+   "expTop": 318.7309265136719,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 10.3
+  },
+  {
+   "i": 14,
+   "y": 8106,
+   "sy": 8106,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    8349
+   ],
+   "feetVp": 243,
+   "stand": {
+    "tag": "IMG",
+    "topVp": 243,
+    "l": 226,
+    "r": 371,
+    "txt": ""
+   },
+   "expTop": 242.9552001953125,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 0
+  },
+  {
+   "i": 15,
+   "y": 8685,
+   "sy": 8685,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    8942.3
+   ],
+   "feetVp": 257,
+   "stand": {
+    "tag": "P",
+    "topVp": 251,
+    "l": 20,
+    "r": 370,
+    "txt": "A hackathon build:"
+   },
+   "expTop": 256.16315795898436,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "An AI fraud desk tha:68x68"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": 0.8
+  },
+  {
+   "i": 16,
+   "y": 9264,
+   "sy": 9264,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    9640.9
+   ],
+   "feetVp": 377,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 365,
+    "l": 7,
+    "r": 383,
+    "txt": "🎮Zalo Game Center"
+   },
+   "expTop": 365.3802795410156,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 11.6
+  },
+  {
+   "i": 17,
+   "y": 9843,
+   "sy": 9843,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    10548.7
+   ],
+   "feetVp": 706,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 706,
+    "l": 10,
+    "r": 380,
+    "txt": "🪙Lumicap · SkyLab"
+   },
+   "expTop": 705.6875,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 0.3
+  },
+  {
+   "i": 18,
+   "y": 10422,
+   "sy": 10422,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    10764.2
+   ],
+   "feetVp": 342,
+   "stand": {
+    "tag": "P",
+    "topVp": 329,
+    "l": 20,
+    "r": 370,
+    "txt": "Led the build of a"
+   },
+   "expTop": 334.72208740234373,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Real-world compute c:68x79",
+    "Led the build of a p:68x17"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": 7.3
+  },
+  {
+   "i": 19,
+   "y": 11001,
+   "sy": 11001,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    11335
+   ],
+   "feetVp": 334,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 323,
+    "l": 7,
+    "r": 383,
+    "txt": "💸GoCrypto · Indep"
+   },
+   "expTop": 323.1982421875,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 10.8
+  },
+  {
+   "i": 20,
+   "y": 11580,
+   "sy": 11580,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    332,
+    11903.6
+   ],
+   "feetVp": 324,
+   "stand": {
+    "tag": "IMG",
+    "topVp": 324,
+    "l": 226,
+    "r": 371,
+    "txt": ""
+   },
+   "expTop": 323.58343505859375,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 0.4
+  },
+  {
+   "i": 21,
+   "y": 12159,
+   "sy": 12159,
+   "mode": "air",
+   "at": "",
+   "feet": [
+    332,
+    12351.8
+   ],
+   "feetVp": 193,
+   "stand": null,
+   "expTop": null,
+   "onX": null,
+   "blocked": [
+    "📒Ledgr 49x13"
+   ],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": null
+  },
+  {
+   "i": 22,
+   "y": 12738,
+   "sy": 12738,
+   "mode": "ground",
+   "at": "people",
+   "feet": [
+    332,
+    13458.7
+   ],
+   "feetVp": 721,
+   "stand": {
+    "tag": "P",
+    "topVp": 714,
+    "l": 24,
+    "r": 366,
+    "txt": "Communities, hacka"
+   },
+   "expTop": 720.661875,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Building with people:68x72"
+   ],
+   "bubble": false,
+   "dot": true,
+   "err": 0.3
+  },
+  {
+   "i": 23,
+   "y": 13317,
+   "sy": 13317,
+   "mode": "ground",
+   "at": "people",
+   "feet": [
+    332,
+    13712.4
+   ],
+   "feetVp": 395,
+   "stand": {
+    "tag": "P",
+    "topVp": 381,
+    "l": 46,
+    "r": 344,
+    "txt": "Led external relat"
+   },
+   "expTop": 385.6614208984375,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "2,500+ participants:46x68",
+    "Led external relatio:46x19"
+   ],
+   "bubble": false,
+   "dot": true,
+   "err": 9.3
+  },
+  {
+   "i": 24,
+   "y": 13896,
+   "sy": 13896,
+   "mode": "ground",
+   "at": "people",
+   "feet": [
+    332,
+    14402.5
+   ],
+   "feetVp": 507,
+   "stand": {
+    "tag": "P",
+    "topVp": 485,
+    "l": 48,
+    "r": 342,
+    "txt": "Build Stuffs #33 ·"
+   },
+   "expTop": 490.001875,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Demoing with builder:44x67",
+    "Build Stuffs #33 · L:44x26"
+   ],
+   "bubble": false,
+   "dot": true,
+   "err": 17
+  },
+  {
+   "i": 25,
+   "y": 14475,
+   "sy": 14475,
+   "mode": "ground",
+   "at": "people",
+   "feet": [
+    332,
+    14720.4
+   ],
+   "feetVp": 245,
+   "stand": {
+    "tag": "P",
+    "topVp": 240,
+    "l": 48,
+    "r": 342,
+    "txt": "Agentic AI Build W"
+   },
+   "expTop": 245.439375,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "2nd place · Cortex S:44x67"
+   ],
+   "bubble": false,
+   "dot": true,
+   "err": -0.4
+  },
+  {
+   "i": 26,
+   "y": 15054,
+   "sy": 15054,
+   "mode": "ground",
+   "at": "linkedin",
+   "feet": [
+    332,
+    15550.4
+   ],
+   "feetVp": 496,
+   "stand": {
+    "tag": "H2",
+    "topVp": 489,
+    "l": 24,
+    "r": 366,
+    "txt": "Notes on LinkedIn"
+   },
+   "expTop": 496.368125,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": true,
+   "err": -0.4
+  },
+  {
+   "i": 27,
+   "y": 15633,
+   "sy": 15633,
+   "mode": "ground",
+   "at": "",
+   "feet": [
+    332,
+    16439.3
+   ],
+   "feetVp": 806,
+   "stand": {
+    "tag": "H3",
+    "topVp": 794,
+    "l": 24,
+    "r": 366,
+    "txt": "What should Thao b"
+   },
+   "expTop": 799.6575,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Quick poll:68x21",
+    "What should Thao bui:68x16"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": 6.3
+  },
+  {
+   "i": 28,
+   "y": 16212,
+   "sy": 16212,
+   "mode": "ground",
+   "at": "",
+   "feet": [
+    332,
+    16432.7
+   ],
+   "feetVp": 221,
+   "stand": {
+    "tag": "H3",
+    "topVp": 215,
+    "l": 24,
+    "r": 366,
+    "txt": "What should Thao b"
+   },
+   "expTop": 220.6575,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Quick poll:68x21"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": 0.3
+  },
+  {
+   "i": 29,
+   "y": 16791,
+   "sy": 16791,
+   "mode": "ground",
+   "at": "contact",
+   "feet": [
+    332,
+    17102.3
+   ],
+   "feetVp": 311,
+   "stand": {
+    "tag": "H2",
+    "topVp": 304,
+    "l": 24,
+    "r": 366,
+    "txt": "Want to get in tou"
+   },
+   "expTop": 311.285,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": true,
+   "err": -0.3
+  }
+ ],
+ "errs": []
+}

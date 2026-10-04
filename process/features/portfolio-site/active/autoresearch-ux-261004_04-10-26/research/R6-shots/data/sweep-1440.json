@@ -1,0 +1,797 @@
+{
+ "DH": 16403,
+ "rows": [
+  {
+   "i": 0,
+   "y": 0,
+   "sy": 0,
+   "mode": "ground",
+   "feet": [
+    765,
+    628.4
+   ],
+   "feetVp": 628,
+   "stand": {
+    "tag": "FIGURE#portrait",
+    "topVp": 628,
+    "l": 336,
+    "r": 1104,
+    "txt": ""
+   },
+   "expTop": 628.390625,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "4+ years in product.:68x32"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": -0.4
+  },
+  {
+   "i": 1,
+   "y": 547,
+   "sy": 547,
+   "mode": "ground",
+   "feet": [
+    765,
+    1435
+   ],
+   "feetVp": 888,
+   "stand": null,
+   "expTop": null,
+   "onX": null,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": null
+  },
+  {
+   "i": 2,
+   "y": 1094,
+   "sy": 1094,
+   "mode": "ground",
+   "feet": [
+    765,
+    1846.9
+   ],
+   "feetVp": 753,
+   "stand": {
+    "tag": "BUTTON#tile-recruiter",
+    "topVp": 753,
+    "l": 641,
+    "r": 799,
+    "txt": "Recruiter"
+   },
+   "expTop": 752.859375,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 0.1
+  },
+  {
+   "i": 3,
+   "y": 1641,
+   "sy": 1641,
+   "mode": "ground",
+   "feet": [
+    421,
+    2502.4
+   ],
+   "feetVp": 861,
+   "stand": {
+    "tag": "P#visitor-rank-line",
+    "topVp": 855,
+    "l": 168,
+    "r": 396,
+    "txt": "You're visitor #38"
+   },
+   "expTop": 861.409375,
+   "onX": false,
+   "blocked": [],
+   "txt": [
+    "#38:58x50",
+    "your visitor number:58x19"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": -0.4
+  },
+  {
+   "i": 4,
+   "y": 2188,
+   "sy": 2188,
+   "mode": "ground",
+   "feet": [
+    421,
+    2502.4
+   ],
+   "feetVp": 314,
+   "stand": {
+    "tag": "P#visitor-rank-line",
+    "topVp": 308,
+    "l": 168,
+    "r": 396,
+    "txt": "You're visitor #38"
+   },
+   "expTop": 314.409375,
+   "onX": false,
+   "blocked": [],
+   "txt": [
+    "#38:58x50",
+    "your visitor number:58x19"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": -0.4
+  },
+  {
+   "i": 5,
+   "y": 2735,
+   "sy": 2735,
+   "mode": "ground",
+   "at": "highlights",
+   "feet": [
+    432,
+    3313.4
+   ],
+   "feetVp": 578,
+   "stand": {
+    "tag": "H3",
+    "topVp": 539,
+    "l": 451,
+    "r": 684,
+    "txt": "AWS Solutions Arch"
+   },
+   "expTop": 545.1534765625,
+   "onX": false,
+   "blocked": [],
+   "txt": [
+    "AWS Solutions Archit:15x43"
+   ],
+   "bubble": true,
+   "dot": false,
+   "err": 32.8
+  },
+  {
+   "i": 6,
+   "y": 3282,
+   "sy": 3282,
+   "mode": "ground",
+   "at": "highlights",
+   "feet": [
+    432,
+    3625.4
+   ],
+   "feetVp": 343,
+   "stand": {
+    "tag": "H3",
+    "topVp": 338,
+    "l": 453,
+    "r": 682,
+    "txt": "Business Hackathon"
+   },
+   "expTop": 343.4025,
+   "onX": false,
+   "blocked": [],
+   "txt": [],
+   "bubble": true,
+   "dot": false,
+   "err": -0.4
+  },
+  {
+   "i": 7,
+   "y": 3829,
+   "sy": 3829,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    432,
+    4369.7
+   ],
+   "feetVp": 541,
+   "stand": {
+    "tag": "H2",
+    "topVp": 531,
+    "l": 61,
+    "r": 1379,
+    "txt": "Selected work"
+   },
+   "expTop": 540.6825,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Selected work:68x14"
+   ],
+   "bubble": true,
+   "dot": false,
+   "err": 0.3
+  },
+  {
+   "i": 8,
+   "y": 4376,
+   "sy": 4376,
+   "mode": "air",
+   "at": "",
+   "feet": [
+    544,
+    4823
+   ],
+   "feetVp": 447,
+   "stand": null,
+   "expTop": null,
+   "onX": null,
+   "blocked": [],
+   "txt": [
+    "Data people can trus:22x25"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": null
+  },
+  {
+   "i": 9,
+   "y": 4923,
+   "sy": 4923,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    546,
+    5403.3
+   ],
+   "feetVp": 480,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 481,
+    "l": 338,
+    "r": 1402,
+    "txt": "☁️PAC · SkyLab Gro"
+   },
+   "expTop": 480.9493713378906,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": -0.9
+  },
+  {
+   "i": 10,
+   "y": 5470,
+   "sy": 5470,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    546,
+    6334.8
+   ],
+   "feetVp": 865,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 865,
+    "l": 345,
+    "r": 1395,
+    "txt": "🧾COSAP · SkyLab G"
+   },
+   "expTop": 864.84375,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 0.2
+  },
+  {
+   "i": 11,
+   "y": 6017,
+   "sy": 6017,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    546,
+    6334.4
+   ],
+   "feetVp": 317,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 306,
+    "l": 338,
+    "r": 1402,
+    "txt": "🧾COSAP · SkyLab G"
+   },
+   "expTop": 306.344970703125,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 10.7
+  },
+  {
+   "i": 12,
+   "y": 6564,
+   "sy": 6564,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    546,
+    7299.2
+   ],
+   "feetVp": 735,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 735,
+    "l": 345,
+    "r": 1395,
+    "txt": "🛡️Cortex Sentinel"
+   },
+   "expTop": 735.234375,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": -0.2
+  },
+  {
+   "i": 13,
+   "y": 7111,
+   "sy": 7111,
+   "mode": "air",
+   "at": "",
+   "feet": [
+    602,
+    7987.5
+   ],
+   "feetVp": 877,
+   "stand": null,
+   "expTop": null,
+   "onX": null,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": null
+  },
+  {
+   "i": 14,
+   "y": 7658,
+   "sy": 7658,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    602,
+    8297
+   ],
+   "feetVp": 639,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 639,
+    "l": 345,
+    "r": 1395,
+    "txt": "🔎Guardline · Sea "
+   },
+   "expTop": 638.953125,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 0
+  },
+  {
+   "i": 15,
+   "y": 8205,
+   "sy": 8205,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    602,
+    8518.8
+   ],
+   "feetVp": 314,
+   "stand": {
+    "tag": "P",
+    "topVp": 301,
+    "l": 566,
+    "r": 1174,
+    "txt": "A hackathon build:"
+   },
+   "expTop": 307.7836083984375,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "An AI fraud desk tha:68x79",
+    "A hackathon build: a:68x17"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": 6.2
+  },
+  {
+   "i": 16,
+   "y": 8752,
+   "sy": 8752,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    602,
+    9186.2
+   ],
+   "feetVp": 434,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 430,
+    "l": 338,
+    "r": 1402,
+    "txt": "🎮Zalo Game Center"
+   },
+   "expTop": 430.1218566894531,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 3.9
+  },
+  {
+   "i": 17,
+   "y": 9299,
+   "sy": 9299,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    602,
+    10061.5
+   ],
+   "feetVp": 763,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 763,
+    "l": 345,
+    "r": 1395,
+    "txt": "🪙Lumicap · SkyLab"
+   },
+   "expTop": 762.5,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 0.5
+  },
+  {
+   "i": 18,
+   "y": 9846,
+   "sy": 9846,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    602,
+    10057.4
+   ],
+   "feetVp": 211,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 204,
+    "l": 338,
+    "r": 1402,
+    "txt": "🪙Lumicap · SkyLab"
+   },
+   "expTop": 204.0010986328125,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 7
+  },
+  {
+   "i": 19,
+   "y": 10393,
+   "sy": 10393,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    602,
+    11001.6
+   ],
+   "feetVp": 609,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 609,
+    "l": 345,
+    "r": 1395,
+    "txt": "💸GoCrypto · Indep"
+   },
+   "expTop": 608.625,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 0.4
+  },
+  {
+   "i": 20,
+   "y": 10940,
+   "sy": 10940,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    602,
+    11275.5
+   ],
+   "feetVp": 336,
+   "stand": {
+    "tag": "P",
+    "topVp": 323,
+    "l": 566,
+    "r": 1174,
+    "txt": "An independent pro"
+   },
+   "expTop": 329.6883935546875,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "GoTyme wins accounts:68x79",
+    "An independent produ:68x17"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": 6.3
+  },
+  {
+   "i": 21,
+   "y": 11487,
+   "sy": 11487,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    602,
+    12197.4
+   ],
+   "feetVp": 710,
+   "stand": {
+    "tag": "ARTICLE",
+    "topVp": 710,
+    "l": 345,
+    "r": 1395,
+    "txt": "📒Ledgr · Personal"
+   },
+   "expTop": 710.421875,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": -0.4
+  },
+  {
+   "i": 22,
+   "y": 12034,
+   "sy": 12034,
+   "mode": "ground",
+   "at": "stack",
+   "feet": [
+    602,
+    12469.3
+   ],
+   "feetVp": 435,
+   "stand": {
+    "tag": "P",
+    "topVp": 424,
+    "l": 566,
+    "r": 1174,
+    "txt": "A labour and payro"
+   },
+   "expTop": 431.4850244140625,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "The AI reads the con:68x81",
+    "A labour and payroll:68x15"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": 3.5
+  },
+  {
+   "i": 23,
+   "y": 12581,
+   "sy": 12581,
+   "mode": "ground",
+   "at": "people",
+   "feet": [
+    602,
+    13267.7
+   ],
+   "feetVp": 687,
+   "stand": {
+    "tag": "H2",
+    "topVp": 677,
+    "l": 120,
+    "r": 1320,
+    "txt": "Building with peop"
+   },
+   "expTop": 686.666875,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Building with people:68x14"
+   ],
+   "bubble": true,
+   "dot": false,
+   "err": 0.3
+  },
+  {
+   "i": 24,
+   "y": 13128,
+   "sy": 13128,
+   "mode": "ground",
+   "at": "people",
+   "feet": [
+    602,
+    13456.2
+   ],
+   "feetVp": 328,
+   "stand": {
+    "tag": "P",
+    "topVp": 307,
+    "l": 451,
+    "r": 684,
+    "txt": "Creatio Marketing "
+   },
+   "expTop": 312.32356323242186,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Communities, hackath:68x30",
+    "Creatio Marketing Cl:68x21"
+   ],
+   "bubble": true,
+   "dot": false,
+   "err": 15.7
+  },
+  {
+   "i": 25,
+   "y": 13675,
+   "sy": 13675,
+   "mode": "ground",
+   "at": "",
+   "feet": [
+    602,
+    14043.6
+   ],
+   "feetVp": 369,
+   "stand": {
+    "tag": "FIGURE#moment",
+    "topVp": 362,
+    "l": 120,
+    "r": 640,
+    "txt": "Agentic AI Build W"
+   },
+   "expTop": 361.84375,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": false,
+   "dot": false,
+   "err": 7.2
+  },
+  {
+   "i": 26,
+   "y": 14222,
+   "sy": 14222,
+   "mode": "ground",
+   "at": "linkedin",
+   "feet": [
+    602,
+    14706.2
+   ],
+   "feetVp": 484,
+   "stand": {
+    "tag": "H2",
+    "topVp": 474,
+    "l": 120,
+    "r": 587,
+    "txt": "Notes on LinkedIn"
+   },
+   "expTop": 484.229375,
+   "onX": false,
+   "blocked": [],
+   "txt": [
+    "Notes on LinkedIn:19x14"
+   ],
+   "bubble": true,
+   "dot": false,
+   "err": -0.2
+  },
+  {
+   "i": 27,
+   "y": 14769,
+   "sy": 14769,
+   "mode": "ground",
+   "at": "linkedin",
+   "feet": [
+    602,
+    15021.2
+   ],
+   "feetVp": 252,
+   "stand": {
+    "tag": "IMG",
+    "topVp": 252,
+    "l": 551,
+    "r": 889,
+    "txt": ""
+   },
+   "expTop": 252.20230102539062,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "I was scammed throug:68x92"
+   ],
+   "bubble": true,
+   "dot": false,
+   "err": -0.2
+  },
+  {
+   "i": 28,
+   "y": 15316,
+   "sy": 15316,
+   "mode": "ground",
+   "at": "",
+   "feet": [
+    602,
+    15622.4
+   ],
+   "feetVp": 306,
+   "stand": {
+    "tag": "H3",
+    "topVp": 299,
+    "l": 440,
+    "r": 1000,
+    "txt": "What should Thao b"
+   },
+   "expTop": 306.3525,
+   "onX": true,
+   "blocked": [],
+   "txt": [
+    "Quick poll:68x21"
+   ],
+   "bubble": false,
+   "dot": false,
+   "err": -0.4
+  },
+  {
+   "i": 29,
+   "y": 15863,
+   "sy": 15863,
+   "mode": "ground",
+   "at": "contact",
+   "feet": [
+    874,
+    16273.5
+   ],
+   "feetVp": 411,
+   "stand": {
+    "tag": "H2",
+    "topVp": 403,
+    "l": 391,
+    "r": 1049,
+    "txt": "Want to get in tou"
+   },
+   "expTop": 410.54,
+   "onX": true,
+   "blocked": [],
+   "txt": [],
+   "bubble": true,
+   "dot": false,
+   "err": 0.5
+  }
+ ],
+ "errs": []
+}

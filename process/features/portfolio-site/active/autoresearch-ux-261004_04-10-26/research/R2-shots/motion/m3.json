@@ -1,0 +1,176 @@
+{
+ "personaBefore": [
+  "lumicap@346",
+  "cosap@1287",
+  "gocrypto@2251",
+  "pac@3447",
+  "zalo-game-center@4366",
+  "reorc-data-platform@5234",
+  "cortex-sentinel@6102",
+  "guardline@7100",
+  "ledgr@7996"
+ ],
+ "personaAnim": [
+  [
+   0,
+   [
+    275,
+    1216,
+    2180
+   ]
+  ],
+  [
+   97,
+   [
+    240,
+    1181,
+    2145
+   ]
+  ],
+  [
+   196,
+   [
+    234,
+    1175,
+    2139
+   ]
+  ],
+  [
+   427,
+   [
+    6745,
+    374,
+    1315
+   ]
+  ],
+  [
+   567,
+   [
+    1229,
+    1020,
+    1960
+   ]
+  ],
+  [
+   666,
+   [
+    409,
+    1121,
+    2061
+   ]
+  ],
+  [
+   775,
+   [
+    237,
+    1142,
+    2082
+   ]
+  ],
+  [
+   868,
+   [
+    212,
+    1145,
+    2085
+   ]
+  ],
+  [
+   963,
+   [
+    207,
+    1146,
+    2086
+   ]
+  ],
+  [
+   1062,
+   [
+    206,
+    1146,
+    2086
+   ]
+  ]
+ ],
+ "personaAfter": [
+  "ledgr@206",
+  "lumicap@1146",
+  "cosap@2086",
+  "gocrypto@3051",
+  "guardline@4246",
+  "cortex-sentinel@5143",
+  "pac@6141",
+  "zalo-game-center@7060",
+  "reorc-data-platform@7928"
+ ],
+ "personaNote": "Founder view: what she shipped and how, her own product first.",
+ "tocAfter": [
+  "📒Ledgr",
+  "🏦Lumicap",
+  "🏭COSAP",
+  "🪙GoCrypto"
+ ],
+ "personaViewportMoved": "ledgr",
+ "tickerDxPer1s": -42.43027687072754,
+ "tickerDxPer1s_hover": 0,
+ "tickerBox": {
+  "x": 0,
+  "y": 299.921875,
+  "width": 1440,
+  "height": 46.5
+ },
+ "tickerChips": [
+  "+30%ad revenue in six months· ZaloPending✓ Settledsettled",
+  "−40%rework· ReOrc AIPending✓ Settledsettled",
+  "+20%faster feature delivery· ReOrc AIPending✓ Settledsettled",
+  "95%first-pass UAT· ReOrc AIPending✓ Settledsettled",
+  "8AI ERP modules designed· SkyLab GroupPending✓ Settledsettled",
+  "4cloud providers, one pricing logic· SkyLab GroupPending✓ Settledsettl",
+  "2ndplace, AABW Fintech track· Cortex SentinelPending✓ Settledsettled",
+  "+30%ad revenue in six months· ZaloPending✓ Settledsettled",
+  "−40%rework· ReOrc AIPending✓ Settledsettled",
+  "+20%faster feature delivery· ReOrc AIPending✓ Settledsettled",
+  "95%first-pass UAT· ReOrc AIPending✓ Settledsettled",
+  "8AI ERP modules designed· SkyLab GroupPending✓ Settledsettled"
+ ],
+ "canvasCount": 2,
+ "globeFps": 61,
+ "canvasAfterAway": 1,
+ "nav": {
+  "bg": "rgba(0, 0, 0, 0)",
+  "bf": "none",
+  "tag": "NAV"
+ },
+ "mobileRail": [
+  {
+   "slug": "lumicap",
+   "active": "🏦Lumicap",
+   "scrollLeft": 0,
+   "activeVisible": true
+  },
+  {
+   "slug": "pac",
+   "active": "☁️PAC",
+   "scrollLeft": 0,
+   "activeVisible": false
+  },
+  {
+   "slug": "reorc-data-platform",
+   "active": "📊ReOrc Data Platform",
+   "scrollLeft": 0,
+   "activeVisible": false
+  },
+  {
+   "slug": "guardline",
+   "active": "🚨Guardline",
+   "scrollLeft": 0,
+   "activeVisible": false
+  },
+  {
+   "slug": "ledgr",
+   "active": "📒Ledgr",
+   "scrollLeft": 0,
+   "activeVisible": false
+  }
+ ]
+}

@@ -1,0 +1,167 @@
+{
+ "about-1440": {
+  "sh": 5616,
+  "errs": [],
+  "sw": 1440,
+  "over": [
+   "LI.relative md:shrink-0 md:snap-c",
+   "ARTICLE.relative flex h-full flex-col ",
+   "SPAN.absolute inset-x-0 top-0 h-[3p",
+   "P.text-sm tabular-nums text-ink-"
+  ],
+  "small": 1,
+  "hero": null
+ },
+ "about-768": {
+  "sh": 6730,
+  "errs": [],
+  "sw": 768,
+  "over": [
+   "LI.relative md:shrink-0 md:snap-c",
+   "ARTICLE.relative flex h-full flex-col ",
+   "SPAN.absolute inset-x-0 top-0 h-[3p",
+   "P.text-sm tabular-nums text-ink-"
+  ],
+  "small": 1,
+  "hero": null
+ },
+ "about-390": {
+  "sh": 9832,
+  "errs": [],
+  "sw": 390,
+  "over": [
+   "LI.shrink-0 snap-center w-[62vw] ",
+   "FIGURE.",
+   "DIV.overflow-hidden rounded-2xl bg",
+   "IMG.h-full w-full object-cover"
+  ],
+  "small": 1,
+  "hero": null
+ },
+ "gocrypto-1440": {
+  "sh": 13805,
+  "errs": [],
+  "sw": 1440,
+  "over": [],
+  "small": 1,
+  "hero": {
+   "emoji": true,
+   "src": "/emoji/1fa99.webp",
+   "txt": "GoCrypto\nIndependent strategy · 2026\nGoT"
+  }
+ },
+ "gocrypto-768": {
+  "sh": 13580,
+  "errs": [],
+  "sw": 768,
+  "over": [],
+  "small": 1,
+  "hero": {
+   "emoji": true,
+   "src": "/emoji/1fa99.webp",
+   "txt": "GoCrypto\nIndependent strategy · 2026\nGoT"
+  }
+ },
+ "gocrypto-390": {
+  "sh": 14764,
+  "errs": [],
+  "sw": 390,
+  "over": [
+   "LI.w-full shrink-0 snap-center px",
+   "DIV.mx-auto w-[min(240px,62vw)]",
+   "DIV.relative aspect-[480/987] w-fu",
+   "IMG.object-cover object-top"
+  ],
+  "small": 1,
+  "hero": {
+   "emoji": true,
+   "src": "/emoji/1fa99.webp",
+   "txt": "GoCrypto\nIndependent strategy · 2026\nGoT"
+  }
+ },
+ "cortex-1440": {
+  "sh": 16722,
+  "errs": [],
+  "sw": 1440,
+  "over": [],
+  "small": 1,
+  "hero": {
+   "emoji": true,
+   "src": "/emoji/1f510.webp",
+   "txt": "Cortex Sentinel\nHackathon build · 2nd pl"
+  }
+ },
+ "cortex-768": {
+  "sh": 16394,
+  "errs": [],
+  "sw": 768,
+  "over": [
+   "LI.shrink-0 snap-center w-[86%] s",
+   "DIV.relative w-full",
+   "DIV.relative aspect-[16/10] overfl",
+   "IMG.object-cover object-top transi"
+  ],
+  "small": 1,
+  "hero": {
+   "emoji": true,
+   "src": "/emoji/1f510.webp",
+   "txt": "Cortex Sentinel\nHackathon build · 2nd pl"
+  }
+ },
+ "cortex-390": {
+  "sh": 18212,
+  "errs": [],
+  "sw": 390,
+  "over": [
+   "LI.shrink-0 snap-center w-[86%] s",
+   "DIV.relative w-full",
+   "DIV.relative aspect-[16/10] overfl",
+   "IMG.object-cover object-top transi"
+  ],
+  "small": 1,
+  "hero": {
+   "emoji": true,
+   "src": "/emoji/1f510.webp",
+   "txt": "Cortex Sentinel\nHackathon build · 2nd pl"
+  }
+ },
+ "home-1440": {
+  "sh": 16043,
+  "errs": [],
+  "sw": 1440,
+  "over": [
+   "DIV.marquee-track flex w-max",
+   "DIV.flex",
+   "UL.flex shrink-0 items-center gap",
+   "LI."
+  ],
+  "small": 1,
+  "hero": null
+ },
+ "home-768": {
+  "sh": 17430,
+  "errs": [],
+  "sw": 768,
+  "over": [
+   "DIV.marquee-track flex w-max",
+   "DIV.flex",
+   "UL.flex shrink-0 items-center gap",
+   "UL.flex shrink-0 items-center gap"
+  ],
+  "small": 1,
+  "hero": null
+ },
+ "home-390": {
+  "sh": 16834,
+  "errs": [],
+  "sw": 390,
+  "over": [
+   "DIV.marquee-track flex w-max",
+   "DIV.flex",
+   "UL.flex shrink-0 items-center gap",
+   "LI."
+  ],
+  "small": 1,
+  "hero": null
+ }
+}

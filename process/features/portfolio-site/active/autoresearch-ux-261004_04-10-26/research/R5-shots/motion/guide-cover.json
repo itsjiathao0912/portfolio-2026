@@ -1,0 +1,862 @@
+{
+ "1440x900": [
+  {
+   "y": 0,
+   "blocked": [],
+   "txt": [
+    "4+ years in product. V:68x32"
+   ]
+  },
+  {
+   "y": 1,
+   "blocked": [],
+   "txt": [
+    "Portrait of Thao Dao:68x112",
+    ":68x112"
+   ]
+  },
+  {
+   "y": 2,
+   "blocked": [],
+   "txt": [
+    "Who's visiting?:68x16",
+    "Pick your character:68x50"
+   ]
+  },
+  {
+   "y": 3,
+   "blocked": [
+    "That's youFounderBuildin by char 68x112 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 4,
+   "blocked": [],
+   "txt": [
+    "your visitor number:27x19"
+   ]
+  },
+  {
+   "y": 5,
+   "blocked": [],
+   "txt": [
+    "your visitor number:27x19"
+   ]
+  },
+  {
+   "y": 8,
+   "blocked": [],
+   "txt": [
+    "Selected work:68x22",
+    "Founder view: what she:68x10"
+   ]
+  },
+  {
+   "y": 9,
+   "blocked": [],
+   "txt": [
+    "Selected work:68x22",
+    "Founder view: what she:68x10"
+   ]
+  },
+  {
+   "y": 15,
+   "blocked": [],
+   "txt": [
+    "GoTyme wins accounts. :68x85",
+    "An independent product:61x11"
+   ]
+  },
+  {
+   "y": 16,
+   "blocked": [],
+   "txt": [
+    "GoTyme wins accounts. :68x85",
+    "An independent product:61x11"
+   ]
+  },
+  {
+   "y": 22,
+   "blocked": [],
+   "txt": [
+    "Four cloud providers' :68x85",
+    "Billing for a cloud pl:68x11"
+   ]
+  },
+  {
+   "y": 23,
+   "blocked": [],
+   "txt": [
+    "Four cloud providers' :68x85",
+    "Billing for a cloud pl:68x11"
+   ]
+  },
+  {
+   "y": 25,
+   "blocked": [],
+   "txt": [
+    "Ad revenue up 30% in s:68x85",
+    "Roadmap, data, and mon:68x11"
+   ]
+  },
+  {
+   "y": 27,
+   "blocked": [],
+   "txt": [
+    "Data people can trust,:68x85",
+    "Governance, lineage, a:68x11"
+   ]
+  },
+  {
+   "y": 28,
+   "blocked": [],
+   "txt": [
+    "Building with people:68x14"
+   ]
+  },
+  {
+   "y": 29,
+   "blocked": [],
+   "txt": [
+    "Communities, hackathon:68x35"
+   ]
+  },
+  {
+   "y": 30,
+   "blocked": [],
+   "txt": [
+    "Off the screen:24x12",
+    "Thao with her team on :37x10"
+   ]
+  },
+  {
+   "y": 33,
+   "blocked": [],
+   "txt": [
+    "Quick poll:68x21"
+   ]
+  },
+  {
+   "y": 34,
+   "blocked": [],
+   "txt": [
+    "Quick poll:68x21"
+   ]
+  },
+  {
+   "y": 35,
+   "blocked": [
+    "LinkedIn (opens in a new by char 39x48 ctrTop:YES",
+    "GitHub (opens in a new t by bubble 48x22 ctrTop:no",
+    "Email by bubble 48x22 ctrTop:no"
+   ],
+   "txt": [
+    "Want to get in touch? :68x12"
+   ]
+  }
+ ],
+ "1440x900_total": 36,
+ "1280x720": [
+  {
+   "y": 0,
+   "blocked": [],
+   "txt": [
+    "4+ years in product. V:68x32"
+   ]
+  },
+  {
+   "y": 1,
+   "blocked": [],
+   "txt": [
+    "4+ years in product. V:68x32"
+   ]
+  },
+  {
+   "y": 2,
+   "blocked": [],
+   "txt": [
+    "Portrait of Thao Dao:68x112",
+    ":68x112"
+   ]
+  },
+  {
+   "y": 3,
+   "blocked": [],
+   "txt": [
+    "Who's visiting?:32x21",
+    "Pick your character:32x48"
+   ]
+  },
+  {
+   "y": 4,
+   "blocked": [],
+   "txt": [
+    "Pick your character:32x50"
+   ]
+  },
+  {
+   "y": 5,
+   "blocked": [
+    "Recruiter0 by char 68x80 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 6,
+   "blocked": [],
+   "txt": [
+    "I turn ambiguous busin:68x14"
+   ]
+  },
+  {
+   "y": 7,
+   "blocked": [],
+   "txt": [
+    "I turn ambiguous busin:68x14"
+   ]
+  },
+  {
+   "y": 8,
+   "blocked": [],
+   "txt": [
+    "AWS Solutions Architec:150x30",
+    "Oracle Cloud Infrastru:38x34"
+   ]
+  },
+  {
+   "y": 11,
+   "blocked": [],
+   "txt": [
+    "Founder view: what she:68x25"
+   ]
+  },
+  {
+   "y": 12,
+   "blocked": [],
+   "txt": [
+    "Founder view: what she:68x25"
+   ]
+  },
+  {
+   "y": 13,
+   "blocked": [],
+   "txt": [
+    "A labour and payroll c:68x58"
+   ]
+  },
+  {
+   "y": 15,
+   "blocked": [],
+   "txt": [
+    "Real-world compute cap:68x77",
+    "Led the build of a pla:68x18"
+   ]
+  },
+  {
+   "y": 18,
+   "blocked": [],
+   "txt": [
+    "An affordable SAP alte:68x84",
+    "An AI-powered ERP buil:68x11"
+   ]
+  },
+  {
+   "y": 20,
+   "blocked": [],
+   "txt": [
+    "💸GoCrypto · Independe:68x27",
+    "GoTyme wins accounts. :68x23"
+   ]
+  },
+  {
+   "y": 21,
+   "blocked": [],
+   "txt": [
+    "An independent product:68x69"
+   ]
+  },
+  {
+   "y": 23,
+   "blocked": [],
+   "txt": [
+    "🔎Guardline · Sea × Op:68x27",
+    "An AI fraud desk that :68x17"
+   ]
+  },
+  {
+   "y": 24,
+   "blocked": [],
+   "txt": [
+    "An AI fraud desk that :68x85",
+    "A hackathon build: an :68x11"
+   ]
+  },
+  {
+   "y": 26,
+   "blocked": [],
+   "txt": [
+    "🛡️Cortex Sentinel · A:68x13"
+   ]
+  },
+  {
+   "y": 27,
+   "blocked": [],
+   "txt": [
+    "A hackathon build: an :68x62"
+   ]
+  },
+  {
+   "y": 29,
+   "blocked": [],
+   "txt": [
+    "Four cloud providers' :68x79",
+    "Billing for a cloud pl:68x17"
+   ]
+  },
+  {
+   "y": 34,
+   "blocked": [],
+   "txt": [
+    "Data people can trust,:68x80",
+    "Governance, lineage, a:68x16"
+   ]
+  },
+  {
+   "y": 36,
+   "blocked": [],
+   "txt": [
+    "Secured partnerships w:179x56",
+    "Demoing with builders:21x24"
+   ]
+  },
+  {
+   "y": 37,
+   "blocked": [],
+   "txt": [
+    "Off the screen:68x52"
+   ]
+  },
+  {
+   "y": 38,
+   "blocked": [],
+   "txt": [
+    "Thao standing in front:68x112"
+   ]
+  },
+  {
+   "y": 41,
+   "blocked": [],
+   "txt": [
+    "Thao Dao:68x14",
+    "Product Owner @SkyLab :68x23",
+    "Inside Vietnam's bank :68x44"
+   ]
+  },
+  {
+   "y": 42,
+   "blocked": [],
+   "txt": [
+    "Quick poll:68x21",
+    "What should Thao build:68x19"
+   ]
+  },
+  {
+   "y": 43,
+   "blocked": [
+    "A compliance copilot for by char 68x44 ctrTop:no"
+   ],
+   "txt": [
+    "Quick poll:68x21",
+    "What should Thao build:68x19"
+   ]
+  },
+  {
+   "y": 44,
+   "blocked": [
+    "LinkedIn (opens in a new by bubble 48x22 ctrTop:no",
+    "GitHub (opens in a new t by bubble 48x22 ctrTop:no",
+    "Email by char 17x48 ctrTop:no"
+   ],
+   "txt": [
+    "Want to get in touch? :68x12"
+   ]
+  },
+  {
+   "y": 45,
+   "blocked": [
+    "giathaowork@gmail.com by char 68x26 ctrTop:no",
+    "Copy email by bubble 132x44 ctrTop:YES"
+   ],
+   "txt": []
+  }
+ ],
+ "1280x720_total": 46,
+ "1024x768": [
+  {
+   "y": 0,
+   "blocked": [],
+   "txt": [
+    "Thao Dao is Technical :68x15",
+    "I build billing engine:68x40"
+   ]
+  },
+  {
+   "y": 1,
+   "blocked": [],
+   "txt": [
+    "Thao Dao is Technical :68x15",
+    "I build billing engine:68x40"
+   ]
+  },
+  {
+   "y": 2,
+   "blocked": [],
+   "txt": [
+    "Portrait of Thao Dao:68x112",
+    ":68x112"
+   ]
+  },
+  {
+   "y": 3,
+   "blocked": [],
+   "txt": [
+    "Who's visiting?:68x21",
+    "Pick your character:68x50"
+   ]
+  },
+  {
+   "y": 4,
+   "blocked": [],
+   "txt": [
+    "Pick your character:68x50"
+   ]
+  },
+  {
+   "y": 5,
+   "blocked": [
+    "Growth0 by char 68x80 ctrTop:YES"
+   ],
+   "txt": []
+  },
+  {
+   "y": 6,
+   "blocked": [],
+   "txt": [
+    "21:68x52"
+   ]
+  },
+  {
+   "y": 7,
+   "blocked": [],
+   "txt": [
+    "AWS Solutions Architec:155x70"
+   ]
+  },
+  {
+   "y": 8,
+   "blocked": [],
+   "txt": [
+    "Business Hackathon:64x55",
+    "Top 15 of 300+ teams ·:64x30",
+    "Hành trình kinh doanh:124x32",
+    "Top 40 of 1,000+ teams:124x26"
+   ]
+  },
+  {
+   "y": 9,
+   "blocked": [
+    "The Gulf → Manila· GoCry by bubble 149x48 ctrTop:no",
+    "Ho Chi Minh City → Singa by bubble 149x13 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 10,
+   "blocked": [],
+   "txt": [
+    "Selected work:68x52"
+   ]
+  },
+  {
+   "y": 11,
+   "blocked": [],
+   "txt": [
+    "Founder view: what she:68x25"
+   ]
+  },
+  {
+   "y": 12,
+   "blocked": [],
+   "txt": [
+    "The AI reads the contr:68x85",
+    "A labour and payroll c:68x11"
+   ]
+  },
+  {
+   "y": 15,
+   "blocked": [],
+   "txt": [
+    "Led the build of a pla:68x58"
+   ]
+  },
+  {
+   "y": 17,
+   "blocked": [],
+   "txt": [
+    "An affordable SAP alte:68x85",
+    "An AI-powered ERP buil:68x11"
+   ]
+  },
+  {
+   "y": 19,
+   "blocked": [],
+   "txt": [
+    "GoTyme wins accounts. :68x85",
+    "An independent product:68x11"
+   ]
+  },
+  {
+   "y": 25,
+   "blocked": [],
+   "txt": [
+    "Compliance that scales:68x85",
+    "A hackathon build: an :68x11"
+   ]
+  },
+  {
+   "y": 27,
+   "blocked": [],
+   "txt": [
+    "Four cloud providers' :68x85",
+    "Billing for a cloud pl:68x11"
+   ]
+  },
+  {
+   "y": 30,
+   "blocked": [],
+   "txt": [
+    "Ad revenue up 30% in s:68x85",
+    "Roadmap, data, and mon:68x11"
+   ]
+  },
+  {
+   "y": 32,
+   "blocked": [],
+   "txt": [
+    "🔗ReOrc Data Platform :68x26",
+    "Data people can trust,:68x14"
+   ]
+  },
+  {
+   "y": 33,
+   "blocked": [],
+   "txt": [
+    "Building with people:68x14"
+   ]
+  },
+  {
+   "y": 34,
+   "blocked": [],
+   "txt": [
+    "Building with people:68x14"
+   ]
+  },
+  {
+   "y": 35,
+   "blocked": [],
+   "txt": [
+    "20+ sponsors:49x76",
+    "Demoing with builders:139x69"
+   ]
+  },
+  {
+   "y": 36,
+   "blocked": [],
+   "txt": [
+    "Off the screen:24x12",
+    "Thao with her team on :68x10"
+   ]
+  },
+  {
+   "y": 37,
+   "blocked": [],
+   "txt": [
+    "Notes on LinkedIn:68x14"
+   ]
+  },
+  {
+   "y": 38,
+   "blocked": [],
+   "txt": [
+    "Notes on LinkedIn:68x14"
+   ]
+  },
+  {
+   "y": 40,
+   "blocked": [],
+   "txt": [
+    "Quick poll:68x21"
+   ]
+  },
+  {
+   "y": 41,
+   "blocked": [
+    "A cross-border remittanc by char 68x44 ctrTop:no",
+    "A fraud-detection toolki by char 68x44 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 42,
+   "blocked": [
+    "LinkedIn (opens in a new by char 47x48 ctrTop:YES",
+    "GitHub (opens in a new t by × 17x8 ctrTop:no",
+    "Email by bubble 48x22 ctrTop:no"
+   ],
+   "txt": [
+    "Want to get in touch? :68x12"
+   ]
+  },
+  {
+   "y": 43,
+   "blocked": [
+    "giathaowork@gmail.com by char 68x64 ctrTop:YES"
+   ],
+   "txt": []
+  }
+ ],
+ "1024x768_total": 44,
+ "768x1024": [
+  {
+   "y": 0,
+   "blocked": [],
+   "txt": [
+    "4+ years in product. V:68x44"
+   ]
+  },
+  {
+   "y": 1,
+   "blocked": [],
+   "txt": [
+    "Portrait of Thao Dao:68x105",
+    ":68x105"
+   ]
+  },
+  {
+   "y": 4,
+   "blocked": [],
+   "txt": [
+    "I turn ambiguous busin:68x14"
+   ]
+  },
+  {
+   "y": 5,
+   "blocked": [],
+   "txt": [
+    "I turn ambiguous busin:68x14"
+   ]
+  },
+  {
+   "y": 6,
+   "blocked": [
+    "Credential by char 40x34 ctrTop:YES"
+   ],
+   "txt": [
+    "Oracle Cloud Infrastru:40x33",
+    "Oracle:40x21"
+   ]
+  },
+  {
+   "y": 7,
+   "blocked": [],
+   "txt": [
+    "Business Hackathon:68x28"
+   ]
+  },
+  {
+   "y": 8,
+   "blocked": [],
+   "txt": [
+    "Top 10:24x10"
+   ]
+  },
+  {
+   "y": 9,
+   "blocked": [
+    "🪙GoCrypto by bubble 121x23 ctrTop:YES",
+    "🚨Guardline by char 59x44 ctrTop:YES",
+    "🛡️Cortex Sentinel by × 13x20 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 10,
+   "blocked": [
+    "🪙GoCrypto by bubble 121x32 ctrTop:YES",
+    "🚨Guardline by char 59x44 ctrTop:YES",
+    "🛡️Cortex Sentinel by × 13x11 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 11,
+   "blocked": [
+    "🚨Guardline by char 59x28 ctrTop:YES",
+    "🛡️Cortex Sentinel by × 13x24 ctrTop:no"
+   ],
+   "txt": [
+    "The AI reads the contr:68x85",
+    "A labour and payroll c:68x11"
+   ]
+  },
+  {
+   "y": 13,
+   "blocked": [],
+   "txt": [
+    "Led the build of a pla:68x58"
+   ]
+  },
+  {
+   "y": 14,
+   "blocked": [
+    "Case study : Lumicap by char 68x9 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 16,
+   "blocked": [
+    "Case study : COSAP by × 24x11 ctrTop:YES"
+   ],
+   "txt": []
+  },
+  {
+   "y": 19,
+   "blocked": [
+    "Case study : Guardline by × 24x12 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 20,
+   "blocked": [
+    "Case study : Guardline by char 68x19 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 21,
+   "blocked": [],
+   "txt": [
+    "A hackathon build: an :68x62"
+   ]
+  },
+  {
+   "y": 22,
+   "blocked": [
+    "Case study : Cortex Sent by char 68x12 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 23,
+   "blocked": [
+    "Case study : PAC by char 68x8 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 24,
+   "blocked": [
+    "📊ReOrc Data Platform by char 68x22 ctrTop:YES",
+    "Case study : PAC by char 68x9 ctrTop:YES"
+   ],
+   "txt": []
+  },
+  {
+   "y": 26,
+   "blocked": [],
+   "txt": [
+    "Data people can trust,:68x82",
+    "Governance, lineage, a:68x14"
+   ]
+  },
+  {
+   "y": 27,
+   "blocked": [],
+   "txt": [
+    "Communities, hackathon:44x23",
+    "Creatio Marketing Club:68x21"
+   ]
+  },
+  {
+   "y": 28,
+   "blocked": [],
+   "txt": [
+    "Communities, hackathon:44x34"
+   ]
+  },
+  {
+   "y": 29,
+   "blocked": [],
+   "txt": [
+    "2nd place · Cortex Sen:68x91"
+   ]
+  },
+  {
+   "y": 30,
+   "blocked": [
+    "Follow on LinkedIn by char 44x43 ctrTop:no",
+    "Previous posts by × 20x24 ctrTop:no"
+   ],
+   "txt": []
+  },
+  {
+   "y": 31,
+   "blocked": [
+    "Follow on LinkedIn by char 44x53 ctrTop:YES"
+   ],
+   "txt": [
+    "Notes on LinkedIn:96x29"
+   ]
+  },
+  {
+   "y": 32,
+   "blocked": [],
+   "txt": [
+    "Quick poll:68x21",
+    "What should Thao build:68x19"
+   ]
+  },
+  {
+   "y": 33,
+   "blocked": [],
+   "txt": [
+    "Quick poll:68x21",
+    "What should Thao build:68x19"
+   ]
+  },
+  {
+   "y": 34,
+   "blocked": [
+    "GitHub (opens in a new t by bubble 32x22 ctrTop:no",
+    "Email by bubble 48x22 ctrTop:no"
+   ],
+   "txt": [
+    "Want to get in touch? :68x12"
+   ]
+  },
+  {
+   "y": 35,
+   "blocked": [
+    "GitHub (opens in a new t by bubble 32x22 ctrTop:no",
+    "Email by bubble 48x22 ctrTop:no"
+   ],
+   "txt": [
+    "Want to get in touch? :68x12"
+   ]
+  }
+ ],
+ "768x1024_total": 36
+}

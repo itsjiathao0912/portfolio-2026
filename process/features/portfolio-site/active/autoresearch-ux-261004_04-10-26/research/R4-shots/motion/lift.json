@@ -1,0 +1,32 @@
+{
+ "home-first-lift": {
+  "top0": 204.421875,
+  "peak": 12.91,
+  "final": 11.5,
+  "overshoot": 1.41,
+  "overshootPct": 12.3,
+  "t90ms": 300,
+  "tPeakMs": 376,
+  "frames": 68
+ },
+ "home-linkedin": {
+  "top0": 138.703125,
+  "peak": 12.92,
+  "final": 11.49,
+  "overshoot": 1.43,
+  "overshootPct": 12.4,
+  "t90ms": 217,
+  "tPeakMs": 281,
+  "frames": 79
+ },
+ "work-card": {
+  "top0": 384.1875,
+  "peak": 12.56,
+  "final": 11.5,
+  "overshoot": 1.06,
+  "overshootPct": 9.2,
+  "t90ms": 243,
+  "tPeakMs": 453,
+  "frames": 50
+ }
+}

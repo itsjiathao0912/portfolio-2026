@@ -1,0 +1,132 @@
+{
+ "home-d": {
+  "H": 15726,
+  "steps": 20,
+  "maxCanvas": 1
+ },
+ "about-d": {
+  "H": 5907,
+  "steps": 8,
+  "maxCanvas": 0
+ },
+ "work-d": {
+  "H": 3335,
+  "steps": 5,
+  "maxCanvas": 0
+ },
+ "case-lumicap-d": {
+  "H": 11292,
+  "steps": 14,
+  "maxCanvas": 0
+ },
+ "case-cosap-d": {
+  "H": 11466,
+  "steps": 15,
+  "maxCanvas": 0
+ },
+ "case-gocrypto-d": {
+  "H": 14270,
+  "steps": 18,
+  "maxCanvas": 0
+ },
+ "case-pac-d": {
+  "H": 7944,
+  "steps": 10,
+  "maxCanvas": 0
+ },
+ "case-zalo-game-center-d": {
+  "H": 6881,
+  "steps": 9,
+  "maxCanvas": 0
+ },
+ "case-reorc-data-platform-d": {
+  "H": 9319,
+  "steps": 12,
+  "maxCanvas": 0
+ },
+ "case-cortex-sentinel-d": {
+  "H": 16163,
+  "steps": 20,
+  "maxCanvas": 0
+ },
+ "case-guardline-d": {
+  "H": 11480,
+  "steps": 15,
+  "maxCanvas": 0
+ },
+ "case-ledgr-d": {
+  "H": 10644,
+  "steps": 14,
+  "maxCanvas": 0
+ },
+ "errors-d": [
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied."
+ ],
+ "home-m": {
+  "H": 16027,
+  "steps": 22,
+  "maxCanvas": 1
+ },
+ "about-m": {
+  "H": 9948,
+  "steps": 14,
+  "maxCanvas": 0
+ },
+ "work-m": {
+  "H": 6177,
+  "steps": 9,
+  "maxCanvas": 0
+ },
+ "case-lumicap-m": {
+  "H": 12325,
+  "steps": 17,
+  "maxCanvas": 0
+ },
+ "case-cosap-m": {
+  "H": 12744,
+  "steps": 17,
+  "maxCanvas": 0
+ },
+ "case-gocrypto-m": {
+  "H": 16949,
+  "steps": 23,
+  "maxCanvas": 0
+ },
+ "case-pac-m": {
+  "H": 9610,
+  "steps": 13,
+  "maxCanvas": 0
+ },
+ "case-zalo-game-center-m": {
+  "H": 7680,
+  "steps": 11,
+  "maxCanvas": 0
+ },
+ "case-reorc-data-platform-m": {
+  "H": 10154,
+  "steps": 14,
+  "maxCanvas": 0
+ },
+ "case-cortex-sentinel-m": {
+  "H": 17009,
+  "steps": 23,
+  "maxCanvas": 0
+ },
+ "case-guardline-m": {
+  "H": 13297,
+  "steps": 18,
+  "maxCanvas": 0
+ },
+ "case-ledgr-m": {
+  "H": 11801,
+  "steps": 16,
+  "maxCanvas": 0
+ },
+ "errors-m": [
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied."
+ ]
+}

@@ -1,0 +1,82 @@
+{
+ "home-stack": {
+  "restTop": 169.6,
+  "restH": 908.4,
+  "peakTopDelta": -23.9,
+  "finalTopDelta": -23.4,
+  "overshootPx": 0.6,
+  "finalHeightGrow": 22.7,
+  "settleMs": 399,
+  "n": 64,
+  "cardW": 1050,
+  "info": {
+   "found": true,
+   "cls": "relative has-[:focus-visible]:ring-2 has-[:focus-visible]:ri"
+  },
+  "tail": [
+   "matrix(1.025, 0, 0, 1.025, 0, -12)",
+   "rgba(11, 21, 51, 0.2) 0px 24px 44px -14px, rgba(11, 21, 51, 0.08) 0px 6px 12px -4px"
+  ],
+  "returnFinalDelta": 0
+ },
+ "home-highlight": {
+  "restTop": 170.4,
+  "restH": 295.5,
+  "peakTopDelta": -16.1,
+  "finalTopDelta": -15.7,
+  "overshootPx": 0.4,
+  "finalHeightGrow": 7.4,
+  "settleMs": 306,
+  "n": 86,
+  "cardW": 285,
+  "info": {
+   "found": true,
+   "cls": "relative has-[:focus-visible]:ring-2 has-[:focus-visible]:ri"
+  },
+  "tail": [
+   "matrix(1.025, 0, 0, 1.025, 0, -12)",
+   "rgba(11, 21, 51, 0.2) 0px 24px 44px -14px, rgba(11, 21, 51, 0.08) 0px 6px 12px -4px"
+  ],
+  "returnFinalDelta": 0
+ },
+ "work-card": {
+  "restTop": 170,
+  "restH": 742,
+  "peakTopDelta": -21.8,
+  "finalTopDelta": -21.3,
+  "overshootPx": 0.5,
+  "finalHeightGrow": 18.5,
+  "settleMs": 303,
+  "n": 84,
+  "cardW": 453.328125,
+  "info": {
+   "found": true,
+   "cls": "relative has-[:focus-visible]:ring-2 has-[:focus-visible]:ri"
+  },
+  "tail": [
+   "matrix(1.025, 0, 0, 1.025, 0, -12)",
+   "rgba(11, 21, 51, 0.2) 0px 24px 44px -14px, rgba(11, 21, 51, 0.08) 0px 6px 12px -4px"
+  ],
+  "returnFinalDelta": 0
+ },
+ "work-card-0": {
+  "restTop": 170,
+  "restH": 742,
+  "peakTopDelta": -21.8,
+  "finalTopDelta": -21.3,
+  "overshootPx": 0.5,
+  "finalHeightGrow": 18.5,
+  "settleMs": 292,
+  "n": 86,
+  "cardW": 453.328125,
+  "info": {
+   "found": true,
+   "cls": "relative has-[:focus-visible]:ring-2 has-[:focus-visible]:ri"
+  },
+  "tail": [
+   "matrix(1.025, 0, 0, 1.025, 0, -12)",
+   "rgba(11, 21, 51, 0.2) 0px 24px 44px -14px, rgba(11, 21, 51, 0.08) 0px 6px 12px -4px"
+  ],
+  "returnFinalDelta": 0
+ }
+}

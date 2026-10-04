@@ -1,0 +1,280 @@
+{
+ "d": {
+  "iframes": 0,
+  "grid": {
+   "display": "flex",
+   "cols": "none",
+   "overflowX": "auto",
+   "sw": 1200,
+   "cw": 1200
+  },
+  "cards": [
+   {
+    "w": 384,
+    "h": 678,
+    "x": 120,
+    "radius": "24px",
+    "shadow": "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) ",
+    "ring": false,
+    "counts": "143 reactions · 8 comments",
+    "imgs": [
+     {
+      "src": "=%2Fportrait%2Fthao-color.webp&w=48&q=75",
+      "nat": [
+       48,
+       55
+      ],
+      "box": [
+       40,
+       40
+      ],
+      "fit": "cover",
+      "ok": true
+     },
+     {
+      "src": "kedin%2Fvietnam-payments.webp&w=384&q=75",
+      "nat": [
+       384,
+       384
+      ],
+      "box": [
+       384,
+       288
+      ],
+      "fit": "cover",
+      "ok": true
+     }
+    ],
+    "text": "Thao Dao |  | Product Owner @SkyLab · 2 weeks ago |  | Vietnam's payment infrastructure: identity at its core |  | Vietnam's fintech story is often told",
+    "links": [
+     "https://www.linkedin.com/feed/update/urn:li:share:7504889327 44",
+     "https://www.linkedin.com/feed/update/urn:li:share:7504889327 44"
+    ]
+   },
+   {
+    "w": 384,
+    "h": 678,
+    "x": 528,
+    "radius": "24px",
+    "shadow": "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) ",
+    "ring": false,
+    "counts": "27 reactions · 2 comments",
+    "imgs": [
+     {
+      "src": "=%2Fportrait%2Fthao-color.webp&w=48&q=75",
+      "nat": [
+       48,
+       55
+      ],
+      "box": [
+       40,
+       40
+      ],
+      "fit": "cover",
+      "ok": true
+     },
+     {
+      "src": "%2Flinkedin%2Fnapas-simo.webp&w=384&q=75",
+      "nat": [
+       384,
+       216
+      ],
+      "box": [
+       384,
+       288
+      ],
+      "fit": "cover",
+      "ok": true
+     }
+    ],
+    "text": "Thao Dao |  | Product Owner @SkyLab · 2 weeks ago |  | Inside Vietnam's bank transfer system: NAPAS 247 and SIMO |  | I was scammed through a bank trans",
+    "links": [
+     "https://www.linkedin.com/feed/update/urn:li:ugcPost:75055761 44",
+     "https://www.linkedin.com/feed/update/urn:li:ugcPost:75055761 44"
+    ]
+   },
+   {
+    "w": 384,
+    "h": 678,
+    "x": 936,
+    "radius": "24px",
+    "shadow": "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) ",
+    "ring": false,
+    "counts": "184 reactions · 18 comments",
+    "imgs": [
+     {
+      "src": "=%2Fportrait%2Fthao-color.webp&w=48&q=75",
+      "nat": [
+       48,
+       55
+      ],
+      "box": [
+       40,
+       40
+      ],
+      "fit": "cover",
+      "ok": true
+     },
+     {
+      "src": "edin%2Faabw-second-place.webp&w=384&q=75",
+      "nat": [
+       384,
+       512
+      ],
+      "box": [
+       384,
+       288
+      ],
+      "fit": "cover",
+      "ok": true
+     }
+    ],
+    "text": "Thao Dao |  | Product Owner @SkyLab · 2 months ago |  | Agentic AI Build Week 2026: 2nd place with Cortex Sentinel |  | Runner-Up at the largest agentic",
+    "links": [
+     "https://www.linkedin.com/posts/thaodao0912_aabw-aabw2026-act 44",
+     "https://www.linkedin.com/posts/thaodao0912_aabw-aabw2026-act 44"
+    ]
+   }
+  ],
+  "errs": []
+ },
+ "m": {
+  "iframes": 0,
+  "grid": {
+   "display": "flex",
+   "cols": "none",
+   "overflowX": "auto",
+   "sw": 1040,
+   "cw": 390
+  },
+  "cards": [
+   {
+    "w": 320,
+    "h": 644,
+    "x": 24,
+    "radius": "24px",
+    "shadow": "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) ",
+    "ring": false,
+    "counts": "143 reactions · 8 comments",
+    "imgs": [
+     {
+      "src": "=%2Fportrait%2Fthao-color.webp&w=48&q=75",
+      "nat": [
+       48,
+       55
+      ],
+      "box": [
+       40,
+       40
+      ],
+      "fit": "cover",
+      "ok": true
+     },
+     {
+      "src": "kedin%2Fvietnam-payments.webp&w=384&q=75",
+      "nat": [
+       320,
+       320
+      ],
+      "box": [
+       320,
+       240
+      ],
+      "fit": "cover",
+      "ok": true
+     }
+    ],
+    "text": "Thao Dao |  | Product Owner @SkyLab · 2 weeks ago |  | Vietnam's payment infrastructure: identity at its core |  | Vietnam's fintech story is often told",
+    "links": [
+     "https://www.linkedin.com/feed/update/urn:li:share:7504889327 44",
+     "https://www.linkedin.com/feed/update/urn:li:share:7504889327 44"
+    ]
+   },
+   {
+    "w": 320,
+    "h": 644,
+    "x": 360,
+    "radius": "24px",
+    "shadow": "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) ",
+    "ring": false,
+    "counts": "27 reactions · 2 comments",
+    "imgs": [
+     {
+      "src": "=%2Fportrait%2Fthao-color.webp&w=48&q=75",
+      "nat": [
+       48,
+       55
+      ],
+      "box": [
+       40,
+       40
+      ],
+      "fit": "cover",
+      "ok": true
+     },
+     {
+      "src": "%2Flinkedin%2Fnapas-simo.webp&w=384&q=75",
+      "nat": [
+       320,
+       180
+      ],
+      "box": [
+       320,
+       240
+      ],
+      "fit": "cover",
+      "ok": true
+     }
+    ],
+    "text": "Thao Dao |  | Product Owner @SkyLab · 2 weeks ago |  | Inside Vietnam's bank transfer system: NAPAS 247 and SIMO |  | I was scammed through a bank trans",
+    "links": [
+     "https://www.linkedin.com/feed/update/urn:li:ugcPost:75055761 44",
+     "https://www.linkedin.com/feed/update/urn:li:ugcPost:75055761 44"
+    ]
+   },
+   {
+    "w": 320,
+    "h": 644,
+    "x": 696,
+    "radius": "24px",
+    "shadow": "rgba(11, 21, 51, 0.06) 0px 1px 2px 0px, rgba(11, 21, 51, 0) ",
+    "ring": false,
+    "counts": "184 reactions · 18 comments",
+    "imgs": [
+     {
+      "src": "=%2Fportrait%2Fthao-color.webp&w=48&q=75",
+      "nat": [
+       48,
+       55
+      ],
+      "box": [
+       40,
+       40
+      ],
+      "fit": "cover",
+      "ok": false
+     },
+     {
+      "src": "",
+      "nat": [
+       0,
+       0
+      ],
+      "box": [
+       320,
+       240
+      ],
+      "fit": "cover",
+      "ok": false
+     }
+    ],
+    "text": "Thao Dao |  | Product Owner @SkyLab · 2 months ago |  | Agentic AI Build Week 2026: 2nd place with Cortex Sentinel |  | Runner-Up at the largest agentic",
+    "links": [
+     "https://www.linkedin.com/posts/thaodao0912_aabw-aabw2026-act 44",
+     "https://www.linkedin.com/posts/thaodao0912_aabw-aabw2026-act 44"
+    ]
+   }
+  ],
+  "errs": []
+ }
+}

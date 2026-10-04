@@ -1,0 +1,77 @@
+{
+ "heroReveal": {
+  "maskBefore": "radial-gradient(140px at 200px 132px, rgb(0, 0, 0) 78%, rgba",
+  "trail": [
+   "0:200",
+   "123:900",
+   "252:900",
+   "385:900",
+   "521:900",
+   "654:900",
+   "787:900"
+  ],
+  "eased": false
+ },
+ "workFilter": {
+  "n": 0,
+  "names": [],
+  "cardsAfter": 1,
+  "samples": [
+   "0|0,243,493,243,987,243|9",
+   "151|0,243|1",
+   "317|0,243|1",
+   "484|0,243|1",
+   "651|0,243|1",
+   "817|0,243|1"
+  ],
+  "thumb": true
+ },
+ "workH1": {
+  "text": "All projects",
+  "top": 154,
+  "h": 1,
+  "fontSize": "16px",
+  "srOnly": true,
+  "clip": "auto"
+ },
+ "caseToc": {
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=toc-item]').nth(3)\u001b[22m\n"
+ },
+ "keyboard": [
+  "A:Skip to content |ring:2px rgb(37, 99, 235)",
+  "A:Thao Dao |ring:2px rgb(37, 99, 235)",
+  "A:Highlights |ring:2px rgb(37, 99, 235)",
+  "A:Work |ring:2px rgb(37, 99, 235)",
+  "A:About |ring:2px rgb(37, 99, 235)",
+  "A:LinkedIn |ring:2px rgb(37, 99, 235)",
+  "A:Get in touch |ring:2px rgb(37, 99, 235)",
+  "A:SkyLab Group (opens in |ring:2px rgb(37, 99, 235)",
+  "A:Lumicap (opens in a ne |ring:2px rgb(37, 99, 235)",
+  "A:COSAP (opens in a new  |ring:2px rgb(37, 99, 235)",
+  "A:ReOrc AI (opens in a n |ring:2px rgb(37, 99, 235)",
+  "A:Zalo (opens in a new t |ring:2px rgb(37, 99, 235)",
+  "BUTTON:+30%ad revenue in six  |ring:shadow",
+  "BUTTON:−40%rework· ReOrc AIPe |ring:shadow"
+ ],
+ "liftFocus": {
+  "focus": "Case study : COSAP",
+  "modes": 1
+ },
+ "reduced": {
+  "lift": {
+   "top": 139.5625,
+   "transform": "none",
+   "shadow": "rgba(11, 21, 51, 0.2) 0px 24px 44px -14p"
+  },
+  "liftTopRest": 139.5625,
+  "stamp": [
+   "true",
+   "true",
+   "true"
+  ],
+  "tickerDx": 0,
+  "tickerScrollable": true,
+  "canvas": 0,
+  "rotatingWord": null
+ }
+}

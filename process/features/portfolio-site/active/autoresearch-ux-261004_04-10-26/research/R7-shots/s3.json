@@ -1,0 +1,64 @@
+{
+ "home-1440": {
+  "sh": 15947,
+  "hx": false,
+  "errs": []
+ },
+ "about-1440": {
+  "sh": 5564,
+  "hx": false,
+  "errs": []
+ },
+ "work-gocrypto-1440": {
+  "sh": 14033,
+  "hx": false,
+  "errs": []
+ },
+ "work-cortex-1440": {
+  "sh": 1674,
+  "hx": false,
+  "errs": []
+ },
+ "home-768": {
+  "sh": 17369,
+  "hx": false,
+  "errs": []
+ },
+ "about-768": {
+  "sh": 6694,
+  "hx": false,
+  "errs": []
+ },
+ "work-gocrypto-768": {
+  "sh": 14266,
+  "hx": false,
+  "errs": []
+ },
+ "work-cortex-768": {
+  "sh": 1726,
+  "hx": false,
+  "errs": []
+ },
+ "home-390": {
+  "sh": 17374,
+  "hx": false,
+  "errs": []
+ },
+ "about-390": {
+  "sh": 9752,
+  "hx": false,
+  "errs": []
+ },
+ "work-gocrypto-390": {
+  "sh": 14936,
+  "hx": false,
+  "errs": []
+ },
+ "work-cortex-390": {
+  "sh": 1877,
+  "hx": false,
+  "errs": [
+   "Failed to execute 'measure' on 'Performance': '​CaseStudyPage' cannot have a negative time"
+  ]
+ }
+}

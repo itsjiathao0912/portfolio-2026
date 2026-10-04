@@ -1,0 +1,108 @@
+{
+ "coin": {
+  "vp": {
+   "coinY": 320.21875,
+   "walletY": 316.21875
+  },
+  "nudgeHeld": 38.3,
+  "nudgeAfter": 0,
+  "nudgeReturnSamples": [
+   35.60000000000002,
+   4.199999999999989,
+   0,
+   0
+  ],
+  "stageAfterNudge": "idle",
+  "drag230Held": 228.3,
+  "drag230After": 0,
+  "stageAfter230": "idle",
+  "full": {
+   "stage": "settled",
+   "finalLeft": 960,
+   "walletCenter": 968,
+   "overshootPx": 23.8,
+   "settleSamples": [
+    "0:938.3",
+    "186:970.3",
+    "352:956.6",
+    "519:960.9",
+    "684:960",
+    "852:960"
+   ]
+  },
+  "buttons": {
+   "email": true,
+   "li": true
+  }
+ },
+ "tickerClick": {
+  "item": "+20%faster feature delivery· ReOrc AIPending✓ Sett",
+  "scrolled": 6694,
+  "landedOnCard": "reorc-data-platform"
+ },
+ "personaFrames": "ok",
+ "emojiPop": {
+  "names": [
+   "🏦Lumicap",
+   "🏭COSAP",
+   "🪙GoCrypto"
+  ],
+  "maxScale": 1.17898,
+  "samples": [
+   [
+    0,
+    "🏦Lumicap",
+    "none"
+   ],
+   [
+    107,
+    "🏦Lumicap",
+    "none"
+   ],
+   [
+    206,
+    "🏦Lumicap",
+    "none"
+   ],
+   [
+    358,
+    "🏭COSAP",
+    "matrix(1.0802, 0, 0, 1.0802, 0, 0)"
+   ],
+   [
+    457,
+    "🏭COSAP",
+    "matrix(1.17823, 0, 0, 1.17823, 0, 0)"
+   ],
+   [
+    609,
+    "🪙GoCrypto",
+    "matrix(1.03746, 0, 0, 1.03746, 0, 0)"
+   ],
+   [
+    706,
+    "🪙GoCrypto",
+    "matrix(1.16162, 0, 0, 1.16162, 0, 0)"
+   ],
+   [
+    806,
+    "🪙GoCrypto",
+    "matrix(1.08545, 0, 0, 1.08545, 0, 0)"
+   ],
+   [
+    904,
+    "🪙GoCrypto",
+    "matrix(1.00021, 0, 0, 1.00021, 0, 0)"
+   ]
+  ]
+ },
+ "reorcMap": {
+  "n": 14,
+  "minOpacity": 1,
+  "h": 385
+ },
+ "embeds": {
+  "/work/ledgr": [],
+  "/work/lumicap": []
+ }
+}

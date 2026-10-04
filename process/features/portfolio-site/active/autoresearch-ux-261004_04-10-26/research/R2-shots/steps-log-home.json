@@ -1,0 +1,22 @@
+{
+ "home-d": {
+  "H": 15921,
+  "steps": 20,
+  "maxCanvas": 2
+ },
+ "errors-d": [
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied."
+ ],
+ "home-m": {
+  "H": 16244,
+  "steps": 22,
+  "maxCanvas": 2
+ },
+ "errors-m": [
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied.",
+  "requestStorageAccess: Permission denied."
+ ]
+}

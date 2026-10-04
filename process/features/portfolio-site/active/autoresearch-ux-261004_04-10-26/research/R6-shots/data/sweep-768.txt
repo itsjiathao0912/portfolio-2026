@@ -1,0 +1,25 @@
+768 DH 18034 positions 30 with guide 30 none 0
+feet err px: n 29 max 24.2 mean 4.3 offX 2
+blocked positions 1 text-covered 18 bubble shown 0
+0 0 ground err -0.3 {"tag":"FIGURE#portrait","topVp":734,"l":16,"r":752,"txt":""} B:  T: 4+ years in product.:68x44
+3 1803 ground err 0.3 {"tag":"P#visitor-rank-line","topVp":986,"l":88,"r":316,"txt":"You're visitor #39"} B:  T: #39:68x50|your visitor number:68x19
+4 2404 ground err 0.3 {"tag":"P#visitor-rank-line","topVp":385,"l":88,"r":316,"txt":"You're visitor #39"} B:  T: #39:68x50|your visitor number:68x19
+5 3005 ground err 8 {"tag":"P#highlight-lead","topVp":707,"l":76,"r":692,"txt":"2nd place"} B:  T: 2nd place:68x22
+6 3606 ground err 24.1 {"tag":"H3","topVp":684,"l":68,"r":346,"txt":"Google Data Analyt"} B:  T: Google Data Analytic:53x28
+8 4808 ground err 0.5 {"tag":"H2","topVp":516,"l":61,"r":707,"txt":"Selected work"} B:  T: Selected work:68x14
+9 5409 ground err 4.1 {"tag":"P","topVp":261,"l":61,"r":707,"txt":"🔗ReOrc Data Platf"} B: ☁️PAC 28x27 T: 
+12 7212 ground err 9 {"tag":"P","topVp":255,"l":61,"r":707,"txt":"🧾COSAP · SkyLab G"} B:  T: 🧾COSAP · SkyLab Gro:68x17
+14 8414 ground err 5.6 {"tag":"P","topVp":245,"l":80,"r":688,"txt":"A hackathon build:"} B:  T: Compliance that scal:68x79|A hackathon build: a:68x17
+15 9015 ground err 9.6 {"tag":"ARTICLE","topVp":368,"l":40,"r":728,"txt":"🔎Guardline · Sea "} B:  T: 
+17 10217 ground err 2.6 {"tag":"P","topVp":283,"l":80,"r":688,"txt":"Roadmap, data, and"} B:  T: Ad revenue up 30% in:68x82|Roadmap, data, and m:68x13
+18 10818 ground err 10.3 {"tag":"ARTICLE","topVp":340,"l":40,"r":728,"txt":"🪙Lumicap · SkyLab"} B:  T: 
+20 12020 ground err 7.7 {"tag":"P","topVp":349,"l":80,"r":688,"txt":"An independent pro"} B:  T: GoTyme wins accounts:68x77|An independent produ:68x18
+22 13222 ground err 7.3 {"tag":"P","topVp":387,"l":80,"r":688,"txt":"A labour and payro"} B:  T: The AI reads the con:68x78|A labour and payroll:68x18
+23 13823 ground err -0.4 {"tag":"H2","topVp":611,"l":40,"r":728,"txt":"Building with peop"} B:  T: Building with people:68x14
+24 14424 ground err 24.2 {"tag":"P","topVp":625,"l":68,"r":346,"txt":"Demoing with build"} B:  T: Build Stuffs:53x21|Demoing with builder:53x34
+25 15025 ground err 0.4 {"tag":"H2","topVp":395,"l":40,"r":728,"txt":"Off the screen"} B:  T: Off the screen:68x14
+26 15626 ground err 6.4 {"tag":"ARTICLE","topVp":742,"l":41,"r":423,"txt":"Thao DaoProduct Ow"} B:  T: Notes on LinkedIn:68x61
+27 16227 ground err 0.2 {"tag":"H3","topVp":222,"l":65,"r":399,"txt":"Vietnam's payment "} B:  T: Thao Dao:68x19|Product Owner @SkyLa:68x23
+28 16828 ground err 0.7 {"tag":"H3","topVp":366,"l":104,"r":664,"txt":"What should Thao b"} B:  T: Quick poll:68x21
+29 17429 ground err 0.5 {"tag":"H2","topVp":415,"l":55,"r":713,"txt":"Want to get in tou"} B:  T: Want to get in touch:68x12
+console errs []

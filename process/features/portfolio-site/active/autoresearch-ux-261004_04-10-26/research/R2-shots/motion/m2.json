@@ -1,0 +1,338 @@
+{
+ "stamps": [
+  {
+   "slug": "lumicap",
+   "hasStamp": true,
+   "stampTopRelCard": -28,
+   "stampH": 72,
+   "word": "Stamp: SHIPPED, 2025 · SKYLAB"
+  },
+  {
+   "slug": "cosap",
+   "hasStamp": true,
+   "stampTopRelCard": -28,
+   "stampH": 72,
+   "word": "Stamp: SHIPPED, 2025 · SKYLAB"
+  },
+  {
+   "slug": "gocrypto",
+   "hasStamp": true,
+   "stampTopRelCard": -28,
+   "stampH": 72,
+   "word": "Stamp: STRATEGY, INDEPENDENT"
+  },
+  {
+   "slug": "pac",
+   "hasStamp": true,
+   "stampTopRelCard": -28,
+   "stampH": 72,
+   "word": "Stamp: SHIPPED, 2025 · SKYLAB"
+  },
+  {
+   "slug": "zalo-game-center",
+   "hasStamp": true,
+   "stampTopRelCard": -28,
+   "stampH": 72,
+   "word": "Stamp: SHIPPED, 2023 · ZALO"
+  },
+  {
+   "slug": "reorc-data-platform",
+   "hasStamp": true,
+   "stampTopRelCard": -28,
+   "stampH": 72,
+   "word": "Stamp: SHIPPED, 2024 · REORC"
+  },
+  {
+   "slug": "cortex-sentinel",
+   "hasStamp": true,
+   "stampTopRelCard": -28,
+   "stampH": 72,
+   "word": "Stamp: 2ND PLACE, AABW 2026"
+  },
+  {
+   "slug": "guardline",
+   "hasStamp": true,
+   "stampTopRelCard": -28,
+   "stampH": 72,
+   "word": "Stamp: HACKATHON, VIETNAM 2026"
+  },
+  {
+   "slug": "ledgr",
+   "hasStamp": true,
+   "stampTopRelCard": -28,
+   "stampH": 72,
+   "word": "Stamp: LIVE DEMO, VIETNAM"
+  }
+ ],
+ "stamp2_landed_before": "false",
+ "stampTimeline": {
+  "landedAtMs": null,
+  "sample": [
+   [
+    0,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    38,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    88,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    138,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    254,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    307,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    355,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    406,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    458,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    506,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    556,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    605,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    655,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    704,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ],
+   [
+    755,
+    "matrix(1.35841, -0.338691, 0.338691, 1.35841, 0, 0)",
+    0,
+    "rgba(11, 21, 51, 0) 0px 0px 0px 0px"
+   ]
+  ]
+ },
+ "ledgrStamp": {
+  "top": 172.28125,
+  "left": 1227,
+  "w": 120
+ },
+ "pillBefore": {
+  "label": "🏦Lumicap",
+  "pillTop": 313.7,
+  "pillLeft": 53,
+  "pillW": 268,
+  "h": 40,
+  "emTf": "none"
+ },
+ "pillSlide": {
+  "samples": [
+   [
+    0,
+    "🏦Lumica",
+    313.2,
+    "matrix(1.00566, 0, 0, 1.00566, 0, 0)"
+   ],
+   [
+    63,
+    "🏭COSAP",
+    289.6,
+    "matrix(1.02546, 0, 0, 1.02546, 0, 0)"
+   ],
+   [
+    123,
+    "🏭COSAP",
+    232.4,
+    "matrix(1.11584, 0, 0, 1.11584, 0, 0)"
+   ],
+   [
+    189,
+    "🏭COSAP",
+    202.6,
+    "matrix(1.17575, 0, 0, 1.17575, 0, 0)"
+   ],
+   [
+    255,
+    "🏭COSAP",
+    194.9,
+    "matrix(1.10138, 0, 0, 1.10138, 0, 0)"
+   ],
+   [
+    322,
+    "🏭COSAP",
+    193.2,
+    "matrix(1.02158, 0, 0, 1.02158, 0, 0)"
+   ],
+   [
+    390,
+    "🏭COSAP",
+    193,
+    "none"
+   ],
+   [
+    455,
+    "🏭COSAP",
+    193,
+    "none"
+   ],
+   [
+    523,
+    "🏭COSAP",
+    193,
+    "none"
+   ],
+   [
+    589,
+    "🏭COSAP",
+    193,
+    "none"
+   ],
+   [
+    656,
+    "🏭COSAP",
+    193,
+    "none"
+   ],
+   [
+    723,
+    "🏭COSAP",
+    193,
+    "none"
+   ],
+   [
+    789,
+    "🏭COSAP",
+    193,
+    "none"
+   ],
+   [
+    856,
+    "🏭COSAP",
+    193,
+    "none"
+   ],
+   [
+    922,
+    "🏭COSAP",
+    193,
+    "none"
+   ],
+   [
+    989,
+    "🏭COSAP",
+    193,
+    "none"
+   ]
+  ],
+  "uniqueTops": 23,
+  "emojiPop": [
+   [
+    0,
+    "🏦Lumica",
+    313.2,
+    "matrix(1.00566, 0, 0, 1.00566, 0, 0)"
+   ],
+   [
+    2,
+    "🏦Lumica",
+    304.4,
+    "matrix(1.03059, 0, 0, 1.03059, 0, 0)"
+   ],
+   [
+    56,
+    "🏭COSAP",
+    295,
+    "matrix(1.01477, 0, 0, 1.01477, 0, 0)"
+   ],
+   [
+    63,
+    "🏭COSAP",
+    289.6,
+    "matrix(1.02546, 0, 0, 1.02546, 0, 0)"
+   ]
+  ]
+ },
+ "pillAfter": {
+  "label": "🏭COSAP",
+  "pillTop": 193,
+  "pillLeft": 53,
+  "pillW": 268,
+  "h": 40,
+  "emTf": "none"
+ },
+ "seam": [
+  [
+   60,
+   "SECTION",
+   "rgb(247, 247, 247)"
+  ],
+  [
+   120,
+   "SECTION",
+   "rgb(247, 247, 247)"
+  ],
+  [
+   300,
+   "SECTION",
+   "rgb(247, 247, 247)"
+  ],
+  [
+   500,
+   "SECTION",
+   "rgb(247, 247, 247)"
+  ],
+  [
+   800,
+   "SECTION",
+   "rgb(247, 247, 247)"
+  ]
+ ]
+}

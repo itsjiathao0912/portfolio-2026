@@ -1,0 +1,928 @@
+{
+ "sh": 16817,
+ "errs": [],
+ "rows": [
+  {
+   "i": 0,
+   "y": 0,
+   "clip": {
+    "x": 186,
+    "y": 503,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 666.8742065429688,
+   "low": 662.8876342773438,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "svg",
+    "top": 592.920166015625,
+    "tag": "svg.[object SVGAnimatedString]|"
+   },
+   "bodyText": [
+    "4+ years in product. Vie"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 246.01791381835938,
+   "gy": 592.920166015625,
+   "gw": 48.76416015625,
+   "gh": 73.95404052734375
+  },
+  {
+   "i": 1,
+   "y": 551,
+   "clip": {
+    "x": 186,
+    "y": 655,
+    "width": 169,
+    "height": 189
+   },
+   "bot": 818.7757568359375,
+   "low": 818.9716796875,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bgimg",
+    "top": 818.96875,
+    "tag": "BUTTON.relative flex h-full min-h-[12|tile-founder"
+   },
+   "bodyText": [
+    "Hello stranger from Viet"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 245.9199981689453,
+   "gy": 745.4091796875,
+   "gw": 48.96000671386719,
+   "gh": 73.3665771484375
+  },
+  {
+   "i": 2,
+   "y": 1102,
+   "clip": {
+    "x": 186,
+    "y": 104,
+    "width": 169,
+    "height": 213
+   },
+   "bot": 267.7755126953125,
+   "low": 267.9716796875,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bgimg",
+    "top": 267.96875,
+    "tag": "BUTTON.relative flex h-full min-h-[12|tile-founder"
+   },
+   "bodyText": [
+    "Hello stranger from Viet"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 245.9199981689453,
+   "gy": 194.3355712890625,
+   "gw": 48.96000671386719,
+   "gh": 73.43994140625
+  },
+  {
+   "i": 3,
+   "y": 1652,
+   "clip": {
+    "x": 186,
+    "y": 668,
+    "width": 169,
+    "height": 176
+   },
+   "bot": 831.775146484375,
+   "low": 831.9716796875,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": null,
+   "bodyText": [
+    "regulated"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 245.94447326660156,
+   "gy": 758.188232421875,
+   "gw": 48.91105651855469,
+   "gh": 73.5869140625
+  },
+  {
+   "i": 4,
+   "y": 2203,
+   "clip": {
+    "x": 222,
+    "y": 265,
+    "width": 171,
+    "height": 207
+   },
+   "bot": 422.091552734375,
+   "low": 414.976318359375,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "svg",
+    "top": 354.673583984375,
+    "tag": "svg.[object SVGAnimatedString]|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 282.2183837890625,
+   "gy": 354.673583984375,
+   "gw": 51.1632080078125,
+   "gh": 67.41796875
+  },
+  {
+   "i": 5,
+   "y": 2754,
+   "clip": {
+    "x": 150,
+    "y": 285,
+    "width": 168,
+    "height": 215
+   },
+   "bot": 449.8720703125,
+   "low": 448.024658203125,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 450.03125,
+    "tag": "DIV.flex h-full flex-col gap-3 rou|"
+   },
+   "bodyText": [
+    "Credential"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 209.9647979736328,
+   "gy": 375.110107421875,
+   "gw": 48.47038269042969,
+   "gh": 74.761962890625
+  },
+  {
+   "i": 6,
+   "y": 3305,
+   "clip": {
+    "x": 191,
+    "y": 191,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 354.375244140625,
+   "low": 354.57177734375,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 354.53125,
+    "tag": "SECTION.rounded-[24px] bg-bg p-6 shado|globe-card"
+   },
+   "bodyText": [
+    "Top 10"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 250.844482421875,
+   "gy": 280.788330078125,
+   "gw": 48.911041259765625,
+   "gh": 73.5869140625
+  },
+  {
+   "i": 7,
+   "y": 3856,
+   "clip": {
+    "x": 195,
+    "y": 403,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 566.0753784179688,
+   "low": 558.3167724609375,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "svg",
+    "top": 492.56195068359375,
+    "tag": "svg.[object SVGAnimatedString]|"
+   },
+   "bodyText": [
+    "Selected work"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 254.52000427246094,
+   "gy": 492.56195068359375,
+   "gw": 48.96000671386719,
+   "gh": 73.513427734375
+  },
+  {
+   "i": 8,
+   "y": 4406,
+   "clip": {
+    "x": 209,
+    "y": 38,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 201.275390625,
+   "low": 201.4716796875,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 201.453125,
+    "tag": "UL.sticky top-[76px] z-20 -mx-2.5|toc-chips"
+   },
+   "bodyText": [
+    "Founder view: what she s"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 269.0444641113281,
+   "gy": 127.6884765625,
+   "gw": 48.911041259765625,
+   "gh": 73.5869140625
+  },
+  {
+   "i": 9,
+   "y": 4957,
+   "clip": {
+    "x": 209,
+    "y": 140,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 303.275390625,
+   "low": 303.4716796875,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": -261.04998779296875,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 269.0444641113281,
+   "gy": 229.6884765625,
+   "gw": 48.911041259765625,
+   "gh": 73.5869140625
+  },
+  {
+   "i": 10,
+   "y": 5508,
+   "clip": {
+    "x": 224,
+    "y": 232,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 396.2744140625,
+   "low": 392.28271484375,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "svg",
+    "top": 322.3203125,
+    "tag": "svg.[object SVGAnimatedString]|"
+   },
+   "bodyText": [
+    "Led the build of a platf"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 283.7179260253906,
+   "gy": 322.3203125,
+   "gw": 48.76416015625,
+   "gh": 73.9541015625
+  },
+  {
+   "i": 11,
+   "y": 6059,
+   "clip": {
+    "x": 238,
+    "y": 136,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 299.97509765625,
+   "low": 300.17138671875,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 300.1290588378906,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 297.64447021484375,
+   "gy": 226.4619140625,
+   "gw": 48.91107177734375,
+   "gh": 73.51318359375
+  },
+  {
+   "i": 12,
+   "y": 6610,
+   "clip": {
+    "x": 238,
+    "y": 159,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 322.875,
+   "low": 323.0712890625,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": -250.87094116210938,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 297.64447021484375,
+   "gy": 249.2880859375,
+   "gw": 48.91107177734375,
+   "gh": 73.5869140625
+  },
+  {
+   "i": 13,
+   "y": 7160,
+   "clip": {
+    "x": 238,
+    "y": 481,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 644.875,
+   "low": 645.0712890625,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 65.6826171875,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 297.64447021484375,
+   "gy": 571.36181640625,
+   "gw": 48.91107177734375,
+   "gh": 73.51318359375
+  },
+  {
+   "i": 14,
+   "y": 7711,
+   "clip": {
+    "x": 238,
+    "y": 79,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 242.67529296875,
+   "low": 242.87158203125,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": -485.3173828125,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 297.64447021484375,
+   "gy": 169.162109375,
+   "gw": 48.91107177734375,
+   "gh": 73.51318359375
+  },
+  {
+   "i": 15,
+   "y": 8262,
+   "clip": {
+    "x": 238,
+    "y": 517,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 680.1748046875,
+   "low": 680.37109375,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bgimg",
+    "top": 20.091644287109375,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 297.64447021484375,
+   "gy": 606.6611328125,
+   "gw": 48.91107177734375,
+   "gh": 73.513671875
+  },
+  {
+   "i": 16,
+   "y": 8813,
+   "clip": {
+    "x": 246,
+    "y": 206,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 369.1748046875,
+   "low": 369.37109375,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 369.3871765136719,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 306.14447021484375,
+   "gy": 295.587890625,
+   "gw": 48.91107177734375,
+   "gh": 73.5869140625
+  },
+  {
+   "i": 17,
+   "y": 9363,
+   "clip": {
+    "x": 247,
+    "y": 67,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 230.0751953125,
+   "low": 230.271484375,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 230.31069946289062,
+    "tag": "DIV.relative mx-[6%] rounded-t-[18|"
+   },
+   "bodyText": [
+    "A hackathon build: an ad"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 307.4444580078125,
+   "gy": 156.5615234375,
+   "gw": 48.91107177734375,
+   "gh": 73.513671875
+  },
+  {
+   "i": 18,
+   "y": 9914,
+   "clip": {
+    "x": 247,
+    "y": 604,
+    "width": 169,
+    "height": 213
+   },
+   "bot": 767.3759765625,
+   "low": 767.5712890625,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 151.72915649414062,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 307.41998291015625,
+   "gy": 694.0087890625,
+   "gw": 48.96002197265625,
+   "gh": 73.3671875
+  },
+  {
+   "i": 19,
+   "y": 10465,
+   "clip": {
+    "x": 194,
+    "y": 56,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 219.375,
+   "low": 219.5712890625,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": -387.765625,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 253.6444854736328,
+   "gy": 145.861328125,
+   "gw": 48.91105651855469,
+   "gh": 73.513671875
+  },
+  {
+   "i": 20,
+   "y": 11016,
+   "clip": {
+    "x": 194,
+    "y": 359,
+    "width": 169,
+    "height": 213
+   },
+   "bot": 521.7763671875,
+   "low": 521.9716796875,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bgimg",
+    "top": -93.80722045898438,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 253.571044921875,
+   "gy": 448.556640625,
+   "gw": 49.05792236328125,
+   "gh": 73.2197265625
+  },
+  {
+   "i": 21,
+   "y": 11567,
+   "clip": {
+    "x": 219,
+    "y": 99,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 262.775390625,
+   "low": 262.9716796875,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 263.0070495605469,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [
+    "Zalo Game Center"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 279.3444519042969,
+   "gy": 189.26171875,
+   "gw": 48.911041259765625,
+   "gh": 73.513671875
+  },
+  {
+   "i": 22,
+   "y": 12117,
+   "clip": {
+    "x": 219,
+    "y": 165,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 328.5751953125,
+   "low": 328.771484375,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": -286.9929504394531,
+    "tag": "ARTICLE.flood group/card relative over|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 279.36895751953125,
+   "gy": 254.9150390625,
+   "gw": 48.862060546875,
+   "gh": 73.66015625
+  },
+  {
+   "i": 23,
+   "y": 12668,
+   "clip": {
+    "x": 235,
+    "y": 139,
+    "width": 169,
+    "height": 213
+   },
+   "bot": 302.0771484375,
+   "low": 302.2568359375,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 302.25616455078125,
+    "tag": "DIV.flex h-full min-h-[240px] flex|people-card"
+   },
+   "bodyText": [
+    "Communities, hackathons "
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 294.5220947265625,
+   "gy": 229.1513671875,
+   "gw": 49.15582275390625,
+   "gh": 72.92578125
+  },
+  {
+   "i": 24,
+   "y": 13219,
+   "clip": {
+    "x": 235,
+    "y": 262,
+    "width": 169,
+    "height": 213
+   },
+   "bot": 424.8759765625,
+   "low": 425.0712890625,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 425.03216552734375,
+    "tag": "DIV.flex h-full min-h-[240px] flex|people-card"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 294.59552001953125,
+   "gy": 351.5087890625,
+   "gw": 49.00897216796875,
+   "gh": 73.3671875
+  },
+  {
+   "i": 25,
+   "y": 13770,
+   "clip": {
+    "x": 235,
+    "y": 45,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 208.275390625,
+   "low": 208.4716796875,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 208.4666748046875,
+    "tag": "DIV.flex h-full min-h-[240px] flex|people-card"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 294.64447021484375,
+   "gy": 134.6884765625,
+   "gw": 48.91107177734375,
+   "gh": 73.5869140625
+  },
+  {
+   "i": 26,
+   "y": 14321,
+   "clip": {
+    "x": 235,
+    "y": 44,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 207.1748046875,
+   "low": 207.37109375,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "media",
+    "top": 207.375,
+    "tag": "IMG.h-full w-full object-cover|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 294.64447021484375,
+   "gy": 133.6611328125,
+   "gw": 48.91107177734375,
+   "gh": 73.513671875
+  },
+  {
+   "i": 27,
+   "y": 14871,
+   "clip": {
+    "x": 241,
+    "y": 40,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 203.275390625,
+   "low": 203.4716796875,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "bg",
+    "top": 203.45065307617188,
+    "tag": "DIV.relative has-[:focus-visible]:|linkedin-card"
+   },
+   "bodyText": [
+    "Notes on LinkedIn"
+   ],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 300.9444580078125,
+   "gy": 129.6884765625,
+   "gw": 48.91107177734375,
+   "gh": 73.5869140625
+  },
+  {
+   "i": 28,
+   "y": 15422,
+   "clip": {
+    "x": 241,
+    "y": 182,
+    "width": 169,
+    "height": 213
+   },
+   "bot": 345.576171875,
+   "low": 345.771484375,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "border",
+    "top": 345.734375,
+    "tag": "DIV.border-t border-hairline pt-10|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 300.8955078125,
+   "gy": 272.208984375,
+   "gw": 49.00897216796875,
+   "gh": 73.3671875
+  },
+  {
+   "i": 29,
+   "y": 15973,
+   "clip": {
+    "x": 189,
+    "y": 383,
+    "width": 169,
+    "height": 214
+   },
+   "bot": 547.173828125,
+   "low": 543.2578125,
+   "op": 1,
+   "vis": "visible",
+   "floor": false,
+   "best": {
+    "kind": "svg",
+    "top": 473.220703125,
+    "tag": "svg.[object SVGAnimatedString]|"
+   },
+   "bodyText": [],
+   "bubVisible": false,
+   "bubText": [],
+   "bub": null,
+   "bubDist": null,
+   "still": 0,
+   "gx": 249.21792602539062,
+   "gy": 473.220703125,
+   "gw": 48.76416015625,
+   "gh": 73.953125
+  }
+ ]
+}

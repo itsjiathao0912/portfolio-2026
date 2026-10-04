@@ -1,0 +1,612 @@
+{
+ "home-d": {
+  "h": 15753,
+  "hs": false,
+  "rad": {
+   "32px": 1,
+   "3.35544e+07px": 24,
+   "24px": 66,
+   "16px": 62,
+   "12px": 9,
+   "18px": 3,
+   "8px": 3,
+   "35.2px": 1,
+   "28.8px": 1,
+   "20px": 2
+  },
+  "small": [
+   "8:2025 · SKYLAB",
+   "8:INDEPENDENT",
+   "8:2023 · ZALO",
+   "8:2024 · REORC",
+   "8:AABW 2026",
+   "8:VIETNAM 2026",
+   "8:VIETNAM",
+   "11:External Relations L"
+  ],
+  "smallN": 14,
+  "tgtN": 21,
+  "tgt": [
+   "Skip to content 32x16",
+   "+30%ad revenue in si 341x33",
+   "−40%rework· ReOrc AI 257x33",
+   "+20%faster feature d 350x33",
+   "95%first-pass UAT· R 295x33",
+   "8AI ERP modules desi 380x33",
+   "4cloud providers, on 428x33",
+   "2ndplace, AABW Finte 410x33"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "about-d": {
+  "h": 5565,
+  "hs": false,
+  "rad": {
+   "32px": 1,
+   "3.35544e+07px": 13,
+   "24px": 6,
+   "16px": 8
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "work-d": {
+  "h": 2890,
+  "hs": false,
+  "rad": {
+   "32px": 1,
+   "3.35544e+07px": 18,
+   "24px": 40,
+   "50%": 9,
+   "18px": 3,
+   "8px": 3,
+   "35.2px": 1,
+   "28.8px": 1,
+   "20px": 2
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-lumicap-d": {
+  "h": 11237,
+  "hs": false,
+  "rad": {
+   "32px": 1,
+   "3.35544e+07px": 35,
+   "12px": 19,
+   "24px": 17,
+   "18px": 1,
+   "8px": 1,
+   "16px": 16,
+   "50%": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 6,
+  "tgt": [
+   "Skip to content 32x16",
+   " 16x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-cosap-d": {
+  "h": 11404,
+  "hs": false,
+  "rad": {
+   "32px": 3,
+   "3.35544e+07px": 35,
+   "12px": 12,
+   "38.4px": 2,
+   "24px": 18,
+   "16px": 1,
+   "50%": 1,
+   "35.2px": 1,
+   "28.8px": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-gocrypto-d": {
+  "h": 14208,
+  "hs": false,
+  "rad": {
+   "32px": 3,
+   "3.35544e+07px": 40,
+   "12px": 9,
+   "38.4px": 2,
+   "16px": 6,
+   "24px": 15,
+   "50%": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-pac-d": {
+  "h": 7882,
+  "hs": false,
+  "rad": {
+   "32px": 1,
+   "3.35544e+07px": 40,
+   "12px": 1,
+   "24px": 19,
+   "16px": 1,
+   "50%": 1,
+   "20px": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-zalo-game-center-d": {
+  "h": 6819,
+  "hs": false,
+  "rad": {
+   "32px": 1,
+   "3.35544e+07px": 27,
+   "12px": 1,
+   "24px": 16,
+   "16px": 3,
+   "50%": 1,
+   "20px": 1
+  },
+  "small": [
+   "10:Ad slot",
+   "10:Game screen",
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 5,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-reorc-data-platform-d": {
+  "h": 9257,
+  "hs": false,
+  "rad": {
+   "32px": 1,
+   "3.35544e+07px": 24,
+   "12px": 1,
+   "16px": 4,
+   "24px": 30,
+   "50%": 1,
+   "18px": 1,
+   "8px": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-cortex-sentinel-d": {
+  "h": 16101,
+  "hs": false,
+  "rad": {
+   "32px": 1,
+   "3.35544e+07px": 46,
+   "12px": 2,
+   "18px": 2,
+   "8px": 2,
+   "24px": 39,
+   "50%": 1
+  },
+  "small": [
+   "11:Live",
+   "11:Prototyped",
+   "11:Designed",
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 17,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-guardline-d": {
+  "h": 11418,
+  "hs": false,
+  "rad": {
+   "32px": 1,
+   "3.35544e+07px": 31,
+   "12px": 1,
+   "24px": 22,
+   "50%": 1,
+   "18px": 1,
+   "8px": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 7,
+  "tgt": [
+   "Skip to content 32x16",
+   " 16x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-ledgr-d": {
+  "h": 10582,
+  "hs": false,
+  "rad": {
+   "32px": 4,
+   "3.35544e+07px": 23,
+   "12px": 11,
+   "18px": 2,
+   "8px": 2,
+   "24px": 15,
+   "16px": 3,
+   "38.4px": 3,
+   "50%": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "home-m": {
+  "h": 16073,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 33,
+   "28px": 1,
+   "16px": 63,
+   "24px": 53,
+   "12px": 9,
+   "18px": 3,
+   "8px": 3,
+   "35.2px": 1,
+   "28.8px": 1,
+   "20px": 2
+  },
+  "small": [
+   "8:2025 · SKYLAB",
+   "8:INDEPENDENT",
+   "8:2023 · ZALO",
+   "8:2024 · REORC",
+   "8:AABW 2026",
+   "8:VIETNAM 2026",
+   "8:VIETNAM",
+   "11:External Relations L"
+  ],
+  "smallN": 14,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 1
+ },
+ "about-m": {
+  "h": 9454,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 8,
+   "28px": 1,
+   "24px": 6,
+   "16px": 8
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "work-m": {
+  "h": 5779,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 12,
+   "28px": 1,
+   "24px": 31,
+   "50%": 9,
+   "18px": 3,
+   "8px": 3,
+   "35.2px": 1,
+   "28.8px": 1,
+   "20px": 2
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-lumicap-m": {
+  "h": 12248,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 20,
+   "28px": 1,
+   "12px": 19,
+   "24px": 16,
+   "18px": 1,
+   "8px": 1,
+   "16px": 11,
+   "50%": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 6,
+  "tgt": [
+   "Skip to content 32x16",
+   " 16x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-cosap-m": {
+  "h": 12687,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 16,
+   "28px": 1,
+   "12px": 12,
+   "38.4px": 2,
+   "32px": 2,
+   "24px": 17,
+   "16px": 1,
+   "50%": 1,
+   "35.2px": 1,
+   "28.8px": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-gocrypto-m": {
+  "h": 16889,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 27,
+   "28px": 1,
+   "12px": 6,
+   "38.4px": 6,
+   "32px": 6,
+   "16px": 6,
+   "24px": 14,
+   "50%": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-pac-m": {
+  "h": 9588,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 28,
+   "28px": 1,
+   "12px": 1,
+   "24px": 18,
+   "16px": 1,
+   "50%": 1,
+   "20px": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-zalo-game-center-m": {
+  "h": 7635,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 15,
+   "28px": 1,
+   "12px": 1,
+   "24px": 15,
+   "16px": 3,
+   "50%": 1,
+   "20px": 1
+  },
+  "small": [
+   "10:Ad slot",
+   "10:Game screen",
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 5,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-reorc-data-platform-m": {
+  "h": 10070,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 11,
+   "28px": 1,
+   "12px": 1,
+   "16px": 4,
+   "24px": 29,
+   "50%": 1,
+   "18px": 1,
+   "8px": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-cortex-sentinel-m": {
+  "h": 16973,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 28,
+   "28px": 1,
+   "12px": 7,
+   "18px": 1,
+   "8px": 1,
+   "24px": 34,
+   "50%": 1
+  },
+  "small": [
+   "11:Live",
+   "11:Prototyped",
+   "11:Designed",
+   "11:Plan",
+   "11:Ground",
+   "11:Draft",
+   "11:Validate",
+   "11:Human saves"
+  ],
+  "smallN": 22,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-guardline-m": {
+  "h": 13213,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 17,
+   "28px": 1,
+   "12px": 11,
+   "24px": 22,
+   "50%": 1,
+   "18px": 1,
+   "8px": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 7,
+  "tgt": [
+   "Skip to content 32x16",
+   " 16x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ },
+ "case-ledgr-m": {
+  "h": 11761,
+  "hs": false,
+  "rad": {
+   "3.35544e+07px": 8,
+   "28px": 1,
+   "12px": 11,
+   "18px": 2,
+   "8px": 2,
+   "24px": 14,
+   "16px": 3,
+   "38.4px": 3,
+   "32px": 3,
+   "50%": 1
+  },
+  "small": [
+   "11:psst: type \"thao\" an"
+  ],
+  "smallN": 1,
+  "tgtN": 1,
+  "tgt": [
+   "Skip to content 32x16"
+  ],
+  "dark": 0,
+  "canv": 0
+ }
+}

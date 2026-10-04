@@ -1,0 +1,522 @@
+[
+ {
+  "k": "walk",
+  "x": 1360,
+  "y": 780,
+  "w": 68,
+  "h": 112,
+  "frames": "134",
+  "bubble": "What she shipped, and what moved.1 / 3 · tap for more",
+  "group": [
+   1112,
+   707,
+   1428,
+   892
+  ],
+  "kids": [
+   [
+    "Guide character: press to walk it around",
+    1360,
+    780,
+    68,
+    112
+   ],
+   [
+    "What she shipped, ",
+    1120,
+    707,
+    228,
+    80
+   ],
+   [
+    "Walk with me",
+    1112,
+    848,
+    110,
+    44
+   ],
+   [
+    "Hide character",
+    1230,
+    848,
+    118,
+    44
+   ]
+  ],
+  "hits": [
+   "LI:Where I've shippedMoney corr:208x185",
+   "LI:Ho Chi Minh City → Singapore:168x48",
+   "A:Ho Chi Minh City → Singapore:168x48",
+   "LI:Ho Chi Minh City → Seoul· CO:168x48",
+   "A:Ho Chi Minh City → Seoul· CO:168x48"
+  ]
+ },
+ {
+  "k": "walk",
+  "x": 1360,
+  "y": 780,
+  "w": 68,
+  "h": 112,
+  "frames": "152",
+  "bubble": "What she shipped, and what moved.1 / 3 · tap for more",
+  "group": [
+   1112,
+   707,
+   1428,
+   892
+  ],
+  "kids": [
+   [
+    "Guide character: press to walk it around",
+    1360,
+    780,
+    68,
+    112
+   ],
+   [
+    "What she shipped, ",
+    1120,
+    707,
+    228,
+    80
+   ],
+   [
+    "Walk with me",
+    1112,
+    848,
+    110,
+    44
+   ],
+   [
+    "Hide character",
+    1230,
+    848,
+    118,
+    44
+   ]
+  ],
+  "hits": [
+   "LI:Where I've shippedMoney corr:208x185",
+   "LI:Ho Chi Minh City → Singapore:168x48",
+   "A:Ho Chi Minh City → Singapore:168x48",
+   "LI:Ho Chi Minh City → Seoul· CO:168x48",
+   "A:Ho Chi Minh City → Seoul· CO:168x48"
+  ]
+ },
+ {
+  "k": "walk",
+  "x": 1360,
+  "y": 780,
+  "w": 68,
+  "h": 112,
+  "frames": "169",
+  "bubble": "What she shipped, and what moved.1 / 3 · tap for more",
+  "group": [
+   1112,
+   707,
+   1428,
+   892
+  ],
+  "kids": [
+   [
+    "Guide character: press to walk it around",
+    1360,
+    780,
+    68,
+    112
+   ],
+   [
+    "What she shipped, ",
+    1120,
+    707,
+    228,
+    80
+   ],
+   [
+    "Walk with me",
+    1112,
+    848,
+    110,
+    44
+   ],
+   [
+    "Hide character",
+    1230,
+    848,
+    118,
+    44
+   ]
+  ],
+  "hits": [
+   "LI:Where I've shippedMoney corr:208x185",
+   "LI:Ho Chi Minh City → Singapore:168x48",
+   "A:Ho Chi Minh City → Singapore:168x48",
+   "LI:Ho Chi Minh City → Seoul· CO:168x48",
+   "A:Ho Chi Minh City → Seoul· CO:168x48"
+  ]
+ },
+ {
+  "k": "walk",
+  "x": 1360,
+  "y": 780,
+  "w": 68,
+  "h": 112,
+  "frames": "186",
+  "bubble": "What she shipped, and what moved.1 / 3 · tap for more",
+  "group": [
+   1112,
+   707,
+   1428,
+   892
+  ],
+  "kids": [
+   [
+    "Guide character: press to walk it around",
+    1360,
+    780,
+    68,
+    112
+   ],
+   [
+    "What she shipped, ",
+    1120,
+    707,
+    228,
+    80
+   ],
+   [
+    "Walk with me",
+    1112,
+    848,
+    110,
+    44
+   ],
+   [
+    "Hide character",
+    1230,
+    848,
+    118,
+    44
+   ]
+  ],
+  "hits": [
+   "LI:Where I've shippedMoney corr:208x185",
+   "LI:Ho Chi Minh City → Singapore:168x48",
+   "A:Ho Chi Minh City → Singapore:168x48",
+   "LI:Ho Chi Minh City → Seoul· CO:168x48",
+   "A:Ho Chi Minh City → Seoul· CO:168x48"
+  ]
+ },
+ {
+  "k": "jump",
+  "x": 1360,
+  "y": 719,
+  "w": 68,
+  "h": 112,
+  "frames": "199",
+  "bubble": "What she shipped, and what moved.1 / 3 · tap for more",
+  "group": [
+   1112,
+   645,
+   1428,
+   831
+  ],
+  "kids": [
+   [
+    "Guide character: press to walk it around",
+    1360,
+    719,
+    68,
+    112
+   ],
+   [
+    "What she shipped, ",
+    1120,
+    645,
+    228,
+    80
+   ],
+   [
+    "Walk with me",
+    1112,
+    787,
+    110,
+    44
+   ],
+   [
+    "Hide character",
+    1230,
+    787,
+    118,
+    44
+   ]
+  ],
+  "hits": [
+   "LI:Where I've shippedMoney corr:208x186",
+   "LI:The Gulf → Manila· GoCrypto:168x48",
+   "A:The Gulf → Manila· GoCrypto:168x48",
+   "LI:Ho Chi Minh City → Singapore:168x48",
+   "A:Ho Chi Minh City → Singapore:168x48",
+   "LI:Ho Chi Minh City → Seoul· CO:168x48",
+   "A:Ho Chi Minh City → Seoul· CO:168x48"
+  ]
+ },
+ {
+  "k": "jump",
+  "x": 1360,
+  "y": 780,
+  "w": 68,
+  "h": 112,
+  "frames": "212",
+  "bubble": "What she shipped, and what moved.1 / 3 · tap for more",
+  "group": [
+   1112,
+   707,
+   1428,
+   892
+  ],
+  "kids": [
+   [
+    "Guide character: press to walk it around",
+    1360,
+    780,
+    68,
+    112
+   ],
+   [
+    "What she shipped, ",
+    1120,
+    707,
+    228,
+    80
+   ],
+   [
+    "Walk with me",
+    1112,
+    848,
+    110,
+    44
+   ],
+   [
+    "Hide character",
+    1230,
+    848,
+    118,
+    44
+   ]
+  ],
+  "hits": [
+   "LI:Where I've shippedMoney corr:208x185",
+   "LI:Ho Chi Minh City → Singapore:168x48",
+   "A:Ho Chi Minh City → Singapore:168x48",
+   "LI:Ho Chi Minh City → Seoul· CO:168x48",
+   "A:Ho Chi Minh City → Seoul· CO:168x48"
+  ]
+ },
+ {
+  "k": "jump",
+  "x": 1360,
+  "y": 780,
+  "w": 68,
+  "h": 112,
+  "frames": "212",
+  "bubble": "What she shipped, and what moved.1 / 3 · tap for more",
+  "group": [
+   1112,
+   707,
+   1428,
+   892
+  ],
+  "kids": [
+   [
+    "Guide character: press to walk it around",
+    1360,
+    780,
+    68,
+    112
+   ],
+   [
+    "What she shipped, ",
+    1120,
+    707,
+    228,
+    80
+   ],
+   [
+    "Walk with me",
+    1112,
+    848,
+    110,
+    44
+   ],
+   [
+    "Hide character",
+    1230,
+    848,
+    118,
+    44
+   ]
+  ],
+  "hits": [
+   "LI:Where I've shippedMoney corr:208x185",
+   "LI:Ho Chi Minh City → Singapore:168x48",
+   "A:Ho Chi Minh City → Singapore:168x48",
+   "LI:Ho Chi Minh City → Seoul· CO:168x48",
+   "A:Ho Chi Minh City → Seoul· CO:168x48"
+  ]
+ },
+ {
+  "k": "jump",
+  "x": 1360,
+  "y": 780,
+  "w": 68,
+  "h": 112,
+  "frames": "212",
+  "bubble": "What she shipped, and what moved.1 / 3 · tap for more",
+  "group": [
+   1112,
+   707,
+   1428,
+   892
+  ],
+  "kids": [
+   [
+    "Guide character: press to walk it around",
+    1360,
+    780,
+    68,
+    112
+   ],
+   [
+    "What she shipped, ",
+    1120,
+    707,
+    228,
+    80
+   ],
+   [
+    "Walk with me",
+    1112,
+    848,
+    110,
+    44
+   ],
+   [
+    "Hide character",
+    1230,
+    848,
+    118,
+    44
+   ]
+  ],
+  "hits": [
+   "LI:Where I've shippedMoney corr:208x185",
+   "LI:Ho Chi Minh City → Singapore:168x48",
+   "A:Ho Chi Minh City → Singapore:168x48",
+   "LI:Ho Chi Minh City → Seoul· CO:168x48",
+   "A:Ho Chi Minh City → Seoul· CO:168x48"
+  ]
+ },
+ {
+  "k": "jump",
+  "x": 1360,
+  "y": 780,
+  "w": 68,
+  "h": 112,
+  "frames": "212",
+  "bubble": "What she shipped, and what moved.1 / 3 · tap for more",
+  "group": [
+   1112,
+   707,
+   1428,
+   892
+  ],
+  "kids": [
+   [
+    "Guide character: press to walk it around",
+    1360,
+    780,
+    68,
+    112
+   ],
+   [
+    "What she shipped, ",
+    1120,
+    707,
+    228,
+    80
+   ],
+   [
+    "Walk with me",
+    1112,
+    848,
+    110,
+    44
+   ],
+   [
+    "Hide character",
+    1230,
+    848,
+    118,
+    44
+   ]
+  ],
+  "hits": [
+   "LI:Where I've shippedMoney corr:208x185",
+   "LI:Ho Chi Minh City → Singapore:168x48",
+   "A:Ho Chi Minh City → Singapore:168x48",
+   "LI:Ho Chi Minh City → Seoul· CO:168x48",
+   "A:Ho Chi Minh City → Seoul· CO:168x48"
+  ]
+ },
+ {
+  "k": "enter",
+  "x": 1118,
+  "y": 780,
+  "w": 68,
+  "h": 112,
+  "frames": "286",
+  "bubble": "What she shipped, and what moved.1 / 3 · tap for more",
+  "group": [
+   871,
+   760,
+   1186,
+   892
+  ],
+  "kids": [
+   [
+    "Guide character: press to walk it around",
+    1118,
+    780,
+    68,
+    112
+   ],
+   [
+    "What she shipped, ",
+    878,
+    760,
+    228,
+    80
+   ],
+   [
+    "Walk with me",
+    871,
+    848,
+    110,
+    44
+   ],
+   [
+    "Hide character",
+    988,
+    848,
+    118,
+    44
+   ]
+  ],
+  "hits": [
+   "LI:Where I've shippedMoney corr:315x132",
+   "LI:Ho Chi Minh City → Seoul· CO:315x48",
+   "A:Ho Chi Minh City → Seoul· CO:315x48"
+  ]
+ }
+]

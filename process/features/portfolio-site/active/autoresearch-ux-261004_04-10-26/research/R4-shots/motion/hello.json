@@ -1,0 +1,42 @@
+{
+ "d": {
+  "before": {
+   "cardH": 384,
+   "cardW": 720,
+   "cardRight": 1080,
+   "contentBottomGap": 40,
+   "walletRight": 1016,
+   "svgRight": 936,
+   "coinH": 56,
+   "text": "Say hello | Drag the coin to Thao's wallet, or just tap it. | T | Thao's wallet",
+   "footerText": "143 reactions · 8 comments | View on LinkedIn",
+   "getInTouchEls": 1,
+   "mailtos": [
+    14389,
+    15267,
+    15433
+   ]
+  },
+  "after": "Say hello | Drag the coin to Thao's wallet, or just tap it. | T | ✓ Settled | Delivered. Thao will be delighted. | Where to reach me | Send another"
+ },
+ "m": {
+  "before": {
+   "cardH": 348,
+   "cardW": 358,
+   "cardRight": 374,
+   "contentBottomGap": 24,
+   "walletRight": 334,
+   "svgRight": 262,
+   "coinH": 56,
+   "text": "Say hello | Drag the coin to Thao's wallet, or just tap it. | T | Thao's wallet",
+   "footerText": "143 reactions · 8 comments | View on LinkedIn",
+   "getInTouchEls": 1,
+   "mailtos": [
+    14706,
+    15502,
+    15697
+   ]
+  },
+  "after": "Say hello | Drag the coin to Thao's wallet, or just tap it. | T | ✓ Settled | Delivered. Thao will be delighted. | Where to reach me | Send another"
+ }
+}

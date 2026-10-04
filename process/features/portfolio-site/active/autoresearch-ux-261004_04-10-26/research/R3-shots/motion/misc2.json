@@ -1,0 +1,243 @@
+{
+ "workCardGap": [
+  {
+   "slug": "lumicap",
+   "h": 742,
+   "gapPx": 368,
+   "bg": "none"
+  },
+  {
+   "slug": "cosap",
+   "h": 742,
+   "gapPx": 348,
+   "bg": "none"
+  },
+  {
+   "slug": "gocrypto",
+   "h": 742,
+   "gapPx": 231,
+   "bg": "none"
+  },
+  {
+   "slug": "pac",
+   "h": 742,
+   "gapPx": 302,
+   "bg": "none"
+  },
+  {
+   "slug": "zalo-game-center",
+   "h": 742,
+   "gapPx": 302,
+   "bg": "none"
+  },
+  {
+   "slug": "reorc-data-platform",
+   "h": 742,
+   "gapPx": 263,
+   "bg": "none"
+  },
+  {
+   "slug": "ledgr",
+   "h": 742,
+   "gapPx": 368,
+   "bg": "none"
+  },
+  {
+   "slug": "cortex-sentinel",
+   "h": 742,
+   "gapPx": 344,
+   "bg": "none"
+  },
+  {
+   "slug": "guardline",
+   "h": 742,
+   "gapPx": 278,
+   "bg": "none"
+  }
+ ],
+ "workFilterFine": {
+  "first8": [
+   "0|9|1.00@0,243,1.00@493,243",
+   "0|9|1.00@0,243,1.00@493,243",
+   "26|9|1.00@0,243,1.00@493,243",
+   "42|9|1.00@0,243,1.00@493,243",
+   "121|3|1.00@0,243,1.00@493,243",
+   "123|3|1.00@0,243,1.00@493,243",
+   "136|3|1.00@0,243,1.00@493,243",
+   "141|3|1.00@0,243,1.00@493,243"
+  ],
+  "counts": [
+   9,
+   3
+  ],
+  "sampleOps": [
+   "0|9|1.00@0,243,1.00@493,243",
+   "176|3|1.00@0,243,1.00@493,243",
+   "326|3|1.00@0,243,1.00@493,243",
+   "476|3|1.00@0,243,1.00@493,243",
+   "626|3|1.00@0,243,1.00@493,243",
+   "776|3|1.00@0,243,1.00@493,243"
+  ]
+ },
+ "caseToc": {
+  "labels": [
+   "The question",
+   "Why trading can't fix ",
+   "Where the money alread",
+   "The decision",
+   "Build order and outcom",
+   "Get in touch",
+   "Top"
+  ],
+  "clickScrolled": 3959,
+  "activeAfterClick": "The decision",
+  "distinctPillTops": 15,
+  "pillTops": [
+   374,
+   375,
+   377,
+   382,
+   389,
+   396,
+   402,
+   407,
+   411,
+   415,
+   417,
+   419
+  ]
+ },
+ "caseNextLift": "see lift.json",
+ "mobilePersonaTap": {
+  "first0": "lumicap",
+  "first1": "lumicap",
+  "targetH": 44,
+  "targetW": 93
+ },
+ "mobileChipTap": {
+  "scrolled": 4556,
+  "active": "📊ReOrc Data Platform",
+  "cardTop": 164,
+  "railBottom": 136
+ },
+ "mobileCaseMenu": {
+  "error": "TimeoutError: locator.tap: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=section-menu-button]')\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" tabindex=\"-1\" aria-expanded=\"false\" aria-controls=\"section-sheet\" data-testid=\"section-menu-button\" class=\"pointer-"
+ },
+ "mobileTargets": [
+  {
+   "t": "Skip to content",
+   "w": 32,
+   "h": 16
+  },
+  {
+   "t": "psst — the casual versio",
+   "w": 216,
+   "h": 21
+  },
+  {
+   "t": "+30%ad revenue in six mo",
+   "w": 341,
+   "h": 33
+  },
+  {
+   "t": "−40%rework· ReOrc AIPend",
+   "w": 257,
+   "h": 33
+  },
+  {
+   "t": "+20%faster feature deliv",
+   "w": 350,
+   "h": 33
+  },
+  {
+   "t": "95%first-pass UAT· ReOrc",
+   "w": 295,
+   "h": 33
+  },
+  {
+   "t": "8AI ERP modules designed",
+   "w": 380,
+   "h": 33
+  },
+  {
+   "t": "4cloud providers, one pr",
+   "w": 428,
+   "h": 33
+  },
+  {
+   "t": "2ndplace, AABW Fintech t",
+   "w": 410,
+   "h": 33
+  },
+  {
+   "t": "+30%ad revenue in six mo",
+   "w": 341,
+   "h": 33
+  },
+  {
+   "t": "−40%rework· ReOrc AIPend",
+   "w": 257,
+   "h": 33
+  },
+  {
+   "t": "+20%faster feature deliv",
+   "w": 350,
+   "h": 33
+  },
+  {
+   "t": "95%first-pass UAT· ReOrc",
+   "w": 295,
+   "h": 33
+  },
+  {
+   "t": "8AI ERP modules designed",
+   "w": 380,
+   "h": 33
+  },
+  {
+   "t": "4cloud providers, one pr",
+   "w": 428,
+   "h": 33
+  },
+  {
+   "t": "2ndplace, AABW Fintech t",
+   "w": 410,
+   "h": 33
+  },
+  {
+   "t": "Credential",
+   "w": 133,
+   "h": 25
+  },
+  {
+   "t": "Credential",
+   "w": 133,
+   "h": 25
+  },
+  {
+   "t": "Credential",
+   "w": 133,
+   "h": 25
+  },
+  {
+   "t": "Follow on LinkedIn",
+   "w": 153,
+   "h": 26
+  },
+  {
+   "t": "View on LinkedIn: Vietna",
+   "w": 133,
+   "h": 25
+  },
+  {
+   "t": "View on LinkedIn: Inside",
+   "w": 133,
+   "h": 25
+  },
+  {
+   "t": "View on LinkedIn: Agenti",
+   "w": 133,
+   "h": 25
+  }
+ ]
+}

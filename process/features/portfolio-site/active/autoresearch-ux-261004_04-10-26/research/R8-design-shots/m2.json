@@ -1,0 +1,134 @@
+{
+ "390": {
+  "hdr": "Selected work",
+  "hdrR": [
+   22,
+   4367,
+   346,
+   36
+  ],
+  "pillR": null,
+  "flags": [
+   {
+    "t": "🇻🇳Vietnam: 121 people",
+    "title": null,
+    "aria": "Vietnam: 121 people"
+   }
+  ],
+  "stampR": [
+   214,
+   4631,
+   150,
+   90
+  ],
+  "stampFont": "16px",
+  "poll": true,
+  "emojiAnim": 27
+ },
+ "768": {
+  "hdr": "Selected work",
+  "hdrR": [
+   61,
+   4986,
+   287,
+   88
+  ],
+  "pillR": null,
+  "flags": [
+   {
+    "t": "🇻🇳Vietnam: 120 people",
+    "title": null,
+    "aria": "Vietnam: 120 people"
+   }
+  ],
+  "stampR": [
+   443,
+   5219,
+   240,
+   144
+  ],
+  "stampFont": "16px",
+  "poll": true,
+  "emojiAnim": 27
+ },
+ "1440": {
+  "hdr": "Selected work",
+  "hdrR": [
+   61,
+   3992,
+   373,
+   44
+  ],
+  "pillR": null,
+  "flags": [
+   {
+    "t": "🇻🇳Vietnam: 119 people",
+    "title": null,
+    "aria": "Vietnam: 119 people"
+   }
+  ],
+  "stampR": [
+   1115,
+   4084,
+   240,
+   144
+  ],
+  "stampFont": "16px",
+  "poll": true,
+  "emojiAnim": 27
+ },
+ "about-1440": {
+  "sh": 5564,
+  "sw": 1440,
+  "guide": false,
+  "emojiEls": 0
+ },
+ "gocrypto-1440": {
+  "sh": 13753,
+  "sw": 1440,
+  "guide": false,
+  "emojiEls": 2
+ },
+ "cortex-1440": {
+  "sh": 16670,
+  "sw": 1440,
+  "guide": false,
+  "emojiEls": 2
+ },
+ "about-768": {
+  "sh": 6730,
+  "sw": 768,
+  "guide": false,
+  "emojiEls": 0
+ },
+ "gocrypto-768": {
+  "sh": 13890,
+  "sw": 768,
+  "guide": false,
+  "emojiEls": 2
+ },
+ "cortex-768": {
+  "sh": 16394,
+  "sw": 768,
+  "guide": false,
+  "emojiEls": 2
+ },
+ "about-390": {
+  "sh": 9788,
+  "sw": 390,
+  "guide": false,
+  "emojiEls": 0
+ },
+ "gocrypto-390": {
+  "sh": 14720,
+  "sw": 390,
+  "guide": false,
+  "emojiEls": 2
+ },
+ "cortex-390": {
+  "sh": 18168,
+  "sw": 390,
+  "guide": false,
+  "emojiEls": 2
+ }
+}

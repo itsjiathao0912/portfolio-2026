@@ -1,0 +1,27 @@
+390 DH 17371 positions 30 with guide 30 none 0
+feet err px: n 29 max 27.4 mean 4.1 offX 0
+blocked positions 2 text-covered 18 bubble shown 0
+0 0 ground err -0 {"tag":"FIGURE#portrait","topVp":667,"l":16,"r":374,"txt":""} B:  T: 4+ years in product.:52x68
+1 579 ground err -0.2 {"tag":"BUTTON#tile-engineer","topVp":818,"l":24,"r":366,"txt":"That's youEngineer"} B:  T: Pick your character:68x56
+2 1158 ground err -0.2 {"tag":"BUTTON#tile-engineer","topVp":239,"l":24,"r":366,"txt":"That's youEngineer"} B:  T: Pick your character:68x56
+3 1737 ground err 0.4 {"tag":"P","topVp":664,"l":183,"r":333,"txt":"your visitor numbe"} B:  T: #40:35x40
+5 2895 ground err 4.7 {"tag":"P","topVp":506,"l":44,"r":346,"txt":"Agentic AI Build W"} B:  T: 2nd place:48x45|Agentic AI Build Wee:48x15
+6 3474 ground err 27.4 {"tag":"H3","topVp":393,"l":220,"r":355,"txt":"Business Hackathon"} B: Credential 16x6 T: Business Hackathon:57x36
+7 4053 ground err 0.1 {"tag":"H3","topVp":585,"l":40,"r":350,"txt":"Money corridors I "} B:  T: Where I've shipped:52x21
+8 4632 ground err 0.3 {"tag":"P#role-note","topVp":484,"l":22,"r":368,"txt":"Engineer view: dat"} B:  T: Selected work:68x22
+9 5211 ground err 4.3 {"tag":"P","topVp":288,"l":20,"r":370,"txt":"Governance, lineag"} B:  T: Data people can trus:68x82|Governance, lineage,:68x13
+10 5790 ground err 4.3 {"tag":"ARTICLE","topVp":333,"l":7,"r":383,"txt":"☁️PAC · SkyLab Gro"} B:  T: 
+12 6948 ground err 0.3 {"tag":"P","topVp":245,"l":20,"r":370,"txt":"An AI-powered ERP "} B:  T: An affordable SAP al:68x86
+13 7527 ground err 10.3 {"tag":"ARTICLE","topVp":319,"l":7,"r":383,"txt":"🛡️Cortex Sentinel"} B:  T: 
+15 8685 ground err 0.8 {"tag":"P","topVp":251,"l":20,"r":370,"txt":"A hackathon build:"} B:  T: An AI fraud desk tha:68x68
+16 9264 ground err 11.6 {"tag":"ARTICLE","topVp":365,"l":7,"r":383,"txt":"🎮Zalo Game Center"} B:  T: 
+18 10422 ground err 7.3 {"tag":"P","topVp":329,"l":20,"r":370,"txt":"Led the build of a"} B:  T: Real-world compute c:68x79|Led the build of a p:68x17
+19 11001 ground err 10.8 {"tag":"ARTICLE","topVp":323,"l":7,"r":383,"txt":"💸GoCrypto · Indep"} B:  T: 
+21 12159 air err null null B: 📒Ledgr 49x13 T: 
+22 12738 ground err 0.3 {"tag":"P","topVp":714,"l":24,"r":366,"txt":"Communities, hacka"} B:  T: Building with people:68x72
+23 13317 ground err 9.3 {"tag":"P","topVp":381,"l":46,"r":344,"txt":"Led external relat"} B:  T: 2,500+ participants:46x68|Led external relatio:46x19
+24 13896 ground err 17 {"tag":"P","topVp":485,"l":48,"r":342,"txt":"Build Stuffs #33 ·"} B:  T: Demoing with builder:44x67|Build Stuffs #33 · L:44x26
+25 14475 ground err -0.4 {"tag":"P","topVp":240,"l":48,"r":342,"txt":"Agentic AI Build W"} B:  T: 2nd place · Cortex S:44x67
+27 15633 ground err 6.3 {"tag":"H3","topVp":794,"l":24,"r":366,"txt":"What should Thao b"} B:  T: Quick poll:68x21|What should Thao bui:68x16
+28 16212 ground err 0.3 {"tag":"H3","topVp":215,"l":24,"r":366,"txt":"What should Thao b"} B:  T: Quick poll:68x21
+console errs []

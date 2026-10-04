@@ -1,0 +1,632 @@
+{
+ "390": {
+  "sw": [
+   390,
+   390,
+   16834
+  ],
+  "tiles": [
+   {
+    "w": 107,
+    "h": 140,
+    "x": 24,
+    "y": 167,
+    "svgBottom": 66,
+    "labTop": null,
+    "labH": null,
+    "svgTop": 13,
+    "svgH": 53
+   },
+   {
+    "w": 107,
+    "h": 140,
+    "x": 141,
+    "y": 167,
+    "svgBottom": 66,
+    "labTop": null,
+    "labH": null,
+    "svgTop": 13,
+    "svgH": 53
+   },
+   {
+    "w": 107,
+    "h": 140,
+    "x": 259,
+    "y": 167,
+    "svgBottom": 66,
+    "labTop": null,
+    "labH": null,
+    "svgTop": 13,
+    "svgH": 53
+   },
+   {
+    "w": 107,
+    "h": 155,
+    "x": 24,
+    "y": 323,
+    "svgBottom": 66,
+    "labTop": null,
+    "labH": null,
+    "svgTop": 13,
+    "svgH": 53
+   },
+   {
+    "w": 107,
+    "h": 155,
+    "x": 141,
+    "y": 323,
+    "svgBottom": 66,
+    "labTop": null,
+    "labH": null,
+    "svgTop": 13,
+    "svgH": 53
+   },
+   {
+    "w": 107,
+    "h": 155,
+    "x": 259,
+    "y": 323,
+    "svgBottom": 66,
+    "labTop": null,
+    "labH": null,
+    "svgTop": 13,
+    "svgH": 53
+   },
+   {
+    "w": 107,
+    "h": 140,
+    "x": 24,
+    "y": 494,
+    "svgBottom": 66,
+    "labTop": null,
+    "labH": null,
+    "svgTop": 13,
+    "svgH": 53
+   },
+   {
+    "w": 107,
+    "h": 140,
+    "x": 141,
+    "y": 494,
+    "svgBottom": 66,
+    "labTop": null,
+    "labH": null,
+    "svgTop": 13,
+    "svgH": 53
+   },
+   {
+    "w": 107,
+    "h": 140,
+    "x": 259,
+    "y": 494,
+    "svgBottom": 66,
+    "labTop": null,
+    "labH": null,
+    "svgTop": 13,
+    "svgH": 53
+   },
+   {
+    "w": 107,
+    "h": 140,
+    "x": 83,
+    "y": 650,
+    "svgBottom": 66,
+    "labTop": null,
+    "labH": null,
+    "svgTop": 13,
+    "svgH": 53
+   },
+   {
+    "w": 107,
+    "h": 140,
+    "x": 200,
+    "y": 650,
+    "svgBottom": 66,
+    "labTop": null,
+    "labH": null,
+    "svgTop": 13,
+    "svgH": 53
+   }
+  ],
+  "flags": {
+   "n": 13,
+   "w": 342,
+   "h": 86,
+   "tips": 13,
+   "text": "VISITORS FROM 13 COUNTRIES\n\n🇻🇳\nVietnam: 135 people\n🇸🇬\nSingapore: 18 people\n\ud83c"
+  },
+  "tipVisible": [],
+  "poll": {
+   "rows": [
+    {
+     "id": "compliance-copilot",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(227, 238, 255)"
+    },
+    {
+     "id": "remittance",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(255, 234, 219)"
+    },
+    {
+     "id": "fraud-toolkit",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(241, 231, 255)"
+    },
+    {
+     "id": "women-in-tech",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(255, 230, 238)"
+    },
+    {
+     "id": "backoffice-agent",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(255, 243, 199)"
+    },
+    {
+     "id": "agent-payments",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(217, 241, 247)"
+    }
+   ],
+   "sum": "QUICK POLL\n\nWhat should Thao build next?\n\nPick one. You will see who else picked it.\n\nA compliance copilot for small businesses in Vietnam\nA cross-border remittance app\nA fraud-detection toolkit for fintechs\nA community platform for women in tech in Southeast "
+  },
+  "work": {
+   "h": [
+    4698,
+    36,
+    "Selected work"
+   ],
+   "pill": null
+  },
+  "stamps": [
+   [
+    150,
+    90
+   ],
+   [
+    150,
+    90
+   ]
+  ],
+  "emoji": {
+   "n": 27,
+   "tags": [
+    "IMG"
+   ],
+   "src": [
+    "/emoji/1f4b0-still.webp",
+    "/emoji/1f9f0-still.webp",
+    "/emoji/1fa99-still.webp",
+    "/emoji/2601-fe0f-still.webp",
+    "/emoji/1f3ae-still.webp",
+    "/emoji/1f4ca-still.webp",
+    "/emoji/1f510-still.webp",
+    "/emoji/1f693-still.webp",
+    "/emoji/1f4dd.webp",
+    "/emoji/1f4dd-still.webp"
+   ],
+   "card": 0
+  },
+  "errs": []
+ },
+ "768": {
+  "sw": [
+   768,
+   768,
+   17430
+  ],
+  "tiles": [
+   {
+    "w": 105,
+    "h": 193,
+    "x": 40,
+    "y": 310,
+    "svgBottom": -310,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -310,
+    "svgH": 0
+   },
+   {
+    "w": 105,
+    "h": 193,
+    "x": 157,
+    "y": 310,
+    "svgBottom": -310,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -310,
+    "svgH": 0
+   },
+   {
+    "w": 105,
+    "h": 193,
+    "x": 273,
+    "y": 310,
+    "svgBottom": -310,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -310,
+    "svgH": 0
+   },
+   {
+    "w": 105,
+    "h": 193,
+    "x": 390,
+    "y": 310,
+    "svgBottom": -310,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -310,
+    "svgH": 0
+   },
+   {
+    "w": 105,
+    "h": 193,
+    "x": 507,
+    "y": 310,
+    "svgBottom": -310,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -310,
+    "svgH": 0
+   },
+   {
+    "w": 105,
+    "h": 193,
+    "x": 623,
+    "y": 310,
+    "svgBottom": -310,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -310,
+    "svgH": 0
+   },
+   {
+    "w": 105,
+    "h": 176,
+    "x": 98,
+    "y": 530,
+    "svgBottom": -530,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -530,
+    "svgH": 0
+   },
+   {
+    "w": 105,
+    "h": 176,
+    "x": 215,
+    "y": 530,
+    "svgBottom": -530,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -530,
+    "svgH": 0
+   },
+   {
+    "w": 105,
+    "h": 176,
+    "x": 332,
+    "y": 530,
+    "svgBottom": -530,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -530,
+    "svgH": 0
+   },
+   {
+    "w": 105,
+    "h": 176,
+    "x": 448,
+    "y": 530,
+    "svgBottom": -530,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -530,
+    "svgH": 0
+   },
+   {
+    "w": 105,
+    "h": 176,
+    "x": 565,
+    "y": 530,
+    "svgBottom": -530,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -530,
+    "svgH": 0
+   }
+  ],
+  "flags": {
+   "n": 13,
+   "w": 420,
+   "h": 86,
+   "tips": 13,
+   "text": "VISITORS FROM 13 COUNTRIES\n\n🇻🇳\nVietnam: 135 people\n🇸🇬\nSingapore: 18 people\n\ud83c"
+  },
+  "tipVisible": [
+   {
+    "t": "Singapore: 18 people",
+    "op": "1",
+    "vis": "visible",
+    "w": 139,
+    "x": 177
+   }
+  ],
+  "poll": {
+   "rows": [
+    {
+     "id": "compliance-copilot",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(227, 238, 255)"
+    },
+    {
+     "id": "remittance",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(255, 234, 219)"
+    },
+    {
+     "id": "fraud-toolkit",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(241, 231, 255)"
+    },
+    {
+     "id": "women-in-tech",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(255, 230, 238)"
+    },
+    {
+     "id": "backoffice-agent",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(255, 243, 199)"
+    },
+    {
+     "id": "agent-payments",
+     "val": null,
+     "faces": 0,
+     "bar": "rgb(217, 241, 247)"
+    }
+   ],
+   "sum": "QUICK POLL\n\nWhat should Thao build next?\n\nPick one. You will see who else picked it.\n\nA compliance copilot for small businesses in Vietnam\nA cross-border remittance app\nA fraud-detection toolkit for fintechs\nA community platform for women in tech in Southeast "
+  },
+  "work": {
+   "h": [
+    5010,
+    44,
+    "Selected work"
+   ],
+   "pill": null
+  },
+  "stamps": [
+   [
+    240,
+    144
+   ],
+   [
+    240,
+    144
+   ]
+  ],
+  "emoji": {
+   "n": 27,
+   "tags": [
+    "IMG"
+   ],
+   "src": [
+    "/emoji/1f4b0-still.webp",
+    "/emoji/1f9f0-still.webp",
+    "/emoji/1fa99-still.webp",
+    "/emoji/2601-fe0f-still.webp",
+    "/emoji/1f3ae-still.webp",
+    "/emoji/1f4ca-still.webp",
+    "/emoji/1f510-still.webp",
+    "/emoji/1f693-still.webp",
+    "/emoji/1f4dd.webp",
+    "/emoji/1f4dd-still.webp"
+   ],
+   "card": 0
+  },
+  "errs": []
+ },
+ "1440": {
+  "sw": [
+   1440,
+   1440,
+   16043
+  ],
+  "tiles": [
+   {
+    "w": 187,
+    "h": 176,
+    "x": 120,
+    "y": 318,
+    "svgBottom": -318,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -318,
+    "svgH": 0
+   },
+   {
+    "w": 187,
+    "h": 176,
+    "x": 323,
+    "y": 318,
+    "svgBottom": -318,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -318,
+    "svgH": 0
+   },
+   {
+    "w": 187,
+    "h": 176,
+    "x": 525,
+    "y": 318,
+    "svgBottom": -318,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -318,
+    "svgH": 0
+   },
+   {
+    "w": 187,
+    "h": 176,
+    "x": 728,
+    "y": 318,
+    "svgBottom": -318,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -318,
+    "svgH": 0
+   },
+   {
+    "w": 187,
+    "h": 176,
+    "x": 931,
+    "y": 318,
+    "svgBottom": -318,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -318,
+    "svgH": 0
+   },
+   {
+    "w": 187,
+    "h": 176,
+    "x": 1133,
+    "y": 318,
+    "svgBottom": -318,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -318,
+    "svgH": 0
+   },
+   {
+    "w": 187,
+    "h": 176,
+    "x": 221,
+    "y": 522,
+    "svgBottom": -522,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -522,
+    "svgH": 0
+   },
+   {
+    "w": 187,
+    "h": 176,
+    "x": 424,
+    "y": 522,
+    "svgBottom": -522,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -522,
+    "svgH": 0
+   },
+   {
+    "w": 187,
+    "h": 176,
+    "x": 627,
+    "y": 522,
+    "svgBottom": -522,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -522,
+    "svgH": 0
+   },
+   {
+    "w": 187,
+    "h": 176,
+    "x": 829,
+    "y": 522,
+    "svgBottom": -522,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -522,
+    "svgH": 0
+   },
+   {
+    "w": 187,
+    "h": 176,
+    "x": 1032,
+    "y": 522,
+    "svgBottom": -522,
+    "labTop": null,
+    "labH": null,
+    "svgTop": -522,
+    "svgH": 0
+   }
+  ],
+  "flags": {
+   "n": 13,
+   "w": 420,
+   "h": 86,
+   "tips": 13,
+   "text": "VISITORS FROM 13 COUNTRIES\n\n🇻🇳\nVietnam: 135 people\n🇸🇬\nSingapore: 18 people\n\ud83c"
+  },
+  "tipVisible": [
+   {
+    "t": "Singapore: 18 people",
+    "op": "1",
+    "vis": "visible",
+    "w": 139,
+    "x": 601
+   }
+  ],
+  "poll": {
+   "rows": [],
+   "sum": ""
+  },
+  "work": {
+   "h": [
+    4149,
+    44,
+    "Selected work"
+   ],
+   "pill": null
+  },
+  "stamps": [
+   [
+    240,
+    144
+   ],
+   [
+    240,
+    144
+   ]
+  ],
+  "emoji": {
+   "n": 27,
+   "tags": [
+    "IMG"
+   ],
+   "src": [
+    "/emoji/1f4b0-still.webp",
+    "/emoji/1f9f0-still.webp",
+    "/emoji/1fa99-still.webp",
+    "/emoji/2601-fe0f-still.webp",
+    "/emoji/1f3ae-still.webp",
+    "/emoji/1f4ca-still.webp",
+    "/emoji/1f510-still.webp",
+    "/emoji/1f693-still.webp",
+    "/emoji/1f4dd.webp",
+    "/emoji/1f4dd-still.webp"
+   ],
+   "card": 0
+  },
+  "errs": []
+ }
+}

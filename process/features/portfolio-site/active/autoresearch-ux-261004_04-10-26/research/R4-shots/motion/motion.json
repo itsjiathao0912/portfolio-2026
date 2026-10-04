@@ -1,0 +1,243 @@
+{
+ "persona": {
+  "scrollBefore": 2822,
+  "scrollAfter": 2822,
+  "titleTopFinal": 527,
+  "minOpacity": 1,
+  "firstCardLeftRange": [
+   345,
+   345
+  ],
+  "firstCardTopRange": [
+   717,
+   1117
+  ],
+  "sample": [
+   [
+    0,
+    2822,
+    [
+     717,
+     345,
+     1,
+     1
+    ]
+   ],
+   [
+    124,
+    2822,
+    [
+     717,
+     345,
+     1,
+     1
+    ]
+   ],
+   [
+    517,
+    2822,
+    [
+     761,
+     345,
+     1,
+     1
+    ]
+   ],
+   [
+    660,
+    2822,
+    [
+     720,
+     345,
+     1,
+     1
+    ]
+   ],
+   [
+    867,
+    2822,
+    [
+     717,
+     345,
+     1,
+     1
+    ]
+   ],
+   [
+    1009,
+    2822,
+    [
+     717,
+     345,
+     1,
+     1
+    ]
+   ],
+   [
+    1141,
+    2822,
+    [
+     717,
+     345,
+     1,
+     1
+    ]
+   ],
+   [
+    1277,
+    2822,
+    [
+     717,
+     345,
+     1,
+     1
+    ]
+   ],
+   [
+    1406,
+    2822,
+    [
+     717,
+     345,
+     1,
+     1
+    ]
+   ]
+  ]
+ },
+ "nav": {
+  "bg": "rgba(255, 255, 255, 0.85)",
+  "bf": "url(\"#lg-R96lb\") blur(24px) saturate(1.6)",
+  "cls": "glass flex items-center"
+ },
+ "work": {
+  "h1": {
+   "t": "Selected work",
+   "w": 672,
+   "h": 61.59375,
+   "fs": "56px"
+  },
+  "cards": [
+   {
+    "name": "Lumicap",
+    "h": 516,
+    "gapTextToVisual": 136,
+    "visualBottomToCardBottom": 0
+   },
+   {
+    "name": "COSAP",
+    "h": 516,
+    "gapTextToVisual": 110,
+    "visualBottomToCardBottom": -25
+   },
+   {
+    "name": "GoCrypto",
+    "h": 516,
+    "gapTextToVisual": -34,
+    "visualBottomToCardBottom": -32
+   },
+   {
+    "name": "PAC",
+    "h": 554,
+    "gapTextToVisual": 77,
+    "visualBottomToCardBottom": 18
+   },
+   {
+    "name": "Zalo Game Center",
+    "h": 554,
+    "gapTextToVisual": 77,
+    "visualBottomToCardBottom": 18
+   },
+   {
+    "name": "ReOrc Data Platform",
+    "h": 554,
+    "gapTextToVisual": 77,
+    "visualBottomToCardBottom": -21
+   },
+   {
+    "name": "Ledgr",
+    "h": 540,
+    "gapTextToVisual": 136,
+    "visualBottomToCardBottom": 18
+   },
+   {
+    "name": "Cortex Sentinel",
+    "h": 540,
+    "gapTextToVisual": 136,
+    "visualBottomToCardBottom": -6
+   },
+   {
+    "name": "Guardline",
+    "h": 540,
+    "gapTextToVisual": 77,
+    "visualBottomToCardBottom": -21
+   }
+  ]
+ },
+ "filter": {
+  "thumbLeftRange": [
+   384,
+   669
+  ],
+  "distinctThumbPositions": 6,
+  "liCounts": [
+   9,
+   2
+  ],
+  "card1LeftDistinct": 2,
+  "card0Opacity": [
+   0,
+   1
+  ],
+  "sample": [
+   [
+    0,
+    384,
+    9,
+    0,
+    1,
+    493
+   ],
+   [
+    136,
+    384,
+    9,
+    0,
+    1,
+    493
+   ],
+   [
+    303,
+    384,
+    9,
+    0,
+    1,
+    493
+   ],
+   [
+    470,
+    384,
+    9,
+    0,
+    1,
+    493
+   ],
+   [
+    636,
+    384,
+    9,
+    0,
+    1,
+    493
+   ],
+   [
+    888,
+    412,
+    9,
+    0,
+    0.176618,
+    493
+   ]
+  ]
+ }
+}

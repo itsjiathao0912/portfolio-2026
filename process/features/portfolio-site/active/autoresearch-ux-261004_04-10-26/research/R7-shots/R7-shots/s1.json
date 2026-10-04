@@ -1,0 +1,50 @@
+{
+ "home-1440": {
+  "sh": 15947,
+  "errs": []
+ },
+ "about-1440": {
+  "sh": 5564,
+  "errs": []
+ },
+ "work-gocrypto-1440": {
+  "sh": 14033,
+  "errs": []
+ },
+ "work-cortex-1440": {
+  "sh": 1674,
+  "errs": []
+ },
+ "home-768": {
+  "sh": 17369,
+  "errs": []
+ },
+ "about-768": {
+  "sh": 6694,
+  "errs": []
+ },
+ "work-gocrypto-768": {
+  "sh": 14266,
+  "errs": []
+ },
+ "work-cortex-768": {
+  "sh": 1726,
+  "errs": []
+ },
+ "home-390": {
+  "sh": 17374,
+  "errs": []
+ },
+ "about-390": {
+  "sh": 9752,
+  "errs": []
+ },
+ "work-gocrypto-390": {
+  "sh": 14936,
+  "errs": []
+ },
+ "work-cortex-390": {
+  "sh": 1877,
+  "errs": []
+ }
+}
