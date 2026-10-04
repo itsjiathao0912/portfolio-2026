@@ -17,7 +17,7 @@
       "database_name": "portfolio-db",
       // Written by `pnpm cf:setup` (scripts/cf-setup.mjs) after it creates the
       // database. Do not hand-edit unless you know the real id.
-      "database_id": "TBD-created-by-setup-script"
+      "database_id": "5ddbd1c6-6366-484c-832c-2bf0cdb8ec98"
     }
   ],
   "r2_buckets": [
@@ -29,11 +29,9 @@
   ],
   "observability": {
     "enabled": true
-  }
-  // Domain is TBD. When chosen, add (the zone must be on this Cloudflare account):
-  // ,"routes": [
-  //   { "pattern": "example.com", "custom_domain": true },
-  //   { "pattern": "www.example.com", "custom_domain": true }
-  // ]
-  // Until then the Worker is reachable on its *.workers.dev URL.
+  },
+  "routes": [
+    { "pattern": "itsjiathao.com", "custom_domain": true },
+    { "pattern": "www.itsjiathao.com", "custom_domain": true }
+  ]
 }
