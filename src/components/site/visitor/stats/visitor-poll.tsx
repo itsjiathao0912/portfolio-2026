@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { POLL_OPTIONS } from "@/lib/poll-options";
 import { ROLE_LABELS, type PollOptionId, type RoleId } from "../role-ids";
 import { pollRows } from "./stats-copy";
-import { usePoll } from "./use-poll";
+import { facesFor, usePoll } from "./use-poll";
 import { useVisitor } from "../store";
 
 const NOTES = {
@@ -26,9 +26,9 @@ const FILLS = ["var(--tint-sky)", "var(--tint-peach)", "var(--tint-lavender)", "
 const MINE_FILL = "var(--tint-mint)";
 
 /** Up to 4 overlapping clay busts: the roles of the people who picked this option. */
-function VoterFaces({ roles, optionId, total }: { roles: readonly RoleId[]; optionId: string; total: number }) {
+function VoterFaces({ roles: all, optionId, total }: { roles: readonly RoleId[]; optionId: string; total: number }) {
+  const { shown: roles, more: extra } = facesFor(all, total);
   if (roles.length === 0) return null;
-  const extra = Math.max(0, total - roles.length);
   const label = `Voters include ${roles.map((r) => ROLE_LABELS[r]).join(", ")}${extra > 0 ? ` and ${extra} more` : ""}`;
   return (
     <span role="img" aria-label={label} data-testid={`poll-faces-${optionId}`} className="flex items-center">

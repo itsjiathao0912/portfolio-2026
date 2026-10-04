@@ -32,6 +32,12 @@ export function parsePoll(body: unknown): PollData | null {
   return { counts, total: b.total, mine: isPollOptionId(b.mine) ? b.mine : null, roles };
 }
 
+/** Pure: faces never outnumber votes. Shown = min(count, 4) roles; more = count - shown. */
+export function facesFor(roles: readonly RoleId[] | undefined, count: number) {
+  const shown = (roles ?? []).slice(0, Math.max(0, Math.min(count, MAX_FACES)));
+  return { shown, more: Math.max(0, count - shown.length) };
+}
+
 /** Pure: apply an optimistic vote. Re-voting the same option changes nothing. */
 export function applyVote(data: PollData, option: PollOptionId, role: RoleId | null = null): PollData {
   if (data.mine === option) return data;
@@ -39,6 +45,8 @@ export function applyVote(data: PollData, option: PollOptionId, role: RoleId | n
   if (data.mine) counts[data.mine] = Math.max(0, (counts[data.mine] ?? 0) - 1);
   counts[option] = (counts[option] ?? 0) + 1;
   const roles = { ...(data.roles ?? {}) };
+  // Your face leaves the option you moved away from (the server reply settles any shared role).
+  if (role && data.mine) roles[data.mine] = (roles[data.mine] ?? []).filter((r) => r !== role);
   // Your own face joins the option you picked at once; the server reply settles the rest.
   if (role) roles[option] = [role, ...(roles[option] ?? []).filter((r) => r !== role)].slice(0, MAX_FACES);
   return { counts, total: data.mine ? data.total : data.total + 1, mine: option, roles };

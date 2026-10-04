@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "bun:test";
 import { createTestDb } from "../helpers/test-db";
 import { castVote, getPoll, MIN_POLL_VOTES, POLL_OPTIONS, topRoles } from "../../src/lib/poll";
-import { applyVote, parsePoll } from "../../src/components/site/visitor/stats/use-poll";
+import { applyVote, facesFor, parsePoll } from "../../src/components/site/visitor/stats/use-poll";
 import { POLL_OPTION_IDS } from "../../src/components/site/visitor/role-ids";
 import { recordVisit, resetVisitorMemos } from "../../src/lib/visits";
 
@@ -105,5 +105,21 @@ describe("poll", () => {
     const v = applyVote(d!, "remittance", "engineer");
     expect(v.roles?.remittance).toEqual(["engineer", "founder"]);
     expect(v.mine).toBe("remittance");
+  });
+
+  test("faces never exceed the vote count: shown = min(count, 4), more = count - shown", () => {
+    expect(facesFor(["student", "designer"], 1)).toEqual({ shown: ["student"], more: 0 });
+    expect(facesFor(["a" as never, "b" as never], 0)).toEqual({ shown: [], more: 0 });
+    expect(facesFor(["engineer", "student", "data", "pm"], 9)).toEqual({ shown: ["engineer", "student", "data", "pm"], more: 5 });
+    expect(facesFor(undefined, 3)).toEqual({ shown: [], more: 3 });
+  });
+
+  test("changing your vote moves your own face to the new option", () => {
+    const d = parsePoll({ total: 2, counts: { remittance: 1, "fraud-toolkit": 1 }, mine: null, roles: { "fraud-toolkit": ["data"] } })!;
+    const first = applyVote(d, "remittance", "engineer");
+    const moved = applyVote(first, "fraud-toolkit", "engineer");
+    expect(moved.roles?.remittance).toEqual([]);
+    expect(moved.roles?.["fraud-toolkit"]).toEqual(["engineer", "data"]);
+    expect([moved.counts.remittance, moved.counts["fraud-toolkit"]]).toEqual([1, 2]);
   });
 });
