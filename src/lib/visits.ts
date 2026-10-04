@@ -6,7 +6,7 @@
 // can leave a tally off by one: rebuildTallies repairs that.
 //
 // D1 cost note (assumption, KG1): the free tier is about 5M rows read per day,
-// shared with every page render (loadSite is force-dynamic). getStats runs ONE
+// (page renders read bundled content, not D1; /api/stats is also edge-cached 30 s). getStats runs ONE
 // SELECT over VisitTally (distinct role x country cells seen, expected < 500
 // rows) and memoises it for 10 s per isolate: worst case about 4.3M rows/day per
 // isolate under constant traffic. Lengthen STATS_MEMO_MS to 30 s if real

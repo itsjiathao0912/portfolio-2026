@@ -23,10 +23,6 @@ import { loadSite } from "@/lib/load";
 import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_TITLE } from "@/lib/seo/site-meta";
 import { SITE_URL } from "@/lib/seo/site-url";
 
-// Every page reads the database per request; there is no Cloudflare context at
-// build time, so nothing may be prerendered.
-export const dynamic = "force-dynamic";
-
 // Static (no DB read) so the head is identical at build and request time.
 // Pages override title/description/canonical via src/lib/seo/metadata.ts; the
 // share image for each route is its colocated opengraph-image file.

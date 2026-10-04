@@ -20,6 +20,11 @@ interface Params {
   params: Promise<{ slug: string }>;
 }
 
+/** Every published case study prerenders at build (content is bundled). */
+export async function generateStaticParams() {
+  return (await loadProjects()).map((p) => ({ slug: p.slug }));
+}
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const project = await loadProject(slug);

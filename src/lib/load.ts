@@ -1,41 +1,28 @@
 import { cache } from "react";
-import { getDb } from "./db";
-import { invalidRowPolicy } from "./bundled-projects";
-import { getPublishedProjectBySlug, InvalidProjectRowsError, listPublishedProjects } from "./projects";
-import { getSiteContent } from "./site";
+import { siteEntry } from "../../content/index.ts";
+import { parseSite } from "../../content/schema.ts";
+import { bundledProjects } from "./bundled-projects";
 
-// Per-request memoised loaders, shared by the layout, pages and metadata.
-// A database failure is logged and turned into an empty/error result, so the
-// shell (nav, footer, 404) still renders.
+// Page renders read the content/ bundled into the build, not D1. Content only
+// changes on deploy (deploy-prod re-seeds D1 from the same content/), so the
+// pages can prerender and be served from the edge cache (see worker-entry.mjs).
+// This keeps every page render off D1 and under the Workers Free CPU cap.
+// D1 still backs /api/* (visits, stats, poll) and /api/health.
 
 export const loadSite = cache(async () => {
-  try {
-    const result = await getSiteContent(getDb());
-    return result.ok ? result.site : null;
-  } catch (error) {
-    console.error("[load] site content unavailable:", error);
+  const result = parseSite(siteEntry);
+  if (!result.ok) {
+    console.error("[load] bundled site content is invalid:", result.errors);
     return null;
   }
+  return result.site;
 });
 
-export const loadProjects = cache(async () => {
-  try {
-    return (await listPublishedProjects(getDb(), invalidRowPolicy(process.env))).projects;
-  } catch (error) {
-    // A stale/invalid row must surface, never become an empty page.
-    if (error instanceof InvalidProjectRowsError) throw error;
-    console.error("[load] projects unavailable:", error);
-    return [];
-  }
-});
+const publishedProjects = () =>
+  bundledProjects()
+    .filter((p) => p.published)
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
 
-export const loadProject = cache(async (slug: string) => {
-  try {
-    const result = await getPublishedProjectBySlug(getDb(), slug, invalidRowPolicy(process.env));
-    return result.ok ? result.project : null;
-  } catch (error) {
-    if (error instanceof InvalidProjectRowsError) throw error;
-    console.error("[load] project unavailable:", error);
-    return null;
-  }
-});
+export const loadProjects = cache(async () => publishedProjects());
+
+export const loadProject = cache(async (slug: string) => publishedProjects().find((p) => p.slug === slug) ?? null);

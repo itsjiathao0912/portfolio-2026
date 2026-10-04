@@ -193,5 +193,25 @@ if (!verdict.ok) {
   process.exit(1);
 }
 
+// ── Warm the edge cache (worker-entry.mjs) so the first visitors get cheap hits ──
+const slugs = pinned.projects.filter((p) => p.published).map((p) => p.slug);
+const warmPaths = ["/", "/about", "/work", ...slugs.map((s) => `/work/${s}`), "/robots.txt", "/sitemap.xml"];
+console.log(`\n=== warm edge cache (${warmPaths.length} paths) ===`);
+for (const p of warmPaths) {
+  try {
+    const r = await fetch(`${siteUrl}${p}`);
+    await r.arrayBuffer();
+    console.log(`  ${p}: ${r.status} ${r.headers.get("x-edge-cache") ?? "-"}`);
+  } catch (error) {
+    console.log(`  ${p}: failed (${error instanceof Error ? error.message : error})`);
+  }
+}
+await new Promise((resolve) => setTimeout(resolve, 1000));
+const again = await fetch(`${siteUrl}/`);
+await again.arrayBuffer();
+const edge = again.headers.get("x-edge-cache");
+if (edge === "HIT") console.log("Edge cache OK — a second fetch of / is a HIT.");
+else console.warn(`WARNING: a second fetch of / returned x-edge-cache=${edge ?? "(none)"}, expected HIT. Pages are served but not cached at this data centre.`);
+
 console.log(`Smoke OK — live site serves the home page and D1 returned ${verdict.projects} published project(s).`);
 console.log(`Deployed ${sha.slice(0, 8)} to ${siteUrl}`);
