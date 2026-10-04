@@ -96,7 +96,9 @@ export function VisitorPoll({ className }: { className?: string }) {
               const mine = data.mine === row.id;
               const faces = data.roles?.[row.id as PollOptionId] ?? [];
               const fill = mine ? MINE_FILL : FILLS[i % FILLS.length];
-              const width = revealed ? Math.max(row.count > 0 ? 0.06 : 0, row.fraction) : 0;
+              // Under 20 votes a bar would be a percentage in disguise: every row gets the same soft full-width tint; from 20 votes the bars fill to their share.
+              const calm = !view.showPercent;
+              const width = !revealed ? 0 : calm ? 1 : Math.max(row.count > 0 ? 0.06 : 0, row.fraction);
               return (
                 <motion.button
                   key={row.id}
@@ -125,10 +127,11 @@ export function VisitorPoll({ className }: { className?: string }) {
                   <motion.span
                     aria-hidden="true"
                     data-testid={`poll-bar-${row.id}`}
+                    data-mode={calm ? "tint" : "share"}
                     className="absolute inset-y-0 left-0 w-full origin-left"
                     style={{ background: fill }}
                     initial={false}
-                    animate={{ scaleX: width }}
+                    animate={{ scaleX: width, opacity: calm && !mine ? 0.45 : 1 }}
                     transition={reduce ? { duration: 0 } : { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: i * 0.05 }}
                   />
                   <span className="relative flex items-center gap-3 text-[14px] leading-snug">

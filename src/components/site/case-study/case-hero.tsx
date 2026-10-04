@@ -67,11 +67,11 @@ export function CaseHero({ project, coverId }: { project: Project; coverId: stri
       {layout === "magazine" ? <div aria-hidden="true" className={cn("h-2 w-full", TINT_BG[meta.tint])} /> : null}
       <div className={cn("mx-auto flex flex-col px-5 pt-32 md:pt-[150px]", layout === "magazine" ? "max-w-[800px] items-start text-left" : "max-w-[960px] items-center text-center")}>
         <motion.div {...rise(0)} className="flex items-center gap-3" data-testid="project-badge">
-          <span className="flex size-12 items-center justify-center overflow-hidden rounded-md bg-bg shadow-2">
+          <span data-testid="hero-emoji-tile" className="flex size-20 items-center justify-center overflow-hidden rounded-2xl bg-bg shadow-2">
             {meta.logo ? (
-              <Image src={meta.logo} alt="" width={36} height={36} unoptimized className="size-8 object-contain" />
+              <Image src={meta.logo} alt="" width={56} height={56} unoptimized className="size-14 object-contain" />
             ) : (
-              <ProjectEmoji project={project.slug} size={32} play />
+              <ProjectEmoji project={project.slug} size={56} play />
             )}
           </span>
           <span className="flex flex-col items-start text-left">

@@ -285,3 +285,28 @@ test.describe("iteration 4: stops, morph, walkthrough", () => {
     for (const t of await bar.getByTestId("legend-toggle").all()) expect((await t.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   });
 });
+
+test.describe("case hero emoji", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  test("fills ~60-70% of its tile, plays from a 128px source, and is still under reduced motion", async ({ page }) => {
+    await page.goto("/work/ledgr"); // no logo: the emoji fills the tile
+    const tile = page.getByTestId("hero-emoji-tile");
+    const img = tile.getByTestId("project-emoji");
+    await expect(img).toHaveAttribute("data-playing", "true");
+    const m = await img.evaluate((e) => {
+      const i = e as HTMLImageElement;
+      const t = e.parentElement!.getBoundingClientRect();
+      return { ratio: i.getBoundingClientRect().width / t.width, src: i.currentSrc, natural: i.naturalWidth };
+    });
+    console.log(`[R9] hero emoji: ${(m.ratio * 100).toFixed(0)}% of tile, natural ${m.natural}px, ${m.src}`);
+    expect(m.ratio).toBeGreaterThanOrEqual(0.6);
+    expect(m.ratio).toBeLessThanOrEqual(0.72);
+    expect(m.src).toMatch(/-128\.webp$/);
+    await expect.poll(() => img.evaluate((e) => (e as HTMLImageElement).naturalWidth)).toBeGreaterThanOrEqual(112);
+    await tile.screenshot({ path: "process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R9-shots/case-hero-emoji-1440.png" });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.reload();
+    await expect(page.getByTestId("hero-emoji-tile").getByTestId("project-emoji")).toHaveAttribute("data-playing", "false");
+    await expect(page.getByTestId("hero-emoji-tile").getByTestId("project-emoji")).toHaveAttribute("src", /-128-still\.webp$/);
+  });
+});

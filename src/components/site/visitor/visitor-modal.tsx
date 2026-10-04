@@ -53,13 +53,14 @@ function Sheet({ onClose, onPick }: { onClose: () => void; onPick: (role: RoleId
       onClick={(e) => {
         if (e.target === ref.current) ref.current?.close(); // click on the backdrop
       }}
-      className="m-auto max-h-[92dvh] w-[min(960px,calc(100vw-24px))] overflow-visible bg-transparent p-0 backdrop:bg-ink-1/30 backdrop:backdrop-blur-sm"
+      className="m-auto max-h-[calc(100dvh-24px-env(safe-area-inset-top)-env(safe-area-inset-bottom))] w-[min(960px,calc(100vw-24px))] overflow-visible bg-transparent p-0 backdrop:bg-ink-1/30 backdrop:backdrop-blur-sm"
     >
       <motion.div
         initial={reduce ? false : { opacity: 0, y: 12, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: reduce ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
-        className="relative max-h-[92dvh] overflow-y-auto rounded-[24px] border border-white/60 bg-bg/80 p-5 shadow-3 backdrop-blur-xl md:p-7"
+        data-testid="visitor-modal-scroll"
+        className="relative max-h-[calc(100dvh-24px-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain rounded-[24px] border border-white/60 bg-bg/80 p-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-3 backdrop-blur-xl md:p-7"
       >
         <button
           type="button"
@@ -70,6 +71,8 @@ function Sheet({ onClose, onPick }: { onClose: () => void; onPick: (role: RoleId
           <span aria-hidden="true">×</span>
         </button>
         <RolePicker onPick={(role) => { ref.current?.close(); onPick(role); }} autoFocus={false} labelId="visitor-modal-label" />
+        {/* Scroll cue: a soft fade pinned to the sheet bottom while more cards sit below. */}
+        <div aria-hidden="true" className="pointer-events-none sticky -bottom-6 -mx-5 -mb-6 h-8 bg-gradient-to-t from-bg/90 to-transparent md:hidden" />
       </motion.div>
     </dialog>
   );

@@ -17,10 +17,12 @@ export function ProjectEmoji({ project, size = 24, play = false, className }: { 
   const file = emojiFileFor(project);
   if (!file) return <span aria-hidden="true" className={className}>{emojiFor(project)}</span>;
   const playing = (play || hover) && !reduce;
+  // 64 px sources blur past ~32 CSS px on a 2x screen: big uses (the case hero) load the 128 px set.
+  const res = size > 32 ? "-128" : "";
   return (
     // eslint-disable-next-line @next/next/no-img-element -- tiny animated webp; next/image would re-encode and drop frames.
     <img
-      src={`/emoji/${file}${playing ? "" : "-still"}.webp`}
+      src={`/emoji/${file}${res}${playing ? "" : "-still"}.webp`}
       alt=""
       aria-hidden="true"
       width={size}

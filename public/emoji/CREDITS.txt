@@ -2,3 +2,4 @@ Animated emoji: Telegram animated emoji set, fetched via SpaceUI Emoji
 (https://www.spaceui.one/tools/emoji, @usespaceui/emoji, MIT, (c) 2026 Space UI)
 from https://cdn.spaceui.one/common/emoji/telegram/anim/{codepoint}.webp,
 downscaled to 64x64. *-still.webp = last frame, for idle / reduced motion.
+*-128.webp / *-128-still.webp = the same set downscaled to 128x128, for large uses (case hero).
