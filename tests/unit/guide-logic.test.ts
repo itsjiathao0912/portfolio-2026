@@ -191,3 +191,72 @@ describe("lines", () => {
     expect(nextLine("founder", "statement", new Set(["highlights", "stack", "people", "linkedin", "contact", "statement"] as const))).toBeNull();
   });
 });
+
+// ---- the body as a physical object: swept landing, no fades -----------------------------
+import { FLOOR_KEY, makeScene, NO_INPUT, standingBody, stepBody, type Body } from "../../src/components/site/visitor/guide/guide-physics";
+import { floorY } from "../../src/components/site/visitor/guide/guide-logic";
+
+describe("swept landing (physics)", () => {
+  const v: View = { w: 1000, h: 800, scrollY: 1000, docH: 5000, nav: 72 };
+  const fall = (y: number, vy: number, surfaces: Surface[]): Body => {
+    const sc = makeScene(surfaces, v);
+    return { ...standingBody(500, null, sc), mode: "air", surface: null, y, vy, vx: 0 };
+  };
+  test("at terminal fall speed it never tunnels: thin, close surfaces are each caught", () => {
+    // Two edges 3 px apart, a body falling at 2400 px/s (20 px per 1/120 s sub-step).
+    const thin = [S("a", 1500, 400, 600), S("b", 1503, 400, 600)];
+    const sc = makeScene(thin, v);
+    let b = fall(1300, 2400, thin);
+    for (let i = 0; i < 60 && b.mode === "air"; i++) b = stepBody(b, NO_INPUT, 1 / 60, sc);
+    // Lands (possibly after one small rebound) on the FIRST edge it crosses, never the lower one.
+    for (let i = 0; i < 120 && b.mode === "air"; i++) b = stepBody(b, NO_INPUT, 1 / 60, sc);
+    expect([b.mode, b.surface, b.y]).toEqual(["ground", "a", 1500]);
+  });
+  test("a single huge frame (clamped dt) still lands on the first surface it crosses", () => {
+    const surfaces = [S("hi", 1400, 0, 1000), S("lo", 1600, 0, 1000)];
+    const sc = makeScene(surfaces, v);
+    let b = fall(1300, 2400, surfaces);
+    b = stepBody(b, NO_INPUT, 1, sc); // a 1 s hitch
+    for (let i = 0; i < 200 && b.mode === "air"; i++) b = stepBody(b, NO_INPUT, 1 / 60, sc);
+    expect(b.surface).toBe("hi");
+    expect(b.y).toBe(1400);
+  });
+  test("lands on the first surface under its column, not one off to the side", () => {
+    const surfaces = [S("side", 1350, 0, 200), S("under", 1500, 400, 600)];
+    const sc = makeScene(surfaces, v);
+    let b = fall(1300, 0, surfaces);
+    for (let i = 0; i < 200 && (b.mode === "air" || b.landSeq === 0); i++) b = stepBody(b, NO_INPUT, 1 / 60, sc);
+    expect(b.surface).toBe("under");
+  });
+  test("nothing under it: the viewport floor holds it, feet exactly on the floor line", () => {
+    const sc = makeScene([], v);
+    let b = fall(1300, 0, []);
+    for (let i = 0; i < 200 && (b.mode === "air" || b.landSeq === 0); i++) b = stepBody(b, NO_INPUT, 1 / 60, sc);
+    expect([b.surface, b.y]).toEqual([FLOOR_KEY, floorY(v)]);
+  });
+  test("the body model has no fade or hidden state: only ground and air", () => {
+    const b = standingBody(500, null, makeScene([], v));
+    expect(Object.keys(b).some((k) => /opacity|fade|tuck|hidden|visible/i.test(k))).toBe(false);
+    expect(["ground", "air"]).toContain(b.mode);
+  });
+});
+
+describe("drawnEdge: only visibly drawn top edges are platforms", () => {
+  const cs = (o: Partial<Record<string, string>>) => ({ backgroundColor: "rgba(0, 0, 0, 0)", backgroundImage: "none", borderTopWidth: "0px", borderTopStyle: "none", borderTopColor: "rgb(0, 0, 0)", boxShadow: "none", outlineWidth: "0px", outlineStyle: "none", outlineColor: "rgb(0, 0, 0)", ...o }) as unknown as CSSStyleDeclaration;
+  test("a transparent wrapper is not; a background, top border or shadow is; media and hr always are", async () => {
+    const { drawnEdge } = await import("../../src/components/site/visitor/guide/guide-dom");
+    expect(drawnEdge("DIV", cs({}))).toBe(false);
+    expect(drawnEdge("DIV", cs({ backgroundColor: "transparent" }))).toBe(false);
+    expect(drawnEdge("DIV", cs({ backgroundColor: "rgb(255, 255, 255)" }))).toBe(true);
+    expect(drawnEdge("DIV", cs({ borderTopWidth: "1px", borderTopStyle: "solid" }))).toBe(true);
+    expect(drawnEdge("DIV", cs({ borderTopWidth: "1px", borderTopStyle: "solid", borderTopColor: "rgba(0, 0, 0, 0)" }))).toBe(false);
+    expect(drawnEdge("ARTICLE", cs({ boxShadow: "0 1px 2px black" }))).toBe(true);
+    expect(drawnEdge("IMG", cs({}))).toBe(true);
+    expect(drawnEdge("svg", cs({}))).toBe(true);
+    expect(drawnEdge("HR", cs({}))).toBe(true);
+    expect(drawnEdge("P", cs({}))).toBe(false);
+    // A fill only counts when it differs visibly from what is behind it.
+    expect(drawnEdge("SECTION", cs({ backgroundColor: "rgb(247, 247, 247)" }), "rgb(255, 255, 255)")).toBe(false);
+    expect(drawnEdge("DIV", cs({ backgroundColor: "rgb(230, 230, 232)" }), "rgb(255, 255, 255)")).toBe(true);
+  });
+});

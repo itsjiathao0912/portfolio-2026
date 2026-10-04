@@ -11,19 +11,41 @@
 import { GUIDE_SECTION_IDS, type GuideSectionId } from "../role-ids";
 import { CHAR, type Ink, MIN_SURFACE_W, type Rect, type Span, type Surface } from "./guide-logic";
 
-const TEXT_TAGS = new Set(["H1", "H2", "H3", "P"]);
-/** Headings, paragraphs, images, buttons, cards (article / figure) and anything tagged `data-guide-surface`. */
-const SURFACE_SELECTOR = "h1,h2,h3,p,img,button,article,figure,[data-guide-surface]";
+/**
+ * Candidates for a VISIBLY DRAWN top edge. A text line box or a transparent wrapper is never a
+ * platform: only media, dividers, and boxes that paint something (background, top border,
+ * shadow or outline) count. See `drawnEdge`.
+ */
+const SURFACE_SELECTOR = "img,svg,video,canvas,picture,iframe,hr,div,section,article,figure,aside,li,ul,ol,a,button,blockquote,table,form,[role='radio'],[data-guide-surface]";
+const MEDIA_TAGS = new Set(["IMG", "SVG", "VIDEO", "CANVAS", "PICTURE", "IFRAME"]);
 /** Never stand on these: chrome, hidden or decorative subtrees, and the marquee strips that slide sideways. */
 const CHROME_SELECTOR = "header,nav,dialog,[inert],[hidden],[aria-hidden='true'],[data-guide-skip],[data-testid='section-logos'],[data-testid='proof-ticker'],.fixed";
-/** Standing: chrome, the role tiles (a character on a character reads as a collision) and the live stat numbers (they roll, so their glyph box moves). */
-const SKIP_SELECTOR = `${CHROME_SELECTOR},[role='radio'],[data-testid='visitor-stats-strip']`;
-const MAX_SURFACES = 320;
-/** Feet rest this far below the top of the first line's glyph box: on the letters' shoulders, never sunk into them. */
-const LINE_SINK = 1;
-/** A block inside one of these is part of a card: standing on it would put the body inside the card. */
-const CARD_SELECTOR = "li,article,figure,a,button,[data-guide-surface]";
+const SKIP_SELECTOR = CHROME_SELECTOR;
+const MAX_SURFACES = 600;
 const NEAR = 360; // px beyond the viewport that still gets refreshed each frame
+
+const transparent = (c: string) => !c || c === "transparent" || /^rgba\([^)]*,\s*0(\.0+)?\s*\)$|\/\s*0(\.0+)?\s*\)$/.test(c);
+
+const rgb = (c: string) => (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+/** Is fill `a` visibly different from `b` (some channel differs by at least 12/255)? A near-white band on white draws no edge the eye finds. */
+export function distinct(a: string, b?: string) {
+  if (!b) return true;
+  const x = rgb(a);
+  const y = rgb(b);
+  if (x.length < 3 || y.length < 3) return a !== b;
+  return Math.max(...x.map((v, i) => Math.abs(v - y[i]!))) >= 12;
+}
+
+/** Does this element draw a top edge the eye can see? Media and dividers always do; a box only with a background, top border, shadow or outline. */
+export function drawnEdge(tag: string, cs: CSSStyleDeclaration, behind?: string) {
+  if (MEDIA_TAGS.has(tag.toUpperCase()) || tag.toUpperCase() === "HR") return true;
+  // A fill the same colour as what is behind it draws no edge (a section painted "canvas" on a canvas page).
+  const bg = (!transparent(cs.backgroundColor) && distinct(cs.backgroundColor, behind)) || (cs.backgroundImage !== "none" && cs.backgroundImage !== "");
+  const border = Number.parseFloat(cs.borderTopWidth) > 0 && cs.borderTopStyle !== "none" && cs.borderTopStyle !== "hidden" && !transparent(cs.borderTopColor);
+  const shadow = cs.boxShadow !== "none" && cs.boxShadow !== "";
+  const outline = Number.parseFloat(cs.outlineWidth) > 0 && cs.outlineStyle !== "none" && !transparent(cs.outlineColor);
+  return bg || border || shadow || outline;
+}
 
 export type Tracked = {
   el: Element;
@@ -49,52 +71,59 @@ const isSection = (v: string | undefined): v is GuideSectionId => !!v && (GUIDE_
 
 /** Collect the standable blocks under the given roots. `guideRoot` is excluded. */
 export function collectTracked(roots: readonly Element[], guideRoot: Element | null, scrollY: number, vw: number): Tracked[] {
-  const seen = new Set<Element>();
   const out: Tracked[] = [];
-  const range = document.createRange();
+  const drawn = new Map<Element, boolean>();
+  const fills = new Map<Element, string>();
+  // The colour showing behind an element: the nearest ancestor's opaque fill, else the page's.
+  const behindOf = (el: Element): string => {
+    const a = el.parentElement;
+    if (!a) return getComputedStyle(document.body).backgroundColor;
+    let f = fills.get(a);
+    if (f === undefined) {
+      const c = getComputedStyle(a).backgroundColor;
+      f = transparent(c) ? behindOf(a) : c;
+      fills.set(a, f);
+    }
+    return f;
+  };
+  const isDrawn = (el: Element) => {
+    let v = drawn.get(el);
+    if (v === undefined) {
+      const cs = getComputedStyle(el);
+      v = cs.display !== "none" && cs.visibility !== "hidden" && Number.parseFloat(cs.opacity) >= 0.05 && drawnEdge(el.tagName, cs, behindOf(el));
+      drawn.set(el, v);
+    }
+    return v;
+  };
   for (const root of roots) {
     for (const el of root.querySelectorAll(SURFACE_SELECTOR)) {
       if (out.length >= MAX_SURFACES) break;
-      if (seen.has(el) || guideRoot?.contains(el) || el.closest(SKIP_SELECTOR)) continue;
-      seen.add(el);
+      if (guideRoot?.contains(el) || el.closest(SKIP_SELECTOR) || el.closest("svg") !== el && el.closest("svg")) continue;
       const r = el.getBoundingClientRect();
-      if (r.width < MIN_SURFACE_W || r.height < 14) continue;
-      const cs = getComputedStyle(el);
-      if (cs.visibility === "hidden" || cs.display === "none" || Number.parseFloat(cs.opacity) < 0.05) continue;
-
-      let relL = 0;
-      let relR = r.width;
-      let relT = 0;
-      if (TEXT_TAGS.has(el.tagName)) {
-        range.selectNodeContents(el);
-        const rects = [...range.getClientRects()].filter((q) => q.width > 3 && q.height > 6);
-        if (rects.length > 0) {
-          const top = Math.min(...rects.map((q) => q.top));
-          const line = rects.filter((q) => q.top - top < q.height * 0.5);
-          // A little forgiving on both ends: feet may overhang the last letter.
-          relL = Math.min(...line.map((q) => q.left)) - r.left - 20;
-          relR = Math.max(...line.map((q) => q.right)) - r.left + 20;
-          relT = top - r.top + LINE_SINK;
+      if (r.width < MIN_SURFACE_W || r.height < (el.tagName === "HR" ? 0.5 : 2)) continue;
+      if (!isDrawn(el)) continue;
+      // Never inside a card: an edge within a drawn (non page-wide) box would put the body inside that box.
+      let inside = false;
+      for (let a = el.parentElement; a && a !== root.parentElement; a = a.parentElement) {
+        if (!isDrawn(a)) continue;
+        const ar = a.getBoundingClientRect();
+        if (ar.width < vw * 0.92 && r.top - ar.top > 1) {
+          inside = true;
+          break;
         }
       }
-      if (relR - relL < MIN_SURFACE_W) continue;
-      // A title or line inside a card: the card's own top edge is the platform, not a line the body would stand inside the card on.
-      const card = el.parentElement?.closest(CARD_SELECTOR);
-      if (card && !card.closest(SKIP_SELECTOR) && r.top + relT - card.getBoundingClientRect().top < CHAR.h) continue;
-
+      if (inside) continue;
+      // Covered by another opaque box right at its edge (in view only; off screen it is re-checked on the next collect).
+      if (r.top >= 0 && r.top < window.innerHeight - 2) {
+        const hit = document.elementFromPoint(Math.min(vw - 1, Math.max(0, (Math.max(0, r.left) + Math.min(vw, r.right)) / 2)), r.top + 1);
+        if (hit && hit !== el && !el.contains(hit) && !hit.contains(el) && isDrawn(hit) && !hit.closest(SKIP_SELECTOR)) continue;
+      }
       const sec = el.closest<HTMLElement>("[data-guide-id]")?.dataset.guideId;
-      const surface: Surface = {
-        key: keyOf(el),
-        id: isSection(sec) ? sec : null,
-        left: Math.max(0, r.left + relL),
-        right: Math.min(vw, r.left + relR),
-        top: r.top + scrollY + relT,
-      };
-      out.push({ el, surface, relL, relR, relT });
+      const surface: Surface = { key: keyOf(el), id: isSection(sec) ? sec : null, left: Math.max(0, r.left), right: Math.min(vw, r.right), top: r.top + scrollY };
+      out.push({ el, surface, relL: 0, relR: r.width, relT: 0 });
     }
   }
-  range.detach();
-  // Two blocks sharing one edge (a card and the heading flush at its top) are one platform: keep the first.
+  // Two boxes sharing one edge are one platform: keep the first.
   const dedup: Tracked[] = [];
   for (const t of out) {
     const s = t.surface;

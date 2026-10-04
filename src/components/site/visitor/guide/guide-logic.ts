@@ -21,8 +21,11 @@ export type Span = { id: GuideSectionId; top: number; bottom: number };
 /** The window onto the page: size, scroll offset, document height and the fixed nav band's bottom (viewport px). */
 export type View = { w: number; h: number; scrollY: number; docH: number; nav: number };
 
-/** The character's body box in px (the clay figure at size 68: 100 x 164 viewBox). */
-export const CHAR = { w: 68, h: 112 } as const;
+/** The clay full-body viewBox (w x h), see clay-avatar.tsx FULL. The body box height derives from it so the svg fills the box exactly. */
+export const CLAY_FULL_VIEWBOX = { w: 100, h: 150 } as const;
+const CHAR_W = 68;
+/** The character's body box in px: the clay figure at size 68, height from the viewBox ratio (the clay svg rounds the same way). */
+export const CHAR = { w: CHAR_W, h: Math.round((CHAR_W * CLAY_FULL_VIEWBOX.h) / CLAY_FULL_VIEWBOX.w) } as const;
 /** Minimum gap between the character and the viewport sides / bottom. */
 export const EDGE = 12;
 /** Extra gap kept below the nav band. */
@@ -32,7 +35,7 @@ export const MAX_PASSIVE_LINES = 6;
 /** Below this viewport width the guide is not shown at all. */
 export const MIN_GUIDE_WIDTH = 360;
 /** Surfaces narrower than this are not worth standing on. */
-export const MIN_SURFACE_W = 56;
+export const MIN_SURFACE_W = 40;
 
 /** The home sections the guide may talk about, in page order (always <= 6). */
 export const GUIDE_SECTIONS: readonly GuideSectionId[] = GUIDE_SECTION_IDS;

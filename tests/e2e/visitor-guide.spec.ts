@@ -29,30 +29,82 @@ const box = async (page: Page) => (await guide(page).boundingBox())!;
 const mode = (page: Page) => guide(page).getAttribute("data-guide-mode");
 /** The model's feet: [x, y] in page px. */
 const feet = async (page: Page) => ((await guide(page).getAttribute("data-guide-feet")) ?? "0,0").split(",").map(Number) as [number, number];
-/**
- * Scroll down until the guide stands on a real block with at least `min` blocks in view. Where every spot
- * would cover reading text it steps out of view instead (data-guide-tucked), so mechanics are tested elsewhere.
- */
+/** Scroll down until the guide stands on a real block (not the floor) with at least `min` blocks in view. */
 async function scrollToSpot(page: Page, from: number, min = 1) {
   for (let y = from; y < from + 9000; y += 350) {
     await page.evaluate((v) => scrollTo(0, v), y);
     await page.waitForTimeout(900);
     const ok = await guide(page).evaluate((n, m) => {
       const d = (n as HTMLElement).dataset;
-      return d.guideTucked !== "true" && d.guideSurfaceKey !== "floor" && Number(d.guideInView ?? 0) >= m;
+      return d.guideSurfaceKey !== "floor" && Number(d.guideInView ?? 0) >= m;
     }, min).catch(() => false);
     if (ok) return y;
   }
   throw new Error("no clear block found");
 }
-/** Settled: on the ground, and still there 700 ms later (squash, rebound, or a short hop to a clear spot have finished). */
+/** Settled: on the ground with no physics frame for 700 ms (squash, rebound, a short hop and the pose easing have finished). */
+/**
+ * Where the painted soles are, and what is drawn right under them. Passes when the pixel row
+ * 2 px under the sole belongs to an element whose top edge is within 1 px of the sole AND that
+ * draws a visible edge (media, divider, or a background / top border / shadow / outline), or
+ * when the sole is on the viewport floor (innerHeight - 12).
+ */
+async function contact(page: Page) {
+  return page.evaluate(() => {
+    const g = document.querySelector<HTMLElement>("[data-testid=visitor-guide]");
+    if (!g) return { ok: false, why: "no guide" };
+    const svg = g.querySelector("svg")!;
+    let sole = -1e9;
+    let cx = 0;
+    for (const n of svg.querySelectorAll("path,ellipse,circle,rect,polygon")) {
+      if (n.closest("defs,clipPath,mask,pattern")) continue;
+      const q = n.getBoundingClientRect();
+      if (q.width && q.height && q.bottom > sole) {
+        sole = q.bottom;
+        cx = q.left + q.width / 2;
+      }
+    }
+    const opacity = getComputedStyle(g).opacity;
+    const floor = innerHeight - 12;
+    if (Math.abs(sole - floor) <= 1) return { ok: true, why: "floor", sole, opacity };
+    const clear = (c: string) => !c || c === "transparent" || /^rgba\([^)]*,\s*0(\.0+)?\s*\)$|\/\s*0(\.0+)?\s*\)$/.test(c);
+    const behind = (e: Element): string => {
+      for (let a = e.parentElement; a; a = a.parentElement) {
+        const c = getComputedStyle(a).backgroundColor;
+        if (!clear(c)) return c;
+      }
+      return getComputedStyle(document.body).backgroundColor;
+    };
+    const drawn = (e: Element) => {
+      if (["IMG", "svg", "SVG", "VIDEO", "CANVAS", "PICTURE", "IFRAME", "HR"].includes(e.tagName)) return true;
+      const cs = getComputedStyle(e);
+      const ch = (c: string) => (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+      const far = (p: string, q: string) => Math.max(...ch(p).map((v, i) => Math.abs(v - (ch(q)[i] ?? v)))) >= 12;
+      return (!clear(cs.backgroundColor) && far(cs.backgroundColor, behind(e))) || cs.backgroundImage !== "none" || (Number.parseFloat(cs.borderTopWidth) > 0 && cs.borderTopStyle !== "none" && !clear(cs.borderTopColor)) || cs.boxShadow !== "none" || (Number.parseFloat(cs.outlineWidth) > 0 && cs.outlineStyle !== "none");
+    };
+    const stand = document.querySelector("[data-guide-standing]");
+    const cands = [...document.elementsFromPoint(cx, sole + 2), ...(stand ? [stand] : [])];
+    for (const e of cands) {
+      if (g.contains(e)) continue;
+      const t = e.getBoundingClientRect().top;
+      if (Math.abs(t - sole) <= 1 && drawn(e)) return { ok: true, why: e.tagName, sole, opacity };
+    }
+    const under = document.elementsFromPoint(cx, sole + 2).filter((e) => !g.contains(e)).slice(0, 2).map((e) => `${e.tagName}@${Math.round(e.getBoundingClientRect().top)}`);
+    return { ok: false, why: "nothing drawn under the soles", sole, feet: Number(g.dataset.guideFeet?.split(",")[1]) - scrollY, pad: g.dataset.guideFootPad, svgB: svg.getBoundingClientRect().bottom, under, mode: g.dataset.guideMode, key: g.dataset.guideSurfaceKey, opacity };
+  });
+}
+
 async function landed(page: Page) {
   await expect
     .poll(
       async () => {
         if ((await mode(page)) !== "ground") return false;
+        // At rest the rAF loop stops: no new frame for a while means no hop, squash or walk is under way.
+        // Settled = the model's feet and the painted figure have not moved for 700 ms.
+        const snap = () => guide(page).evaluate((n) => `${(n as HTMLElement).dataset.guideFeet}|${(n as HTMLElement).style.transform}|${(n.querySelector("svg")?.getBoundingClientRect().bottom ?? 0).toFixed(1)}|${scrollY}`);
+        const a = await snap();
         await page.waitForTimeout(700);
-        return (await mode(page)) === "ground";
+        return (await mode(page)) === "ground" && (await snap()) === a;
       },
       { timeout: 10000 },
     )
@@ -125,7 +177,8 @@ test.describe("desktop", () => {
     const errors = trackErrors(page);
     await seed(page);
     await page.goto("/");
-    await page.evaluate(() => scrollTo(0, 2000));
+    await expect(guide(page)).toBeAttached();
+    await scrollToSpot(page, 1600);
     await expect(guide(page)).toBeVisible();
     await landed(page);
     const [, fy] = await feet(page);
@@ -136,16 +189,28 @@ test.describe("desktop", () => {
       return { top: r.top + scrollY, h: r.height, tag: el.tagName, fs: Number.parseFloat(getComputedStyle(el).fontSize) };
     });
     expect(stand).not.toBeNull();
-    // Feet are on the block's top edge (boxes) or at its cap height (text): never floating or sunk.
-    expect(fy).toBeGreaterThanOrEqual(stand!.top - 1.5);
-    expect(fy).toBeLessThanOrEqual(stand!.top + (["H1", "H2", "H3", "P"].includes(stand!.tag) ? stand!.fs * 0.5 : 1.5));
-    // The painted figure agrees with the model, and a small scroll moves the page under it with zero drift.
+    // Feet are exactly on the block's drawn top edge: never floating or sunk.
+    expect(Math.abs(fy - stand!.top)).toBeLessThanOrEqual(1);
+    // The painted soles agree with the model, and a small scroll moves the page under it with zero drift.
+    expect((await contact(page)).ok).toBe(true);
     const b0 = await box(page);
-    expect(Math.abs(b0.y + b0.height - 4 + (await page.evaluate(() => scrollY)) - fy)).toBeLessThan(1.5);
-    await page.mouse.wheel(0, 60);
-    await page.waitForTimeout(120);
+    // Scroll up a little (the block moves down, away from the nav): the body rides it with zero drift.
+    const sy0 = await page.evaluate(() => scrollY);
+    // Only a nudge that keeps the block on screen (a block pushed past the floor rightly makes it hop off).
+    const room = (await page.evaluate(() => innerHeight - 12)) - (fy - sy0);
+    const d = Math.max(0, Math.min(40, room - 4));
+    await page.evaluate((v) => scrollBy(0, -v), d);
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
     const b1 = await box(page);
-    expect(Math.abs(b1.y - b0.y + (await page.evaluate(() => scrollY)) - 2000)).toBeLessThan(3);
+    const sy1 = await page.evaluate(() => scrollY);
+    // It rides whatever it stands on with zero drift: the painted figure moves exactly as its block moves
+    // (with the page for a normal block, not at all for a sticky one).
+    const top1 = await page.evaluate(() => document.querySelector("[data-guide-standing]")?.getBoundingClientRect().top ?? null);
+    if (top1 !== null) {
+      expect(Math.abs(b1.y - b0.y - (top1 - (stand!.top - sy0)))).toBeLessThan(1.5);
+      expect((await contact(page)).ok).toBe(true);
+    }
+    expect(sy1).toBeLessThanOrEqual(sy0);
     expect(errors).toEqual([]);
   });
 
@@ -175,6 +240,7 @@ test.describe("desktop", () => {
     const y0 = await page.evaluate(() => scrollY);
     await page.keyboard.press("ArrowDown");
     await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(y0);
+    await page.waitForTimeout(500); // let the ArrowDown scroll finish before measuring
     const y2 = await page.evaluate(() => scrollY);
     await page.keyboard.press("Space");
     await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(y2);
@@ -223,7 +289,6 @@ test.describe("desktop", () => {
     await page.evaluate(() => scrollTo(0, 2000));
     await expect(guide(page)).toBeVisible();
     await landed(page);
-    const [, y0] = await feet(page);
     const k0 = await guide(page).getAttribute("data-guide-surface-key");
     // Reading-speed scrolling (short steps with pauses): the block slides under the nav and the guide falls, it does not vanish.
     // (A single long jump fades it out and back instead: see "a long jump".)
@@ -238,48 +303,48 @@ test.describe("desktop", () => {
     expect(fell).toBe(true);
     await landed(page);
     const [, y1] = await feet(page);
-    expect(y1).toBeGreaterThan(y0);
+    expect(y1).toBeGreaterThan(0);
+    expect((await contact(page)).ok).toBe(true); // it landed on something drawn (or the floor), never in empty space
     const sy = await page.evaluate(() => scrollY);
     const nav = await page.locator("header[data-compact]").first().boundingBox();
     expect(y1 - sy).toBeGreaterThanOrEqual((nav ? nav.y + nav.height : 0) + 112);
     expect(y1 - sy).toBeLessThanOrEqual(900);
-    expect(k0 === null || k0 !== (await guide(page).getAttribute("data-guide-surface-key"))).toBe(true);
+    expect(k0).not.toBeNull();
   });
 
-  test("a long jump of the page: it fades out and reappears standing on a block in view, clear of reading text", async ({ page }) => {
+  test("a long jump of the page: no fade, it stays a physical object (pinned under the nav, falls, lands on a drawn edge)", async ({ page }) => {
     await seed(page);
     await page.goto("/");
     await page.evaluate(() => scrollTo(0, 2000));
     await expect(guide(page)).toBeVisible();
     await landed(page);
     await page.evaluate(() => scrollTo(0, 6000));
-    await expect.poll(() => guide(page).evaluate((n) => (n as HTMLElement).dataset.guideTucked === "true" || getComputedStyle(n).opacity === "1"), { timeout: 3000 }).toBe(true);
-    const tucked = await guide(page).evaluate((n) => (n as HTMLElement).dataset.guideTucked === "true");
-    if (tucked) return; // nowhere clear to stand: it stays out of view, which is also never over text
-    expect(await mode(page)).toBe("ground");
-    const hits = await page.evaluate(() => {
-      const g = document.querySelector("[data-testid=guide-character]")!.getBoundingClientRect();
-      const out: string[] = [];
-      for (const e of document.querySelectorAll("h1,h2,h3,h4,p,figcaption")) {
-        if (e.closest("[data-testid=visitor-guide-layer]")) continue;
-        const r = document.createRange();
-        r.selectNodeContents(e);
-        for (const q of r.getClientRects()) {
-          if (Math.min(g.right, q.right) - Math.max(g.left, q.left) > 6 && Math.min(g.bottom, q.bottom) - Math.max(g.top, q.top) > 6) out.push((e.textContent ?? "").slice(0, 30));
-        }
-      }
-      return out;
-    });
-    expect(hits).toEqual([]);
+    const ops = new Set<string>();
+    for (let i = 0; i < 20; i++) {
+      ops.add(await guide(page).evaluate((n) => `${getComputedStyle(n).opacity}|${getComputedStyle(n).display}|${getComputedStyle(n.firstElementChild!).visibility}`));
+      await page.waitForTimeout(50);
+    }
+    expect([...ops]).toEqual(["1|block|visible"]);
+    expect(await guide(page).getAttribute("data-guide-tucked")).toBeNull();
+    await landed(page);
+    expect((await contact(page)).ok).toBe(true);
   });
 
   test("walking off the edge of a block drops it", async ({ page }) => {
     await seed(page);
     await page.goto("/");
-    await page.evaluate(() => scrollTo(0, 2400));
     await expect(guide(page)).toBeVisible();
-    await landed(page);
-    // 2400: a short card line in view (the band around the picker has no clear block, only the floor).
+    // Find a spot where it stands on a block narrower than the screen (a card, an image), so there is an edge to walk off.
+    let found = false;
+    for (let y = 1600; y < 12000 && !found; y += 350) {
+      await page.evaluate((v) => scrollTo(0, v), y);
+      await landed(page);
+      found = await page.evaluate(() => {
+        const el = document.querySelector("[data-guide-standing]");
+        return !!el && el.getBoundingClientRect().width < innerWidth * 0.6;
+      });
+    }
+    expect(found).toBe(true);
     const at = await guide(page).getAttribute("data-guide-surface-key");
     expect(at).not.toBe("floor");
     let dropped = false;
@@ -333,7 +398,8 @@ test.describe("desktop", () => {
       await page.evaluate((v) => scrollTo(0, v), y);
       await page.waitForTimeout(1500);
       const b = await guide(page).boundingBox();
-      if (!b) continue; // stepped out of view (no clear block here): covers nothing
+      expect(b).not.toBeNull(); // always visible
+      if (!b) continue;
       const nav = await page.locator("header[data-compact] nav").first().boundingBox();
       if (nav) expect(b.y >= nav.y + nav.height - 1 || b.y + b.height <= nav.y || b.x + b.width <= nav.x || b.x >= nav.x + nav.width).toBe(true);
     }
@@ -361,24 +427,21 @@ test.describe("desktop", () => {
 
 test.describe("reduced motion", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
-  test("no physics: opacity fade only, arrows step between visible blocks", async ({ page }) => {
+  test("no physics, no fades: it rests on the floor and arrows step it along", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await seed(page);
     await page.goto("/");
-    await expect(guide(page)).toBeAttached();
-    await scrollToSpot(page, 2000, 2);
     await expect(guide(page)).toBeVisible();
-    const tp = await guide(page).evaluate((n) => getComputedStyle(n).transitionProperty);
-    expect(tp).not.toContain("transform");
-    expect(await guide(page).evaluate((n) => n.getAnimations().filter((a) => (a as CSSTransition).transitionProperty === "transform").length)).toBe(0);
+    await page.evaluate(() => scrollTo(0, 2000));
+    await page.waitForTimeout(800);
+    const c = await contact(page);
+    expect([c.ok, c.why]).toEqual([true, "floor"]);
     const f0 = await guide(page).getAttribute("data-guide-frames");
-    await page.waitForTimeout(500);
-    const y0 = (await feet(page))[1];
-    await page.keyboard.press("ArrowRight");
-    await page.waitForTimeout(400);
-    if ((await feet(page))[1] === y0) await page.keyboard.press("ArrowLeft"); // already on the last visible block
-    await expect.poll(async () => (await feet(page))[1]).not.toBe(y0);
-    await expect.poll(() => guide(page).evaluate((n) => getComputedStyle(n).opacity)).toBe("1");
+    const x0 = (await feet(page))[0];
+    await page.keyboard.press("ArrowLeft");
+    await expect.poll(async () => (await feet(page))[0]).not.toBe(x0);
+    expect(await guide(page).evaluate((n) => getComputedStyle(n).opacity)).toBe("1");
+    expect(await guide(page).evaluate((n) => n.getAnimations().length)).toBe(0);
     expect(await guide(page).getAttribute("data-guide-frames")).toBe(f0); // never a physics frame
   });
 });
@@ -410,5 +473,73 @@ test.describe("touch", () => {
     await expect(page.getByRole("button", { name: "Walk left", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Jump", exact: true })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+});
+
+// Thao: it must always stand on something drawn (or the floor), never fade, and the bubble must not jitter.
+for (const vp of [
+  { name: "1440", width: 1440, height: 900 },
+  { name: "390", width: 390, height: 844 },
+]) {
+  test.describe(`physical contact at ${vp.name}`, () => {
+    test.use({ viewport: { width: vp.width, height: vp.height } });
+    test("scrolling in steps: after each settle the soles are on a drawn top edge (±1 px) or the floor; opacity stays 1 throughout", async ({ page }) => {
+      await seed(page);
+      await page.goto("/");
+      await expect(guide(page)).toBeVisible();
+      await landed(page);
+      const H = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+      const fails: unknown[] = [];
+      let n = 0;
+      for (let y = 0; y <= H; y += Math.round(vp.height * 0.6)) {
+        await page.evaluate((v) => scrollTo(0, v), y);
+        for (let i = 0; i < 4; i++) {
+          expect(await guide(page).evaluate((g) => getComputedStyle(g).opacity)).toBe("1");
+          await page.waitForTimeout(60);
+        }
+        await landed(page);
+        const c = await contact(page);
+        n++;
+        if (!c.ok) fails.push({ y, ...c });
+      }
+      console.log(`[contact ${vp.name}] ${n - fails.length}/${n} positions pass`);
+      expect(fails).toEqual([]);
+    });
+  });
+}
+
+test.describe("bubble stays put", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  test("while a line shows, the bubble box does not move (±1 px) during a jump and a walk", async ({ page }) => {
+    await seed(page);
+    await page.goto("/");
+    await expect(guide(page)).toBeVisible();
+    await page.evaluate(() => scrollTo(0, 2400));
+    const bubble = page.getByTestId("guide-bubble");
+    await expect(bubble).toBeVisible({ timeout: 8000 });
+    await landed(page);
+    await page.waitForTimeout(400); // the one smooth placement move has finished
+    const b0 = (await bubble.boundingBox())!;
+    const samples: { x: number; y: number }[] = [];
+    const sample = async (ms: number) => {
+      for (let t = 0; t < ms; t += 40) {
+        if ((await bubble.count()) === 0) return;
+        const b = await bubble.boundingBox({ timeout: 500 }).catch(() => null);
+        if (b) samples.push({ x: b.x, y: b.y + (await page.evaluate(() => scrollY)) - y0 });
+        await page.waitForTimeout(40);
+      }
+    };
+    const y0 = await page.evaluate(() => scrollY);
+    await page.keyboard.press("ArrowUp");
+    await sample(700);
+    await page.keyboard.down("ArrowRight");
+    await sample(500);
+    await page.keyboard.up("ArrowRight");
+    await sample(300);
+    expect(samples.length).toBeGreaterThan(5);
+    for (const s of samples) {
+      expect(Math.abs(s.x - b0.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(s.y - b0.y)).toBeLessThanOrEqual(1);
+    }
   });
 });
