@@ -112,7 +112,18 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
   // (transform only — the glass size never changes).
   const { scrollY } = useScroll();
   const [compact, setCompact] = useState(false);
-  useMotionValueEvent(scrollY, "change", (y) => setCompact(y > 80));
+  // Mobile menu button: tucks away while reading downward (so it never sits on a heading), returns on any scroll up.
+  const [burgerHidden, setBurgerHidden] = useState(false);
+  const lastY = useRef(0);
+  useMotionValueEvent(scrollY, "change", (y) => {
+    setCompact(y > 80);
+    const delta = y - lastY.current;
+    lastY.current = y;
+    if (y < 80) setBurgerHidden(false);
+    else if (delta > 4) setBurgerHidden(true);
+    else if (delta < -4) setBurgerHidden(false);
+  });
+  const hideBurger = burgerHidden && !open;
 
   // While open: Escape closes, Tab is trapped, page scroll is locked.
   useEffect(() => {
@@ -208,9 +219,12 @@ export function SiteNav({ name, email, linkedin }: SiteNavProps) {
         aria-label={open ? "Close menu" : "Open menu"}
         data-testid="menu-toggle"
         onClick={() => setOpen((v) => !v)}
+        data-hidden={hideBurger ? "true" : "false"}
+        onFocus={() => setBurgerHidden(false)}
+        animate={hideBurger ? { y: -(PILL_H_SM + 24), opacity: 0 } : { y: 0, opacity: 1 }}
         whileTap={reduce ? undefined : { scale: PRESS_SCALE }}
-        transition={SPRING.press}
-        className="pointer-events-auto relative z-10 rounded-full md:hidden"
+        transition={reduce ? INSTANT : SPRING.press}
+        className={cn("relative z-10 rounded-full md:hidden", hideBurger ? "pointer-events-none" : "pointer-events-auto")}
       >
         <LiquidGlass radius={PILL_H_SM / 2} tint="light" blur={24} saturation={1.6} className="flex items-center justify-center text-ink-1" style={{ width: PILL_H_SM, height: PILL_H_SM }}>
           <span className="sr-only">{name}</span>

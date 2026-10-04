@@ -54,6 +54,14 @@ export function TransitionLink({
   const router = useRouter();
   const reduce = useReducedMotion();
   const ref = useRef<HTMLAnchorElement>(null);
+  const prefetched = useRef(false);
+
+  // Warm the case route before the click so navigation starts immediately.
+  function warm() {
+    if (prefetched.current) return;
+    prefetched.current = true;
+    router.prefetch(href);
+  }
 
   function onClick(event: React.MouseEvent<HTMLAnchorElement>) {
     const doc = document as ViewTransitionDoc;
@@ -77,7 +85,11 @@ export function TransitionLink({
     <Link
       ref={ref}
       href={href}
+      prefetch
       onClick={onClick}
+      onPointerEnter={warm}
+      onPointerDown={warm}
+      onFocus={warm}
       className={className}
       data-testid={rest["data-testid"]}
       data-slug={rest["data-slug"]}
