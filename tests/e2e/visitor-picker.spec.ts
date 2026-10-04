@@ -339,6 +339,22 @@ test.describe("top picker layout", () => {
       const lastY = boxes[10].y;
       const last = boxes.filter((b) => Math.abs(b.y - lastY) < 2);
       expect(Math.abs(last[0].x - g!.x - (g!.x + g!.width - last[last.length - 1].right))).toBeLessThanOrEqual(2);
+      // Each character sits inside its tile, and its label sits below it on the tile background.
+      const clash = await strip.locator('[role="radio"]').evaluateAll((btns) =>
+        btns.flatMap((b) => {
+          const t = b.getBoundingClientRect();
+          // The drawn figure, not the svg box: the bust overflows its box, so union every painted shape of the visible variant.
+          const svg = [...b.querySelectorAll("svg")].find((v) => v.getBoundingClientRect().width > 0)!;
+          const shapes = [...svg.querySelectorAll("path,circle,ellipse,rect")].map((n) => n.getBoundingClientRect()).filter((r) => r.width > 0);
+          const fig = { top: Math.min(...shapes.map((r) => r.top)), bottom: Math.max(...shapes.map((r) => r.bottom)) };
+          const label = [...b.querySelectorAll("span")].find((s) => !s.querySelector("*") && s.textContent?.trim())!.getBoundingClientRect();
+          const out: string[] = [];
+          if (fig.top < t.top - 0.5) out.push(`${b.dataset.testid}: head above tile`);
+          if (label.top < fig.bottom - 0.5) out.push(`${b.dataset.testid}: label over figure`);
+          return out;
+        }),
+      );
+      expect(clash).toEqual([]);
       await page.getByTestId("section-visitor").screenshot({ path: `process/features/portfolio-site/active/autoresearch-ux-261004_04-10-26/research/R8-shots/picker-unpicked-${vp.width}.png` });
       await page.getByTestId("tile-founder").click();
       await expect(chip(page)).toContainText("You: Founder");

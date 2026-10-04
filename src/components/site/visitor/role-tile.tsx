@@ -26,7 +26,6 @@ type Props = {
   /** True when the pick came from the keyboard (Enter / Space), false for a pointer or touch. */
   onSelect: (viaKeyboard: boolean) => void;
   /** Fills two grid columns, so the grid has no dead cell. */
-  wide?: boolean;
   /** Phone, after a pick: a small avatar-only tile (the name stays as the accessible label). */
   mini?: boolean;
   onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
@@ -60,11 +59,11 @@ function Count({ id, count, className }: { id: RoleId | null; count?: number; cl
 
 /**
  * One radio in the picker. Unpicked: a soft rounded tile with the clay bust
- * popping out over its top edge. Picked: the same element grows into the big hero
+ * in its own area at the top (head fully inside) and the label below it, never overlapping. Picked: the same element grows into the big hero
  * (full figure, waving, role name, one-line note). Every tile is a layout
  * element, so picking glides the grid into its new shape on a spring.
  */
-export function RoleTile({ id, label, blurb, index, selected, tabbable, count, wide, mini, onSelect, onKeyDown, buttonRef }: Props) {
+export function RoleTile({ id, label, blurb, index, selected, tabbable, count, mini, onSelect, onKeyDown, buttonRef }: Props) {
   const reduce = useReducedMotion();
   const blinking = useBlink(!reduce);
   const frame = useWaveFrame(selected && !reduce);
@@ -72,7 +71,7 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, w
   const transition = reduce ? { duration: 0 } : SPRING.sheet;
 
   return (
-    <motion.div layout transition={transition} className={cn("min-w-0", selected && "order-first col-span-full sm:col-span-5 lg:col-span-1 lg:row-span-2", wide && !selected && "col-span-2")}>
+    <motion.div layout transition={transition} className={cn("min-w-0", selected && "order-first col-span-full sm:col-span-5 lg:col-span-1 lg:row-span-2")}>
       {selected ? (
         <button
           ref={buttonRef}
@@ -120,21 +119,22 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, w
             initial="rest"
             whileHover="hover"
             style={{ background: soft(tint, 46) }}
-            className={cn("relative flex h-full min-h-[104px] w-full flex-col items-center justify-end gap-0.5 rounded-3xl border border-hairline px-1 pt-[56px] pb-2 sm:min-h-[138px] sm:gap-1 sm:px-1.5 sm:pt-[66px] sm:pb-2.5 text-center outline-none transition-colors duration-[120ms] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2", mini && "max-sm:min-h-[72px] max-sm:rounded-2xl max-sm:pt-[60px] max-sm:pb-1")}
+            className={cn("relative flex h-full w-full flex-col items-center justify-start gap-1 overflow-hidden rounded-3xl border border-hairline px-1 pt-3 pb-2.5 sm:gap-1.5 sm:px-1.5 sm:pt-4 sm:pb-3 text-center outline-none transition-colors duration-[120ms] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2", mini && "max-sm:rounded-2xl max-sm:pt-2 max-sm:pb-0")}
           >
             <motion.span
-              variants={reduce ? undefined : { rest: { y: 0, scale: 1, rotate: 0 }, hover: { y: -7, scale: 1.07, rotate: -2 } }}
+              variants={reduce ? undefined : { rest: { y: 0, scale: 1, rotate: 0 }, hover: { y: -2, scale: 1.04, rotate: -2 } }}
               transition={reduce ? { duration: 0 } : SPRING.ui}
-              className="pointer-events-none absolute -top-4 left-1/2 block -translate-x-1/2 sm:-top-7"
+              className="pointer-events-none block origin-bottom"
             >
-              <span className="block sm:hidden">
-                <ClayAvatar role={id} view="bust" size={56} decorative className={id ? undefined : "mt-5 text-ink-3"} />
+              {/* The bust's torso draws below its svg box (overflow visible): reserve that space so the label never sits on it. */}
+              <span className="block pb-5 sm:hidden">
+                <ClayAvatar role={id} view="bust" size={52} decorative className={id ? undefined : "text-ink-3"} />
               </span>
-              <span className="hidden sm:block">
-                <ClayAvatar role={id} view="bust" size={84} decorative className={id ? undefined : "mt-7 text-ink-3"} />
+              <span className="hidden pb-6 sm:block">
+                <ClayAvatar role={id} view="bust" size={72} decorative className={id ? undefined : "text-ink-3"} />
               </span>
             </motion.span>
-            <span className={cn("relative text-[12px] leading-tight font-medium text-ink-1 sm:text-[13px]", mini && "max-sm:sr-only")}>{label}</span>
+            <span className={cn("relative mt-auto text-[12px] leading-tight font-medium text-ink-1 sm:text-[13px]", mini && "max-sm:sr-only")}>{label}</span>
             <Count id={id} count={count} className={mini ? "max-sm:hidden" : undefined} />
           </motion.button>
         </LiftCard>
