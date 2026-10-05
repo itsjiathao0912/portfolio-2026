@@ -139,6 +139,30 @@ export function capTop(lineTop: number, lineHeight: number, fontSize: number) {
   return Math.min(lineTop + lineHeight / 2, Math.max(lineTop, t));
 }
 
+let metricCtx: CanvasRenderingContext2D | null | undefined;
+const metricCache = new Map<string, number | null>();
+/**
+ * The glyph top of a line from real font metrics: the Range rect top is the font's ascent line,
+ * so capitals start (fontAscent - capAscent) below it. Measured once per font via canvas;
+ * falls back to the `capTop` estimate when canvas metrics are unavailable.
+ */
+export function glyphTop(lineTop: number, lineHeight: number, cs: CSSStyleDeclaration) {
+  const fs = Number.parseFloat(cs.fontSize) || 16;
+  const font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  let off = metricCache.get(font);
+  if (off === undefined) {
+    if (metricCtx === undefined) metricCtx = typeof document !== "undefined" ? document.createElement("canvas").getContext("2d") : null;
+    off = null;
+    if (metricCtx) {
+      metricCtx.font = font;
+      const m = metricCtx.measureText("H");
+      if (m.fontBoundingBoxAscent && m.actualBoundingBoxAscent) off = m.fontBoundingBoxAscent - m.actualBoundingBoxAscent;
+    }
+    metricCache.set(font, off);
+  }
+  return off == null ? capTop(lineTop, lineHeight, fs) : Math.min(lineTop + lineHeight / 2, Math.max(lineTop, lineTop + off));
+}
+
 /** Pure: the first rendered line out of a text block's client rects (in document order): same top +-2 px, unioned. */
 export function firstLine(rects: readonly { left: number; right: number; top: number; height: number; width: number }[]) {
   let line: { left: number; right: number; top: number; height: number } | null = null;
@@ -310,7 +334,7 @@ export function analyseSurfaces(roots: readonly Element[], guideRoot: Element | 
       if (!line || line.right - line.left < MIN_SURFACE_W) continue;
       if (cardAbove(owner, root, line.top)) continue;
       const fs = Number.parseFloat(css(parent).fontSize) || 16;
-      const top = capTop(line.top, line.height, fs);
+      const top = glyphTop(line.top, line.height, css(parent));
       const or = rectOf(owner);
       const t: Tracked = { el: owner, kind: "text", surface: { key: keyOf(owner), id: spotOf(owner, page), left: Math.max(0, line.left), right: Math.min(vw, line.right), top: top + scrollY }, relL: line.left - or.left, relR: line.right - or.left, relT: top - or.top };
       out.push(t);
