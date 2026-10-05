@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { capTop, drawnEdge, firstLine, rendered } from "../../src/components/site/visitor/guide/guide-dom";
+import { capTop, clusterTops, drawnEdge, firstLine, rendered } from "../../src/components/site/visitor/guide/guide-dom";
 
 const cs = (o: Partial<Record<string, string>>) =>
   ({ display: "block", visibility: "visible", opacity: "1", backgroundColor: "rgba(0, 0, 0, 0)", backgroundImage: "none", borderTopWidth: "0px", borderTopStyle: "none", borderTopColor: "rgb(0, 0, 0)", boxShadow: "none", outlineWidth: "0px", outlineStyle: "none", outlineColor: "rgb(0, 0, 0)", ...o }) as unknown as CSSStyleDeclaration;
@@ -43,5 +43,21 @@ describe("text surfaces: the feet land on the letters", () => {
     expect(firstLine([r(10, 100, 0.5), r(20, 100, 50), r(70, 101, 40), r(10, 124, 200)])).toEqual({ left: 20, right: 110, top: 100, height: 20 });
     expect(firstLine([])).toBeNull();
     expect(firstLine([r(0, 0, 50, 2)])).toBeNull();
+  });
+});
+
+describe("text clusters: only the top line of stacked text is a surface", () => {
+  const line = (top: number, h: number, left = 0, right = 400, lh = 20) => ({ left, right, top, bottom: top + h, lineHeight: lh });
+  test("heading + paragraph keeps only the heading top", () => {
+    expect(clusterTops([line(100, 40, 0, 400, 36), line(156, 120)])).toEqual([0]);
+  });
+  test("three list items keep only the first", () => {
+    expect(clusterTops([line(200, 24), line(232, 24), line(264, 24)])).toEqual([0]);
+  });
+  test("two separate side-by-side cards keep both", () => {
+    expect(clusterTops([line(100, 80, 0, 300), line(100, 80, 400, 700)])).toEqual([0, 1]);
+  });
+  test("two blocks far apart vertically keep both", () => {
+    expect(clusterTops([line(100, 40), line(400, 40)])).toEqual([0, 1]);
   });
 });

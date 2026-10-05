@@ -154,6 +154,32 @@ export function firstLine(rects: readonly { left: number; right: number; top: nu
   return line;
 }
 
+export type TextLine = { left: number; right: number; top: number; bottom: number; lineHeight: number };
+
+/**
+ * Pure: which text lines are the TOP line of their text cluster. Stacked text blocks (heading +
+ * paragraph, consecutive paragraphs, list items, label + value) read as one cluster; only its
+ * topmost line is a surface, so the guide never hops line to line down a column of text.
+ * A line is dropped when any cluster line sits above it with horizontal overlap and a vertical gap
+ * (that block's bottom to this line's top) under 1.5x this line's height. Returns kept indices.
+ */
+export function clusterTops(lines: readonly TextLine[]) {
+  const order = lines.map((_, i) => i).sort((a, b) => lines[a].top - lines[b].top);
+  const kept: number[] = [];
+  for (const i of order) {
+    const l = lines[i];
+    const covered = order.some((j) => {
+      if (j === i) return false;
+      const o = lines[j];
+      if (o.top >= l.top) return false;
+      if (Math.min(o.right, l.right) - Math.max(o.left, l.left) <= 0) return false;
+      return l.top - o.bottom < 1.5 * l.lineHeight;
+    });
+    if (!covered) kept.push(i);
+  }
+  return kept.sort((a, b) => a - b);
+}
+
 /** Elements whose text reads as one block (a heading, a paragraph, a label, a stat). */
 const TEXT_BLOCK = "h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,button,a,td,th,[data-guide-text]";
 
@@ -244,6 +270,7 @@ export function analyseSurfaces(roots: readonly Element[], guideRoot: Element | 
   };
   let boxes = 0;
   let texts = 0;
+  const textLines = new Map<Tracked, TextLine>();
   for (const root of roots) {
     for (const el of root.querySelectorAll(SURFACE_SELECTOR)) {
       if (out.length >= MAX_SURFACES) break;
@@ -285,14 +312,21 @@ export function analyseSurfaces(roots: readonly Element[], guideRoot: Element | 
       const fs = Number.parseFloat(css(parent).fontSize) || 16;
       const top = capTop(line.top, line.height, fs);
       const or = rectOf(owner);
-      out.push({ el: owner, kind: "text", surface: { key: keyOf(owner), id: spotOf(owner, page), left: Math.max(0, line.left), right: Math.min(vw, line.right), top: top + scrollY }, relL: line.left - or.left, relR: line.right - or.left, relT: top - or.top });
+      const t: Tracked = { el: owner, kind: "text", surface: { key: keyOf(owner), id: spotOf(owner, page), left: Math.max(0, line.left), right: Math.min(vw, line.right), top: top + scrollY }, relL: line.left - or.left, relR: line.right - or.left, relT: top - or.top };
+      out.push(t);
+      textLines.set(t, { left: or.left, right: or.right, top: line.top + scrollY, bottom: or.bottom + scrollY, lineHeight: Math.max(line.height, fs) });
       texts++;
     }
     range.detach();
   }
+  // Text clusters: keep only the topmost line of each stack of text blocks.
+  const textEntries = out.filter((t) => t.kind === "text");
+  const keepText = new Set(clusterTops(textEntries.map((t) => textLines.get(t)!)).map((i) => textEntries[i]));
+  const clustered = out.filter((t) => t.kind !== "text" || keepText.has(t));
+  texts = keepText.size;
   // Two lines sharing one edge are one platform: keep the first (boxes come first).
   const dedup: Tracked[] = [];
-  for (const t of out) {
+  for (const t of clustered) {
     const s = t.surface;
     if (dedup.some((d) => Math.abs(d.surface.top - s.top) < 1.5 && Math.abs(d.surface.left - s.left) < 4 && Math.abs(d.surface.right - s.right) < 4)) continue;
     dedup.push(t);
