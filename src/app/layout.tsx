@@ -66,6 +66,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en">
       <body className="flex min-h-dvh flex-col">
+        <NavWatchdog />
         <a
           href="#main"
           className="sr-only z-[60] rounded-full bg-ink-1 px-4 py-2 text-bg focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
@@ -81,7 +82,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           </div>
           <SiteFooter profile={profile} />
           <SecretWord />
-          <NavWatchdog />
           <VisitorModal />
           <VisitorGuide />
           </VisitorProvider>
