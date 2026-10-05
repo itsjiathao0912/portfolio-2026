@@ -33,7 +33,11 @@ export function Portrait({ src, name, className, priority, sizes = "(min-width: 
             alt={`Portrait of ${name}`}
             fill
             unoptimized
-            priority={priority}
+            // Next 16: `preload` replaces `priority`, and neither sets fetchpriority —
+            // pass it explicitly so the hero LCP image is fetched first and never lazy.
+            preload={priority}
+            loading={priority ? "eager" : undefined}
+            fetchPriority={priority ? "high" : undefined}
             sizes={sizes}
             className={cn(img, !bw && "grayscale contrast-[1.1]")}
           />

@@ -5,6 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import { useFinePointer } from "@/components/motion/use-fine-pointer";
 import { cn } from "@/lib/utils";
 
+// Same condition as `live` (useFinePointer && !useReducedMotion), expressed in CSS so
+// the server HTML already matches every device and hydration never resizes the hero.
+const LIVE_MQ = "[@media(hover:hover)_and_(pointer:fine)_and_(prefers-reduced-motion:no-preference)]";
+export const MASK_ON = `${LIVE_MQ}:flex`;
+export const TOGGLE_OFF = `${LIVE_MQ}:hidden`;
+
 interface CursorRevealProps {
   children: React.ReactNode;
   /** The casual "real me" line hidden under the headline. */
@@ -85,14 +91,12 @@ export function CursorReveal({ children, alt, altClassName, className }: CursorR
         onPointerLeave={live ? (e) => (e.currentTarget.setAttribute("data-active", "false"), (cur.current.seeded = false), stop()) : undefined}
       >
         {children}
-        {live ? (
-          <div aria-hidden="true" data-testid="cursor-reveal-layer" className={cn("cursor-reveal-layer pointer-events-none absolute inset-0 flex items-center bg-bg", altClassName)}>
-            <span className="w-full">{alt}</span>
-          </div>
-        ) : null}
+        {/* Always rendered (server == client, no layout shift); CSS decides which shows. */}
+        <div aria-hidden="true" data-testid="cursor-reveal-layer" className={cn("cursor-reveal-layer pointer-events-none absolute inset-0 hidden items-center bg-bg", MASK_ON, altClassName)}>
+          <span className="w-full">{alt}</span>
+        </div>
       </div>
-      {!live ? (
-        <div className="mt-3">
+      <div className={cn("mt-3", TOGGLE_OFF)}>
           <button
             type="button"
             onClick={() => setShown((v) => !v)}
@@ -103,8 +107,7 @@ export function CursorReveal({ children, alt, altClassName, className }: CursorR
             {shown ? "ok, back to the serious version" : "psst — the casual version"}
           </button>
           {shown ? <p className="mt-2 text-[18px] text-ink-2 italic" data-testid="cursor-reveal-alt">{alt}</p> : null}
-        </div>
-      ) : null}
+      </div>
     </div>
   );
 }

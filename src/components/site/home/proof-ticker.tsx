@@ -15,7 +15,7 @@ function Chip({ settled }: { settled: boolean }) {
     <span className="relative inline-grid h-[22px] min-w-[84px] [perspective:400px]" aria-hidden="true">
       <motion.span initial={false} animate={{ rotateX: settled ? 180 : 0 }} transition={SPRING.ui} style={{ transformStyle: "preserve-3d" }} className="relative col-start-1 row-start-1 grid">
         <span className="col-start-1 row-start-1 grid place-items-center rounded-lg bg-canvas px-2 text-[12px] font-semibold text-ink-3 [backface-visibility:hidden]">Pending</span>
-        <span className="col-start-1 row-start-1 grid place-items-center rounded-lg bg-[color-mix(in_srgb,var(--success)_10%,white)] px-2 text-[12px] font-semibold text-success [backface-visibility:hidden] [transform:rotateX(180deg)]">✓ Settled</span>
+        <span className="col-start-1 row-start-1 grid place-items-center rounded-lg bg-[color-mix(in_srgb,var(--success)_10%,white)] px-2 text-[12px] font-semibold text-[#147a3a] [backface-visibility:hidden] [transform:rotateX(180deg)]">✓ Settled</span>
       </motion.span>
     </span>
   );

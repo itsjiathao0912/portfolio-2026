@@ -120,6 +120,7 @@ export function HighlightsGrid({ site, footer }: { site: Pick<Site, "awards" | "
               {tile.href ? (
                 <a
                   href={tile.href}
+                  aria-label={`Credential: ${tile.title}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-auto inline-flex min-h-11 items-center gap-1 text-[14px] text-ink-3 transition-colors hover:text-ink-1"

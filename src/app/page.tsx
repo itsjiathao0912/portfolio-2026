@@ -11,7 +11,7 @@ import { Portrait } from "@/components/site/portrait";
 import { ProjectStack } from "@/components/site/project-stack";
 import { GuideSection } from "@/components/site/visitor/guide/guide-section";
 import { LiveVisitorTop } from "@/components/site/visitor/stats/live-visitor-top";
-import { VisitorPoll } from "@/components/site/visitor/stats/visitor-poll";
+import { LazyVisitorPoll } from "@/components/site/lazy/lazy-visitor-poll";
 import { heroHeadline } from "@/lib/hero";
 import { loadProjects, loadSite } from "@/lib/load";
 import { linkedinPosts, photos } from "@content/site.ts";
@@ -24,8 +24,8 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "@/lib/seo/site-meta";
 // so that one is rendered dark.
 const LOGOS: LogoItem[] = [
   { name: "SkyLab Group", src: "/logos/skylab-mark-white.svg", href: "https://www.skylabteam.com/", width: 1748, height: 254, whiteOnly: true },
-  { name: "Lumicap", src: "/logos/lumicap-light.png", href: "https://lumicap.io/", width: 640, height: 191 },
-  { name: "COSAP", src: "/logos/cosap.png", href: "https://cosap.ai/", width: 640, height: 163 },
+  { name: "Lumicap", src: "/logos/lumicap-light.png", href: "https://lumicap.io/", width: 384, height: 115 },
+  { name: "COSAP", src: "/logos/cosap.png", href: "https://cosap.ai/", width: 384, height: 98 },
   { name: "ReOrc AI", src: "/logos/reorc.svg", href: "https://reorc.com/", width: 120, height: 32 },
   { name: "Zalo", src: "/logos/zalo.svg", href: "https://zalo.me/vi/", width: 80, height: 32 },
 ];
@@ -91,7 +91,7 @@ export default async function HomePage() {
       <PhotoMoments moments={photos.filter((p) => (p.place as readonly string[]).includes("home"))} className="pt-0 md:pt-0" />
       <GuideSection id="linkedin"><LinkedinPosts posts={linkedinPosts} profileUrl={linkedin} /></GuideSection>
       <section aria-label="Quick poll" className="mx-auto max-w-[640px] px-6 pb-4 md:px-10" data-testid="section-poll">
-        <VisitorPoll />
+        <LazyVisitorPoll />
       </section>
     </main>
   );

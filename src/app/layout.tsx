@@ -5,7 +5,9 @@ import type { Metadata, Viewport } from "next";
 // …) via unicode-range, so the browser downloads the Vietnamese file only when
 // a Vietnamese letter (e.g. "Thảo") is on the page. Do NOT switch these to the
 // `latin-*.css` files: Vietnamese text would silently fall back.
-import "@fontsource-variable/archivo/wdth.css";
+// Archivo: pre-instanced at wdth=118 (the only width the site uses — see
+// .font-display in globals.css), ~60% smaller than the full wdth file. Its
+// @font-face rules (same three unicode-range subsets) live in globals.css.
 import "@fontsource-variable/inter/wght.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";

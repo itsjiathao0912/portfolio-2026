@@ -34,7 +34,7 @@ export function RollingCounter({ value, className }: { value: string; className?
   }, [inView, reduce, value]);
 
   return (
-    <span ref={ref} className={className} style={{ fontVariantNumeric: "tabular-nums" }} aria-label={value} data-counter="">
+    <span ref={ref} role="img" className={className} style={{ fontVariantNumeric: "tabular-nums" }} aria-label={value} data-counter="">
       <span aria-hidden="true">{text}</span>
     </span>
   );

@@ -46,6 +46,7 @@ for (const [w, h] of [[1440, 900], [390, 844]] as const) {
     await page.setViewportSize({ width: w, height: h });
     const votes = await mockPoll(page);
     await page.goto("/");
+    await page.getByTestId("section-poll").scrollIntoViewIfNeeded(); // the poll mounts when its slot nears the viewport
     const poll = page.getByTestId("visitor-poll");
     await poll.scrollIntoViewIfNeeded();
     await expect(page.getByTestId("poll-option-remittance")).toBeVisible();
@@ -79,6 +80,7 @@ test("from 20 votes the bars fill to their share and stay colourful", async ({ p
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.route("**/api/poll", (r) => r.fulfill({ json: body({ remittance: 14, "agent-payments": 6 }, "remittance", ROLES) }));
   await page.goto("/");
+  await page.getByTestId("section-poll").scrollIntoViewIfNeeded(); // the poll mounts when its slot nears the viewport
   const poll = page.getByTestId("visitor-poll");
   await poll.scrollIntoViewIfNeeded();
   await expect(page.getByTestId("poll-option-remittance")).toBeVisible();
@@ -100,6 +102,7 @@ test("from 20 votes the bars fill to their share and stay colourful", async ({ p
 test("keyboard: arrows move focus without voting, Space votes", async ({ page }) => {
   const votes = await mockPoll(page);
   await page.goto("/");
+  await page.getByTestId("section-poll").scrollIntoViewIfNeeded();
   await page.getByTestId("visitor-poll").scrollIntoViewIfNeeded();
   const first = page.getByTestId("poll-option-compliance-copilot");
   await expect(first).toHaveAttribute("tabindex", "0");

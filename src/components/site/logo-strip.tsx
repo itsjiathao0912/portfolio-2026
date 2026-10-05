@@ -27,6 +27,8 @@ function Track({ logos, copy }: { logos: LogoItem[]; copy: boolean }) {
             alt={copy ? "" : logo.name}
             width={logo.width}
             height={logo.height}
+            sizes={`${Math.round((logo.width / logo.height) * 36)}px`}
+            style={{ aspectRatio: `${logo.width} / ${logo.height}` }}
             unoptimized
             className={`h-7 w-auto max-w-[150px] object-contain md:h-9 ${logo.whiteOnly ? "logo-dark" : ""}`}
           />
