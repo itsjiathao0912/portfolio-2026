@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SPRING } from "@/components/motion/springs";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
@@ -10,7 +10,7 @@ import { RoleCard } from "./role-card";
 import { RoleTile } from "./role-tile";
 import { PRIVACY_NOTE, ROLES } from "./roles";
 import { countryName, flagOf } from "./stats/stats-copy";
-import { useVisitor } from "./store";
+import { useVisitorState } from "./store";
 
 // Codes that look valid but mean "unknown" (same list as src/lib/geo.ts, which a
 // client component cannot import because it pulls in the server DB module).
@@ -82,7 +82,7 @@ const ITEMS: readonly Item[] = ROLE_IDS;
  * and P5's slots. Used in the change-role modal.
  */
 export function RolePicker({ onPick, onEscape, autoFocus, labelId }: { onPick: (id: Item) => void; onEscape?: () => void; autoFocus: boolean; labelId: string }) {
-  const { role } = useVisitor();
+  const { role } = useVisitorState();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const [focusIdx, setFocusIdx] = useState(() => {
     const i = role ? ITEMS.indexOf(role) : 0;
@@ -181,29 +181,49 @@ const UNPICKED_ROW =
  * When absent nothing is drawn and nothing breaks.
  */
 export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record<RoleId, number>>; summary?: React.ReactNode; stats?: React.ReactNode } = {}) {
-  const { role, setRole, ready } = useVisitor();
+  const { role, setRole, ready } = useVisitorState();
   const reduce = useReducedMotion();
   const geo = useGeo();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const [focusIdx, setFocusIdx] = useState(0);
   const chosen = role !== null;
-
-  if (!ready) return <div aria-hidden="true" className="min-h-[420px]" data-testid="visitor-pending" />;
-
-  const tabIdx = chosen ? ROW_ITEMS.indexOf(role) : focusIdx;
-
-  function move(to: number) {
+  // Stable handlers (read the latest values from refs) so the memoised tiles skip unrelated commits.
+  const move = useCallback((to: number) => {
     const next = (to + ROW_ITEMS.length) % ROW_ITEMS.length;
     setFocusIdx(next);
     refs.current[next]?.focus();
-  }
-  function onKey(event: React.KeyboardEvent<HTMLButtonElement>, i: number) {
+  }, []);
+  const setTileRef = useCallback((el: HTMLButtonElement | null, i: number) => {
+    refs.current[i] = el;
+  }, []);
+  const onTileKey = useCallback((event: React.KeyboardEvent<HTMLButtonElement>, i: number) => {
     const keys: Record<string, number> = { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: ROW_ITEMS.length - 1 };
     if (event.key in keys) {
       event.preventDefault();
       move(keys[event.key]!);
     }
-  }
+  }, [move]);
+  const onTileSelect = useCallback((i: number, viaKeyboard: boolean) => {
+    setFocusIdx(i);
+    setRole(ROW_ITEMS[i]!);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        if (viaKeyboard) {
+          // The picked tile re-mounts as the big hero: hand focus to it so keyboard users keep their place.
+          refs.current[i]?.focus({ preventScroll: true });
+          return;
+        }
+        // A pointer pick leaves no focus on the tile: the arrow keys belong to the guide, not to the radio group.
+        const active = document.activeElement;
+        if (active instanceof HTMLElement && active.closest('[role="radiogroup"]')) active.blur();
+      }),
+    );
+  }, [setRole]);
+
+  if (!ready) return <div aria-hidden="true" className="min-h-[420px]" data-testid="visitor-pending" />;
+
+  const tabIdx = chosen ? ROW_ITEMS.indexOf(role) : focusIdx;
+
   // Unpicked: 11 same-size tiles, 3 a row on a phone and 6 wider, the short last row centred (nothing stretches).
   // Picked: the hero plus 10 tiles in two flush rows (phone: 5 small avatar-only tiles a row).
   // The title already says the country: the city line only helps before a pick, and goes once the hero takes over.
@@ -243,6 +263,7 @@ export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record
       <LayoutGroup id="visitor-strip">
         <motion.div
           layout
+          layoutDependency={role ?? "none"}
           transition={reduce ? { duration: 0 } : SPRING.sheet}
           role="radiogroup"
           aria-label="Your role"
@@ -260,26 +281,10 @@ export function VisitorTop({ counts, summary, stats }: { counts?: Partial<Record
               tabbable={i === tabIdx}
               count={counts?.[id]}
               mini={chosen}
-              buttonRef={(el) => {
-                refs.current[i] = el;
-              }}
-              onKeyDown={(e) => onKey(e, i)}
-              onSelect={(viaKeyboard) => {
-                setFocusIdx(i);
-                setRole(id);
-                requestAnimationFrame(() =>
-                  requestAnimationFrame(() => {
-                    if (viaKeyboard) {
-                      // The picked tile re-mounts as the big hero: hand focus to it so keyboard users keep their place.
-                      refs.current[i]?.focus({ preventScroll: true });
-                      return;
-                    }
-                    // A pointer pick leaves no focus on the tile: the arrow keys belong to the guide, not to the radio group.
-                    const active = document.activeElement;
-                    if (active instanceof HTMLElement && active.closest('[role="radiogroup"]')) active.blur();
-                  }),
-                );
-              }}
+              layoutKey={role ?? "none"}
+              buttonRef={setTileRef}
+              onKeyDown={onTileKey}
+              onSelect={onTileSelect}
             />
           ))}
         </motion.div>

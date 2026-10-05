@@ -1,10 +1,9 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { memo } from "react";
 import { SPRING } from "@/components/motion/springs";
 import { ClayAvatar } from "@/components/clay/clay-avatar";
-import { useBlink } from "@/components/clay/use-blink";
 import { LiftCard } from "@/components/ui/lift-card";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
@@ -23,27 +22,19 @@ type Props = {
   tabbable: boolean;
   /** Live count for this tile. Absent = nothing is drawn. */
   count?: number;
-  /** True when the pick came from the keyboard (Enter / Space), false for a pointer or touch. */
-  onSelect: (viaKeyboard: boolean) => void;
+  /** True when the pick came from the keyboard (Enter / Space), false for a pointer or touch. Stable across renders (memo). */
+  onSelect: (index: number, viaKeyboard: boolean) => void;
   /** Fills two grid columns, so the grid has no dead cell. */
   /** Phone, after a pick: a small avatar-only tile (the name stays as the accessible label). */
   mini?: boolean;
-  onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
-  buttonRef: (el: HTMLButtonElement | null) => void;
+  /** Changes only when the grid reshapes (the picked role): Motion measures for the glide then, never on other commits. */
+  layoutKey?: string;
+  onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => void;
+  /** Stable ref setter, called with the tile index. */
+  buttonRef: (el: HTMLButtonElement | null, index: number) => void;
 };
 
 const soft = (tint: string, pct: number) => `color-mix(in srgb, ${tint} ${pct}%, white)`;
-
-/** Wave flutter: toggles the wave frame so the raised hand moves. Off under reduced motion. */
-function useWaveFrame(on: boolean) {
-  const [frame, setFrame] = useState(0);
-  useEffect(() => {
-    if (!on) return;
-    const t = setInterval(() => setFrame((f) => f + 1), 420);
-    return () => clearInterval(t);
-  }, [on]);
-  return frame;
-}
 
 /** A role's count is shown only once at least this many people picked it (never a lonely "0"). */
 export const MIN_SHOWN_COUNT = 3;
@@ -63,25 +54,23 @@ function Count({ id, count, className }: { id: RoleId | null; count?: number; cl
  * (full figure, waving, role name, one-line note). Every tile is a layout
  * element, so picking glides the grid into its new shape on a spring.
  */
-export function RoleTile({ id, label, blurb, index, selected, tabbable, count, mini, onSelect, onKeyDown, buttonRef }: Props) {
+function RoleTileImpl({ id, label, blurb, index, selected, tabbable, count, mini, layoutKey, onSelect, onKeyDown, buttonRef }: Props) {
   const reduce = useReducedMotion();
-  const blinking = useBlink(!reduce);
-  const frame = useWaveFrame(selected && !reduce);
   const tint = id ? tintFor(index) : "var(--tint-sky)";
   const transition = reduce ? { duration: 0 } : SPRING.sheet;
 
   return (
-    <motion.div layout transition={transition} className={cn("min-w-0", selected && "order-first col-span-full sm:col-span-5 lg:col-span-1 lg:row-span-2")}>
+    <motion.div layout layoutDependency={layoutKey} transition={transition} className={cn("min-w-0", selected && "order-first col-span-full sm:col-span-5 lg:col-span-1 lg:row-span-2")}>
       {selected ? (
         <button
-          ref={buttonRef}
+          ref={(el) => buttonRef(el, index)}
           type="button"
           role="radio"
           aria-checked
           tabIndex={tabbable ? 0 : -1}
           data-testid={`tile-${id ?? "skip"}`}
-          onClick={(e) => onSelect(e.detail === 0)}
-          onKeyDown={onKeyDown}
+          onClick={(e) => onSelect(index, e.detail === 0)}
+          onKeyDown={(e) => onKeyDown(e, index)}
           style={{ background: `linear-gradient(160deg, ${soft(tint, 70)}, ${soft(tint, 28)})` }}
           className="relative flex h-full min-h-[124px] sm:min-h-[148px] lg:min-h-0 w-full flex-row items-center gap-4 rounded-[28px] border border-accent/30 p-4 text-left outline-none ring-2 ring-accent/70 focus-visible:ring-offset-2 lg:flex-col lg:justify-end lg:gap-2 lg:p-5 lg:text-center"
         >
@@ -91,11 +80,9 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, m
             transition={reduce ? { duration: 0 } : { ...SPRING.ui, delay: 0.08 }}
             className="relative block shrink-0 lg:flex-1 lg:self-stretch"
           >
-            <span className="hidden h-full items-end justify-center lg:flex">
-              <ClayAvatar role={id} view="full" size={132} pose="wave" frame={frame} blinking={blinking} decorative shadow={false} className={id ? undefined : "text-ink-3"} />
-            </span>
-            <span className="block lg:hidden">
-              <ClayAvatar role={id} view="full" size={72} pose="wave" frame={frame} blinking={blinking} decorative shadow={false} className={id ? undefined : "text-ink-3"} />
+            {/* One figure, sized by CSS: 72 px wide below lg, 132 px from lg (was two copies, one hidden). */}
+            <span className="block lg:flex lg:h-full lg:items-end lg:justify-center">
+              <ClayAvatar role={id} view="full" size={72} pose="wave" flutter autoBlink decorative shadow={false} className={cn("h-[108px] w-[72px] lg:h-[198px] lg:w-[132px]", !id && "text-ink-3")} />
             </span>
           </motion.span>
           <span className="relative flex min-w-0 flex-col gap-1 lg:items-center">
@@ -108,14 +95,14 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, m
       ) : (
         <LiftCard variant="card" radius="rounded-3xl" className="h-full" sheen={false}>
           <motion.button
-            ref={buttonRef}
+            ref={(el) => buttonRef(el, index)}
             type="button"
             role="radio"
             aria-checked={false}
             tabIndex={tabbable ? 0 : -1}
             data-testid={`tile-${id ?? "skip"}`}
-            onClick={(e) => onSelect(e.detail === 0)}
-            onKeyDown={onKeyDown}
+            onClick={(e) => onSelect(index, e.detail === 0)}
+            onKeyDown={(e) => onKeyDown(e, index)}
             initial="rest"
             whileHover="hover"
             style={{ background: soft(tint, 46) }}
@@ -127,11 +114,8 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, m
               className="pointer-events-none block origin-bottom"
             >
               {/* The bust's torso draws below its svg box (overflow visible): reserve that space so the label never sits on it. */}
-              <span className="block pb-5 sm:hidden">
-                <ClayAvatar role={id} view="bust" size={52} decorative className={id ? undefined : "text-ink-3"} />
-              </span>
-              <span className="hidden pb-6 sm:block">
-                <ClayAvatar role={id} view="bust" size={72} decorative className={id ? undefined : "text-ink-3"} />
+              <span className="block pb-5 sm:pb-6">
+                <ClayAvatar role={id} view="bust" size={52} decorative className={cn("h-[53px] w-[52px] sm:h-[74px] sm:w-[72px]", !id && "text-ink-3")} />
               </span>
             </motion.span>
             {/* Fixed two-line label area: a wrapping name ("Product designer") never makes its tile taller than the rest. */}
@@ -143,3 +127,6 @@ export function RoleTile({ id, label, blurb, index, selected, tabbable, count, m
     </motion.div>
   );
 }
+
+/** Memoised: a stats poll or an unrelated parent commit re-renders only the tile whose props changed. */
+export const RoleTile = memo(RoleTileImpl);

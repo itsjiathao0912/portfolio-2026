@@ -20,6 +20,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { LEGACY_PERSONA_KEY, VISITOR_STORE_KEY } from "@/lib/visitor-role-adapter";
+import { ClayDefsProvider } from "@/components/clay/clay-defs";
 import { isRoleId, type RoleId } from "./role-ids";
 
 export type VisitorState = {
@@ -251,7 +252,7 @@ export function VisitorProvider({ children }: { children: ReactNode }) {
   return (
     <VisitorContext.Provider value={value}>
       <PickerContext.Provider value={picker}>
-        {children}
+        <ClayDefsProvider>{children}</ClayDefsProvider>
       </PickerContext.Provider>
     </VisitorContext.Provider>
   );

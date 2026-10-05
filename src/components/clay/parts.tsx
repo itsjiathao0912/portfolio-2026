@@ -11,15 +11,17 @@
 // (grad cap + backpack + books), fellow PM (lanyard + sticky board), just
 // curious (question-mark balloon).
 
-import type { CSSProperties, ReactNode } from "react";
-import { INK, PAPER, SHOE, SOLE, mix, shade, type Shade } from "./palette";
+import type { CSSProperties, ReactNode, Ref } from "react";
+import { ConstGrads, type Fills, type GradKey, Grad, Iris } from "./clay-defs";
+import { INK, PAPER, SHOE, SOLE, mix, shade } from "./palette";
 import type { PoseSpec } from "./poses";
 
 export const HAIR_STYLES = ["buzz", "short", "part", "bun", "long", "curly", "pony"] as const;
 export type HairStyle = (typeof HAIR_STYLES)[number];
 
 export type Look = {
-  uid: string;
+  /** fill url per gradient key (shared or per-figure ids) */
+  f: Fills;
   skin: string;
   hair: string;
   hairStyle: HairStyle;
@@ -28,53 +30,19 @@ export type Look = {
   accent: string;
 };
 
-const url = (uid: string, k: string) => `url(#${uid}${k})`;
 const ease = "transform 280ms cubic-bezier(.3,.7,.2,1)";
 
-/** One radial gradient with light, mid and dark stops (objectBoundingBox units, reusable on any shape). */
-function Grad({ id, c, cx = 0.36, cy = 0.28 }: { id: string; c: Shade; cx?: number; cy?: number }) {
-  return (
-    <radialGradient id={id} cx={cx} cy={cy} r={0.95}>
-      <stop offset="0" stopColor={c.light} />
-      <stop offset="0.45" stopColor={c.mid} />
-      <stop offset="0.82" stopColor={mix(c.dark, "#c0503c", 0.12)} />
-      <stop offset="1" stopColor={c.dark} />
-    </radialGradient>
-  );
-}
-
-export function Defs({ look }: { look: Look }) {
-  const { uid } = look;
+/** Per-figure gradients (used only when the shared ClayDefsProvider is absent). */
+export function Defs({ look, ids }: { look: Look; ids: Record<GradKey, string> }) {
   return (
     <defs>
-      <Grad id={`${uid}s`} c={shade(look.skin)} />
-      <Grad id={`${uid}h`} c={shade(look.hair)} />
-      <Grad id={`${uid}t`} c={shade(look.top)} />
-      <Grad id={`${uid}b`} c={shade(look.bottom)} />
-      <Grad id={`${uid}a`} c={shade(look.accent)} />
-      <radialGradient id={`${uid}g`} cx="0.5" cy="0.5" r="0.5">
-        <stop offset="0" stopColor="#1b1410" stopOpacity="0.24" />
-        <stop offset="1" stopColor="#1b1410" stopOpacity="0" />
-      </radialGradient>
-      {/* rim light: transparent core, bright fresnel edge biased to the lower right */}
-      <radialGradient id={`${uid}r`} cx="0.4" cy="0.36" r="0.7">
-        <stop offset="0.8" stopColor="#fff" stopOpacity="0" />
-        <stop offset="1" stopColor="#fff" stopOpacity="0.42" />
-      </radialGradient>
-      {/* ambient occlusion: soft warm dark for contact creases */}
-      <radialGradient id={`${uid}o`} cx="0.5" cy="0.5" r="0.5">
-        <stop offset="0" stopColor="#4a2418" stopOpacity="0.32" />
-        <stop offset="1" stopColor="#4a2418" stopOpacity="0" />
-      </radialGradient>
-      {/* iris: deep top, hair-tinted glow at the bottom (anime eye) */}
-      <linearGradient id={`${uid}i`} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0.1" stopColor="#1d1714" />
-        <stop offset="1" stopColor={mix(look.hair, "#8fb8e8", 0.35)} />
-      </linearGradient>
-      <radialGradient id={`${uid}c`} cx="0.5" cy="0.5" r="0.5">
-        <stop offset="0" stopColor="#e07a7a" stopOpacity="0.42" />
-        <stop offset="1" stopColor="#e07a7a" stopOpacity="0" />
-      </radialGradient>
+      <Grad id={ids.s} c={shade(look.skin)} />
+      <Grad id={ids.h} c={shade(look.hair)} />
+      <Grad id={ids.t} c={shade(look.top)} />
+      <Grad id={ids.b} c={shade(look.bottom)} />
+      <Grad id={ids.a} c={shade(look.accent)} />
+      <ConstGrads ids={ids} />
+      <Iris id={ids.i} hair={look.hair} />
     </defs>
   );
 }
@@ -84,22 +52,21 @@ const Spec = ({ cx, cy, rx, ry, o = 0.34, r = -25 }: { cx: number; cy: number; r
   <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#fff" opacity={o} transform={`rotate(${r} ${cx} ${cy})`} />
 );
 
-export function Shadow({ uid, scale, y = 144 }: { uid: string; scale: number; y?: number }) {
-  return <ellipse cx={50} cy={y} rx={26 * scale} ry={5 * scale} fill={url(uid, "g")} style={{ transition: ease, transformBox: "fill-box", transformOrigin: "center" }} />;
+export function Shadow({ fill, scale, y = 144 }: { fill: string; scale: number; y?: number }) {
+  return <ellipse cx={50} cy={y} rx={26 * scale} ry={5 * scale} fill={fill} style={{ transition: ease, transformBox: "fill-box", transformOrigin: "center" }} />;
 }
 
 // ---------------------------------------------------------------- limbs
 
-const lim = (x: number, y: number, a: number, extra = ""): CSSProperties => ({
+export const lim = (x: number, y: number, a: number, extra = ""): CSSProperties => ({
   transform: `translate(${x}px, ${y}px) rotate(${a}deg)${extra}`,
   transition: ease,
 });
 
 export function Leg({ look, x, angle, lift }: { look: Look; x: number; angle: number; lift: number }) {
-  const { uid } = look;
   return (
     <g style={lim(x, 100 + lift, angle)}>
-      <rect x={-6.4} y={-3} width={12.8} height={33} rx={6.4} fill={url(uid, "b")} />
+      <rect x={-6.4} y={-3} width={12.8} height={33} rx={6.4} fill={look.f.b} />
       {/* shoe: rounded toe cap over the leg end, flat sole at y=34 (no gap, no float) */}
       <path d="M-7 34 V30.4 C-7 25.6 -3 24.6 1.4 24.6 C7 24.6 10 27.4 10 31.4 V34 Z" fill={SHOE} />
       <rect x={-7} y={32.4} width={17} height={1.6} rx={0.6} fill={SOLE} />
@@ -108,24 +75,24 @@ export function Leg({ look, x, angle, lift }: { look: Look; x: number; angle: nu
   );
 }
 
-export function Arm({ look, x, angle, children }: { look: Look; x: number; angle: number; children?: ReactNode }) {
-  const { uid } = look;
+export function Arm({ look, x, angle, children, gRef }: { look: Look; x: number; angle: number; children?: ReactNode; gRef?: Ref<SVGGElement> }) {
   return (
-    <g style={lim(x, 68, angle)}>
-      <rect x={-4.6} y={-2} width={9.2} height={31} rx={4.6} fill={url(uid, "s")} />
-      <rect x={-5.2} y={-3.4} width={10.4} height={19} rx={5.2} fill={url(uid, "t")} />
+    <g ref={gRef} style={lim(x, 68, angle)}>
+      <rect x={-4.6} y={-2} width={9.2} height={31} rx={4.6} fill={look.f.s} />
+      <rect x={-5.2} y={-3.4} width={10.4} height={19} rx={5.2} fill={look.f.t} />
       {children}
-      <circle cx={0} cy={29.6} r={5.4} fill={url(uid, "s")} />
+      <circle cx={0} cy={29.6} r={5.4} fill={look.f.s} />
     </g>
   );
 }
 
 // ---------------------------------------------------------------- head
 
-function Eyes({ uid, blinking, glasses }: { uid: string; blinking: boolean; glasses: boolean }) {
+/** `blinking` undefined = the blink is driven from outside by `data-blink` on the svg (no React render). */
+function Eyes({ look, blinking, glasses }: { look: Look; blinking?: boolean; glasses: boolean }) {
   const eye = (cx: number) => (
-    <g style={{ transformBox: "fill-box", transformOrigin: "center", transform: blinking ? "scaleY(0.1)" : "scaleY(1)", transition: "transform 90ms ease-out" }}>
-      <ellipse cx={cx} cy={41} rx={3.9} ry={4.9} fill={url(uid, "i")} />
+    <g className="clay-eye" style={{ transformBox: "fill-box", transformOrigin: "center", transform: blinking === undefined ? undefined : blinking ? "scaleY(0.1)" : "scaleY(1)", transition: "transform 90ms ease-out" }}>
+      <ellipse cx={cx} cy={41} rx={3.9} ry={4.9} fill={look.f.i} />
       <ellipse cx={cx} cy={41.6} rx={1.6} ry={2.1} fill="#0f0b0a" />
       <path d={`M${cx - 4.4} 37.4 Q${cx} 34.6 ${cx + 4.4} 37.2`} fill="none" stroke={INK} strokeWidth={1.5} strokeLinecap="round" />
       <circle cx={cx - 1.3} cy={39.3} r={1.25} fill="#fff" />
@@ -161,7 +128,7 @@ function Mouth({ kind }: { kind: PoseSpec["mouth"] }) {
 
 /** Back hair (drawn before the head) and front hair (after) per style. */
 function HairBack({ look }: { look: Look }) {
-  const f = url(look.uid, "h");
+  const f = look.f.h;
   switch (look.hairStyle) {
     case "long":
       return <path d="M27.4 38 C23 66 28 79 38 78 L62 78 C72 79 77 66 72.6 38 Z" fill={f} />;
@@ -183,7 +150,7 @@ function HairBack({ look }: { look: Look }) {
 }
 
 function HairFront({ look }: { look: Look }) {
-  const f = url(look.uid, "h");
+  const f = look.f.h;
   switch (look.hairStyle) {
     case "buzz":
       return <path d="M29.2 35 C29 14.6 71 14.6 70.8 35 C66 27 34 27 29.2 35Z" fill={f} opacity={0.92} />;
@@ -208,23 +175,22 @@ function HairFront({ look }: { look: Look }) {
   }
 }
 
-export function Head({ look, pose, blinking, glasses, children }: { look: Look; pose: PoseSpec; blinking: boolean; glasses?: boolean; children?: ReactNode }) {
-  const { uid } = look;
+export function Head({ look, pose, blinking, glasses, children }: { look: Look; pose: PoseSpec; blinking?: boolean; glasses?: boolean; children?: ReactNode }) {
   return (
     <g style={{ transform: `rotate(${pose.tilt}deg)`, transformOrigin: "50px 58px", transition: ease }}>
       <HairBack look={look} />
-      <circle cx={29.4} cy={40.6} r={4.2} fill={url(uid, "s")} />
-      <circle cx={70.6} cy={40.6} r={4.2} fill={url(uid, "s")} />
-      <ellipse cx={50} cy={38} rx={21.4} ry={20.4} fill={url(uid, "s")} />
-      <ellipse cx={50} cy={38} rx={21.4} ry={20.4} fill={url(uid, "r")} />
+      <circle cx={29.4} cy={40.6} r={4.2} fill={look.f.s} />
+      <circle cx={70.6} cy={40.6} r={4.2} fill={look.f.s} />
+      <ellipse cx={50} cy={38} rx={21.4} ry={20.4} fill={look.f.s} />
+      <ellipse cx={50} cy={38} rx={21.4} ry={20.4} fill={look.f.r} />
       <Spec cx={39} cy={24.6} rx={6.4} ry={2.6} o={0.5} />
-      <ellipse cx={36.4} cy={47} rx={4.6} ry={2.8} fill={url(uid, "c")} />
-      <ellipse cx={63.6} cy={47} rx={4.6} ry={2.8} fill={url(uid, "c")} />
+      <ellipse cx={36.4} cy={47} rx={4.6} ry={2.8} fill={look.f.c} />
+      <ellipse cx={63.6} cy={47} rx={4.6} ry={2.8} fill={look.f.c} />
       <g stroke={mix(look.hair, INK, 0.3)} strokeWidth={1.2} strokeLinecap="round" fill="none" opacity={0.7}>
         <path d="M38.6 32.6 Q42 31 45.2 32.2" />
         <path d="M54.8 32.2 Q58 31 61.4 32.6" />
       </g>
-      <Eyes uid={uid} blinking={blinking} glasses={!!glasses} />
+      <Eyes look={look} blinking={blinking} glasses={!!glasses} />
       <ellipse cx={50} cy={45.6} rx={0.9} ry={0.6} fill={mix(look.skin, "#9a4a38", 0.45)} />
       <Mouth kind={pose.mouth} />
       <HairFront look={look} />
@@ -243,16 +209,15 @@ export function Neck({ look }: { look: Look }) {
 const TORSO = "M30 67 C30 58.6 36 56.6 50 56.6 C64 56.6 70 58.6 70 67 L72 100 C72 108 66 112.4 50 112.4 C34 112.4 28 108 28 100Z";
 
 export function Torso({ look, role }: { look: Look; role: string }) {
-  const { uid } = look;
-  const t = url(uid, "t");
+  const t = look.f.t;
   const dark = shade(look.top).dark;
   const light = shade(look.top).light;
   return (
     <g>
       {role === "founder" && <ellipse cx={50} cy={60} rx={15.6} ry={8} fill={dark} />}
       <path d={TORSO} fill={t} />
-      <path d={TORSO} fill={url(uid, "r")} />
-      <ellipse cx={50} cy={60} rx={14} ry={5} fill={url(uid, "o")} />
+      <path d={TORSO} fill={look.f.r} />
+      <ellipse cx={50} cy={60} rx={14} ry={5} fill={look.f.o} />
       <Spec cx={38} cy={71} rx={6} ry={2.4} o={0.32} r={-30} />
       {role === "recruiter" && (
         <g>
@@ -283,16 +248,16 @@ export function Torso({ look, role }: { look: Look; role: string }) {
       {role === "investor" && (
         <g>
           <path d="M44 57 L50 78 L56 57Z" fill={PAPER} />
-          <path d="M48 60 h4 l1 4 l2.4 14 l-3.4 6 l-3.4 -6 l2.4 -14z" fill={url(uid, "a")} />
+          <path d="M48 60 h4 l1 4 l2.4 14 l-3.4 6 l-3.4 -6 l2.4 -14z" fill={look.f.a} />
           <path d="M31 70 L43 58 L48 84 L30 96Z M69 70 L57 58 L52 84 L70 96Z" fill={dark} opacity={0.18} />
         </g>
       )}
       {role === "student" && <path d="M38 60 L36 100 M62 60 L64 100" stroke={shade(look.bottom).mid} strokeWidth={4.4} strokeLinecap="round" opacity={0.9} />}
       {role === "pm" && (
         <g>
-          <path d="M42 58 L50 80 L58 58" fill="none" stroke={url(uid, "a")} strokeWidth={2} />
+          <path d="M42 58 L50 80 L58 58" fill="none" stroke={look.f.a} strokeWidth={2} />
           <rect x={45} y={79} width={10} height={12} rx={1.6} fill={PAPER} stroke="#d9d4ca" strokeWidth={0.6} />
-          <rect x={47} y={82} width={6} height={2} rx={1} fill={url(uid, "a")} />
+          <rect x={47} y={82} width={6} height={2} rx={1} fill={look.f.a} />
         </g>
       )}
       {role === "marketer" && <path d="M44 57.6 L50 72 L56 57.6 M44 57.6 L40 66 L46 66 Z M56 57.6 L60 66 L54 66 Z" fill={dark} opacity={0.5} />}
@@ -307,14 +272,14 @@ export function BackGear({ look, role }: { look: Look; role: string }) {
   if (role !== "student") return null;
   return (
     <g>
-      <rect x={22} y={62} width={56} height={44} rx={13} fill={url(look.uid, "a")} />
+      <rect x={22} y={62} width={56} height={44} rx={13} fill={look.f.a} />
     </g>
   );
 }
 
 /** Headwear and face gear drawn over the hair. */
 export function Headgear({ look, role }: { look: Look; role: string }) {
-  const a = url(look.uid, "a");
+  const a = look.f.a;
   if (role === "designer")
     return (
       <g>
@@ -350,8 +315,7 @@ const card = () => <rect x={-11} y={17} width={22} height={17} rx={2.6} fill={PA
 
 /** Prop art in the hand's local frame (hand at 0,29.6; box about 24 x 22). */
 export function Prop({ look, role }: { look: Look; role: string }) {
-  const { uid } = look;
-  const a = url(uid, "a");
+  const a = look.f.a;
   const dark = shade(look.accent).dark;
   switch (role) {
     case "recruiter":
