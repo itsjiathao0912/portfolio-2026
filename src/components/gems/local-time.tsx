@@ -26,7 +26,10 @@ export function LocalTime({ className, inline = false }: { className?: string; i
         data-testid="local-time"
         aria-live="off"
       >
-        {line ?? " "}
+        {/* Same-width invisible placeholder before hydration: an empty span here
+            let the centred nav pill widen after load, shifting every link under
+            a fast first click (the "frozen first click" on prod, 2026-10-05). */}
+        {line ?? <span className="invisible">It&apos;s 00:00 in Saigon</span>}
       </span>
     </SaigonDesk>
   );
