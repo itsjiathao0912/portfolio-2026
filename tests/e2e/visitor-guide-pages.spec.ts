@@ -69,6 +69,15 @@ async function contact(page: Page) {
       return (!clear(cs.backgroundColor) && far(cs.backgroundColor, behind(e))) || cs.backgroundImage !== "none" || (Number.parseFloat(cs.borderTopWidth) > 0 && cs.borderTopStyle !== "none" && !clear(cs.borderTopColor)) || cs.boxShadow !== "none" || (Number.parseFloat(cs.outlineWidth) > 0 && cs.outlineStyle !== "none");
     };
     const stand = document.querySelector("[data-guide-standing]");
+    const onText = (e: Element | null) => {
+      // A text surface: the soles sit on the glyph band of the block's first line (cap top .. mid line).
+      if (!e || (e as HTMLElement).dataset.guideSurface !== "text") return false;
+      const rg = document.createRange();
+      rg.selectNodeContents(e);
+      const q = [...rg.getClientRects()].find((r) => r.width > 1 && r.height > 4);
+      return !!q && sole >= q.top - 1 && sole <= q.top + q.height / 2 + 1 && cx >= q.left - 40 && cx <= q.right + 40;
+    };
+    if (onText(stand)) return { ok: true, why: "text", sole };
     for (const e of [...document.elementsFromPoint(cx, sole + 2), ...(stand ? [stand] : [])]) {
       if (g.contains(e)) continue;
       if (Math.abs(e.getBoundingClientRect().top - sole) <= 1 && drawn(e)) return { ok: true, why: e.tagName, sole };
@@ -172,7 +181,8 @@ for (const vp of [
             bad.push({ y, overlap: t });
           }
         }
-        console.log(`[measure ${vp.name} ${path}] contact ${ok}/30, text overlap ${over}/30`, bad.length ? JSON.stringify(bad) : "");
+        const cost = await guide(page).evaluate((n) => ({ build: (n as HTMLElement).dataset.guideBuildMs, collect: (n as HTMLElement).dataset.guideCollectMs, tagged: (n as HTMLElement).dataset.guideTagged }));
+        console.log(`[measure ${vp.name} ${path}] contact ${ok}/30, text overlap ${over}/30, analyse ${cost.build} ms, collect ${cost.collect} ms, tagged box,text ${cost.tagged}`, bad.length ? JSON.stringify(bad) : "");
         expect(ok).toBeGreaterThanOrEqual(28);
         expect(over).toBeLessThanOrEqual(OVERLAP_CEILING[`${vp.name} ${path}`] ?? 2);
       });

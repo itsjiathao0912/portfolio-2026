@@ -33,13 +33,12 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { ClayAvatar } from "@/components/clay/clay-avatar";
-import { useBlink } from "@/components/clay/use-blink";
 import type { ClayPoseName } from "@/components/clay/poses";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import type { RoleId } from "../role-ids";
 import { useVisitor } from "../store";
-import { PAGE_ROOT, collectTracked, guideRoots, readAvoid, readInk, readNav, readSpans, refreshSurfaces, type Tracked } from "./guide-dom";
+import { PAGE_ROOT, analyseSurfaces, checkCover, guideRoots, markSurfaces, readAvoid, readNav, readSpans, refreshSurfaces, type Tracked } from "./guide-dom";
 import { GuideBubble, GuideDot, GuideHint, GuideTouchPad, type KeyHandlers, type PressKey, useGuideKeys } from "./guide-controls";
 import { bodyHits, bubbleAnchor, bubbleRectAt, boxHits, type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, hintRect, type Ink, inkAbove, maxFeetY, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type GuidePage, guidePageFor, type GuideSpotId, type Rect, sectionUnder, springStep, type Span, type Surface, surfaceStandable, type View, visibleSurfaces } from "./guide-logic";
 import { type Body, FLOOR_KEY, isMoving, launchTo, makeScene, NO_INPUT, type Input, type Scene, squashScale, standingBody, stepBody, surfaceY } from "./guide-physics";
@@ -82,7 +81,8 @@ function measureFootPad(box: HTMLElement): number {
 const PASSIVE_BUBBLE_MS = 9000;
 const SETTLE_MS = 160;
 const SCROLL_FRAMES_MS = 170;
-const RECOLLECT_MS = 450;
+/** Near-viewport surface refresh while scrolling (the standing block is refreshed every frame). */
+const REFRESH_MS = 100;
 /** How long the block being stood on is re-read (by timeout, never rAF) after a hover or transition on it. */
 const LIVE_MS = 650;
 const LIVE_STEP_MS = 34;
@@ -115,10 +115,28 @@ export function VisitorGuide() {
   const [wide, setWide] = useState(true);
 
   useEffect(() => {
-    // Safari has no requestIdleCallback: fall back to a short timeout.
+    // Lazy start: the first scroll / touch / key, or an idle moment after the page has loaded,
+    // whichever comes first. Nothing of the guide runs during load and first paint.
+    let done = false;
+    let id = 0;
     const idle = "requestIdleCallback" in window;
-    const id = idle ? window.requestIdleCallback(() => setPainted(true), { timeout: 1500 }) : window.setTimeout(() => setPainted(true), 500);
+    const go = () => {
+      if (done) return;
+      done = true;
+      setPainted(true);
+    };
+    const onLoad = () => {
+      // Safari has no requestIdleCallback: fall back to a short timeout.
+      id = idle ? window.requestIdleCallback(go, { timeout: 2000 }) : window.setTimeout(go, 600);
+    };
+    if (document.readyState === "complete") onLoad();
+    else window.addEventListener("load", onLoad, { once: true });
+    const wake = ["scroll", "pointerdown", "keydown"] as const;
+    for (const e of wake) window.addEventListener(e, go, { passive: true, once: true });
     return () => {
+      done = true;
+      window.removeEventListener("load", onLoad);
+      for (const e of wake) window.removeEventListener(e, go);
       if (idle) window.cancelIdleCallback(id);
       else window.clearTimeout(id);
     };
@@ -162,7 +180,7 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
   const hopTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [bubble, setBubble] = useState<BubbleState>(null);
   const [pose, setPose] = useState<{ name: ClayPoseName; frame: number }>({ name: "idle", frame: 0 });
-  const [facing, setFacing] = useState<1 | -1>(1);
+  const charBtn = useRef<HTMLButtonElement>(null);
   const [lay, setLay] = useState<{ place: BubblePlace; w: number }>({ place: "above", w: 188 });
   const [small, setSmall] = useState(false);
   const [dotOpen, setDotOpen] = useState(false);
@@ -172,7 +190,6 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
   const [hint, setHint] = useState(false);
   const [hintClear, setHintClear] = useState(true);
   const [pad, setPad] = useState(0); // 0 = closed; otherwise a stamp that restarts the auto-hide timer
-  const blinking = useBlink(!reduce);
   const footRef = useRef(FOOT_PAD_DEFAULT);
   const footSync = useRef<((pad: number) => void) | null>(null);
   useLayoutEffect(() => {
@@ -308,23 +325,42 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     const syncView = () => {
       view.scrollY = window.scrollY;
     };
+    // The expensive pass (whole page, style heuristics): only at start, after a resize, after a DOM
+    // change (debounced, deferred to scroll end) and once the picker's springs have settled.
+    let marked: ReadonlySet<Element> = new Set();
+    let structDirty = false;
+    const rebuild = () => {
+      view.w = window.innerWidth;
+      view.h = window.innerHeight;
+      syncView();
+      const a = analyseSurfaces(guideRoots(page), root, view.scrollY, view.w, page);
+      tracked = a.tracked;
+      ink = a.ink;
+      avoid = a.avoid;
+      marked = markSurfaces(tracked, marked);
+      structDirty = false;
+      el.dataset.guideBuildMs = a.ms.toFixed(1);
+      el.dataset.guideTagged = `${a.boxes},${a.texts}`;
+      collect();
+    };
+    // The cheap pass (what a scroll settle runs): re-read the rects near the viewport from the cache.
     const collect = () => {
+      const t0 = performance.now();
       view.w = window.innerWidth;
       view.h = window.innerHeight;
       syncView();
       view.docH = document.documentElement.scrollHeight;
       view.nav = readNav();
-      avoid = readAvoid(root, view.scrollY, view.h);
-      const roots = guideRoots(page);
-      ink = readInk(roots, root, view.scrollY);
-      // Every visible block is a platform. Text avoidance only steers where it chooses to walk, never what holds it up.
-      tracked = collectTracked(roots, root, view.scrollY, view.w, page);
-      surfaces = tracked.map((t) => t.surface);
+      refreshSurfaces(tracked, view.scrollY, view.w, view.h);
+      checkCover(tracked, view.scrollY, view.w, view.h);
+      // Every visible block or text line is a platform. Text avoidance only steers where it chooses to walk, never what holds it up.
+      surfaces = tracked.filter((t) => !t.covered).map((t) => t.surface);
       spans = readSpans(view.scrollY, page);
       scene = makeScene(surfaces, view);
       el.dataset.guideSurfaces = String(surfaces.length);
       el.dataset.guideInView = String(visibleSurfaces(surfaces, view).length);
       lastCollect = performance.now();
+      el.dataset.guideCollectMs = (lastCollect - t0).toFixed(2);
     };
     // What the body must not stand in front of when its feet are at `top` on `own`: tap targets and the text just above that edge.
     const within = (a: Element, b: Element) => b.contains(a);
@@ -383,7 +419,8 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
       }
       if (body.facing !== facingNow) {
         facingNow = body.facing;
-        setFacing(facingNow);
+        // Written straight to the node: turning round never re-renders the figure.
+        if (charBtn.current) charBtn.current.style.transform = facingNow === -1 ? "scaleX(-1)" : "";
       }
       const rh = nearHint(body.x); // the hint / pad would run off the right edge
       if (rh !== rightHalfNow) {
@@ -604,8 +641,11 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
       syncView();
       if (dirty) {
         dirty = false;
-        if (ts - lastCollect > RECOLLECT_MS) collect();
-        else refreshSurfaces(tracked, view.scrollY, view.w, view.h);
+        // Scrolling never re-analyses: the block under the feet every frame, the rest near the viewport every ~100 ms.
+        if (ts - lastCollect > REFRESH_MS) {
+          refreshSurfaces(tracked, view.scrollY, view.w, view.h);
+          lastCollect = ts;
+        } else if (body.surface && body.surface !== FLOOR_KEY) refreshSurfaces(tracked, view.scrollY, view.w, view.h, body.surface);
       }
       body = stepBody(body, input, dt, scene);
       input.hop = false;
@@ -726,7 +766,8 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     const settle = () => {
       later(recheck, 500);
       later(recheck, 1200);
-      collect();
+      if (structDirty) rebuild();
+      else collect();
       if (!followFloor()) {
         reseat();
         nudgeClear();
@@ -780,7 +821,7 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     const onResize = () => {
       if (roT) clearTimeout(roT);
       roT = later(() => {
-        collect();
+        rebuild();
         body = { ...body, x: clampX(body.x, view) };
         reseat();
         paint();
@@ -840,7 +881,7 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     };
 
     // ---- start: drop in from above onto the block nearest the middle of the screen ----
-    collect();
+    rebuild();
     // First visit: prefer a spot where the key hint above the head also covers nothing.
     const hintOk = (s: Surface) => hintFree(chooseStandX(s, view, standBlockers(s.top, elOf(s.key))), s.top);
     const clearFirst = surfaces.filter(clearOn);
@@ -861,7 +902,8 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     for (const ms of [700, 1600]) {
       later(() => {
         footSync.current?.(measureFootPad(el));
-        collect();
+        if (ms === 1600) rebuild();
+        else collect();
         reseat();
         nudgeClear();
       }, ms);
@@ -877,6 +919,23 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     window.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", onVisibility);
     for (const ev of ["pointerover", "pointerout", "transitionrun", "transitionend"]) document.addEventListener(ev, onLive, { passive: true });
+    // A DOM change (a card added, text swapped) marks the cache stale: re-analysed once things go quiet, never mid-scroll.
+    let moT: ReturnType<typeof setTimeout> | undefined;
+    const mo =
+      typeof MutationObserver !== "undefined"
+        ? new MutationObserver((recs) => {
+            if (recs.every((r) => root.contains(r.target))) return;
+            structDirty = true;
+            if (moT) clearTimeout(moT);
+            moT = later(() => {
+              if (!structDirty) return;
+              if (performance.now() < scrollUntil + SETTLE_MS) return; // the scroll settle will rebuild
+              rebuild();
+              reseat();
+            }, 400);
+          })
+        : null;
+    for (const r of guideRoots(page)) mo?.observe(r, { childList: true, subtree: true, characterData: true });
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
     ro?.observe(document.body);
     const home = document.querySelector(PAGE_ROOT[page]);
@@ -894,6 +953,8 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
       document.removeEventListener("visibilitychange", onVisibility);
       for (const ev of ["pointerover", "pointerout", "transitionrun", "transitionend"]) document.removeEventListener(ev, onLive);
       ro?.disconnect();
+      mo?.disconnect();
+      for (const m of marked) m.removeAttribute("data-guide-surface");
       standing?.removeAttribute("data-guide-standing");
       ctl.current = null;
       footSync.current = null;
@@ -930,9 +991,9 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
                 else ctl.current?.hop();
               }}
               className="pointer-events-auto absolute inset-0 flex cursor-pointer items-end justify-center rounded-2xl [&>svg]:block outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-              style={{ transform: facing === -1 ? "scaleX(-1)" : undefined }}
+              ref={charBtn}
             >
-              <ClayAvatar role={role} view="full" size={CHAR.w} pose={pose.name} frame={pose.frame} blinking={blinking} decorative shadow={false} />
+              <ClayAvatar role={role} view="full" size={CHAR.w} pose={pose.name} frame={pose.frame} autoBlink={!reduce} decorative shadow={false} />
             </button>
           </div>
           <div className={cn("pointer-events-none absolute bottom-full mb-1 flex flex-col gap-1", rightHalf ? "items-end right-0" : "items-start left-0")}>

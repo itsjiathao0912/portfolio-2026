@@ -83,6 +83,15 @@ async function contact(page: Page) {
       return (!clear(cs.backgroundColor) && far(cs.backgroundColor, behind(e))) || cs.backgroundImage !== "none" || (Number.parseFloat(cs.borderTopWidth) > 0 && cs.borderTopStyle !== "none" && !clear(cs.borderTopColor)) || cs.boxShadow !== "none" || (Number.parseFloat(cs.outlineWidth) > 0 && cs.outlineStyle !== "none");
     };
     const stand = document.querySelector("[data-guide-standing]");
+    const onText = (e: Element | null) => {
+      // A text surface: the soles sit on the glyph band of the block's first line (cap top .. mid line).
+      if (!e || (e as HTMLElement).dataset.guideSurface !== "text") return false;
+      const rg = document.createRange();
+      rg.selectNodeContents(e);
+      const q = [...rg.getClientRects()].find((r) => r.width > 1 && r.height > 4);
+      return !!q && sole >= q.top - 1 && sole <= q.top + q.height / 2 + 1 && cx >= q.left - 40 && cx <= q.right + 40;
+    };
+    if (onText(stand)) return { ok: true, why: "text", sole };
     const cands = [...document.elementsFromPoint(cx, sole + 2), ...(stand ? [stand] : [])];
     for (const e of cands) {
       if (g.contains(e)) continue;
@@ -186,11 +195,12 @@ test.describe("desktop", () => {
       const el = document.querySelector("[data-guide-standing]") as HTMLElement | null;
       if (!el) return null;
       const r = el.getBoundingClientRect();
-      return { top: r.top + scrollY, h: r.height, tag: el.tagName, fs: Number.parseFloat(getComputedStyle(el).fontSize) };
+      return { top: r.top + scrollY, h: r.height, tag: el.tagName, fs: Number.parseFloat(getComputedStyle(el).fontSize), text: el.dataset.guideSurface === "text" };
     });
     expect(stand).not.toBeNull();
     // Feet are exactly on the block's drawn top edge: never floating or sunk.
-    expect(Math.abs(fy - stand!.top)).toBeLessThanOrEqual(1);
+    // (On a text surface the feet sit on the first line's glyph top instead; contact() checks that band.)
+    if (!stand!.text) expect(Math.abs(fy - stand!.top)).toBeLessThanOrEqual(1);
     // The painted soles agree with the model, and a small scroll moves the page under it with zero drift.
     expect((await contact(page)).ok).toBe(true);
     const b0 = await box(page);

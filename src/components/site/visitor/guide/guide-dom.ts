@@ -16,12 +16,12 @@ import { CHAR, type GuidePage, type GuideSpotId, type Ink, MIN_SURFACE_W, type P
  * platform: only media, dividers, and boxes that paint something (background, top border,
  * shadow or outline) count. See `drawnEdge`.
  */
-const SURFACE_SELECTOR = "img,svg,video,canvas,picture,iframe,hr,div,section,article,figure,aside,li,ul,ol,a,button,blockquote,table,form,[data-guide-surface]";
+const SURFACE_SELECTOR = "img,svg,video,canvas,picture,iframe,hr,div,section,article,figure,aside,li,ul,ol,a,button,blockquote,table,form";
 const MEDIA_TAGS = new Set(["IMG", "SVG", "VIDEO", "CANVAS", "PICTURE", "IFRAME"]);
 /** Never stand on these: chrome, hidden or decorative subtrees, the marquee strips that slide sideways, and interactive pickers (role tiles) or the card stamp. */
 const CHROME_SELECTOR = "header,nav,dialog,[inert],[hidden],[aria-hidden='true'],[data-guide-skip],[data-testid='section-logos'],[data-testid='proof-ticker'],.fixed,[role='radiogroup'],[role='radio'],[data-testid='visitor-title'],[data-testid='card-stamp']";
 const SKIP_SELECTOR = CHROME_SELECTOR;
-const MAX_SURFACES = 600;
+const MAX_SURFACES = 900;
 const NEAR = 360; // px beyond the viewport that still gets refreshed each frame
 
 const transparent = (c: string) => !c || c === "transparent" || /^rgba\([^)]*,\s*0(\.0+)?\s*\)$|\/\s*0(\.0+)?\s*\)$/.test(c);
@@ -77,14 +77,6 @@ function pageFill() {
   return "rgb(255, 255, 255)";
 }
 
-export type Tracked = {
-  el: Element;
-  surface: Surface;
-  /** offsets of the standable line from the element's border box (px) */
-  relL: number;
-  relR: number;
-  relT: number;
-};
 
 const keys = new WeakMap<Element, string>();
 let counter = 0;
@@ -130,18 +122,94 @@ function spotOf(el: Element, page: GuidePage): GuideSpotId | null {
   return best?.id ?? null;
 }
 
-/** Collect the standable blocks under the given roots. `guideRoot` is excluded. */
-export function collectTracked(roots: readonly Element[], guideRoot: Element | null, scrollY: number, vw: number, page: GuidePage = "home"): Tracked[] {
+/** Is this element rendered at all (display, visibility, effective opacity up the tree)? */
+export function rendered(el: Element, cs: CSSStyleDeclaration) {
+  if (cs.display === "none" || cs.visibility === "hidden" || Number.parseFloat(cs.opacity) < 0.05) return false;
+  const cv = (el as Element & { checkVisibility?: (o: object) => boolean }).checkVisibility;
+  return cv ? cv.call(el, { opacityProperty: true, visibilityProperty: true, contentVisibilityAuto: true }) : true;
+}
+
+/**
+ * Pure: the glyph top of a text line, from its content-area box (a Range rect). The box top
+ * is the font's ascent line; the baseline sits ~80% down it and capitals rise ~0.72 em above
+ * the baseline, so the feet land on the letters, not on the air above them.
+ */
+export function capTop(lineTop: number, lineHeight: number, fontSize: number) {
+  const t = lineTop + lineHeight * 0.8 - fontSize * 0.72;
+  return Math.min(lineTop + lineHeight / 2, Math.max(lineTop, t));
+}
+
+/** Pure: the first rendered line out of a text block's client rects (in document order): same top +-2 px, unioned. */
+export function firstLine(rects: readonly { left: number; right: number; top: number; height: number; width: number }[]) {
+  let line: { left: number; right: number; top: number; height: number } | null = null;
+  for (const q of rects) {
+    if (q.width <= 1 || q.height <= 4) continue;
+    if (!line) line = { left: q.left, right: q.right, top: q.top, height: q.height };
+    else if (Math.abs(q.top - line.top) <= 2) {
+      line.left = Math.min(line.left, q.left);
+      line.right = Math.max(line.right, q.right);
+      line.height = Math.max(line.height, q.height);
+    } else if (q.top > line.top + 2) break;
+  }
+  return line;
+}
+
+/** Elements whose text reads as one block (a heading, a paragraph, a label, a stat). */
+const TEXT_BLOCK = "h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,button,a,td,th,[data-guide-text]";
+
+export type Tracked = {
+  el: Element;
+  surface: Surface;
+  /** offsets of the standable line from the element's border box (px) */
+  relL: number;
+  relR: number;
+  relT: number;
+  /** "box" = a drawn edge; "text" = the glyph top of the first line of a text block with no drawn container */
+  kind: "box" | "text";
+  /** covered by another opaque box at its edge; undefined = not checked yet (only checked in view) */
+  covered?: boolean;
+};
+
+export type SurfaceCache = { tracked: Tracked[]; ink: Ink<Element>[]; avoid: Rect[]; ms: number; boxes: number; texts: number };
+
+/**
+ * The expensive pass: analyse the WHOLE page once (idle after load, then only after a resize or
+ * a DOM change) and cache every standable line in page px with its offset from its element, so
+ * a scroll only re-reads rects and never re-runs any style heuristics.
+ * Rules: a box counts only when it is rendered and draws a visible top edge (fill that differs
+ * from what is painted behind it, a top border, shadow, outline, or media / hr) and is not
+ * nested inside a smaller drawn card. A text block whose container draws no edge offers the
+ * glyph top of its first line instead; the invisible container itself never does.
+ */
+export function analyseSurfaces(roots: readonly Element[], guideRoot: Element | null, scrollY: number, vw: number, page: GuidePage = "home"): SurfaceCache {
+  const t0 = performance.now();
   const out: Tracked[] = [];
+  const styles = new Map<Element, CSSStyleDeclaration>();
+  const css = (el: Element) => {
+    let c = styles.get(el);
+    if (!c) {
+      c = getComputedStyle(el);
+      styles.set(el, c);
+    }
+    return c;
+  };
   const drawn = new Map<Element, boolean>();
   const fills = new Map<Element, string>();
-  // The colour showing behind an element: the nearest ancestor's opaque fill, else the page's.
+  const rects = new Map<Element, DOMRect>();
+  const rectOf = (el: Element) => {
+    let r = rects.get(el);
+    if (!r) {
+      r = el.getBoundingClientRect();
+      rects.set(el, r);
+    }
+    return r;
+  };
   const behindOf = (el: Element): string => {
     const a = el.parentElement;
     if (!a || a === document.body || a === document.documentElement) return pageFill();
     let f = fills.get(a);
     if (f === undefined) {
-      const c = getComputedStyle(a).backgroundColor;
+      const c = css(a).backgroundColor;
       f = transparent(c) ? behindOf(a) : c;
       fills.set(a, f);
     }
@@ -150,56 +218,127 @@ export function collectTracked(roots: readonly Element[], guideRoot: Element | n
   const isDrawn = (el: Element) => {
     let v = drawn.get(el);
     if (v === undefined) {
-      const cs = getComputedStyle(el);
-      v = cs.display !== "none" && cs.visibility !== "hidden" && Number.parseFloat(cs.opacity) >= 0.05 && drawnEdge(el.tagName, cs, behindOf(el));
+      const cs = css(el);
+      v = rendered(el, cs) && drawnEdge(el.tagName, cs, behindOf(el));
       drawn.set(el, v);
     }
     return v;
   };
+  const skipped = new Map<Element, boolean>();
+  const skip = (el: Element) => {
+    let v = skipped.get(el);
+    if (v === undefined) {
+      v = !!guideRoot?.contains(el) || !!el.closest(SKIP_SELECTOR) || (el.closest("svg") !== el && !!el.closest("svg"));
+      skipped.set(el, v);
+    }
+    return v;
+  };
+  // The nearest drawn ancestor that is a card (narrower than the page): its top edge is the platform, nothing inside it is.
+  const cardAbove = (el: Element, root: Element, top: number) => {
+    for (let a = el.parentElement; a && a !== root.parentElement; a = a.parentElement) {
+      if (!isDrawn(a)) continue;
+      const ar = rectOf(a);
+      if (ar.width < vw * 0.92 && top - ar.top > 1) return true;
+    }
+    return false;
+  };
+  let boxes = 0;
+  let texts = 0;
   for (const root of roots) {
     for (const el of root.querySelectorAll(SURFACE_SELECTOR)) {
       if (out.length >= MAX_SURFACES) break;
-      if (guideRoot?.contains(el) || el.closest(SKIP_SELECTOR) || el.closest("svg") !== el && el.closest("svg")) continue;
-      const r = el.getBoundingClientRect();
+      if (skip(el)) continue;
+      const r = rectOf(el);
       if (r.width < MIN_SURFACE_W || r.height < (el.tagName === "HR" ? 0.5 : 2)) continue;
-      if (!isDrawn(el)) continue;
-      // Never inside a card: an edge within a drawn (non page-wide) box would put the body inside that box.
-      let inside = false;
-      for (let a = el.parentElement; a && a !== root.parentElement; a = a.parentElement) {
-        if (!isDrawn(a)) continue;
-        const ar = a.getBoundingClientRect();
-        if (ar.width < vw * 0.92 && r.top - ar.top > 1) {
-          inside = true;
-          break;
-        }
-      }
-      if (inside) continue;
-      // Covered by another opaque box right at its edge (in view only; off screen it is re-checked on the next collect).
-      if (r.top >= 0 && r.top < window.innerHeight - 2) {
-        const hit = document.elementFromPoint(Math.min(vw - 1, Math.max(0, (Math.max(0, r.left) + Math.min(vw, r.right)) / 2)), r.top + 1);
-        if (hit && hit !== el && !el.contains(hit) && !hit.contains(el) && isDrawn(hit) && !hit.closest(SKIP_SELECTOR)) continue;
-      }
-      const surface: Surface = { key: keyOf(el), id: spotOf(el, page), left: Math.max(0, r.left), right: Math.min(vw, r.right), top: r.top + scrollY };
-      out.push({ el, surface, relL: 0, relR: r.width, relT: 0 });
+      if (!isDrawn(el) || cardAbove(el, root, r.top)) continue;
+      out.push({ el, kind: "box", surface: { key: keyOf(el), id: spotOf(el, page), left: Math.max(0, r.left), right: Math.min(vw, r.right), top: r.top + scrollY }, relL: 0, relR: r.width, relT: 0 });
+      boxes++;
     }
+    // Text: the first line of each text block whose container draws no edge.
+    const range = document.createRange();
+    const done = new Set<Element>();
+    const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      if (out.length >= MAX_SURFACES) break;
+      const parent = n.parentElement;
+      if (!parent || !n.textContent?.trim()) continue;
+      const owner = parent.closest(TEXT_BLOCK) ?? parent;
+      if (done.has(owner) || !root.contains(owner)) continue;
+      done.add(owner);
+      if (skip(owner) || isDrawn(owner) || !rendered(parent, css(parent))) continue;
+      // The owner's own text nodes, in order, until the first line ends.
+      const lineRects: DOMRect[] = [];
+      const inner = document.createTreeWalker(owner, NodeFilter.SHOW_TEXT);
+      let firstTop = Number.NaN;
+      for (let m = inner.nextNode(); m; m = inner.nextNode()) {
+        if (!m.textContent?.trim()) continue;
+        range.selectNodeContents(m);
+        const qs = [...range.getClientRects()];
+        if (qs.length === 0) continue;
+        if (Number.isNaN(firstTop)) firstTop = qs.find((q) => q.width > 1 && q.height > 4)?.top ?? Number.NaN;
+        lineRects.push(...qs);
+        if (qs.some((q) => q.top > firstTop + 2)) break;
+      }
+      const line = firstLine(lineRects);
+      if (!line || line.right - line.left < MIN_SURFACE_W) continue;
+      if (cardAbove(owner, root, line.top)) continue;
+      const fs = Number.parseFloat(css(parent).fontSize) || 16;
+      const top = capTop(line.top, line.height, fs);
+      const or = rectOf(owner);
+      out.push({ el: owner, kind: "text", surface: { key: keyOf(owner), id: spotOf(owner, page), left: Math.max(0, line.left), right: Math.min(vw, line.right), top: top + scrollY }, relL: line.left - or.left, relR: line.right - or.left, relT: top - or.top });
+      texts++;
+    }
+    range.detach();
   }
-  // Two boxes sharing one edge are one platform: keep the first.
+  // Two lines sharing one edge are one platform: keep the first (boxes come first).
   const dedup: Tracked[] = [];
   for (const t of out) {
     const s = t.surface;
     if (dedup.some((d) => Math.abs(d.surface.top - s.top) < 1.5 && Math.abs(d.surface.left - s.left) < 4 && Math.abs(d.surface.right - s.right) < 4)) continue;
     dedup.push(t);
   }
-  return dedup.sort((a, b) => a.surface.top - b.surface.top);
+  dedup.sort((a, b) => a.surface.top - b.surface.top);
+  const ink = readInk(roots, guideRoot, scrollY, Number.POSITIVE_INFINITY);
+  const avoid = guideRoot ? readAvoid(guideRoot, scrollY, Number.POSITIVE_INFINITY) : [];
+  return { tracked: dedup, ink, avoid, ms: performance.now() - t0, boxes, texts };
+}
+
+/** Tag analysed elements (`data-guide-surface="box" | "text"`) after all reads; untag ones that dropped out. Returns the new tagged set. */
+export function markSurfaces(tracked: readonly Tracked[], prev: ReadonlySet<Element>) {
+  const next = new Set<Element>();
+  for (const t of tracked) {
+    next.add(t.el);
+    if ((t.el as HTMLElement).dataset.guideSurface !== t.kind) (t.el as HTMLElement).dataset.guideSurface = t.kind;
+  }
+  for (const el of prev) if (!next.has(el)) (el as HTMLElement).removeAttribute("data-guide-surface");
+  return next;
+}
+
+/** Covered by an opaque box right at its edge? Checked lazily, only for surfaces in view, once per analysis. */
+export function checkCover(tracked: readonly Tracked[], scrollY: number, vw: number, vh: number) {
+  const fill = pageFill();
+  for (const t of tracked) {
+    if (t.covered !== undefined) continue;
+    const y = t.surface.top - scrollY;
+    if (y < 0 || y >= vh - 2) continue;
+    const x = Math.min(vw - 1, Math.max(0, (t.surface.left + t.surface.right) / 2));
+    const hit = document.elementFromPoint(x, y + 1);
+    let covered = false;
+    if (hit && hit !== t.el && !t.el.contains(hit) && !hit.contains(t.el) && !hit.closest(SKIP_SELECTOR)) {
+      const cs = getComputedStyle(hit);
+      covered = rendered(hit, cs) && drawnEdge(hit.tagName, cs, fill);
+    }
+    t.covered = covered;
+  }
 }
 
 /** Re-read nearby elements and update their surfaces in place (page px). */
-export function refreshSurfaces(tracked: readonly Tracked[], scrollY: number, vw: number, vh: number) {
+export function refreshSurfaces(tracked: readonly Tracked[], scrollY: number, vw: number, vh: number, onlyKey?: string | null) {
   const lo = scrollY - NEAR;
   const hi = scrollY + vh + NEAR;
   for (const t of tracked) {
     const s = t.surface;
-    if (s.top < lo - 200 || s.top > hi + 200) continue;
+    if (onlyKey !== undefined ? s.key !== onlyKey : s.top < lo - 200 || s.top > hi + 200) continue;
     const r = t.el.getBoundingClientRect();
     if (r.width === 0 && r.height === 0) continue;
     s.left = Math.max(0, r.left + t.relL);
