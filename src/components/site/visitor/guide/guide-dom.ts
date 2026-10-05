@@ -204,6 +204,13 @@ export function clusterTops(lines: readonly TextLine[]) {
   return kept.sort((a, b) => a - b);
 }
 
+/**
+ * Text surfaces (standing on the first line of a text block) are OFF for now: the feet did not
+ * land within the contact tolerance and the body covered nearby lines (perf-audit 05-10-26).
+ * The analysis code stays; flip this to re-enable.
+ */
+export const TEXT_SURFACES = false;
+
 /** Elements whose text reads as one block (a heading, a paragraph, a label, a stat). */
 const TEXT_BLOCK = "h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,button,a,td,th,[data-guide-text]";
 
@@ -306,6 +313,7 @@ export function analyseSurfaces(roots: readonly Element[], guideRoot: Element | 
       boxes++;
     }
     // Text: the first line of each text block whose container draws no edge.
+    if (!TEXT_SURFACES) continue;
     const range = document.createRange();
     const done = new Set<Element>();
     const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
