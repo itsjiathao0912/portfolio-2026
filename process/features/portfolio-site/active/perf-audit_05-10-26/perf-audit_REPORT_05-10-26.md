@@ -98,3 +98,27 @@ Gradients are per-figure `<radialGradient>` defs rebuilt on every re-render (ids
 No dev-mode Profiler used; commit hook and per-call wrappers (rect/getComputedStyle/Range/querySelectorAll) injected via
 `addInitScript` on production, which adds a little overhead. Component names are minified in prod (labelled by DOM host/testid).
 Latency measured with synthetic wheel/`scrollTo`, not real touch. Scripts live in the session scratchpad (not committed).
+
+## After (05-10-26, live, Worker version 74e711bb-775f-43ba-8b68-148a846bc071, commit e99e3b9)
+Shipped: 629c9ed (store split), 589ba63 (shared clay defs, memo figures, CSS wave/blink), cbe5e79 (guide surface
+cache), 1fd8a21 (text clusters), glyph-top attempt, text surfaces OFF behind `TEXT_SURFACES` (contact
+on text could not be fixed in one bounded attempt), 6f86dd5 floor = visible viewport bottom.
+Measured on live `/`, one Playwright run, role set, machine load 8-17 (mobile ms noisy). The time-boxed pass skipped
+a local production-build A/B; "before" is section 1-4 above.
+
+| Metric (/) | Before | After |
+|---|---|---|
+| DOM nodes (role set) | ~5,125 page (+ guide) | 3,472 desktop / 3,477 mobile |
+| React commits/s at rest | ~9-10 | 0.75 desktop / 1 mobile |
+| Guide scan | `collect()` 19.6 ms avg every ~450 ms desktop, 70 ms mobile | one analyse pass 15.6 ms desktop / 51 ms mobile; per-scroll refresh 2.7 ms |
+| Landing after scroll end (median / max) | ~590 / 944 ms desktop, ~720 / 1734 ms mobile | 918 / 1808 ms desktop, 527 / 2372 ms mobile (noisy, load 8-17) |
+| Mobile TBT, first 5 s (390, 4x CPU) | 1312 ms | 1311 ms (load-sensitive; not improved by this pass) |
+| Long-task ms per scroll step | (130 long tasks / 21 s mobile) | 0 desktop / 311 mobile |
+| Tagged surfaces box,text | n/a (~600 candidates scanned) | 32,0 desktop / 30,0 mobile |
+| Contact over 30 positions (e2e measure) | text-surface build: 22/30 at 1440 / | 30/30 at all 8 page/width combos with text off |
+| Floor gap, sole to visible viewport bottom | 12 px (1440, 390, Pixel 7 emu) | 0 px (all) |
+| Worker exceededCpu, 20-request tail | - | 0 (20/20 ok, max cpuTime 335 ms) |
+
+Open: text overlap ceilings still above 2 on several pages (TODO in visitor-guide-pages.spec.ts); 4 guide e2e tests
+(page lines about, arrows walk, touch tap, 390 settle timeouts) failed in the last run at load 10-35, not re-run
+(time-boxed); mobile TBT unchanged; landing latency not improved. Rollback: `npx wrangler rollback` to the previous version.
