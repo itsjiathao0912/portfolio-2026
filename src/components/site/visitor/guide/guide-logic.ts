@@ -377,3 +377,25 @@ export function bubbleRectAt(cx: number, bottom: number, w: number, view: Pick<V
   const left = Math.min(view.w - EDGE - w, Math.max(EDGE, cx - w / 2));
   return { left, right: left + w, top: bottom - BUBBLE_H, bottom };
 }
+
+/**
+ * Visible lines that would cut through the body standing with its feet at `top`: every other
+ * surface strictly above the feet and within the body height. Returned as thin rects so the
+ * stand-x chooser treats them like tap targets: the body never rests UNDER a line with its head
+ * poking above it. Same-height lines (within 1 px) are not "above".
+ */
+export function linesThroughBody(surfaces: readonly Surface[], top: number, ownKey: string | null): Rect[] {
+  const out: Rect[] = [];
+  for (const s of surfaces) {
+    if (s.key === ownKey || s.top >= top - 1 || s.top < top - CHAR.h) continue;
+    out.push({ left: s.left, right: s.right, top: s.top - 1, bottom: s.top + 1 });
+  }
+  return out;
+}
+
+/** Feet margin: the body stands on a line only when its centre is at least this far inside both ends. */
+export const FEET_MARGIN = Math.round(CHAR.w / 4);
+/** Can the body stand with its feet centred at `x` on this line (centre inside, half the feet's width of margin)? */
+export function feetFit(s: Pick<Surface, "left" | "right">, x: number) {
+  return x >= s.left + FEET_MARGIN && x <= s.right - FEET_MARGIN;
+}

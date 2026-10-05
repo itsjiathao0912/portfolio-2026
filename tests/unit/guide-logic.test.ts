@@ -259,9 +259,11 @@ describe("drawnEdge: only visibly drawn top edges are platforms", () => {
     expect(drawnEdge("SECTION", cs({ backgroundColor: "rgb(247, 247, 247)" }), "rgb(255, 255, 255)")).toBe(false);
     expect(drawnEdge("DIV", cs({ backgroundColor: "rgb(230, 230, 232)" }), "rgb(255, 255, 255)")).toBe(true);
     // Painted contrast: a faint tint is composited onto what is behind it before comparing.
-    expect(drawnEdge("DIV", cs({ backgroundColor: "rgba(0, 0, 0, 0.04)" }), "rgb(255, 255, 255)")).toBe(false);
+    // A 4% grey bar on white (Thao: the project-card stat bar) is a visible edge (painted step ~10).
+    expect(drawnEdge("DIV", cs({ backgroundColor: "rgba(0, 0, 0, 0.04)" }), "rgb(255, 255, 255)")).toBe(true);
+    expect(drawnEdge("DIV", cs({ backgroundColor: "rgba(0, 0, 0, 0.02)" }), "rgb(255, 255, 255)")).toBe(false);
     expect(drawnEdge("DIV", cs({ backgroundColor: "rgba(0, 0, 0, 0.2)" }), "rgb(255, 255, 255)")).toBe(true);
-    expect(drawnEdge("DIV", cs({ backgroundColor: "rgb(244, 244, 244)" }), "rgb(255, 255, 255)")).toBe(false);
+    expect(drawnEdge("DIV", cs({ backgroundColor: "rgb(244, 244, 244)" }), "rgb(255, 255, 255)")).toBe(true); // #f4f4f5-ish bar
     // A near-white hairline on white is no edge either; a real grey one is.
     expect(drawnEdge("DIV", cs({ borderTopWidth: "1px", borderTopStyle: "solid", borderTopColor: "rgb(250, 250, 250)" }), "rgb(255, 255, 255)")).toBe(false);
     expect(drawnEdge("DIV", cs({ borderTopWidth: "1px", borderTopStyle: "solid", borderTopColor: "rgb(200, 200, 205)" }), "rgb(255, 255, 255)")).toBe(true);

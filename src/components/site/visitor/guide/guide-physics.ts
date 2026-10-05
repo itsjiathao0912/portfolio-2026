@@ -13,7 +13,7 @@
 // - Jumping: a ballistic arc; air control while it flies.
 // Fixed sub-steps with a clamped dt keep it stable on a slow frame.
 
-import { CHAR, clampX, floorY, maxFeetY, minFeetY, surfaceStandable, type Surface, type View } from "./guide-logic";
+import { CHAR, clampX, FEET_MARGIN, floorY, maxFeetY, minFeetY, surfaceStandable, type Surface, type View } from "./guide-logic";
 
 export const GRAVITY = 2600; // px/s^2
 export const JUMP_V = 800; // px/s, apex = v^2 / 2g = ~123 px
@@ -141,6 +141,12 @@ export function rescueTarget(b: Pick<Body, "x" | "y">, scene: Scene): Surface | 
   return best;
 }
 
+/** Settle a landing x onto the line: the feet centre at least FEET_MARGIN inside both ends (the middle of a short line). The landing tolerance never leaves it standing on air past the end. */
+export function onLine(s: Pick<Surface, "left" | "right">, x: number) {
+  if (s.right - s.left < 2 * FEET_MARGIN) return (s.left + s.right) / 2;
+  return clamp(x, s.left + FEET_MARGIN, s.right - FEET_MARGIN);
+}
+
 function landed(b: Body, key: string, top: number, impact: number, x: number): Body {
   const kick = Math.min(impact * SQUASH_GAIN, 7);
   if (impact > REBOUND_MIN_V && b.rebounds < 1) {
@@ -175,7 +181,7 @@ function tickAir(b: Body, input: Input, h: number, scene: Scene): Body {
       if (s.top > prevY + EPS && s.top <= ny + EPS && (!hit || s.top < hit.top)) hit = s;
     }
     const fy = floorY(view);
-    if (hit && hit.top <= fy) return landed({ ...b, facing, vx }, hit.key, hit.top, nvy, x);
+    if (hit && hit.top <= fy) return landed({ ...b, facing, vx }, hit.key, hit.top, nvy, onLine(hit, x));
     if (ny >= fy) return landed({ ...b, facing, vx }, FLOOR_KEY, fy, nvy, x);
   }
   return { ...b, x, y: ny, vx, vy: nvy, facing };

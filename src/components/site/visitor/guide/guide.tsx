@@ -38,9 +38,9 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import type { RoleId } from "../role-ids";
 import { useVisitor } from "../store";
-import { PAGE_ROOT, analyseSurfaces, checkCover, guideRoots, markSurfaces, readAvoid, readNav, readSpans, refreshSurfaces, type Tracked } from "./guide-dom";
+import { PAGE_ROOT, analyseSurfaces, checkFade, describeSurface, isGuideImageLoad, checkCover, guideRoots, markSurfaces, readAvoid, readNav, readSpans, refreshSurfaces, type Tracked } from "./guide-dom";
 import { GuideBubble, GuideDot, GuideHint, GuideTouchPad, type KeyHandlers, type PressKey, useGuideKeys } from "./guide-controls";
-import { bodyHits, bubbleAnchor, bubbleRectAt, boxHits, type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, hintRect, type Ink, floorY, inkAbove, maxFeetY, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type GuidePage, guidePageFor, type GuideSpotId, type Rect, sectionUnder, springStep, type Span, type Surface, surfaceStandable, type View, visibleHeight, visibleSurfaces } from "./guide-logic";
+import { bodyHits, bubbleAnchor, bubbleRectAt, boxHits, type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, feetFit, hintRect, type Ink, floorY, inkAbove, linesThroughBody, maxFeetY, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type GuidePage, guidePageFor, type GuideSpotId, type Rect, sectionUnder, springStep, type Span, type Surface, surfaceStandable, type View, visibleHeight, visibleSurfaces } from "./guide-logic";
 import { type Body, FLOOR_KEY, isMoving, launchTo, makeScene, NO_INPUT, type Input, type Scene, squashScale, standingBody, stepBody, surfaceY } from "./guide-physics";
 import { scriptFor } from "./guide-story";
 
@@ -353,8 +353,9 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
       view.nav = readNav();
       refreshSurfaces(tracked, view.scrollY, view.w, view.h);
       checkCover(tracked, view.scrollY, view.w, view.h);
+      checkFade(tracked, view.scrollY, view.h);
       // Every visible block or text line is a platform. Text avoidance only steers where it chooses to walk, never what holds it up.
-      surfaces = tracked.filter((t) => !t.covered).map((t) => t.surface);
+      surfaces = tracked.filter((t) => !t.covered && !t.faded).map((t) => t.surface);
       spans = readSpans(view.scrollY, page);
       scene = makeScene(surfaces, view);
       el.dataset.guideSurfaces = String(surfaces.length);
@@ -364,11 +365,17 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     };
     // What the body must not stand in front of when its feet are at `top` on `own`: tap targets and the text just above that edge.
     const within = (a: Element, b: Element) => b.contains(a);
+    // Lines above the feet within the body height (excluding the ones `own` itself draws).
+    const linesOver = (top: number, own: Element | null) => {
+      // Only drawn lines (box tops, borders, silhouettes): a text top above is reading ink, already avoided via `inkAbove`.
+      const drawnKeys = new Set(tracked.filter((t) => t.kind !== "text" && t.el !== own).map((t) => t.surface.key));
+      return linesThroughBody(surfaces.filter((s) => drawnKeys.has(s.key)), top, null);
+    };
     function standBlockers(top: number, own: Element | null, taps: readonly Rect[] = avoid) {
-      return taps.concat(inkAbove(ink, top, own, within));
+      return taps.concat(inkAbove(ink, top, own, within), linesOver(top, own));
     }
     function blocked(x: number, top: number, own: Element | null) {
-      return coverage(x, top, avoid) > 0 || bodyHits(x, top, inkAbove(ink, top, own, within));
+      return coverage(x, top, avoid) > 0 || bodyHits(x, top, inkAbove(ink, top, own, within)) || bodyHits(x, top, linesOver(top, own));
     }
     // Reading text anywhere the bubble could go (beside the body or above the head).
     const inkNear = (y: number) => {
@@ -383,7 +390,8 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     // A surface worth choosing has a spot where the body covers no reading text and no tap target.
     const clearOn = (s: Surface) => {
       const own = elOf(s.key);
-      return !blocked(chooseStandX(s, view, standBlockers(s.top, own), body.x), s.top, own);
+      const x = chooseStandX(s, view, standBlockers(s.top, own), body.x);
+      return feetFit(s, x) && !blocked(x, s.top, own);
     };
     const surfaceOf = (key: string | null) => (key && key !== FLOOR_KEY ? (scene.byKey.get(key) ?? null) : null);
     const currentSection = () => surfaceOf(body.surface)?.id ?? sectionUnder(spans, body.y - 8);
@@ -571,8 +579,16 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
         el.dataset.guideMode = body.mode;
       }
       const sk = body.surface ?? "";
-      if (el.dataset.guideSurfaceKey !== sk) el.dataset.guideSurfaceKey = sk;
+      if (el.dataset.guideSurfaceKey !== sk) {
+        el.dataset.guideSurfaceKey = sk;
+        // Dev aid: what it stands on, e.g. "text:H2.scroll-words" (eyeball which element produced a spot).
+        const on = sk && sk !== FLOOR_KEY ? tracked.find((t) => t.surface.key === sk) : undefined;
+        el.dataset.guideOn = on ? describeSurface(on) : sk === FLOOR_KEY ? "floor" : "";
+      }
       el.dataset.guideFeet = `${Math.round(body.x)},${Math.round(body.y * 10) / 10}`;
+      // Dev aid: the live line it stands on (left,right,top page px), to check the feet sit on it.
+      const onS = body.mode === "ground" && body.surface && body.surface !== FLOOR_KEY ? scene.byKey.get(body.surface) : undefined;
+      el.dataset.guideOnBox = onS ? `${Math.round(onS.left)},${Math.round(onS.right)},${Math.round(onS.top * 10) / 10}` : "";
       markStanding();
       syncPose();
       // Outside a frame (a re-seat, a re-measure, a reduced-motion step): bring the bubble along now.
@@ -719,13 +735,14 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
       const s = body.surface === FLOOR_KEY ? ({ key: FLOOR_KEY, id: null, left: 0, right: view.w, top: body.y } as Surface) : surfaceOf(body.surface);
       if (!s || body.mode !== "ground" || input.left || input.right) return;
       const own = body.surface === FLOOR_KEY ? null : standing;
-      if (!blocked(body.x, body.y, own)) return;
+      // Past the end of the line (a text run shorter than its block) counts as blocked too.
+      if (feetFit(s, body.x) && !blocked(body.x, body.y, own)) return;
       const spots = standBlockers(body.y, own);
       const cur = coverage(body.x, body.y, spots);
       const x = chooseStandX(s, view, spots, body.x);
       const floor = body.surface === FLOOR_KEY;
       // On a block, a less-covering spot is still better. On the floor, move only to a spot that is fully clear: otherwise it would hop back and forth over the text.
-      const clear = !blocked(x, body.y, own);
+      const clear = feetFit(s, x) && !blocked(x, body.y, own);
       if (shuffles < 1 && Math.abs(x - body.x) > 8 && (clear || (!floor && coverage(x, body.y, spots) < cur - 1))) {
         shuffles++;
         body = launchTo(body, s, scene, x);
@@ -922,18 +939,26 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     for (const ev of ["pointerover", "pointerout", "transitionrun", "transitionend"]) document.addEventListener(ev, onLive, { passive: true });
     // A DOM change (a card added, text swapped) marks the cache stale: re-analysed once things go quiet, never mid-scroll.
     let moT: ReturnType<typeof setTimeout> | undefined;
+    const markStale = () => {
+      structDirty = true;
+      if (moT) clearTimeout(moT);
+      moT = later(() => {
+        if (!structDirty) return;
+        if (performance.now() < scrollUntil + SETTLE_MS) return; // the scroll settle will rebuild
+        rebuild();
+        reseat();
+      }, 400);
+    };
+    // An image finishing its load (its silhouette is only readable once decoded): `load` does not bubble, so listen in capture.
+    const onImgLoad = (e: Event) => {
+      if (isGuideImageLoad(e.target, guideRoots(page), root)) markStale();
+    };
+    document.addEventListener("load", onImgLoad, true);
     const mo =
       typeof MutationObserver !== "undefined"
         ? new MutationObserver((recs) => {
             if (recs.every((r) => root.contains(r.target))) return;
-            structDirty = true;
-            if (moT) clearTimeout(moT);
-            moT = later(() => {
-              if (!structDirty) return;
-              if (performance.now() < scrollUntil + SETTLE_MS) return; // the scroll settle will rebuild
-              rebuild();
-              reseat();
-            }, 400);
+            markStale();
           })
         : null;
     for (const r of guideRoots(page)) mo?.observe(r, { childList: true, subtree: true, characterData: true });
@@ -949,6 +974,7 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
       bubblePaint.current = null;
       if (raf) cancelAnimationFrame(raf);
       timers.forEach(clearTimeout);
+      document.removeEventListener("load", onImgLoad, true);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       window.visualViewport?.removeEventListener("resize", onResize);

@@ -20,7 +20,7 @@ describe("visibility: only rendered boxes are analysed", () => {
   test("a box needs a visibly drawn edge, blended against what is behind it", () => {
     expect(drawnEdge("DIV", cs({}))).toBe(false); // transparent wrapper
     expect(drawnEdge("DIV", cs({ backgroundColor: "rgba(20, 20, 20, 0.5)" }), "rgb(255, 255, 255)")).toBe(true);
-    expect(drawnEdge("DIV", cs({ backgroundColor: "rgba(20, 20, 20, 0.03)" }), "rgb(255, 255, 255)")).toBe(false);
+    expect(drawnEdge("DIV", cs({ backgroundColor: "rgba(20, 20, 20, 0.02)" }), "rgb(255, 255, 255)")).toBe(false);
     expect(drawnEdge("DIV", cs({ backgroundColor: "rgb(30, 30, 30)" }), "rgb(30, 30, 30)")).toBe(false); // same as backdrop
     expect(drawnEdge("DIV", cs({ boxShadow: "rgba(0, 0, 0, 0.04) 0px 1px 2px 0px" }))).toBe(false); // whisper shadow
     expect(drawnEdge("DIV", cs({ outlineWidth: "1px", outlineStyle: "solid", outlineColor: "rgb(120, 120, 120)" }), "rgb(255, 255, 255)")).toBe(true);
