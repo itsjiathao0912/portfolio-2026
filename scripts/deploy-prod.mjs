@@ -193,11 +193,33 @@ if (!verdict.ok) {
   process.exit(1);
 }
 
-// ── Warm the edge cache (worker-entry.mjs) so the first visitors get cheap hits ──
+// ── Check prerendered pages are served from assets; warm the rest ─────────
+// Pages (HTML + RSC navigations) come from the build output (x-edge-cache: ASSET),
+// so they need no warming. Metadata routes still use caches.default: warm them.
 const slugs = pinned.projects.filter((p) => p.published).map((p) => p.slug);
-const warmPaths = ["/", "/about", "/work", ...slugs.map((s) => `/work/${s}`), "/robots.txt", "/sitemap.xml"];
-console.log(`\n=== warm edge cache (${warmPaths.length} paths) ===`);
-for (const p of warmPaths) {
+const pagePaths = ["/", "/about", "/work", ...slugs.map((s) => `/work/${s}`)];
+const variants = [
+  { label: "html", query: "", headers: {} },
+  { label: "rsc", query: "?_rsc=deploy", headers: { rsc: "1", "next-router-state-tree": "%5B%22%22%5D" } },
+  { label: "prefetch", query: "?_rsc=deploy", headers: { rsc: "1", "next-router-prefetch": "1", "next-router-segment-prefetch": "/_tree" } },
+];
+console.log(`\n=== prerendered pages (${pagePaths.length} x ${variants.length}) + warm metadata routes ===`);
+let notAsset = 0;
+for (const p of pagePaths) {
+  for (const v of variants) {
+    try {
+      const r = await fetch(`${siteUrl}${p}${v.query}`, { headers: v.headers });
+      await r.arrayBuffer();
+      const edge = r.headers.get("x-edge-cache") ?? "-";
+      if (r.status !== 200 || edge !== "ASSET") notAsset++;
+      console.log(`  ${p} [${v.label}]: ${r.status} ${edge}`);
+    } catch (error) {
+      notAsset++;
+      console.log(`  ${p} [${v.label}]: failed (${error instanceof Error ? error.message : error})`);
+    }
+  }
+}
+for (const p of ["/robots.txt", "/sitemap.xml"]) {
   try {
     const r = await fetch(`${siteUrl}${p}`);
     await r.arrayBuffer();
@@ -206,12 +228,8 @@ for (const p of warmPaths) {
     console.log(`  ${p}: failed (${error instanceof Error ? error.message : error})`);
   }
 }
-await new Promise((resolve) => setTimeout(resolve, 1000));
-const again = await fetch(`${siteUrl}/`);
-await again.arrayBuffer();
-const edge = again.headers.get("x-edge-cache");
-if (edge === "HIT") console.log("Edge cache OK — a second fetch of / is a HIT.");
-else console.warn(`WARNING: a second fetch of / returned x-edge-cache=${edge ?? "(none)"}, expected HIT. Pages are served but not cached at this data centre.`);
+if (notAsset === 0) console.log("Prerender OK — every page and RSC variant is served from assets (no render at request time).");
+else console.warn(`WARNING: ${notAsset} page request(s) were not served from assets — those render in OpenNext and can hit the 10 ms CPU cap.`);
 
 console.log(`Smoke OK — live site serves the home page and D1 returned ${verdict.projects} published project(s).`);
 console.log(`Deployed ${sha.slice(0, 8)} to ${siteUrl}`);

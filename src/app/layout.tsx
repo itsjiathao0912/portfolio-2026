@@ -16,6 +16,7 @@ import { ParticipateProvider } from "@/components/signature/participate/store";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteNav } from "@/components/site/site-nav";
+import { NavWatchdog } from "@/components/site/nav-watchdog";
 import { VisitorProvider } from "@/components/site/visitor/store";
 import { VisitorModal } from "@/components/site/visitor/visitor-modal";
 import { VisitorGuide } from "@/components/site/visitor/guide/guide";
@@ -80,6 +81,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           </div>
           <SiteFooter profile={profile} />
           <SecretWord />
+          <NavWatchdog />
           <VisitorModal />
           <VisitorGuide />
           </VisitorProvider>

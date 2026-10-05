@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "NEXT_DIST_DIR=${NEXT_DIST_DIR:-.next-dev} next dev",
     "build": "next build",
-    "build:cf": "npx opennextjs-cloudflare build",
+    "build:cf": "npx opennextjs-cloudflare build && node scripts/emit-prerender-assets.mjs",
     "start": "next start",
     "deploy": "echo 'Use `pnpm run deploy:prod` (bare `pnpm deploy` is a pnpm built-in and never runs this script).' && exit 1",
     "deploy:prod": "node scripts/deploy-prod.mjs",
