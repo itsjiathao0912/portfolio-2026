@@ -194,7 +194,7 @@ describe("lines", () => {
 
 // ---- the body as a physical object: swept landing, no fades -----------------------------
 import { FLOOR_KEY, makeScene, NO_INPUT, standingBody, stepBody, type Body } from "../../src/components/site/visitor/guide/guide-physics";
-import { floorY, maxFeetY, visibleHeight } from "../../src/components/site/visitor/guide/guide-logic";
+import { floorY, visibleHeight } from "../../src/components/site/visitor/guide/guide-logic";
 
 describe("swept landing (physics)", () => {
   const v: View = { w: 1000, h: 800, scrollY: 1000, docH: 5000, nav: 72 };
