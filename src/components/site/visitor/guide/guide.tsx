@@ -40,7 +40,7 @@ import type { RoleId } from "../role-ids";
 import { useVisitor } from "../store";
 import { PAGE_ROOT, analyseSurfaces, checkCover, guideRoots, markSurfaces, readAvoid, readNav, readSpans, refreshSurfaces, type Tracked } from "./guide-dom";
 import { GuideBubble, GuideDot, GuideHint, GuideTouchPad, type KeyHandlers, type PressKey, useGuideKeys } from "./guide-controls";
-import { bodyHits, bubbleAnchor, bubbleRectAt, boxHits, type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, hintRect, type Ink, inkAbove, maxFeetY, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type GuidePage, guidePageFor, type GuideSpotId, type Rect, sectionUnder, springStep, type Span, type Surface, surfaceStandable, type View, visibleSurfaces } from "./guide-logic";
+import { bodyHits, bubbleAnchor, bubbleRectAt, boxHits, type BubblePlace, CHAR, chooseStandX, clampX, coverage, EDGE, hintRect, type Ink, floorY, inkAbove, maxFeetY, MIN_GUIDE_WIDTH, nextLine, pickSurface, placeBubble, type GuidePage, guidePageFor, type GuideSpotId, type Rect, sectionUnder, springStep, type Span, type Surface, surfaceStandable, type View, visibleHeight, visibleSurfaces } from "./guide-logic";
 import { type Body, FLOOR_KEY, isMoving, launchTo, makeScene, NO_INPUT, type Input, type Scene, squashScale, standingBody, stepBody, surfaceY } from "./guide-physics";
 import { scriptFor } from "./guide-story";
 
@@ -265,7 +265,7 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     let avoid: Rect[] = [];
     let ink: Ink<Element>[] = [];
     const isSmall = () => window.innerWidth < SMALL_W;
-    const view: View = { w: window.innerWidth, h: window.innerHeight, scrollY: window.scrollY, docH: document.documentElement.scrollHeight, nav: 0 };
+    const view: View = { w: window.innerWidth, h: visibleHeight(window), scrollY: window.scrollY, docH: document.documentElement.scrollHeight, nav: 0 };
     let scene: Scene = makeScene([], view);
     let body: Body = standingBody(view.w / 2, null, scene);
     const input: Input = { ...NO_INPUT };
@@ -331,7 +331,7 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     let structDirty = false;
     const rebuild = () => {
       view.w = window.innerWidth;
-      view.h = window.innerHeight;
+      view.h = visibleHeight(window);
       syncView();
       const a = analyseSurfaces(guideRoots(page), root, view.scrollY, view.w, page);
       tracked = a.tracked;
@@ -347,7 +347,7 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     const collect = () => {
       const t0 = performance.now();
       view.w = window.innerWidth;
-      view.h = window.innerHeight;
+      view.h = visibleHeight(window);
       syncView();
       view.docH = document.documentElement.scrollHeight;
       view.nav = readNav();
@@ -555,7 +555,7 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
     };
     const paint = () => {
       // A fast scroll up carries the surface (and the feet) below the screen before physics reacts: never draw it past the floor line.
-      const drawY = Math.min(body.y, view.scrollY + maxFeetY(view));
+      const drawY = Math.min(body.y, floorY(view));
       el.style.transform = `translate3d(${Math.round((body.x - CHAR.w / 2) * 10) / 10}px, ${Math.round((drawY - CHAR.h + footPad) * 10) / 10}px, 0)`;
       if (!reduce) {
         const { sx, sy } = squashScale(body);
@@ -917,6 +917,7 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
+    window.visualViewport?.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", onVisibility);
     for (const ev of ["pointerover", "pointerout", "transitionrun", "transitionend"]) document.addEventListener(ev, onLive, { passive: true });
     // A DOM change (a card added, text swapped) marks the cache stale: re-analysed once things go quiet, never mid-scroll.
@@ -950,6 +951,7 @@ function GuideLayer({ role, reduce, page }: { role: RoleId; reduce: boolean; pag
       timers.forEach(clearTimeout);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
+      window.visualViewport?.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
       for (const ev of ["pointerover", "pointerout", "transitionrun", "transitionend"]) document.removeEventListener(ev, onLive);
       ro?.disconnect();

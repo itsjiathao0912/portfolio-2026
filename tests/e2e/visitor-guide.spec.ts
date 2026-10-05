@@ -47,7 +47,7 @@ async function scrollToSpot(page: Page, from: number, min = 1) {
  * Where the painted soles are, and what is drawn right under them. Passes when the pixel row
  * 2 px under the sole belongs to an element whose top edge is within 1 px of the sole AND that
  * draws a visible edge (media, divider, or a background / top border / shadow / outline), or
- * when the sole is on the viewport floor (innerHeight - 12).
+ * when the sole is on the viewport floor (the visible viewport bottom).
  */
 async function contact(page: Page) {
   return page.evaluate(() => {
@@ -65,7 +65,7 @@ async function contact(page: Page) {
       }
     }
     const opacity = getComputedStyle(g).opacity;
-    const floor = innerHeight - 12;
+    const floor = visualViewport?.height ?? innerHeight;
     if (Math.abs(sole - floor) <= 1) return { ok: true, why: "floor", sole, opacity };
     const clear = (c: string) => !c || c === "transparent" || /^rgba\([^)]*,\s*0(\.0+)?\s*\)$|\/\s*0(\.0+)?\s*\)$/.test(c);
     const behind = (e: Element): string => {
@@ -642,7 +642,7 @@ test.describe("rest and contact", () => {
                 if (q.width && q.height && q.bottom > sole) sole = q.bottom;
               }
               const fy = Number(g.dataset.guideFeet!.split(",")[1]) - scrollY;
-              worst = Math.max(worst, Math.abs(sole - Math.min(fy, innerHeight - 12)));
+              worst = Math.max(worst, Math.abs(sole - Math.min(fy, visualViewport?.height ?? innerHeight)));
               n++;
             } else start = 0;
             if (start && ts - start > 600) done({ worst, n });

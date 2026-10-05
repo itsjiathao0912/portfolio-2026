@@ -62,9 +62,18 @@ export function minFeetY(view: Pick<View, "nav">) {
   return (view.nav > 0 ? view.nav + KEEP_GAP : EDGE) + CHAR.h;
 }
 
-/** Largest viewport y the feet may be at: the "floor" of the viewport. */
+/** Largest viewport y a SURFACE may hold the feet at (a block hugging the bottom edge is not stood on). */
 export function maxFeetY(view: Pick<View, "h">) {
   return view.h - EDGE;
+}
+
+/**
+ * The visible viewport height: the visual viewport (excludes mobile browser bars and an on-screen
+ * keyboard) when present, else innerHeight. Pure over the window slice it reads.
+ */
+export function visibleHeight(win: { innerHeight: number; visualViewport?: { height: number } | null }) {
+  const v = win.visualViewport?.height;
+  return v && v > 0 ? v : win.innerHeight;
 }
 
 /** Clamp a feet-centre x so the whole body stays inside the viewport width. */
@@ -91,9 +100,9 @@ export function surfaceStandable(s: Surface, view: View) {
   return feet >= minFeetY(view) && feet <= maxFeetY(view) && s.right > 0 && s.left < view.w;
 }
 
-/** The page-space y of the viewport floor. */
-export function floorY(view: View) {
-  return view.scrollY + maxFeetY(view);
+/** The page-space y of the viewport floor: the visible viewport bottom exactly, so resting soles touch the screen edge. */
+export function floorY(view: Pick<View, "scrollY" | "h">) {
+  return view.scrollY + view.h;
 }
 
 /** The standable surface nearest the viewport line at `frac` of its height (ties: the lower one). Null when none. */

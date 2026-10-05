@@ -194,7 +194,7 @@ describe("lines", () => {
 
 // ---- the body as a physical object: swept landing, no fades -----------------------------
 import { FLOOR_KEY, makeScene, NO_INPUT, standingBody, stepBody, type Body } from "../../src/components/site/visitor/guide/guide-physics";
-import { floorY } from "../../src/components/site/visitor/guide/guide-logic";
+import { floorY, maxFeetY, visibleHeight } from "../../src/components/site/visitor/guide/guide-logic";
 
 describe("swept landing (physics)", () => {
   const v: View = { w: 1000, h: 800, scrollY: 1000, docH: 5000, nav: 72 };
@@ -326,5 +326,19 @@ describe("bubble follow", () => {
     const r = bubbleRectAt(10, 300, 188, { w: 390 });
     expect(r.left).toBe(EDGE);
     expect(bubbleRectAt(385, 300, 188, { w: 390 }).right).toBe(390 - EDGE);
+  });
+});
+
+describe("viewport floor", () => {
+  test("the floor is the visible viewport bottom, no margin", () => {
+    const v = { w: 390, h: 700, scrollY: 1200, docH: 5000, nav: 0 };
+    expect(floorY(v)).toBe(1900);
+    expect(maxFeetY(v)).toBe(700 - 12); // surfaces still keep off the very bottom edge
+  });
+  test("visible height prefers the visual viewport (mobile browser bars), else innerHeight", () => {
+    expect(visibleHeight({ innerHeight: 844, visualViewport: { height: 763 } })).toBe(763);
+    expect(visibleHeight({ innerHeight: 844, visualViewport: null })).toBe(844);
+    expect(visibleHeight({ innerHeight: 844 })).toBe(844);
+    expect(visibleHeight({ innerHeight: 844, visualViewport: { height: 0 } })).toBe(844);
   });
 });
