@@ -141,7 +141,11 @@ const NOOP: Ctx = {
 /** Fired just before a role change so the project stack can note where its cards sit (for the glide). */
 export const BEFORE_ROLE_EVENT = "visitor:before-role";
 
-const VisitorContext = createContext<Ctx | null>(null);
+type StateCtx = Omit<Ctx, "pickerOpen" | "setPickerOpen">;
+type PickerCtx = Pick<Ctx, "pickerOpen" | "setPickerOpen">;
+// Two contexts: opening the change-role modal re-renders only the picker's readers, not every role reader.
+const VisitorContext = createContext<StateCtx | null>(null);
+const PickerContext = createContext<PickerCtx | null>(null);
 
 const DEBOUNCE_MS = 350;
 
@@ -239,24 +243,28 @@ export function VisitorProvider({ children }: { children: ReactNode }) {
   );
   const setCollapsed = useCallback((collapsed: boolean) => commit({ ...stateRef.current, collapsed }), [commit]);
 
-  const value = useMemo<Ctx>(
-    () => ({
-      role: state.role,
-      setRole,
-      collapsed: state.collapsed,
-      setCollapsed,
-      ready,
-      ordinal: state.ordinal,
-      pickerOpen,
-      setPickerOpen,
-      visitorId: state.visitorId,
-    }),
-    [state, ready, pickerOpen, setRole, setCollapsed],
+  const value = useMemo<StateCtx>(
+    () => ({ role: state.role, setRole, collapsed: state.collapsed, setCollapsed, ready, ordinal: state.ordinal, visitorId: state.visitorId }),
+    [state.role, state.collapsed, state.ordinal, state.visitorId, ready, setRole, setCollapsed],
   );
-  return <VisitorContext.Provider value={value}>{children}</VisitorContext.Provider>;
+  const picker = useMemo<PickerCtx>(() => ({ pickerOpen, setPickerOpen }), [pickerOpen]);
+  return (
+    <VisitorContext.Provider value={value}>
+      <PickerContext.Provider value={picker}>
+        {children}
+      </PickerContext.Provider>
+    </VisitorContext.Provider>
+  );
 }
 
 /** Safe outside a provider (returns a no-op), so any section can call it. */
-export function useVisitor() {
+export function useVisitor(): Ctx {
+  const s = useContext(VisitorContext);
+  const p = useContext(PickerContext);
+  return s && p ? { ...s, ...p } : NOOP;
+}
+
+/** Role / ready / ordinal / visitor id only: no re-render when the change-role modal opens or closes. */
+export function useVisitorState(): StateCtx {
   return useContext(VisitorContext) ?? NOOP;
 }

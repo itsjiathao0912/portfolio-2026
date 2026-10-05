@@ -13,7 +13,7 @@ import { POLL_OPTIONS } from "@/lib/poll-options";
 import { ROLE_LABELS, type PollOptionId, type RoleId } from "../role-ids";
 import { pollRows } from "./stats-copy";
 import { facesFor, usePoll } from "./use-poll";
-import { useVisitor } from "../store";
+import { useVisitorState } from "../store";
 
 const NOTES = {
   "pick-role": "Pick who you are at the top of the page first, then vote.",
@@ -58,7 +58,7 @@ function VoterFaces({ roles: all, optionId, total }: { roles: readonly RoleId[];
  * If the poll cannot load, nothing renders.
  */
 export function VisitorPoll({ className }: { className?: string }) {
-  const { visitorId, ready, role } = useVisitor();
+  const { visitorId, ready, role } = useVisitorState();
   const { data, note, vote, ref } = usePoll({ visitorId, ready, hasRole: role !== null, role });
   const reduce = useReducedMotion();
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);

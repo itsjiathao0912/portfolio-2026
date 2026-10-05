@@ -5,7 +5,7 @@ import { SPRING } from "@/components/motion/springs";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { VisitorTop } from "../visitor-panel";
 import { StatsStrip } from "./stats-strip";
-import { useVisitor } from "../store";
+import { useVisitorState } from "../store";
 import { leaderLine, tileCounts } from "./stats-copy";
 import { useLiveStats } from "./use-live-stats";
 
@@ -15,7 +15,7 @@ import { useLiveStats } from "./use-live-stats";
  * Before the first stats arrive nothing is drawn and nothing shifts.
  */
 export function LiveVisitorTop() {
-  const { role, ready, ordinal } = useVisitor();
+  const { role, ready, ordinal } = useVisitorState();
   const { data, ref } = useLiveStats({ role, ready });
   const reduce = useReducedMotion();
 

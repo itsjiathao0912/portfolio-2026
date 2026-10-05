@@ -126,7 +126,11 @@ export function useLiveStats({ role, ready }: { role: RoleId | null; ready: bool
       const res = await fetch(`/api/stats?role=${roleRef.current ?? "none"}`, { signal: ctl.signal, cache: "no-store" });
       if (!res.ok) return; // 429 / 503 / 500: keep the last value, no noise
       const next = parseStats(await res.json());
-      if (next && !ctl.signal.aborted) setData(withDemo(next));
+      if (next && !ctl.signal.aborted) {
+        const shown = withDemo(next);
+        // Same numbers as last time: keep the old object, so the picker and the strip do not re-render.
+        setData((d) => (d && JSON.stringify(d) === JSON.stringify(shown) ? d : shown));
+      }
     } catch {
       /* silent */
     }
